@@ -1,0 +1,13 @@
+[package]
+name = "oracle"
+version = "0.0.1"
+authors = ["Kubo Takehiro <kubo@jiubao.org>"]
+build = "build.rs"
+
+[dependencies]
+libc = "0.2"
+lazy_static = "0.1"
+#chrono = "0.2"  # 'cargo run` gets error 'An unknown error occurred' if this line is uncommented...
+
+[build-dependencies]
+gcc = "0.3"
