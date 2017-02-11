@@ -841,7 +841,7 @@ lazy_static! {
         } == DPI_SUCCESS {
             unsafe {
                 let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-                let driver_name = "Rust Oracle : 0.0.1";
+                let driver_name = "Rust Oracle : 0.0.1"; // Update this line also when version up.
                 let driver_name_ptr = driver_name.as_ptr() as *const c_char;
                 let driver_name_len = driver_name.len() as uint32_t;
                 dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);

@@ -16,7 +16,7 @@ Check out rust-oracle and run `cargo`.
 $ export OCI_INC_DIR=...
 $ export OCI_LIB_DIR=...
 $ export LD_LIBRARY_PATH=$OCI_LIB_DIR
-$ git clone --recursive https://github.com/kubo/rust-oracle-wip
+$ git clone --recursive https://github.com/kubo/rust-oracle-wip.git
 $ cd rust-oracle-wip
 $ cargo build
 ```
