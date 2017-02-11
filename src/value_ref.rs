@@ -99,7 +99,7 @@ impl<'stmt> ValueRef<'stmt> {
             },
             OracleType::Number(_,_) => {
                 let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "i64"))
+                s.parse().or(self.out_of_range("number", "u64"))
             },
             OracleType::Int64 => {
                 let n = try!(self.data.as_int64());
@@ -126,7 +126,7 @@ impl<'stmt> ValueRef<'stmt> {
             },
             OracleType::Number(_,_) => {
                 let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "i64"))
+                s.parse().or(self.out_of_range("number", "f64"))
             },
             OracleType::Int64 => {
                 self.data.as_int64().map(|n| n as f64)
@@ -148,7 +148,7 @@ impl<'stmt> ValueRef<'stmt> {
             },
             OracleType::Number(_,_) => {
                 let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "i64"))
+                s.parse().or(self.out_of_range("number", "f32"))
             },
             OracleType::Int64 => {
                 self.data.as_int64().map(|n| n as f32)
