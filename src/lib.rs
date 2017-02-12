@@ -251,7 +251,7 @@ impl<'conn> Statement<'conn> {
                 let oratype = match oratype {
                     // When the column type is number whose prec is less than 18
                     // and the scale is zero, define it as int64.
-                    OracleType::Number(prec, 0) if prec < ffi::DPI_MAX_INT64_PRECISION =>
+                    OracleType::Number(prec, 0) if 0 < prec && prec < ffi::DPI_MAX_INT64_PRECISION =>
                         OracleType::Int64,
                     _ =>
                         oratype,
