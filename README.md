@@ -40,23 +40,27 @@ Look at `src/main.rs` as a sample.
   ```
 
 * Define column types before fetch
+
+  Sample code to define a `date` column as `varchar2(60)` to fetch it as String.
   ```rust
   let conn = oracle::Connection::connect("scott", "tiger", "", oracle::AuthMode::Default).unwrap();
   let mut stmt = conn.prepare("select ename, sal, hiredate from emp").unwrap();
   stmt.execute().unwrap();
-  // define the hiredate column to fetch it as varchar2(60)
+  // define the hiredate column as varchar2(60)
   stmt.define(2, oracle::OracleType::Varchar2(60)).unwrap();
   while let Ok(row) = stmt.fetch() {
       let ename: String = row.get(0).unwrap();
       let sal: f64 = row.get(1).unwrap();
-      let hiredate: String = row.get(2).unwrap() // get as String
+      let hiredate: String = row.get(2).unwrap() // fetch it as String
       ...
   }
   ```
 
-* FromSQL trait to a new fetchable type
-  Date columns are fetched as oracle::Timestamp. If you want to fetch it as
-  [NaiveDate](https://docs.rs/chrono/0.3.0/chrono/naive/date/struct.NaiveDate.html) add the following code.
+* Implement fetchable data types
+
+  `DATE` columns are [defined as timestamp internally][tsdef] and are [fetched
+  as oracle::Timestamp][tsget]. If you need to fetch them as [NaiveDate][], use FromSQL
+  trait to convert oracle::Timestamp to NaiveDate internally.
   (I have not checked whether it works.)
   ```rust
   impl FromSql for NaiveDate {
@@ -90,11 +94,60 @@ Look at `src/main.rs` as a sample.
 ## Unsupported features
 
 * Fetch rows as iterator
-* CLOB, NCLOB, BLOB and BFILE (LOB columns may be fetched by defining them as `OracleType::Long` or `OracleType::LongRaw` explicity as defining DATE columns as VARCHAR2(60).)
+* CLOB, NCLOB, BLOB and BFILE (LOB columns may be fetched by defining them as `OracleType::Long` or `OracleType::LongRaw` explicity as defining a `date` column as `varchar2(60)`.)
 * REF CURSOR
 * BOOLEAN
 * Bind parameters
+* Test code to check whether this crate works
 
-[Rust]: https://www.rust-lang.org/
-[ODPI-C]: https://oracle.github.io/odpi/
+## Notes for who takes over this driver
+
+### File strcuture
+
+* odpi - submodule to checkout [ODPI-C]
+* src/ffi.rs - one-to-one mapping of functions and macros in [dpi.h][]
+* src/odpi.rs - wrapper for functions and macros in src/ffi.rs
+* src/main.rs - sample code. This file must be moved to other location.
+* ... others
+
+### How columns are defined
+
+Query metadata are retrieved as [dpiQueryInfo][]. [ColumnInfo][] and [OracleType][] are
+created from them via [ColumnInfo::new][] and [from_query_info][] respectively. OracleType
+is also used to [define column types][stmt.define] by end users.If not all columns are defined explicity,
+they are [implicity defined according to the OracleType in ColumnInfo][stmt.define_columns] just before fetch.
+
+ODPI-C requires dpiVar to define columns. OracleType provides [parameters to create a dpiVar][dpiConn_newVar]
+via [var_create_param][]. A dpiVar is created via [DpiVar::new] and passed to [dpiStmt_define][] via
+[DpiStatement::define].
+
+[Rust]:                 https://www.rust-lang.org/
+
 [install-node-oracledb]: https://github.com/oracle/node-oracledb/blob/master/INSTALL.md
+
+[NaiveDate]:            https://docs.rs/chrono/0.3.0/chrono/naive/date/struct.NaiveDate.html
+
+[tsdef]:                https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L251-L252
+[tsget]:                https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1369-L1379
+
+[dpiQueryInfo]:         https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/ffi.rs#L454-L466
+
+[OracleType]:           https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L131-L186
+[from_query_info]:      https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L190-L223
+[var_create_param]:     https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L226-L288
+
+[ColumnInfo]:           https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1192-L1196
+[ColumnInfo::new]:      https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1211-L1217
+
+[stmt.define]:          https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/lib.rs#L225-L230
+[stmt.define_columns]:  https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/lib.rs#L250-L260
+
+[DpiStatement::define]: https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1151-L1156
+
+[DpiVar]:               https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1235-L1239
+[DpiVar::new]:          https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1242-L1254
+
+[ODPI-C]:               https://oracle.github.io/odpi/
+[dpiStmt_define]:       https://oracle.github.io/odpi/doc/public_functions/dpiStmt.html#c.dpiStmt_define
+[dpiConn_newVar]:       https://oracle.github.io/odpi/doc/public_functions/dpiConn.html#c.dpiConn_newVar
+[dpi.h]:                https://github.com/oracle/odpi/blob/master/include/dpi.h
