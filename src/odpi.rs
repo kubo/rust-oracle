@@ -149,17 +149,17 @@ pub enum OracleType {
     BinaryDouble,
     /// NUMBER data type
     Number(i16, i8), // prec, scale
-    /// DATE data type. not supported yet
+    /// DATE data type
     Date,
-    /// TIMESTAMP data type. not supported yet
+    /// TIMESTAMP data type
     Timestamp(u8), // fsprec
-    /// TIMESTAMP WITH TIME ZONE data type. not supported yet
+    /// TIMESTAMP WITH TIME ZONE data type
     TimestampTZ(u8), // fsprec
-    /// TIMESTAMP WITH LOCAL TIME ZONE data type. not supported yet
+    /// TIMESTAMP WITH LOCAL TIME ZONE data type
     TimestampLTZ(u8), // fsprec
-    /// INTERVAL DAY TO SECOND data type. not supported yet
+    /// INTERVAL DAY TO SECOND data type
     IntervalDS(u8, u8), // lfprec, fsprec
-    /// INTERVAL YEAR TO MONTH data type. not supported yet
+    /// INTERVAL YEAR TO MONTH data type
     IntervalYM(u8), // lfprec
     /// CLOB data type. not supported yet
     CLob,
@@ -479,7 +479,7 @@ impl Timestamp {
 
 impl fmt::Display for Timestamp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}-{}-{} {}:{}:{}.{:09} {:+02}:{:02}",
+        write!(f, "{}-{:02}-{:02} {:02}:{:02}:{:02}.{:09} {:+02}:{:02}",
                self.year, self.month, self.day,
                self.hour, self.minute, self.second, self.nanosecond,
                self.tz_hour_offset, self.tz_minute_offset)
