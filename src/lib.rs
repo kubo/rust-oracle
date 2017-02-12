@@ -224,8 +224,8 @@ impl<'conn> Statement<'conn> {
 
     pub fn define<T>(&mut self, idx: T, oratype: OracleType) -> Result<()> where T: RowIndex {
         let pos = try!(idx.idx(&self));
-        try!(self.dpi_stmt.define(pos + 1, &oratype));
         self.defined_columns[pos] = oratype;
+        try!(self.dpi_stmt.define(pos + 1, &self.defined_columns[pos]));
         Ok(())
     }
 
