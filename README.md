@@ -114,12 +114,24 @@ Look at `src/main.rs` as a sample.
 
 Query metadata are retrieved as [dpiQueryInfo][]. [ColumnInfo][] and [OracleType][] are
 created from them via [ColumnInfo::new][] and [from_query_info][] respectively. OracleType
-is also used to [define column types][stmt.define] by end users.If not all columns are defined explicity,
+is also used to [define column types][stmt.define] by end users. If not all columns are defined explicity,
 they are [implicity defined according to the OracleType in ColumnInfo][stmt.define_columns] just before fetch.
 
 ODPI-C requires dpiVar to define columns. OracleType provides [parameters to create a dpiVar][dpiConn_newVar]
 via [var_create_param][]. A dpiVar is created via [DpiVar::new] and passed to [dpiStmt_define][] via
 [DpiStatement::define].
+
+### How columns are fetched
+
+to be written
+
+### How number columns are defined and fetched
+
+to be written
+
+### Another idea to define columns
+
+to be written
 
 [Rust]:                 https://www.rust-lang.org/
 
@@ -127,25 +139,25 @@ via [var_create_param][]. A dpiVar is created via [DpiVar::new] and passed to [d
 
 [NaiveDate]:            https://docs.rs/chrono/0.3.0/chrono/naive/date/struct.NaiveDate.html
 
-[tsdef]:                https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L251-L252
-[tsget]:                https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1369-L1379
+[tsdef]:                https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L251-L252
+[tsget]:                https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1369-L1379
 
-[dpiQueryInfo]:         https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/ffi.rs#L454-L466
+[dpiQueryInfo]:         https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/ffi.rs#L454-L466
 
-[OracleType]:           https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L131-L186
-[from_query_info]:      https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L190-L223
-[var_create_param]:     https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L226-L288
+[OracleType]:           https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L131-L186
+[from_query_info]:      https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L190-L223
+[var_create_param]:     https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L226-L288
 
-[ColumnInfo]:           https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1192-L1196
-[ColumnInfo::new]:      https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1211-L1217
+[ColumnInfo]:           https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1192-L1196
+[ColumnInfo::new]:      https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1211-L1217
 
-[stmt.define]:          https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/lib.rs#L225-L230
-[stmt.define_columns]:  https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/lib.rs#L250-L260
+[stmt.define]:          https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/lib.rs#L225-L230
+[stmt.define_columns]:  https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/lib.rs#L250-L260
 
-[DpiStatement::define]: https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1151-L1156
+[DpiStatement::define]: https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1151-L1156
 
-[DpiVar]:               https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1235-L1239
-[DpiVar::new]:          https://github.com/kubo/rust-oracle-wip/blob/b0cfa4e498f800ce75f96358e6f53455b1808de7/src/odpi.rs#L1242-L1254
+[DpiVar]:               https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1235-L1239
+[DpiVar::new]:          https://github.com/kubo/rust-oracle-wip/blob/18850ec606d1a8815a85491c1ed51fadbcc19de8/src/odpi.rs#L1242-L1254
 
 [ODPI-C]:               https://oracle.github.io/odpi/
 [dpiStmt_define]:       https://oracle.github.io/odpi/doc/public_functions/dpiStmt.html#c.dpiStmt_define
