@@ -247,7 +247,7 @@ impl OracleType {
             OracleType::BinaryDouble =>
                 Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, DPI_NATIVE_TYPE_DOUBLE, 0, 0)),
             OracleType::Number(_, _) =>
-                Ok((DPI_ORACLE_TYPE_NUMBER, DPI_NATIVE_TYPE_BYTES, 170, 0)),
+                Ok((DPI_ORACLE_TYPE_NUMBER, DPI_NATIVE_TYPE_BYTES, 0, 0)),
             OracleType::Date =>
                 Ok((DPI_ORACLE_TYPE_DATE, DPI_NATIVE_TYPE_TIMESTAMP, 0, 0)),
             OracleType::Timestamp(_) =>
