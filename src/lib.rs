@@ -3,7 +3,6 @@ extern crate libc;
 #[macro_use]
 extern crate lazy_static;
 
-use std::fmt;
 use std::result;
 
 mod error;
@@ -23,6 +22,7 @@ pub use odpi::StatementType;
 pub use odpi::Timestamp;
 pub use odpi::IntervalDS;
 pub use odpi::IntervalYM;
+pub use odpi::Version;
 pub use types::FromSql;
 pub use value_ref::ValueRef;
 use odpi::DpiContext;
@@ -366,56 +366,5 @@ impl<'a> RowIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         stmt.column_names().iter().position(|&name| name == *self)
             .ok_or_else(|| Error::InvalidColumnName((*self).to_string()))
-    }
-}
-
-//
-// Version
-//
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-pub struct Version {
-    major: i32,
-    minor: i32,
-    update: i32,
-    patch: i32,
-    port_update: i32,
-}
-
-impl Version {
-    pub fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
-        Version { major: major, minor: minor, update: update,
-                  patch: patch, port_update: port_update }
-    }
-
-    /// 1st part of Oracle version number
-    pub fn major(&self) -> i32 {
-        self.major
-    }
-
-    /// 2nd part of Oracle version number
-    pub fn minor(&self) -> i32 {
-        self.minor
-    }
-
-    /// 3rd part of Oracle version number
-    pub fn update(&self) -> i32 {
-        self.update
-    }
-
-    /// 4th part of Oracle version number
-    pub fn patch(&self) -> i32 {
-        self.patch
-    }
-
-    /// 5th part of Oracle version number
-    pub fn port_update(&self) -> i32 {
-        self.port_update
-    }
-}
-
-impl fmt::Display for Version {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}.{}.{}.{}", self.major, self.minor, self.update, self.patch, self.port_update)
     }
 }

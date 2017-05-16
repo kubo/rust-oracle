@@ -11,17 +11,16 @@ is in public domain. You can apply any license.
 
 ## Installation
 
-Install Oracle client and set the environment variables `OCI_INC_DIR` and `OCI_LIB_DIR` as [this page][install-node-oracledb].
-
-Check out rust-oracle and run `cargo`.
+Check out rust-oracle and run `cargo`. You have no need to install Oracle client
+to build this.
 ```shell
-$ export OCI_INC_DIR=...
-$ export OCI_LIB_DIR=...
-$ export LD_LIBRARY_PATH=$OCI_LIB_DIR
 $ git clone --recursive https://github.com/kubo/rust-oracle-wip.git
 $ cd rust-oracle-wip
 $ cargo build
 ```
+
+You need to install Oracle client to use this crate as described in
+the [ODPI-C installation document][]
 
 Look at `src/main.rs` as a sample.
 
@@ -104,8 +103,7 @@ Look at `src/main.rs` as a sample.
 
 [Rust]:                 https://www.rust-lang.org/
 [ODPI-C]:               https://oracle.github.io/odpi/
-[install-node-oracledb]: https://github.com/oracle/node-oracledb/blob/master/INSTALL.md
-
+[ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [tsdef]:                https://github.com/kubo/rust-oracle-wip/blob/4c6cada847/src/odpi.rs#L251-L252
 [tsget]:                https://github.com/kubo/rust-oracle-wip/blob/4c6cada847/src/odpi.rs#L1369-L1379
 [NaiveDate]:            https://docs.rs/chrono/0.3.0/chrono/naive/date/struct.NaiveDate.html

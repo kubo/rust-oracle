@@ -11,7 +11,6 @@ use super::ffi::*;
 use super::DbError;
 use super::Error;
 use super::Result;
-use super::Version;
 
 //
 // AuthMode
@@ -610,6 +609,61 @@ impl fmt::Display for IntervalYM {
 }
 
 //
+// Version
+//
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub struct Version {
+    major: i32,
+    minor: i32,
+    update: i32,
+    patch: i32,
+    port_update: i32,
+}
+
+impl Version {
+    pub fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
+        Version { major: major, minor: minor, update: update,
+                  patch: patch, port_update: port_update }
+    }
+
+    fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
+        Version::new(ver.versionNum, ver.releaseNum, ver.updateNum, ver.portReleaseNum, ver.portUpdateNum)
+    }
+
+    /// 1st part of Oracle version number
+    pub fn major(&self) -> i32 {
+        self.major
+    }
+
+    /// 2nd part of Oracle version number
+    pub fn minor(&self) -> i32 {
+        self.minor
+    }
+
+    /// 3rd part of Oracle version number
+    pub fn update(&self) -> i32 {
+        self.update
+    }
+
+    /// 4th part of Oracle version number
+    pub fn patch(&self) -> i32 {
+        self.patch
+    }
+
+    /// 5th part of Oracle version number
+    pub fn port_update(&self) -> i32 {
+        self.port_update
+    }
+}
+
+impl fmt::Display for Version {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}.{}.{}.{}", self.major, self.minor, self.update, self.patch, self.port_update)
+    }
+}
+
+//
 // functions to check errors
 //
 
@@ -869,12 +923,10 @@ impl DpiContext {
         }
     }
     pub fn client_version(&self) -> Result<Version> {
-        let (mut major, mut minor, mut update, mut patch, mut port_update) = (0, 0, 0, 0, 0);
+        let mut dpi_ver = Default::default();
         dpi_call!(self,
-                  dpiContext_getClientVersion(self.context, &mut major,
-                                              &mut minor, &mut update,
-                                              &mut patch, &mut port_update));
-        Ok(Version::new(major, minor, update, patch, port_update))
+                  dpiContext_getClientVersion(self.context, &mut dpi_ver));
+        Ok(Version::new_from_dpi_ver(dpi_ver))
     }
 }
 
@@ -968,12 +1020,11 @@ impl DpiConnection {
 
     pub fn server_version(&self) -> Result<(String, Version)> {
         let mut s = new_odpi_str();
-        let (mut major, mut minor, mut update, mut patch, mut port_update) = (0, 0, 0, 0, 0);
+        let mut dpi_ver = Default::default();
         dpi_call!(self.ctxt,
                   dpiConn_getServerVersion(self.conn, &mut s.ptr, &mut s.len,
-                                           &mut major, &mut minor, &mut update,
-                                           &mut patch, &mut port_update));
-        Ok((s.to_string(), Version::new(major, minor, update, patch, port_update)))
+                                           &mut dpi_ver));
+        Ok((s.to_string(), Version::new_from_dpi_ver(dpi_ver)))
     }
 
     pub fn stmt_cache_size(&self) -> Result<u32> {

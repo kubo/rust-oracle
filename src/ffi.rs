@@ -178,10 +178,9 @@ pub const DPI_ORACLE_TYPE_STMT:c_int          = 2021;
 pub const DPI_ORACLE_TYPE_BOOLEAN:c_int       = 2022;
 pub const DPI_ORACLE_TYPE_OBJECT:c_int        = 2023;
 pub const DPI_ORACLE_TYPE_LONG_VARCHAR:c_int  = 2024;
-pub const DPI_ORACLE_TYPE_LONG_NVARCHAR:c_int = 2025;
-pub const DPI_ORACLE_TYPE_LONG_RAW:c_int      = 2026;
-pub const DPI_ORACLE_TYPE_NATIVE_UINT:c_int   = 2027;
-pub const DPI_ORACLE_TYPE_MAX:c_int           = 2028;
+pub const DPI_ORACLE_TYPE_LONG_RAW:c_int      = 2025;
+pub const DPI_ORACLE_TYPE_NATIVE_UINT:c_int   = 2026;
+pub const DPI_ORACLE_TYPE_MAX:c_int           = 2027;
 
 // session pool close modes
 pub type dpiPoolCloseMode = c_int;
@@ -520,6 +519,18 @@ pub struct dpiSubscrMessageQuery {
     numTables: uint32_t,
 }
 
+// structure used for transferring version information
+#[repr(C)]
+#[derive(Default)]
+pub struct dpiVersionInfo {
+    pub versionNum: c_int,
+    pub releaseNum: c_int,
+    pub updateNum: c_int,
+    pub portReleaseNum: c_int,
+    pub portUpdateNum: c_int,
+    pub fullVersionNum: uint32_t,
+}
+
 // structure used for transferring row information in messages in
 // subscription callbacks
 #[repr(C)]
@@ -555,9 +566,8 @@ extern "C" {
     pub fn dpiContext_destroy(context: *mut dpiContext) -> c_int;
 
     // return the OCI client version in use
-    pub fn dpiContext_getClientVersion(context: *const dpiContext, versionNum: *mut c_int,
-                                       releaseNum: *mut c_int, updateNum: *mut c_int, portReleaseNum: *mut c_int,
-                                       portUpdateNum: *mut c_int) -> c_int;
+    pub fn dpiContext_getClientVersion(context: *const dpiContext,
+                                       versionInfo: *mut dpiVersionInfo) -> c_int;
 
     // get error information
     pub fn dpiContext_getError(context: *const dpiContext, errorInfo: *mut dpiErrorInfo);
@@ -655,8 +665,7 @@ extern "C" {
 
     // return information about the server version in use
     pub fn dpiConn_getServerVersion(conn: *mut dpiConn, releaseString: *mut *const c_char,
-                                    releaseStringLength: *mut uint32_t, versionNum: *mut c_int, releaseNum: *mut c_int,
-                                    updateNum: *mut c_int, portReleaseNum: *mut c_int, portUpdateNum: *mut c_int) -> c_int;
+                                    releaseStringLength: *mut uint32_t, versionInfo: *mut dpiVersionInfo) -> c_int;
 
     // return the statement cache size
     pub fn dpiConn_getStmtCacheSize(conn: *mut dpiConn, cacheSize: *mut uint32_t) -> c_int;
@@ -1074,24 +1083,25 @@ extern "C" {
     pub fn dpiObject_copy(obj: *mut dpiObject, copiedObj: *mut *mut dpiObject) -> c_int;
 
     // delete an element from the collection
-    pub fn dpiObject_deleteElement(obj: *mut dpiObject, index: int32_t) -> c_int;
+    pub fn dpiObject_deleteElementByIndex(obj: *mut dpiObject, index: int32_t) -> c_int;
 
     // get the value of the specified attribute
     pub fn dpiObject_getAttributeValue(obj: *mut dpiObject, attr: *mut dpiObjectAttr,
                                        nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
 
     // return whether an element exists in a collection at the specified index
-    pub fn dpiObject_getElementExists(obj: *mut dpiObject, index: int32_t, exists: *mut c_int) -> c_int;
+    pub fn dpiObject_getElementExistsByIndex(obj: *mut dpiObject, index: int32_t,
+                                             exists: *mut c_int) -> c_int;
 
     // get the value of the element in a collection at the specified index
-    pub fn dpiObject_getElementValue(obj: *mut dpiObject, index: int32_t,
-                                     nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
+    pub fn dpiObject_getElementValueByIndex(obj: *mut dpiObject, index: int32_t,
+                                            nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
 
     // return the first index used in a collection
-    pub fn dpiObject_getFirstIndex(obj: *mut dpiObject, index: *mut int32_t) -> c_int;
+    pub fn dpiObject_getFirstIndex(obj: *mut dpiObject, index: *mut int32_t, exists: *mut c_int) -> c_int;
 
     // return the last index used in a collection
-    pub fn dpiObject_getLastIndex(obj: *mut dpiObject, index: *mut int32_t) -> c_int;
+    pub fn dpiObject_getLastIndex(obj: *mut dpiObject, index: *mut int32_t, exists: *mut c_int) -> c_int;
 
     // return the next index used in a collection given an index
     pub fn dpiObject_getNextIndex(obj: *mut dpiObject, index: int32_t, nextIndex: *mut int32_t,
@@ -1112,8 +1122,8 @@ extern "C" {
                                        nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
 
     // set the value of the element in a collection at the specified index
-    pub fn dpiObject_setElementValue(obj: *mut dpiObject, index: int32_t,
-                                     nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
+    pub fn dpiObject_setElementValueByIndex(obj: *mut dpiObject, index: int32_t,
+                                            nativeTypeNum: dpiNativeTypeNum, value: *mut dpiData) -> c_int;
 
     // trim a number of elements from the end of a collection
     pub fn dpiObject_trim(obj: *mut dpiObject, numToTrim: uint32_t) -> c_int;
@@ -1373,9 +1383,6 @@ extern "C" {
 
     // release a reference to the variable
     pub fn dpiVar_release(var: *mut dpiVar) -> c_int;
-
-    // resize the buffer used for fetching/binding
-    pub fn dpiVar_resize(var: *mut dpiVar, sizeInBytes: uint32_t) -> c_int;
 
     // set the value of the variable from a byte string
     pub fn dpiVar_setFromBytes(var: *mut dpiVar, pos: uint32_t, value: *const c_char,
