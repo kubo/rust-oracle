@@ -1,64 +1,14 @@
-use std::cmp::PartialEq;
 use std::ffi::CStr;
 use std::fmt;
-use std::ops::BitOr;
 use std::ptr;
 use std::slice;
 use libc::c_char;
 use libc::uint32_t;
 
-use super::ffi::*;
+use super::binding::*;
 use super::DbError;
 use super::Error;
 use super::Result;
-
-//
-// AuthMode
-//
-
-#[derive(Debug, Clone)]
-pub enum AuthMode {
-    Default,
-    /// Connect as SYSDBA
-    SysDba,
-    /// Connect as SYSOPER
-    SysOper,
-    Prelim,
-    /// Connect as SYSASM
-    SysAsm,
-    /// bitor-ed value of other values
-    BitFlags(i32),
-}
-
-impl AuthMode {
-    pub fn as_i32(&self) -> i32 {
-        match *self {
-            AuthMode::Default => DPI_MODE_AUTH_DEFAULT,
-            AuthMode::SysDba => DPI_MODE_AUTH_SYSDBA,
-            AuthMode::SysOper => DPI_MODE_AUTH_SYSOPER,
-            AuthMode::Prelim => DPI_MODE_AUTH_PRELIM,
-            AuthMode::SysAsm => DPI_MODE_AUTH_SYSASM,
-            AuthMode::BitFlags(n) => n,
-        }
-    }
-}
-
-impl BitOr for AuthMode {
-    type Output = AuthMode;
-    fn bitor(self, rhs: AuthMode) -> AuthMode {
-        AuthMode::BitFlags(self.as_i32() | rhs.as_i32())
-    }
-}
-
-impl PartialEq for AuthMode {
-    fn eq(&self, other: &AuthMode) -> bool {
-        self.as_i32() == other.as_i32()
-    }
-
-    fn ne(&self, other: &AuthMode) -> bool {
-        self.as_i32() != other.as_i32()
-    }
-}
 
 //
 // ShutdownMode
@@ -83,43 +33,6 @@ pub enum StartupMode {
     Default = DPI_MODE_STARTUP_DEFAULT as isize,
     Force = DPI_MODE_STARTUP_FORCE as isize,
     Restrict = DPI_MODE_STARTUP_RESTRICT as isize,
-}
-
-//
-// StatementType
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum StatementType {
-    Unknown = DPI_STMT_TYPE_UNKNOWN as isize,
-    Select = DPI_STMT_TYPE_SELECT as isize,
-    Update = DPI_STMT_TYPE_UPDATE as isize,
-    Delete = DPI_STMT_TYPE_DELETE as isize,
-    Insert = DPI_STMT_TYPE_INSERT as isize,
-    Create = DPI_STMT_TYPE_CREATE as isize,
-    Drop = DPI_STMT_TYPE_DROP as isize,
-    Alter = DPI_STMT_TYPE_ALTER as isize,
-    Begin = DPI_STMT_TYPE_BEGIN as isize,
-    Declare = DPI_STMT_TYPE_DECLARE as isize,
-    Call = DPI_STMT_TYPE_CALL as isize,
-}
-
-impl StatementType {
-    fn from_i32(n: i32) -> StatementType {
-        match n {
-            DPI_STMT_TYPE_SELECT => StatementType::Select,
-            DPI_STMT_TYPE_UPDATE => StatementType::Update,
-            DPI_STMT_TYPE_DELETE => StatementType::Delete,
-            DPI_STMT_TYPE_INSERT => StatementType::Insert,
-            DPI_STMT_TYPE_CREATE => StatementType::Create,
-            DPI_STMT_TYPE_DROP => StatementType::Drop,
-            DPI_STMT_TYPE_ALTER => StatementType::Alter,
-            DPI_STMT_TYPE_BEGIN => StatementType::Begin,
-            DPI_STMT_TYPE_DECLARE => StatementType::Declare,
-            DPI_STMT_TYPE_CALL => StatementType::Call,
-            _ => StatementType::Unknown,
-        }
-    }
 }
 
 //
@@ -157,9 +70,9 @@ pub enum OracleType {
     /// TIMESTAMP WITH LOCAL TIME ZONE data type
     TimestampLTZ(u8), // fsprec
     /// INTERVAL DAY TO SECOND data type
-    IntervalDS(u8, u8), // lfprec, fsprec
+    IntervalDS(i16, u8), // lfprec, fsprec
     /// INTERVAL YEAR TO MONTH data type
-    IntervalYM(u8), // lfprec
+    IntervalYM(i16), // lfprec
     /// CLOB data type. not supported yet
     CLob,
     /// NCLOB data type. not supported yet
@@ -186,7 +99,7 @@ pub enum OracleType {
 
 impl OracleType {
 
-    fn from_query_info(info: &dpiQueryInfo) -> Result<OracleType> {
+    fn from_type_info(info: &dpiDataTypeInfo) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::Nvarchar2(info.sizeInChars)),
@@ -198,16 +111,11 @@ impl OracleType {
             DPI_ORACLE_TYPE_NATIVE_DOUBLE => Ok(OracleType::BinaryDouble),
             DPI_ORACLE_TYPE_NUMBER => Ok(OracleType::Number(info.precision, info.scale)),
             DPI_ORACLE_TYPE_DATE => Ok(OracleType::Date),
-            // If dpiQueryInfo provides fsprec information, use the value. Use 6 for a while
-            DPI_ORACLE_TYPE_TIMESTAMP => Ok(OracleType::Timestamp(6)),
-            // If dpiQueryInfo provides fsprec information, use the value. Use 6 for a while
-            DPI_ORACLE_TYPE_TIMESTAMP_TZ => Ok(OracleType::TimestampTZ(6)),
-            // If dpiQueryInfo provides fsprec information, use the value. Use 6 for a while
-            DPI_ORACLE_TYPE_TIMESTAMP_LTZ => Ok(OracleType::TimestampLTZ(6)),
-            // If dpiQueryInfo provides lfprec and fsprec information, use the values. Use 2 and 6 for a while
-            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(2, 6)),
-            // If dpiQueryInfo provides lfprec information, use the value. Use 2 for a while
-            DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(2)),
+            DPI_ORACLE_TYPE_TIMESTAMP => Ok(OracleType::Timestamp(info.fsPrecision)),
+            DPI_ORACLE_TYPE_TIMESTAMP_TZ => Ok(OracleType::TimestampTZ(info.fsPrecision)),
+            DPI_ORACLE_TYPE_TIMESTAMP_LTZ => Ok(OracleType::TimestampLTZ(info.fsPrecision)),
+            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(info.precision, info.fsPrecision)),
+            DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(info.precision)),
             DPI_ORACLE_TYPE_CLOB => Ok(OracleType::CLob),
             DPI_ORACLE_TYPE_NCLOB => Ok(OracleType::NCLob),
             DPI_ORACLE_TYPE_BLOB => Ok(OracleType::BLob),
@@ -222,7 +130,7 @@ impl OracleType {
     }
 
     // Returns parameters to create a new dpiVar.
-    fn var_create_param(&self) -> Result<(i32, i32, u32, i32)> {
+    fn var_create_param(&self) -> Result<(u32, u32, u32, i32)> {
         // The followings are basically same with dpiAllOracleTypes[] in
         // dpiOracleType.c. If enum OracleType has an attribute corresponding
         // to defaultNativeTypeNum of dpiQueryInfo, this mapping is not needed.
@@ -691,7 +599,7 @@ fn error_from_dpi_context(ctxt: &DpiContext) -> Error {
 
 macro_rules! dpi_call {
     ($ctxt:expr, $code:expr) => {{
-        if unsafe { $code } == DPI_SUCCESS {
+        if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
             return Err(error_from_dpi_context($ctxt));
@@ -756,7 +664,7 @@ impl OdpiStr {
 impl Default for dpiCommonCreateParams {
     fn default() -> dpiCommonCreateParams {
         dpiCommonCreateParams {
-            createMode: 0,
+            createMode: DPI_MODE_CREATE_DEFAULT,
             encoding: ptr::null(),
             nencoding: ptr::null(),
             edition: ptr::null(),
@@ -770,7 +678,7 @@ impl Default for dpiCommonCreateParams {
 impl Default for dpiConnCreateParams {
     fn default() -> dpiConnCreateParams {
         dpiConnCreateParams {
-            authMode: 0,
+            authMode: DPI_MODE_AUTH_DEFAULT,
             connectionClass: ptr::null(),
             connectionClassLength: 0,
             purity: 0,
@@ -787,6 +695,10 @@ impl Default for dpiConnCreateParams {
             outTag: ptr::null(),
             outTagLength: 0,
             outTagFound: 0,
+            shardingKeyColumns: ptr::null_mut(),
+            numShardingKeyColumns: 0,
+            superShardingKeyColumns: ptr::null_mut(),
+            numSuperShardingKeyColumns: 0,
         }
     }
 }
@@ -813,8 +725,8 @@ impl Default for dpiSubscrCreateParams {
         dpiSubscrCreateParams {
             subscrNamespace: 0,
             protocol: 0,
-            qos: 0,
-            operations: 0,
+            qos: dpiSubscrQOS(0),
+            operations: dpiOpCode(0),
             portNumber: 0,
             timeout: 0,
             name: ptr::null(),
@@ -843,20 +755,56 @@ impl Default for dpiErrorInfo {
     }
 }
 
-impl Default for dpiQueryInfo {
-    fn default() -> dpiQueryInfo {
-        dpiQueryInfo {
-            name: ptr::null(),
-            nameLength: 0,
+impl Default for dpiDataTypeInfo {
+    fn default() -> dpiDataTypeInfo {
+        dpiDataTypeInfo {
             oracleTypeNum: 0,
             defaultNativeTypeNum: 0,
+            ociTypeCode: 0,
             dbSizeInBytes: 0,
             clientSizeInBytes: 0,
             sizeInChars: 0,
             precision: 0,
             scale: 0,
-            nullOk: 0,
+            fsPrecision: 0,
             objectType: ptr::null_mut(),
+        }
+    }
+}
+
+impl Default for dpiQueryInfo {
+    fn default() -> dpiQueryInfo {
+        dpiQueryInfo {
+            name: ptr::null(),
+            nameLength: 0,
+            typeInfo: Default::default(),
+            nullOk: 0,
+        }
+    }
+}
+
+impl Default for dpiVersionInfo {
+    fn default() -> dpiVersionInfo {
+        dpiVersionInfo {
+            versionNum: 0,
+            releaseNum: 0,
+            updateNum: 0,
+            portReleaseNum: 0,
+            portUpdateNum: 0,
+            fullVersionNum: 0,
+        }
+    }
+}
+
+impl Default for dpiStmtInfo {
+    fn default() -> dpiStmtInfo {
+        dpiStmtInfo {
+            isQuery: 0,
+            isPLSQL: 0,
+            isDDL: 0,
+            isDML: 0,
+            statementType: 0,
+            isReturning: 0,
         }
     }
 }
@@ -892,7 +840,7 @@ lazy_static! {
         let mut err: dpiErrorInfo = Default::default();
         if unsafe {
             dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &mut ctxt.context, &mut err)
-        } == DPI_SUCCESS {
+        } == DPI_SUCCESS as i32 {
             unsafe {
                 let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
                 let driver_name = "Rust Oracle : 0.0.1"; // Update this line also when version up.
@@ -1059,7 +1007,7 @@ impl DpiConnection {
                                       tag.ptr, tag.len, &mut stmt));
         let mut info: dpiStmtInfo = Default::default();
         let rc = unsafe { dpiStmt_getInfo(stmt, &mut info) };
-        if rc != DPI_SUCCESS {
+        if rc != DPI_SUCCESS as i32 {
             let err = error_from_dpi_context(&self.ctxt);
             unsafe {
                 let _ = dpiStmt_release(stmt);
@@ -1075,7 +1023,7 @@ impl DpiConnection {
             is_plsql: info.isPLSQL != 0,
             is_ddl: info.isDDL != 0,
             is_dml: info.isDML != 0,
-            statement_type: StatementType::from_i32(info.statementType),
+            statement_type: info.statementType,
             is_returning: info.isReturning != 0,
         })
     }
@@ -1148,13 +1096,13 @@ impl DpiConnection {
 
     pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
         dpi_call!(self.ctxt,
-                  dpiConn_shutdownDatabase(self.conn, mode as i32));
+                  dpiConn_shutdownDatabase(self.conn, mode as u32));
         Ok(())
     }
 
     pub fn startup_database(&self, mode: StartupMode) -> Result<()> {
         dpi_call!(self.ctxt,
-                  dpiConn_startupDatabase(self.conn, mode as i32));
+                  dpiConn_startupDatabase(self.conn, mode as u32));
         Ok(())
     }
 }
@@ -1178,7 +1126,7 @@ pub struct DpiStatement<'conn> {
     pub is_plsql: bool,
     pub is_ddl: bool,
     pub is_dml: bool,
-    pub statement_type: StatementType,
+    pub statement_type: dpiStatementType,
     pub is_returning: bool,
 }
 
@@ -1262,7 +1210,7 @@ impl ColumnInfo {
     fn new(info: &dpiQueryInfo) -> Result<ColumnInfo> {
         Ok(ColumnInfo {
             name: OdpiStr::new(info.name, info.nameLength).to_string(),
-            oracle_type: try!(OracleType::from_query_info(&info)),
+            oracle_type: try!(OracleType::from_type_info(&info.typeInfo)),
             nullable: info.nullOk != 0,
         })
     }
@@ -1318,7 +1266,7 @@ impl<'conn> Drop for DpiVar<'conn> {
 pub struct DpiData<'stmt> {
     _stmt: &'stmt DpiStatement<'stmt>,
     oratype: &'stmt OracleType,
-    native_type: i32,
+    native_type: u32,
     data: *mut dpiData,
 }
 
@@ -1331,7 +1279,7 @@ macro_rules! check_not_null {
 }
 
 impl<'stmt> DpiData<'stmt> {
-    fn new(stmt: &'stmt DpiStatement, oratype: &'stmt OracleType, native_type: i32, data: *mut dpiData) -> DpiData<'stmt> {
+    fn new(stmt: &'stmt DpiStatement, oratype: &'stmt OracleType, native_type: u32, data: *mut dpiData) -> DpiData<'stmt> {
         DpiData {
             _stmt: stmt,
             oratype: oratype,
@@ -1422,7 +1370,7 @@ impl<'stmt> DpiData<'stmt> {
             check_not_null!(self);
             unsafe {
                 let ts = dpiData_getTimestamp(self.data);
-                Ok(Timestamp::from_dpi_timestamp(ts))
+                Ok(Timestamp::from_dpi_timestamp(&*ts))
             }
         } else {
             self.invalid_type_conversion("Timestamp")
@@ -1434,7 +1382,7 @@ impl<'stmt> DpiData<'stmt> {
             check_not_null!(self);
             unsafe {
                 let it = dpiData_getIntervalDS(self.data);
-                Ok(IntervalDS::from_dpi_interval_ds(it))
+                Ok(IntervalDS::from_dpi_interval_ds(&*it))
             }
         } else {
             self.invalid_type_conversion("IntervalDS")
@@ -1446,7 +1394,7 @@ impl<'stmt> DpiData<'stmt> {
             check_not_null!(self);
             unsafe {
                 let it = dpiData_getIntervalYM(self.data);
-                Ok(IntervalYM::from_dpi_interval_ym(it))
+                Ok(IntervalYM::from_dpi_interval_ym(&*it))
             }
         } else {
             self.invalid_type_conversion("IntervalYM")

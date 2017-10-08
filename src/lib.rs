@@ -5,20 +5,24 @@ extern crate lazy_static;
 
 use std::result;
 
+#[allow(dead_code)]
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[allow(improper_ctypes)]
+mod binding;
 mod error;
-mod ffi;
 mod odpi;
 mod types;
 mod value_ref;
 
+pub use binding::dpiAuthMode as AuthMode;
+pub use binding::dpiStatementType as StatementType;
 pub use error::Error;
 pub use error::DbError;
-pub use odpi::AuthMode;
 pub use odpi::ColumnInfo;
 pub use odpi::OracleType;
 pub use odpi::ShutdownMode;
 pub use odpi::StartupMode;
-pub use odpi::StatementType;
 pub use odpi::Timestamp;
 pub use odpi::IntervalDS;
 pub use odpi::IntervalYM;
@@ -35,6 +39,12 @@ pub fn client_version() -> Result<Version> {
     try!(DpiContext::get()).client_version()
 }
 
+pub const AUTH_DEFAULT: binding::dpiAuthMode = binding::DPI_MODE_AUTH_DEFAULT;
+pub const AUTH_SYSDBA: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSDBA;
+pub const AUTH_SYSOPER: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSOPER;
+pub const AUTH_PRELIM: binding::dpiAuthMode = binding::DPI_MODE_AUTH_PRELIM;
+pub const AUTH_SYSASM: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSASM;
+
 //
 // Connection
 //
@@ -47,7 +57,7 @@ impl Connection {
     pub fn connect(username: &str, password: &str, connect_string: &str, auth_mode: AuthMode) -> Result<Connection> {
         let ctxt = try!(DpiContext::get());
         let mut params = ctxt.conn_create_params.clone();
-        params.authMode = auth_mode.as_i32();
+        params.authMode = auth_mode;
         if username.len() == 0 && password.len() == 0 {
             params.externalAuth = 1; /* external authorization */
         }
@@ -67,7 +77,7 @@ impl Connection {
 
     /// close the connection now, not when the reference count reaches zero
     pub fn close(&self) -> Result<()> {
-        self.dpi_conn.close(ffi::DPI_MODE_CONN_CLOSE_DEFAULT, "")
+        self.dpi_conn.close(binding::DPI_MODE_CONN_CLOSE_DEFAULT, "")
     }
 
     /// commits the current active transaction
@@ -230,7 +240,7 @@ impl<'conn> Statement<'conn> {
     }
 
     pub fn execute(&mut self) -> Result<()> {
-        self.num_cols = try!(self.dpi_stmt.execute(ffi::DPI_MODE_EXEC_DEFAULT));
+        self.num_cols = try!(self.dpi_stmt.execute(binding::DPI_MODE_EXEC_DEFAULT));
         if self.is_query() {
             self.column_info = Vec::with_capacity(self.num_cols);
             for i in 0..self.num_cols {
@@ -251,7 +261,7 @@ impl<'conn> Statement<'conn> {
                 let oratype = match oratype {
                     // When the column type is number whose prec is less than 18
                     // and the scale is zero, define it as int64.
-                    OracleType::Number(prec, 0) if 0 < prec && prec < ffi::DPI_MAX_INT64_PRECISION =>
+                    OracleType::Number(prec, 0) if 0 < prec && prec < binding::DPI_MAX_INT64_PRECISION as i16 =>
                         OracleType::Int64,
                     _ =>
                         oratype,
