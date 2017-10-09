@@ -1,4 +1,3 @@
-use std::ffi::CStr;
 use std::fmt;
 use std::ptr;
 use std::slice;
@@ -6,8 +5,9 @@ use libc::c_char;
 use libc::uint32_t;
 
 use super::binding::*;
-use super::DbError;
+use super::Context;
 use super::Error;
+use super::error::error_from_context;
 use super::Result;
 
 //
@@ -535,7 +535,7 @@ impl Version {
                   patch: patch, port_update: port_update }
     }
 
-    fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
+    pub fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
         Version::new(ver.versionNum, ver.releaseNum, ver.updateNum, ver.portReleaseNum, ver.portUpdateNum)
     }
 
@@ -569,42 +569,6 @@ impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.{}.{}.{}.{}", self.major, self.minor, self.update, self.patch, self.port_update)
     }
-}
-
-//
-// functions to check errors
-//
-
-fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
-    let err = DbError::new(err.code, err.offset,
-                           String::from_utf8_lossy(unsafe {
-                               slice::from_raw_parts(err.message as *mut u8, err.messageLength as usize)
-                           }).into_owned(),
-                           unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy().into_owned(),
-                           unsafe { CStr::from_ptr(err.action) }.to_string_lossy().into_owned());
-    if err.message().starts_with("DPI") {
-        Error::DpiError(err)
-    } else {
-        Error::OciError(err)
-    }
-}
-
-fn error_from_dpi_context(ctxt: &DpiContext) -> Error {
-    let mut err: dpiErrorInfo = Default::default();
-    unsafe {
-        dpiContext_getError(ctxt.context, &mut err);
-    };
-    error_from_dpi_error(&err)
-}
-
-macro_rules! dpi_call {
-    ($ctxt:expr, $code:expr) => {{
-        if unsafe { $code } == DPI_SUCCESS as i32 {
-            ()
-        } else {
-            return Err(error_from_dpi_context($ctxt));
-        }
-    }};
 }
 
 //
@@ -810,100 +774,31 @@ impl Default for dpiStmtInfo {
 }
 
 //
-// DpiContext
-//
-
-pub struct DpiContext {
-    pub context: *mut dpiContext,
-    pub common_create_params: dpiCommonCreateParams,
-    pub conn_create_params: dpiConnCreateParams,
-    pub pool_create_params: dpiPoolCreateParams,
-    pub subscr_create_params: dpiSubscrCreateParams,
-}
-
-enum DpiContextResult {
-    Ok(DpiContext),
-    Err(dpiErrorInfo),
-}
-
-unsafe impl Sync for DpiContextResult {}
-
-lazy_static! {
-    static ref DPI_CONTEXT: DpiContextResult = {
-        let mut ctxt = DpiContext {
-            context: ptr::null_mut(),
-            common_create_params: Default::default(),
-            conn_create_params: Default::default(),
-            pool_create_params: Default::default(),
-            subscr_create_params: Default::default(),
-        };
-        let mut err: dpiErrorInfo = Default::default();
-        if unsafe {
-            dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &mut ctxt.context, &mut err)
-        } == DPI_SUCCESS as i32 {
-            unsafe {
-                let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-                let driver_name = "Rust Oracle : 0.0.1"; // Update this line also when version up.
-                let driver_name_ptr = driver_name.as_ptr() as *const c_char;
-                let driver_name_len = driver_name.len() as uint32_t;
-                dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);
-                dpiContext_initConnCreateParams(ctxt.context, &mut ctxt.conn_create_params);
-                dpiContext_initPoolCreateParams(ctxt.context, &mut ctxt.pool_create_params);
-                dpiContext_initSubscrCreateParams(ctxt.context, &mut ctxt.subscr_create_params);
-                ctxt.common_create_params.createMode |= DPI_MODE_CREATE_THREADED;
-                ctxt.common_create_params.encoding = utf8_ptr;
-                ctxt.common_create_params.nencoding = utf8_ptr;
-                ctxt.common_create_params.driverName = driver_name_ptr;
-                ctxt.common_create_params.driverNameLength = driver_name_len;
-            }
-            DpiContextResult::Ok(ctxt)
-        } else {
-            DpiContextResult::Err(err)
-        }
-    };
-}
-
-impl DpiContext {
-    pub fn get() -> Result<&'static DpiContext> {
-        match *DPI_CONTEXT {
-            DpiContextResult::Ok(ref ctxt) => Ok(ctxt),
-            DpiContextResult::Err(ref err) => Err(error_from_dpi_error(err)),
-        }
-    }
-    pub fn client_version(&self) -> Result<Version> {
-        let mut dpi_ver = Default::default();
-        dpi_call!(self,
-                  dpiContext_getClientVersion(self.context, &mut dpi_ver));
-        Ok(Version::new_from_dpi_ver(dpi_ver))
-    }
-}
-
-//
 // DpiConnection
 //
 
 pub struct DpiConnection {
-    ctxt: &'static DpiContext,
+    ctxt: &'static Context,
     conn: *mut dpiConn,
 }
 
 impl DpiConnection {
-    pub fn new(ctxt: &'static DpiContext, username: &str, password: &str, connect_string: &str, params: &mut dpiConnCreateParams) -> Result<DpiConnection> {
+    pub fn new(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, params: &mut dpiConnCreateParams) -> Result<DpiConnection> {
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
         let mut conn: *mut dpiConn = ptr::null_mut();
-        dpi_call!(ctxt,
-                  dpiConn_create(ctxt.context, username.ptr, username.len,
-                                 password.ptr, password.len, connect_string.ptr,
-                                 connect_string.len, &ctxt.common_create_params,
-                                 params, &mut conn));
+        chkerr!(ctxt,
+                dpiConn_create(ctxt.context, username.ptr, username.len,
+                               password.ptr, password.len, connect_string.ptr,
+                               connect_string.len, &ctxt.common_create_params,
+                               params, &mut conn));
         Ok(DpiConnection{ ctxt: ctxt, conn: conn })
     }
 
     pub fn break_execution(&self) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_breakExecution(self.conn));
+        chkerr!(self.ctxt,
+                dpiConn_breakExecution(self.conn));
         Ok(())
     }
 
@@ -911,24 +806,24 @@ impl DpiConnection {
         let username = to_odpi_str(username);
         let old_password = to_odpi_str(old_password);
         let new_password = to_odpi_str(new_password);
-        dpi_call!(self.ctxt,
-                  dpiConn_changePassword(self.conn,
-                                         username.ptr, username.len,
-                                         old_password.ptr, old_password.len,
-                                         new_password.ptr, new_password.len));
+        chkerr!(self.ctxt,
+                dpiConn_changePassword(self.conn,
+                                       username.ptr, username.len,
+                                       old_password.ptr, old_password.len,
+                                       new_password.ptr, new_password.len));
         Ok(())
     }
 
     pub fn close(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
         let tag = to_odpi_str(tag);
-        dpi_call!(self.ctxt,
-                  dpiConn_close(self.conn, mode, tag.ptr, tag.len));
+        chkerr!(self.ctxt,
+                dpiConn_close(self.conn, mode, tag.ptr, tag.len));
         Ok(())
     }
 
     pub fn commit(&self) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_commit(self.conn));
+        chkerr!(self.ctxt,
+                dpiConn_commit(self.conn));
         Ok(())
     }
 
@@ -937,29 +832,29 @@ impl DpiConnection {
 
     pub fn current_schema(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        dpi_call!(self.ctxt,
-                  dpiConn_getCurrentSchema(self.conn, &mut s.ptr, &mut s.len));
+        chkerr!(self.ctxt,
+                dpiConn_getCurrentSchema(self.conn, &mut s.ptr, &mut s.len));
         Ok(s.to_string())
     }
 
     pub fn edition(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        dpi_call!(self.ctxt,
-                  dpiConn_getEdition(self.conn, &mut s.ptr, &mut s.len));
+        chkerr!(self.ctxt,
+                dpiConn_getEdition(self.conn, &mut s.ptr, &mut s.len));
         Ok(s.to_string())
     }
 
     pub fn external_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        dpi_call!(self.ctxt,
-                  dpiConn_getExternalName(self.conn, &mut s.ptr, &mut s.len));
+        chkerr!(self.ctxt,
+                dpiConn_getExternalName(self.conn, &mut s.ptr, &mut s.len));
         Ok(s.to_string())
     }
 
     pub fn internal_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        dpi_call!(self.ctxt,
-                  dpiConn_getInternalName(self.conn, &mut s.ptr, &mut s.len));
+        chkerr!(self.ctxt,
+                dpiConn_getInternalName(self.conn, &mut s.ptr, &mut s.len));
         Ok(s.to_string())
     }
 
@@ -969,16 +864,16 @@ impl DpiConnection {
     pub fn server_version(&self) -> Result<(String, Version)> {
         let mut s = new_odpi_str();
         let mut dpi_ver = Default::default();
-        dpi_call!(self.ctxt,
-                  dpiConn_getServerVersion(self.conn, &mut s.ptr, &mut s.len,
-                                           &mut dpi_ver));
+        chkerr!(self.ctxt,
+                dpiConn_getServerVersion(self.conn, &mut s.ptr, &mut s.len,
+                                         &mut dpi_ver));
         Ok((s.to_string(), Version::new_from_dpi_ver(dpi_ver)))
     }
 
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut size = 0u32;
-        dpi_call!(self.ctxt,
-                  dpiConn_getStmtCacheSize(self.conn, &mut size));
+        chkerr!(self.ctxt,
+                dpiConn_getStmtCacheSize(self.conn, &mut size));
         Ok(size)
     }
 
@@ -990,8 +885,8 @@ impl DpiConnection {
     //pub fn dpiConn_newVar
 
     pub fn ping(&self) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_ping(self.conn));
+        chkerr!(self.ctxt,
+                dpiConn_ping(self.conn));
         Ok(())
     }
 
@@ -1002,18 +897,13 @@ impl DpiConnection {
         let sql = to_odpi_str(sql);
         let tag = to_odpi_str(tag);
         let mut stmt: *mut dpiStmt = ptr::null_mut();
-        dpi_call!(self.ctxt,
-                  dpiConn_prepareStmt(self.conn, scrollable, sql.ptr, sql.len,
-                                      tag.ptr, tag.len, &mut stmt));
+        chkerr!(self.ctxt,
+                dpiConn_prepareStmt(self.conn, scrollable, sql.ptr, sql.len,
+                                    tag.ptr, tag.len, &mut stmt));
         let mut info: dpiStmtInfo = Default::default();
-        let rc = unsafe { dpiStmt_getInfo(stmt, &mut info) };
-        if rc != DPI_SUCCESS as i32 {
-            let err = error_from_dpi_context(&self.ctxt);
-            unsafe {
-                let _ = dpiStmt_release(stmt);
-            };
-            return Err(err);
-        }
+        chkerr!{&self.ctxt,
+                dpiStmt_getInfo(stmt, &mut info),
+                unsafe { dpiStmt_release(stmt); }}
         Ok(DpiStatement{
             ctxt: self.ctxt,
             conn: self,
@@ -1029,80 +919,80 @@ impl DpiConnection {
     }
 
     pub fn rollback(&self) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_rollback(self.conn));
+        chkerr!(self.ctxt,
+                dpiConn_rollback(self.conn));
         Ok(())
     }
 
     pub fn set_action(&self, action: &str) -> Result<()> {
         let s = to_odpi_str(action);
-        dpi_call!(self.ctxt,
-                  dpiConn_setAction(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setAction(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
         let s = to_odpi_str(client_identifier);
-        dpi_call!(self.ctxt,
-                  dpiConn_setClientIdentifier(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setClientIdentifier(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_client_info(&self, client_info: &str) -> Result<()> {
         let s = to_odpi_str(client_info);
-        dpi_call!(self.ctxt,
-                  dpiConn_setClientInfo(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setClientInfo(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
         let s = to_odpi_str(current_schema);
-        dpi_call!(self.ctxt,
-                  dpiConn_setCurrentSchema(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setCurrentSchema(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_db_op(&self, db_op: &str) -> Result<()> {
         let s = to_odpi_str(db_op);
-        dpi_call!(self.ctxt,
-                  dpiConn_setDbOp(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setDbOp(self.conn, s.ptr, s.len));
         Ok(())
     }
     pub fn set_external_name(&self, external_name: &str) -> Result<()> {
         let s = to_odpi_str(external_name);
-        dpi_call!(self.ctxt,
-                  dpiConn_setExternalName(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setExternalName(self.conn, s.ptr, s.len));
         Ok(())
     }
     pub fn set_internal_name(&self, internal_name: &str) -> Result<()> {
         let s = to_odpi_str(internal_name);
-        dpi_call!(self.ctxt,
-                  dpiConn_setInternalName(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setInternalName(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_module(&self, module: &str) -> Result<()> {
         let s = to_odpi_str(module);
-        dpi_call!(self.ctxt,
-                  dpiConn_setModule(self.conn, s.ptr, s.len));
+        chkerr!(self.ctxt,
+                dpiConn_setModule(self.conn, s.ptr, s.len));
         Ok(())
     }
 
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_setStmtCacheSize(self.conn, size));
+        chkerr!(self.ctxt,
+                dpiConn_setStmtCacheSize(self.conn, size));
         Ok(())
     }
 
     pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_shutdownDatabase(self.conn, mode as u32));
+        chkerr!(self.ctxt,
+                dpiConn_shutdownDatabase(self.conn, mode as u32));
         Ok(())
     }
 
     pub fn startup_database(&self, mode: StartupMode) -> Result<()> {
-        dpi_call!(self.ctxt,
-                  dpiConn_startupDatabase(self.conn, mode as u32));
+        chkerr!(self.ctxt,
+                dpiConn_startupDatabase(self.conn, mode as u32));
         Ok(())
     }
 }
@@ -1118,7 +1008,7 @@ impl Drop for DpiConnection {
 //
 
 pub struct DpiStatement<'conn> {
-    ctxt: &'static DpiContext,
+    ctxt: &'static Context,
     conn: &'conn DpiConnection,
     stmt: *mut dpiStmt,
     fetch_array_size: u32,
@@ -1133,47 +1023,47 @@ pub struct DpiStatement<'conn> {
 impl<'conn> DpiStatement<'conn> {
     pub fn close(&self, tag: &str) -> Result<()> {
         let tag = to_odpi_str(tag);
-        dpi_call!(self.ctxt,
-                  dpiStmt_close(self.stmt, tag.ptr, tag.len));
+        chkerr!(self.ctxt,
+                dpiStmt_close(self.stmt, tag.ptr, tag.len));
         Ok(())
     }
 
     pub fn execute(&mut self, mode: dpiExecMode) -> Result<usize> {
         let mut num_query_columns = 0;
-        dpi_call!(self.ctxt,
-                  dpiStmt_execute(self.stmt, mode, &mut num_query_columns));
-        dpi_call!(self.ctxt,
-                  dpiStmt_getFetchArraySize(self.stmt, &mut self.fetch_array_size));
+        chkerr!(self.ctxt,
+                dpiStmt_execute(self.stmt, mode, &mut num_query_columns));
+        chkerr!(self.ctxt,
+                dpiStmt_getFetchArraySize(self.stmt, &mut self.fetch_array_size));
         Ok(num_query_columns as usize)
     }
 
     pub fn define(&self, pos: usize, oratype: &OracleType) -> Result<DpiVar<'conn>> {
         let var = try!(DpiVar::new(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE));
-        dpi_call!(self.ctxt,
-                  dpiStmt_define(self.stmt, pos as u32, var.var));
+        chkerr!(self.ctxt,
+                dpiStmt_define(self.stmt, pos as u32, var.var));
         Ok(var)
     }
 
     pub fn fetch(&self) -> Result<(bool, u32)> {
         let mut found = 0;
         let mut buffer_row_index = 0;
-        dpi_call!(self.ctxt,
-                  dpiStmt_fetch(self.stmt, &mut found, &mut buffer_row_index));
+        chkerr!(self.ctxt,
+                dpiStmt_fetch(self.stmt, &mut found, &mut buffer_row_index));
         Ok((found != 0, buffer_row_index))
     }
 
     pub fn column_info(&self, pos: usize) -> Result<ColumnInfo> {
         let mut info = Default::default();
-        dpi_call!(self.ctxt,
-                  dpiStmt_getQueryInfo(self.stmt, pos as u32, &mut info));
+        chkerr!(self.ctxt,
+                dpiStmt_getQueryInfo(self.stmt, pos as u32, &mut info));
         Ok(try!(ColumnInfo::new(&info)))
     }
 
     pub fn query_value<'stmt>(&'stmt self, pos: usize, oratype: &'stmt OracleType) -> Result<DpiData<'stmt>> {
         let mut native_type = 0;
         let mut data = ptr::null_mut();
-        dpi_call!(self.ctxt,
-                  dpiStmt_getQueryValue(self.stmt, pos as u32, &mut native_type, &mut data));
+        chkerr!(self.ctxt,
+                dpiStmt_getQueryValue(self.stmt, pos as u32, &mut native_type, &mut data));
         Ok(DpiData::new(self, oratype, native_type, data))
     }
 }
@@ -1242,9 +1132,9 @@ impl<'conn> DpiVar<'conn> {
         let mut var: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype, native_type, size, size_is_byte) = try!(oratype.var_create_param());
-        dpi_call!(conn.ctxt,
-                  dpiConn_newVar(conn.conn, oratype, native_type, array_size, size, size_is_byte,
-                                 0, ptr::null_mut(), &mut var, &mut data));
+        chkerr!(conn.ctxt,
+                dpiConn_newVar(conn.conn, oratype, native_type, array_size, size, size_is_byte,
+                               0, ptr::null_mut(), &mut var, &mut data));
         Ok(DpiVar {
             _conn: conn,
             var: var,

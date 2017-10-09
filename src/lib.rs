@@ -3,13 +3,16 @@ extern crate libc;
 #[macro_use]
 extern crate lazy_static;
 
+use std::ptr;
 use std::result;
+use std::os::raw::c_char;
 
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
 mod binding;
+#[macro_use]
 mod error;
 mod odpi;
 mod types;
@@ -29,21 +32,91 @@ pub use odpi::IntervalYM;
 pub use odpi::Version;
 pub use types::FromSql;
 pub use value_ref::ValueRef;
-use odpi::DpiContext;
+
+use binding::*;
 use odpi::DpiConnection;
 use odpi::DpiStatement;
+use error::error_from_context;
+use error::error_from_dpi_error;
 
 pub type Result<T> = result::Result<T, Error>;
 
 pub fn client_version() -> Result<Version> {
-    try!(DpiContext::get()).client_version()
+    let mut dpi_ver = Default::default();
+    let ctx = Context::get()?;
+    chkerr!(ctx,
+            dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
+    Ok(Version::new_from_dpi_ver(dpi_ver))
 }
 
-pub const AUTH_DEFAULT: binding::dpiAuthMode = binding::DPI_MODE_AUTH_DEFAULT;
-pub const AUTH_SYSDBA: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSDBA;
-pub const AUTH_SYSOPER: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSOPER;
-pub const AUTH_PRELIM: binding::dpiAuthMode = binding::DPI_MODE_AUTH_PRELIM;
-pub const AUTH_SYSASM: binding::dpiAuthMode = binding::DPI_MODE_AUTH_SYSASM;
+pub const AUTH_DEFAULT: dpiAuthMode = DPI_MODE_AUTH_DEFAULT;
+pub const AUTH_SYSDBA: dpiAuthMode = DPI_MODE_AUTH_SYSDBA;
+pub const AUTH_SYSOPER: dpiAuthMode = DPI_MODE_AUTH_SYSOPER;
+pub const AUTH_PRELIM: dpiAuthMode = DPI_MODE_AUTH_PRELIM;
+pub const AUTH_SYSASM: dpiAuthMode = DPI_MODE_AUTH_SYSASM;
+
+//
+// Context
+//
+
+pub struct Context {
+    pub context: *mut dpiContext,
+    pub common_create_params: dpiCommonCreateParams,
+    pub conn_create_params: dpiConnCreateParams,
+    pub pool_create_params: dpiPoolCreateParams,
+    pub subscr_create_params: dpiSubscrCreateParams,
+}
+
+enum ContextResult {
+    Ok(Context),
+    Err(dpiErrorInfo),
+}
+
+unsafe impl Sync for ContextResult {}
+
+lazy_static! {
+    static ref DPI_CONTEXT: ContextResult = {
+        let mut ctxt = Context {
+            context: ptr::null_mut(),
+            common_create_params: Default::default(),
+            conn_create_params: Default::default(),
+            pool_create_params: Default::default(),
+            subscr_create_params: Default::default(),
+        };
+        let mut err: dpiErrorInfo = Default::default();
+        if unsafe {
+            dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &mut ctxt.context, &mut err)
+        } == DPI_SUCCESS as i32 {
+            unsafe {
+                let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
+                let driver_name = "Rust Oracle : 0.0.1"; // Update this line also when version up.
+                let driver_name_ptr = driver_name.as_ptr() as *const c_char;
+                let driver_name_len = driver_name.len() as u32;
+                dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);
+                dpiContext_initConnCreateParams(ctxt.context, &mut ctxt.conn_create_params);
+                dpiContext_initPoolCreateParams(ctxt.context, &mut ctxt.pool_create_params);
+                dpiContext_initSubscrCreateParams(ctxt.context, &mut ctxt.subscr_create_params);
+                ctxt.common_create_params.createMode |= DPI_MODE_CREATE_THREADED;
+                ctxt.common_create_params.encoding = utf8_ptr;
+                ctxt.common_create_params.nencoding = utf8_ptr;
+                ctxt.common_create_params.driverName = driver_name_ptr;
+                ctxt.common_create_params.driverNameLength = driver_name_len;
+            }
+            ContextResult::Ok(ctxt)
+        } else {
+            ContextResult::Err(err)
+        }
+    };
+}
+
+impl Context {
+    pub fn get() -> Result<&'static Context> {
+        match *DPI_CONTEXT {
+            ContextResult::Ok(ref ctxt) => Ok(ctxt),
+            ContextResult::Err(ref err) => Err(error_from_dpi_error(err)),
+        }
+    }
+}
 
 //
 // Connection
@@ -55,7 +128,7 @@ pub struct Connection {
 
 impl Connection {
     pub fn connect(username: &str, password: &str, connect_string: &str, auth_mode: AuthMode) -> Result<Connection> {
-        let ctxt = try!(DpiContext::get());
+        let ctxt = try!(Context::get());
         let mut params = ctxt.conn_create_params.clone();
         params.authMode = auth_mode;
         if username.len() == 0 && password.len() == 0 {
@@ -77,7 +150,7 @@ impl Connection {
 
     /// close the connection now, not when the reference count reaches zero
     pub fn close(&self) -> Result<()> {
-        self.dpi_conn.close(binding::DPI_MODE_CONN_CLOSE_DEFAULT, "")
+        self.dpi_conn.close(DPI_MODE_CONN_CLOSE_DEFAULT, "")
     }
 
     /// commits the current active transaction
@@ -240,7 +313,7 @@ impl<'conn> Statement<'conn> {
     }
 
     pub fn execute(&mut self) -> Result<()> {
-        self.num_cols = try!(self.dpi_stmt.execute(binding::DPI_MODE_EXEC_DEFAULT));
+        self.num_cols = try!(self.dpi_stmt.execute(DPI_MODE_EXEC_DEFAULT));
         if self.is_query() {
             self.column_info = Vec::with_capacity(self.num_cols);
             for i in 0..self.num_cols {
@@ -261,7 +334,7 @@ impl<'conn> Statement<'conn> {
                 let oratype = match oratype {
                     // When the column type is number whose prec is less than 18
                     // and the scale is zero, define it as int64.
-                    OracleType::Number(prec, 0) if 0 < prec && prec < binding::DPI_MAX_INT64_PRECISION as i16 =>
+                    OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as i16 =>
                         OracleType::Int64,
                     _ =>
                         oratype,

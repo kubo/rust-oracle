@@ -1,5 +1,10 @@
+use std::ffi::CStr;
 use std::error;
 use std::fmt;
+use std::slice;
+use binding::dpiErrorInfo;
+use binding::dpiContext_getError;
+use super::Context;
 
 pub enum Error {
     OciError(DbError),
@@ -123,4 +128,49 @@ impl error::Error for Error {
     fn cause(&self) -> Option<&error::Error> {
         None
     }
+}
+
+//
+// functions to check errors
+//
+
+pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
+    let err = DbError::new(err.code, err.offset,
+                           String::from_utf8_lossy(unsafe {
+                               slice::from_raw_parts(err.message as *mut u8, err.messageLength as usize)
+                           }).into_owned(),
+                           unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy().into_owned(),
+                           unsafe { CStr::from_ptr(err.action) }.to_string_lossy().into_owned());
+    if err.message().starts_with("DPI") {
+        Error::DpiError(err)
+    } else {
+        Error::OciError(err)
+    }
+}
+
+pub fn error_from_context(ctxt: &Context) -> Error {
+    let mut err: dpiErrorInfo = Default::default();
+    unsafe {
+        dpiContext_getError(ctxt.context, &mut err);
+    };
+    error_from_dpi_error(&err)
+}
+
+macro_rules! chkerr {
+    ($ctxt:expr, $code:expr) => {{
+        if unsafe { $code } == DPI_SUCCESS as i32 {
+            ()
+        } else {
+            return Err(error_from_context($ctxt));
+        }
+    }};
+    ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
+        if unsafe { $code } == DPI_SUCCESS as i32 {
+            ()
+        } else {
+            let err = error_from_context($ctxt);
+            $cleanup
+            return Err(err);
+        }
+    }};
 }
