@@ -11,14 +11,14 @@ fn main() {
         std::process::exit(1);
     }
 
-    let mut cfg = gcc::Config::new();
+    let mut build = gcc::Build::new();
     for entry in fs::read_dir("odpi/src").unwrap() {
         let fname = entry.unwrap().file_name().into_string().unwrap();
         if fname.ends_with(".c") {
-            cfg.file(format!("odpi/src/{}", fname));
+            build.file(format!("odpi/src/{}", fname));
         }
     }
-    cfg.include("odpi/include")
+    build.include("odpi/include")
         .include("odpi/src")
         .compile("libodpic.a");
 }
