@@ -3,7 +3,7 @@ extern crate oracle;
 fn main() {
     let ver = oracle::client_version().unwrap();
     println!("Oracle Client Version: {}", ver);
-    let conn = oracle::Connection::connect("scott", "tiger", "", oracle::AUTH_DEFAULT).unwrap();
+    let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
     stmt.execute().unwrap();
 

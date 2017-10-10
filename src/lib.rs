@@ -14,18 +14,21 @@ use std::os::raw::c_char;
 mod binding;
 #[macro_use]
 mod error;
+mod connection;
 mod odpi;
 mod types;
 mod value_ref;
 
 pub use binding::dpiAuthMode as AuthMode;
 pub use binding::dpiStatementType as StatementType;
+pub use binding::dpiShutdownMode as ShutdownMode;
+pub use binding::dpiStartupMode as StartupMode;
+pub use connection::Connector;
+pub use connection::Connection;
 pub use error::Error;
 pub use error::DbError;
 pub use odpi::ColumnInfo;
 pub use odpi::OracleType;
-pub use odpi::ShutdownMode;
-pub use odpi::StartupMode;
 pub use odpi::Timestamp;
 pub use odpi::IntervalDS;
 pub use odpi::IntervalYM;
@@ -34,7 +37,6 @@ pub use types::FromSql;
 pub use value_ref::ValueRef;
 
 use binding::*;
-use odpi::DpiConnection;
 use odpi::DpiStatement;
 use error::error_from_context;
 use error::error_from_dpi_error;
@@ -89,7 +91,7 @@ lazy_static! {
         } == DPI_SUCCESS as i32 {
             unsafe {
                 let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-                let driver_name = "Rust Oracle : 0.0.1"; // Update this line also when version up.
+                let driver_name = concat!("Rust Oracle : ", env!("CARGO_PKG_VERSION"));
                 let driver_name_ptr = driver_name.as_ptr() as *const c_char;
                 let driver_name_len = driver_name.len() as u32;
                 dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);
@@ -115,149 +117,6 @@ impl Context {
             ContextResult::Ok(ref ctxt) => Ok(ctxt),
             ContextResult::Err(ref err) => Err(error_from_dpi_error(err)),
         }
-    }
-}
-
-//
-// Connection
-//
-
-pub struct Connection {
-    dpi_conn: DpiConnection,
-}
-
-impl Connection {
-    pub fn connect(username: &str, password: &str, connect_string: &str, auth_mode: AuthMode) -> Result<Connection> {
-        let ctxt = try!(Context::get());
-        let mut params = ctxt.conn_create_params.clone();
-        params.authMode = auth_mode;
-        if username.len() == 0 && password.len() == 0 {
-            params.externalAuth = 1; /* external authorization */
-        }
-        let dpi_conn = try!(DpiConnection::new(ctxt, username, password, connect_string, &mut params));
-        Ok(Connection { dpi_conn: dpi_conn })
-    }
-
-    /// break execution of the statement running on the connection
-    pub fn break_execution(&self) -> Result<()> {
-        self.dpi_conn.break_execution()
-    }
-
-    /// change the password for the specified user
-    pub fn change_password(&self, username: &str, old_password: &str, new_password: &str) -> Result<()> {
-        self.dpi_conn.change_password(username, old_password, new_password)
-    }
-
-    /// close the connection now, not when the reference count reaches zero
-    pub fn close(&self) -> Result<()> {
-        self.dpi_conn.close(DPI_MODE_CONN_CLOSE_DEFAULT, "")
-    }
-
-    /// commits the current active transaction
-    /// This feature will be changed later.
-    pub fn commit(&self) -> Result<()> {
-        self.dpi_conn.commit()
-    }
-
-    /// get current schema associated with the connection
-    pub fn current_schema(&self) -> Result<String> {
-        self.dpi_conn.current_schema()
-    }
-
-    /// get edition associated with the connection
-    pub fn edition(&self) -> Result<String> {
-        self.dpi_conn.edition()
-    }
-
-    /// get external name associated with the connection
-    pub fn external_name(&self) -> Result<String> {
-        self.dpi_conn.external_name()
-    }
-
-    /// get internal name associated with the connection
-    pub fn internal_name(&self) -> Result<String> {
-        self.dpi_conn.internal_name()
-    }
-
-    /// return information about the server version in use
-    pub fn server_version(&self) -> Result<(String, Version)> {
-        self.dpi_conn.server_version()
-    }
-
-    /// return the statement cache size
-    pub fn statement_cache_size(&self) -> Result<u32> {
-        self.dpi_conn.stmt_cache_size()
-    }
-
-    /// ping the connection to see if it is still alive
-    pub fn ping(&self) -> Result<()> {
-        self.dpi_conn.ping()
-    }
-
-    /// prepare a statement and return it for subsequent execution/fetching
-    pub fn prepare(&self, sql: &str) -> Result<Statement> {
-        let dpi_stmt = try!(self.dpi_conn.prepare_statement(false, sql, ""));
-        Statement::new(dpi_stmt)
-    }
-
-    /// rolls back the current active transaction
-    pub fn rollback(&self) -> Result<()> {
-        self.dpi_conn.rollback()
-    }
-
-    /// set action associated with the connection
-    pub fn set_action(&self, action: &str) -> Result<()> {
-        self.dpi_conn.set_action(action)
-    }
-
-    /// set client identifier associated with the connection
-    pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
-        self.dpi_conn.set_client_identifier(client_identifier)
-    }
-
-    /// set client info associated with the connection
-    pub fn set_client_info(&self, client_info: &str) -> Result<()> {
-        self.dpi_conn.set_client_info(client_info)
-    }
-
-    /// set current schema associated with the connection
-    pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
-        self.dpi_conn.set_current_schema(current_schema)
-    }
-
-    /// set database operation associated with the connection
-    pub fn set_database_operation(&self, database_operation: &str) -> Result<()> {
-        self.dpi_conn.set_db_op(database_operation)
-    }
-
-    /// set external name associated with the connection
-    pub fn set_external_name(&self, external_name: &str) -> Result<()> {
-        self.dpi_conn.set_external_name(external_name)
-    }
-
-    /// set internal name associated with the connection
-    pub fn set_internal_name(&self, internal_name: &str) -> Result<()> {
-        self.dpi_conn.set_internal_name(internal_name)
-    }
-
-    /// set module associated with the connection
-    pub fn set_module(&self, module: &str) -> Result<()> {
-        self.dpi_conn.set_module(module)
-    }
-
-    /// set the statement cache size
-    pub fn set_statement_cache_size(&self, size: u32) -> Result<()> {
-        self.dpi_conn.set_stmt_cache_size(size)
-    }
-
-    /// Shuts down the database
-    pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
-        self.dpi_conn.shutdown_database(mode)
-    }
-
-    /// startup the database
-    pub fn startup_database(&self, mode: StartupMode) -> Result<()> {
-        self.dpi_conn.startup_database(mode)
     }
 }
 

@@ -9,31 +9,7 @@ use super::Context;
 use super::Error;
 use super::error::error_from_context;
 use super::Result;
-
-//
-// ShutdownMode
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum ShutdownMode {
-    Default = DPI_MODE_SHUTDOWN_DEFAULT as isize,
-    Transactional = DPI_MODE_SHUTDOWN_TRANSACTIONAL as isize,
-    TransactionalLocal = DPI_MODE_SHUTDOWN_TRANSACTIONAL_LOCAL as isize,
-    Immediate = DPI_MODE_SHUTDOWN_IMMEDIATE as isize,
-    Abort = DPI_MODE_SHUTDOWN_ABORT as isize,
-    Final = DPI_MODE_SHUTDOWN_FINAL as isize,
-}
-
-//
-// StartupMode
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum StartupMode {
-    Default = DPI_MODE_STARTUP_DEFAULT as isize,
-    Force = DPI_MODE_STARTUP_FORCE as isize,
-    Restrict = DPI_MODE_STARTUP_RESTRICT as isize,
-}
+use connection::Connection;
 
 //
 // OracleType
@@ -575,19 +551,19 @@ impl fmt::Display for Version {
 // Utility struct to convert Rust strings from/to ODPI-C strings
 //
 
-struct OdpiStr {
-    ptr: *const c_char,
-    len: uint32_t,
+pub struct OdpiStr {
+    pub ptr: *const c_char,
+    pub len: uint32_t,
 }
 
-fn new_odpi_str() -> OdpiStr {
+pub fn new_odpi_str() -> OdpiStr {
     OdpiStr {
         ptr: ptr::null(),
         len: 0,
     }
 }
 
-fn to_odpi_str(s: &str) -> OdpiStr {
+pub fn to_odpi_str(s: &str) -> OdpiStr {
     OdpiStr {
         ptr: s.as_ptr() as *const c_char,
         len: s.len() as uint32_t,
@@ -595,7 +571,7 @@ fn to_odpi_str(s: &str) -> OdpiStr {
 }
 
 impl OdpiStr {
-    fn new(ptr: *const c_char, len: uint32_t) -> OdpiStr {
+    pub fn new(ptr: *const c_char, len: uint32_t) -> OdpiStr {
         OdpiStr {
             ptr: ptr,
             len: len,
@@ -615,7 +591,7 @@ impl OdpiStr {
             }
         }
     }
-    fn to_string(&self) -> String {
+    pub fn to_string(&self) -> String {
         let vec = unsafe { slice::from_raw_parts(self.ptr as *mut u8, self.len as usize) };
         String::from_utf8_lossy(vec).into_owned()
     }
@@ -774,244 +750,14 @@ impl Default for dpiStmtInfo {
 }
 
 //
-// DpiConnection
-//
-
-pub struct DpiConnection {
-    ctxt: &'static Context,
-    conn: *mut dpiConn,
-}
-
-impl DpiConnection {
-    pub fn new(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, params: &mut dpiConnCreateParams) -> Result<DpiConnection> {
-        let username = to_odpi_str(username);
-        let password = to_odpi_str(password);
-        let connect_string = to_odpi_str(connect_string);
-        let mut conn: *mut dpiConn = ptr::null_mut();
-        chkerr!(ctxt,
-                dpiConn_create(ctxt.context, username.ptr, username.len,
-                               password.ptr, password.len, connect_string.ptr,
-                               connect_string.len, &ctxt.common_create_params,
-                               params, &mut conn));
-        Ok(DpiConnection{ ctxt: ctxt, conn: conn })
-    }
-
-    pub fn break_execution(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_breakExecution(self.conn));
-        Ok(())
-    }
-
-    pub fn change_password(&self, username: &str, old_password: &str, new_password: &str) -> Result<()> {
-        let username = to_odpi_str(username);
-        let old_password = to_odpi_str(old_password);
-        let new_password = to_odpi_str(new_password);
-        chkerr!(self.ctxt,
-                dpiConn_changePassword(self.conn,
-                                       username.ptr, username.len,
-                                       old_password.ptr, old_password.len,
-                                       new_password.ptr, new_password.len));
-        Ok(())
-    }
-
-    pub fn close(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-        chkerr!(self.ctxt,
-                dpiConn_close(self.conn, mode, tag.ptr, tag.len));
-        Ok(())
-    }
-
-    pub fn commit(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_commit(self.conn));
-        Ok(())
-    }
-
-    //pub fn dpiConn_deqObject
-    //pub fn dpiConn_enqObject
-
-    pub fn current_schema(&self) -> Result<String> {
-        let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getCurrentSchema(self.conn, &mut s.ptr, &mut s.len));
-        Ok(s.to_string())
-    }
-
-    pub fn edition(&self) -> Result<String> {
-        let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getEdition(self.conn, &mut s.ptr, &mut s.len));
-        Ok(s.to_string())
-    }
-
-    pub fn external_name(&self) -> Result<String> {
-        let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getExternalName(self.conn, &mut s.ptr, &mut s.len));
-        Ok(s.to_string())
-    }
-
-    pub fn internal_name(&self) -> Result<String> {
-        let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getInternalName(self.conn, &mut s.ptr, &mut s.len));
-        Ok(s.to_string())
-    }
-
-    //pub fn dpiConn_getLTXID
-    //pub fn dpiConn_getObjectType
-
-    pub fn server_version(&self) -> Result<(String, Version)> {
-        let mut s = new_odpi_str();
-        let mut dpi_ver = Default::default();
-        chkerr!(self.ctxt,
-                dpiConn_getServerVersion(self.conn, &mut s.ptr, &mut s.len,
-                                         &mut dpi_ver));
-        Ok((s.to_string(), Version::new_from_dpi_ver(dpi_ver)))
-    }
-
-    pub fn stmt_cache_size(&self) -> Result<u32> {
-        let mut size = 0u32;
-        chkerr!(self.ctxt,
-                dpiConn_getStmtCacheSize(self.conn, &mut size));
-        Ok(size)
-    }
-
-    //pub fn dpiConn_newDeqOptions
-    //pub fn dpiConn_newEnqOptions
-    //pub fn dpiConn_newMsgProps
-    //pub fn dpiConn_newSubscription
-    //pub fn dpiConn_newTempLob
-    //pub fn dpiConn_newVar
-
-    pub fn ping(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_ping(self.conn));
-        Ok(())
-    }
-
-    //pub fn dpiConn_prepareDistribTrans
-
-    pub fn prepare_statement(&self, scrollable: bool, sql: &str, tag: &str) -> Result<DpiStatement> {
-        let scrollable = if scrollable { 1 } else { 0 };
-        let sql = to_odpi_str(sql);
-        let tag = to_odpi_str(tag);
-        let mut stmt: *mut dpiStmt = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiConn_prepareStmt(self.conn, scrollable, sql.ptr, sql.len,
-                                    tag.ptr, tag.len, &mut stmt));
-        let mut info: dpiStmtInfo = Default::default();
-        chkerr!{&self.ctxt,
-                dpiStmt_getInfo(stmt, &mut info),
-                unsafe { dpiStmt_release(stmt); }}
-        Ok(DpiStatement{
-            ctxt: self.ctxt,
-            conn: self,
-            stmt: stmt,
-            fetch_array_size: 0,
-            is_query: info.isQuery != 0,
-            is_plsql: info.isPLSQL != 0,
-            is_ddl: info.isDDL != 0,
-            is_dml: info.isDML != 0,
-            statement_type: info.statementType,
-            is_returning: info.isReturning != 0,
-        })
-    }
-
-    pub fn rollback(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_rollback(self.conn));
-        Ok(())
-    }
-
-    pub fn set_action(&self, action: &str) -> Result<()> {
-        let s = to_odpi_str(action);
-        chkerr!(self.ctxt,
-                dpiConn_setAction(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
-        let s = to_odpi_str(client_identifier);
-        chkerr!(self.ctxt,
-                dpiConn_setClientIdentifier(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_client_info(&self, client_info: &str) -> Result<()> {
-        let s = to_odpi_str(client_info);
-        chkerr!(self.ctxt,
-                dpiConn_setClientInfo(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
-        let s = to_odpi_str(current_schema);
-        chkerr!(self.ctxt,
-                dpiConn_setCurrentSchema(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_db_op(&self, db_op: &str) -> Result<()> {
-        let s = to_odpi_str(db_op);
-        chkerr!(self.ctxt,
-                dpiConn_setDbOp(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-    pub fn set_external_name(&self, external_name: &str) -> Result<()> {
-        let s = to_odpi_str(external_name);
-        chkerr!(self.ctxt,
-                dpiConn_setExternalName(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-    pub fn set_internal_name(&self, internal_name: &str) -> Result<()> {
-        let s = to_odpi_str(internal_name);
-        chkerr!(self.ctxt,
-                dpiConn_setInternalName(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_module(&self, module: &str) -> Result<()> {
-        let s = to_odpi_str(module);
-        chkerr!(self.ctxt,
-                dpiConn_setModule(self.conn, s.ptr, s.len));
-        Ok(())
-    }
-
-    pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_setStmtCacheSize(self.conn, size));
-        Ok(())
-    }
-
-    pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_shutdownDatabase(self.conn, mode as u32));
-        Ok(())
-    }
-
-    pub fn startup_database(&self, mode: StartupMode) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_startupDatabase(self.conn, mode as u32));
-        Ok(())
-    }
-}
-
-impl Drop for DpiConnection {
-    fn drop(&mut self) {
-        let _ = unsafe { dpiConn_release(self.conn) };
-    }
-}
-
-//
 // DpiStatement
 //
 
 pub struct DpiStatement<'conn> {
-    ctxt: &'static Context,
-    conn: &'conn DpiConnection,
-    stmt: *mut dpiStmt,
-    fetch_array_size: u32,
+    pub ctxt: &'static Context,
+    pub conn: &'conn Connection,
+    pub stmt: *mut dpiStmt,
+    pub fetch_array_size: u32,
     pub is_query: bool,
     pub is_plsql: bool,
     pub is_ddl: bool,
@@ -1122,18 +868,18 @@ impl fmt::Display for ColumnInfo {
 
 #[allow(dead_code)]
 pub struct DpiVar<'conn> {
-    _conn: &'conn DpiConnection,
+    _conn: &'conn Connection,
     var: *mut dpiVar,
     data: *mut dpiData,
 }
 
 impl<'conn> DpiVar<'conn> {
-    fn new(conn: &'conn DpiConnection, oratype: &OracleType, array_size: u32) -> Result<DpiVar<'conn>> {
+    fn new(conn: &'conn Connection, oratype: &OracleType, array_size: u32) -> Result<DpiVar<'conn>> {
         let mut var: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype, native_type, size, size_is_byte) = try!(oratype.var_create_param());
         chkerr!(conn.ctxt,
-                dpiConn_newVar(conn.conn, oratype, native_type, array_size, size, size_is_byte,
+                dpiConn_newVar(conn.handle, oratype, native_type, array_size, size, size_is_byte,
                                0, ptr::null_mut(), &mut var, &mut data));
         Ok(DpiVar {
             _conn: conn,
