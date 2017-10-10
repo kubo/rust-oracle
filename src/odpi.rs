@@ -5,11 +5,11 @@ use libc::c_char;
 use libc::uint32_t;
 
 use super::binding::*;
-use super::Context;
 use super::Error;
 use super::error::error_from_context;
 use super::Result;
 use connection::Connection;
+use statement::Statement;
 
 //
 // OracleType
@@ -75,7 +75,7 @@ pub enum OracleType {
 
 impl OracleType {
 
-    fn from_type_info(info: &dpiDataTypeInfo) -> Result<OracleType> {
+    pub(crate) fn from_type_info(info: &dpiDataTypeInfo) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::Nvarchar2(info.sizeInChars)),
@@ -750,131 +750,18 @@ impl Default for dpiStmtInfo {
 }
 
 //
-// DpiStatement
-//
-
-pub struct DpiStatement<'conn> {
-    pub ctxt: &'static Context,
-    pub conn: &'conn Connection,
-    pub stmt: *mut dpiStmt,
-    pub fetch_array_size: u32,
-    pub is_query: bool,
-    pub is_plsql: bool,
-    pub is_ddl: bool,
-    pub is_dml: bool,
-    pub statement_type: dpiStatementType,
-    pub is_returning: bool,
-}
-
-impl<'conn> DpiStatement<'conn> {
-    pub fn close(&self, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-        chkerr!(self.ctxt,
-                dpiStmt_close(self.stmt, tag.ptr, tag.len));
-        Ok(())
-    }
-
-    pub fn execute(&mut self, mode: dpiExecMode) -> Result<usize> {
-        let mut num_query_columns = 0;
-        chkerr!(self.ctxt,
-                dpiStmt_execute(self.stmt, mode, &mut num_query_columns));
-        chkerr!(self.ctxt,
-                dpiStmt_getFetchArraySize(self.stmt, &mut self.fetch_array_size));
-        Ok(num_query_columns as usize)
-    }
-
-    pub fn define(&self, pos: usize, oratype: &OracleType) -> Result<DpiVar<'conn>> {
-        let var = try!(DpiVar::new(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE));
-        chkerr!(self.ctxt,
-                dpiStmt_define(self.stmt, pos as u32, var.var));
-        Ok(var)
-    }
-
-    pub fn fetch(&self) -> Result<(bool, u32)> {
-        let mut found = 0;
-        let mut buffer_row_index = 0;
-        chkerr!(self.ctxt,
-                dpiStmt_fetch(self.stmt, &mut found, &mut buffer_row_index));
-        Ok((found != 0, buffer_row_index))
-    }
-
-    pub fn column_info(&self, pos: usize) -> Result<ColumnInfo> {
-        let mut info = Default::default();
-        chkerr!(self.ctxt,
-                dpiStmt_getQueryInfo(self.stmt, pos as u32, &mut info));
-        Ok(try!(ColumnInfo::new(&info)))
-    }
-
-    pub fn query_value<'stmt>(&'stmt self, pos: usize, oratype: &'stmt OracleType) -> Result<DpiData<'stmt>> {
-        let mut native_type = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiStmt_getQueryValue(self.stmt, pos as u32, &mut native_type, &mut data));
-        Ok(DpiData::new(self, oratype, native_type, data))
-    }
-}
-
-impl<'conn> Drop for DpiStatement<'conn> {
-    fn drop(&mut self) {
-        let _ = unsafe { dpiStmt_release(self.stmt) };
-    }
-}
-
-//
-// ColumnInfo - corresponds to dpiQueryInfo
-//
-
-pub struct ColumnInfo {
-    name: String,
-    oracle_type: OracleType,
-    nullable: bool,
-}
-
-impl ColumnInfo {
-    pub fn name(&self) -> &String {
-        &self.name
-    }
-    pub fn oracle_type(&self) -> &OracleType {
-        &self.oracle_type
-    }
-    pub fn nullable(&self) -> bool {
-        self.nullable
-    }
-}
-
-impl ColumnInfo {
-    fn new(info: &dpiQueryInfo) -> Result<ColumnInfo> {
-        Ok(ColumnInfo {
-            name: OdpiStr::new(info.name, info.nameLength).to_string(),
-            oracle_type: try!(OracleType::from_type_info(&info.typeInfo)),
-            nullable: info.nullOk != 0,
-        })
-    }
-}
-
-impl fmt::Display for ColumnInfo {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.nullable {
-            write!(f, "{} {}", self.name, self.oracle_type)
-        } else {
-            write!(f, "{} {} NOT NULL", self.name, self.oracle_type)
-        }
-    }
-}
-
-//
 // DpiVar
 //
 
 #[allow(dead_code)]
 pub struct DpiVar<'conn> {
     _conn: &'conn Connection,
-    var: *mut dpiVar,
+    pub(crate) var: *mut dpiVar,
     data: *mut dpiData,
 }
 
 impl<'conn> DpiVar<'conn> {
-    fn new(conn: &'conn Connection, oratype: &OracleType, array_size: u32) -> Result<DpiVar<'conn>> {
+    pub(crate) fn new(conn: &'conn Connection, oratype: &OracleType, array_size: u32) -> Result<DpiVar<'conn>> {
         let mut var: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype, native_type, size, size_is_byte) = try!(oratype.var_create_param());
@@ -900,7 +787,7 @@ impl<'conn> Drop for DpiVar<'conn> {
 //
 
 pub struct DpiData<'stmt> {
-    _stmt: &'stmt DpiStatement<'stmt>,
+    _stmt: &'stmt Statement<'stmt>,
     oratype: &'stmt OracleType,
     native_type: u32,
     data: *mut dpiData,
@@ -915,7 +802,7 @@ macro_rules! check_not_null {
 }
 
 impl<'stmt> DpiData<'stmt> {
-    fn new(stmt: &'stmt DpiStatement, oratype: &'stmt OracleType, native_type: u32, data: *mut dpiData) -> DpiData<'stmt> {
+    pub(crate) fn new(stmt: &'stmt Statement, oratype: &'stmt OracleType, native_type: u32, data: *mut dpiData) -> DpiData<'stmt> {
         DpiData {
             _stmt: stmt,
             oratype: oratype,

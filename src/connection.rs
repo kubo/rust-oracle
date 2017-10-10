@@ -9,8 +9,7 @@ use odpi::Version;
 use odpi::OdpiStr;
 use odpi::new_odpi_str;
 use odpi::to_odpi_str;
-use odpi::DpiStatement;
-use Statement;
+use statement::Statement;
 
 //
 // Connector
@@ -134,8 +133,8 @@ impl<'a> Connector<'a> {
 //
 
 pub struct Connection {
-    pub ctxt: &'static Context,
-    pub handle: *mut dpiConn,
+    pub(crate) ctxt: &'static Context,
+    pub(crate) handle: *mut dpiConn,
     tag: String,
     tag_found: bool,
 }
@@ -287,33 +286,7 @@ impl Connection {
 
     /// prepare a statement and return it for subsequent execution/fetching
     pub fn prepare(&self, sql: &str) -> Result<Statement> {
-        self.prepare_internal(false, sql, "")
-    }
-
-    pub fn prepare_internal(&self, scrollable: bool, sql: &str, tag: &str) -> Result<Statement> {
-        let scrollable = if scrollable { 1 } else { 0 };
-        let sql = to_odpi_str(sql);
-        let tag = to_odpi_str(tag);
-        let mut stmt: *mut dpiStmt = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiConn_prepareStmt(self.handle, scrollable, sql.ptr, sql.len,
-                                    tag.ptr, tag.len, &mut stmt));
-        let mut info: dpiStmtInfo = Default::default();
-        chkerr!{&self.ctxt,
-                dpiStmt_getInfo(stmt, &mut info),
-                unsafe { dpiStmt_release(stmt); }}
-        Statement::new(DpiStatement{
-            ctxt: self.ctxt,
-            conn: self,
-            stmt: stmt,
-            fetch_array_size: 0,
-            is_query: info.isQuery != 0,
-            is_plsql: info.isPLSQL != 0,
-            is_ddl: info.isDDL != 0,
-            is_dml: info.isDML != 0,
-            statement_type: info.statementType,
-            is_returning: info.isReturning != 0,
-        })
+        Statement::new(self, false, sql, "")
     }
 
     /// rolls back the current active transaction
