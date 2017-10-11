@@ -1,9 +1,7 @@
 use std::fmt;
-use std::ptr;
 use std::slice;
 
 use binding::*;
-use error::error_from_context;
 use types::FromSql;
 use Error;
 use Result;
@@ -11,7 +9,6 @@ use OracleType;
 use Timestamp;
 use IntervalDS;
 use IntervalYM;
-use Statement;
 
 macro_rules! check_not_null {
     ($var:ident) => {
@@ -28,16 +25,11 @@ pub struct ValueRef<'stmt> {
 }
 
 impl<'stmt> ValueRef<'stmt> {
-    pub fn new(stmt: &'stmt Statement, pos: usize) -> Result<ValueRef<'stmt>> {
-        let var = &stmt.column_vars[pos];
-        let mut native_type = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(stmt.conn.ctxt,
-                dpiStmt_getQueryValue(stmt.handle, (pos + 1) as u32, &mut native_type, &mut data));
+    pub(crate) fn new(data: *mut dpiData, native_type: u32, oratype: &'stmt OracleType) -> Result<ValueRef<'stmt>> {
         Ok(ValueRef {
             data: data,
             native_type: native_type,
-            oratype: &var.oratype,
+            oratype: oratype,
         })
     }
 

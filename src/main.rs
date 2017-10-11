@@ -40,6 +40,15 @@ fn main() {
                  deptno.map_or("".to_string(), |v| v.to_string()));
     }
 
+    // Get a bind value
+    let mut stmt = conn.prepare("begin :1 := 123; end;").unwrap();
+    stmt.bind(1, &oracle::OracleType::Varchar2(30)).unwrap();
+    stmt.execute().unwrap();
+    let retval: String = stmt.bind_value(1).unwrap();
+    println!(":1 (as String) => {}", retval);
+    let retval: i32 = stmt.bind_value(1).unwrap();
+    println!(":1 (as i32) => {}", retval);
+
     if false {
         let mut stmt = conn.prepare("select 100000 from dual").unwrap();
         stmt.execute().unwrap();

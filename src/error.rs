@@ -9,6 +9,8 @@ use Context;
 pub enum Error {
     OciError(DbError),
     DpiError(DbError),
+    InvalidBindIndex(usize, usize),
+    InvalidBindName(String),
     InvalidColumnIndex(usize, usize),
     InvalidColumnName(String),
     InvalidTypeConversion(String, String),
@@ -71,6 +73,10 @@ impl fmt::Display for Error {
                 write!(f, "OCI Error: {}", err.message),
             Error::DpiError(ref err) =>
                 write!(f, "DPI Error: {}", err.message),
+            Error::InvalidBindIndex(idx, num) =>
+                write!(f, "Invalid bind index {} for 1..{}", idx, num),
+            Error::InvalidBindName(ref name) =>
+                write!(f, "Invalid bind name {}", name),
             Error::InvalidColumnIndex(idx, num_cols) =>
                 write!(f, "Invalid column index {} for 1..{}", idx, num_cols),
             Error::InvalidColumnName(ref name) =>
@@ -98,6 +104,8 @@ impl fmt::Debug for Error {
             Error::DpiError(ref err) =>
                 write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
                        err.code, err.offset, err.message, err.fn_name, err.action),
+            Error::InvalidBindIndex(_, _) |
+            Error::InvalidBindName(_) |
             Error::InvalidColumnIndex(_, _) |
             Error::InvalidColumnName(_) |
             Error::InvalidTypeConversion(_, _) |
@@ -115,6 +123,8 @@ impl error::Error for Error {
         match *self {
             Error::OciError(_) => "Oracle OCI error",
             Error::DpiError(_) => "Oracle DPI Error",
+            Error::InvalidBindIndex(_, _) => "Invalid bind index",
+            Error::InvalidBindName(_) => "Invalid bind name",
             Error::InvalidColumnIndex(_, _) => "Invalid column index",
             Error::InvalidColumnName(_) => "Invalid column name",
             Error::InvalidTypeConversion(_, _) => "Invalid type conversion",
