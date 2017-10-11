@@ -29,7 +29,7 @@ pub struct ValueRef<'stmt> {
 
 impl<'stmt> ValueRef<'stmt> {
     pub fn new(stmt: &'stmt Statement, pos: usize) -> Result<ValueRef<'stmt>> {
-        let oratype = &stmt.defined_columns[pos];
+        let var = &stmt.column_vars[pos];
         let mut native_type = 0;
         let mut data = ptr::null_mut();
         chkerr!(stmt.conn.ctxt,
@@ -37,7 +37,7 @@ impl<'stmt> ValueRef<'stmt> {
         Ok(ValueRef {
             data: data,
             native_type: native_type,
-            oratype: oratype,
+            oratype: &var.oratype,
         })
     }
 
