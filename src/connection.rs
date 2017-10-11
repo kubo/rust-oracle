@@ -5,10 +5,10 @@ use Context;
 use error::error_from_context;
 use Result;
 
-use odpi::Version;
-use odpi::OdpiStr;
-use odpi::new_odpi_str;
-use odpi::to_odpi_str;
+use OdpiStr;
+use new_odpi_str;
+use to_odpi_str;
+use oracle_type::Version;
 use statement::Statement;
 
 //

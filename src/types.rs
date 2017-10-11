@@ -1,7 +1,7 @@
 use value_ref::ValueRef;
-use super::Error;
-use super::Result;
-use super::Timestamp;
+use Error;
+use Result;
+use Timestamp;
 
 pub trait FromSql {
     fn from(value: &ValueRef) -> Result<Self> where Self: Sized;

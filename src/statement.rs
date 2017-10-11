@@ -2,10 +2,9 @@ use std::ptr;
 use std::fmt;
 
 use binding::*;
-use odpi::OracleType;
-use odpi::DpiVar;
-use odpi::OdpiStr;
-use odpi::to_odpi_str;
+use OdpiStr;
+use to_odpi_str;
+use oracle_type::OracleType;
 use connection::Connection;
 use error::error_from_context;
 use types::FromSql;
@@ -100,7 +99,7 @@ impl<'conn> Statement<'conn> {
         self.defined_columns[pos] = oratype;
         let var = DpiVar::new(self.conn, &self.defined_columns[pos], DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
         chkerr!(self.conn.ctxt,
-                dpiStmt_define(self.handle, (pos + 1) as u32, var.var));
+                dpiStmt_define(self.handle, (pos + 1) as u32, var.handle));
         Ok(())
     }
 
@@ -139,7 +138,7 @@ impl<'conn> Statement<'conn> {
                 self.defined_columns[i] = oratype;
                 let var = DpiVar::new(self.conn, &self.defined_columns[i], DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
                 chkerr!(self.conn.ctxt,
-                        dpiStmt_define(self.handle, (i + 1) as u32, var.var));
+                        dpiStmt_define(self.handle, (i + 1) as u32, var.handle));
             }
         }
         Ok(())
@@ -303,5 +302,35 @@ impl<'a> RowIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         stmt.column_names().iter().position(|&name| name == *self)
             .ok_or_else(|| Error::InvalidColumnName((*self).to_string()))
+    }
+}
+
+//
+// DpiVar
+//
+
+pub struct DpiVar<'conn> {
+    _conn: &'conn Connection,
+    handle: *mut dpiVar,
+}
+
+impl<'conn> DpiVar<'conn> {
+    pub(crate) fn new(conn: &'conn Connection, oratype: &OracleType, array_size: u32) -> Result<DpiVar<'conn>> {
+        let mut handle: *mut dpiVar = ptr::null_mut();
+        let mut data: *mut dpiData = ptr::null_mut();
+        let (oratype, native_type, size, size_is_byte) = try!(oratype.var_create_param());
+        chkerr!(conn.ctxt,
+                dpiConn_newVar(conn.handle, oratype, native_type, array_size, size, size_is_byte,
+                               0, ptr::null_mut(), &mut handle, &mut data));
+        Ok(DpiVar {
+            _conn: conn,
+            handle: handle,
+        })
+    }
+}
+
+impl<'conn> Drop for DpiVar<'conn> {
+    fn drop(&mut self) {
+        let _ = unsafe { dpiVar_release(self.handle) };
     }
 }

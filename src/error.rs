@@ -4,7 +4,7 @@ use std::fmt;
 use std::slice;
 use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
-use super::Context;
+use Context;
 
 pub enum Error {
     OciError(DbError),
