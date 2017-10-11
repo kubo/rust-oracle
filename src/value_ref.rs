@@ -1,25 +1,44 @@
-use super::odpi::DpiData;
-use super::types::FromSql;
-use super::Error;
-use super::Result;
-use super::OracleType;
-use super::Timestamp;
-use super::IntervalDS;
-use super::IntervalYM;
-
 use std::fmt;
+use std::ptr;
+use std::slice;
+
+use binding::*;
+use error::error_from_context;
+use types::FromSql;
+use Error;
+use Result;
+use OracleType;
+use Timestamp;
+use IntervalDS;
+use IntervalYM;
+use Statement;
+
+macro_rules! check_not_null {
+    ($var:ident) => {
+        if $var.is_null() {
+            return Err(Error::NullConversionError);
+        }
+    }
+}
 
 pub struct ValueRef<'stmt> {
-    data: DpiData<'stmt>,
+    data: *mut dpiData,
+    native_type: u32,
     oratype: &'stmt OracleType,
 }
 
 impl<'stmt> ValueRef<'stmt> {
-    pub fn new(data: DpiData<'stmt>, oratype: &'stmt OracleType) -> ValueRef<'stmt> {
-        ValueRef {
+    pub fn new(stmt: &'stmt Statement, pos: usize) -> Result<ValueRef<'stmt>> {
+        let oratype = &stmt.defined_columns[pos];
+        let mut native_type = 0;
+        let mut data = ptr::null_mut();
+        chkerr!(stmt.conn.ctxt,
+                dpiStmt_getQueryValue(stmt.handle, (pos + 1) as u32, &mut native_type, &mut data));
+        Ok(ValueRef {
             data: data,
+            native_type: native_type,
             oratype: oratype,
-        }
+        })
     }
 
     pub fn get<T>(&self) -> Result<T> where T: FromSql {
@@ -35,153 +54,238 @@ impl<'stmt> ValueRef<'stmt> {
     }
 
     pub fn is_null(&self) -> bool {
-        self.data.is_null()
+        unsafe {
+            (&*self.data).isNull != 0
+        }
     }
 
     pub fn oracle_type(&self) -> &OracleType {
         self.oratype
     }
 
+    fn get_int64_unchecked(&self) -> Result<i64> {
+        check_not_null!(self);
+        unsafe { Ok(dpiData_getInt64(self.data)) }
+    }
+
+    fn get_uint64_unchecked(&self) -> Result<u64> {
+        check_not_null!(self);
+        unsafe { Ok(dpiData_getUint64(self.data)) }
+    }
+
+    fn get_float_unchecked(&self) -> Result<f32> {
+        check_not_null!(self);
+        unsafe { Ok(dpiData_getFloat(self.data)) }
+    }
+
+    fn get_double_unchecked(&self) -> Result<f64> {
+        check_not_null!(self);
+        unsafe { Ok(dpiData_getDouble(self.data)) }
+    }
+
+    fn get_string_unchecked(&self) -> Result<String> {
+        check_not_null!(self);
+        unsafe {
+            let bytes = dpiData_getBytes(self.data);
+            let ptr = (*bytes).ptr as *mut u8;
+            let len = (*bytes).length as usize;
+            Ok(String::from_utf8_lossy(slice::from_raw_parts(ptr, len)).into_owned())
+        }
+    }
+
+    fn get_bytes_unchecked(&self) -> Result<Vec<u8>> {
+        check_not_null!(self);
+        unsafe {
+            let bytes = dpiData_getBytes(self.data);
+            let ptr = (*bytes).ptr as *mut u8;
+            let len = (*bytes).length as usize;
+            let mut vec = Vec::with_capacity(len);
+            vec.extend_from_slice(slice::from_raw_parts(ptr, len));
+            Ok(vec)
+        }
+    }
+
+    fn get_timestamp_unchecked(&self) -> Result<Timestamp> {
+        check_not_null!(self);
+        unsafe {
+            let ts = dpiData_getTimestamp(self.data);
+            Ok(Timestamp::from_dpi_timestamp(&*ts))
+        }
+    }
+
+    fn get_interval_ds_unchecked(&self) -> Result<IntervalDS> {
+        check_not_null!(self);
+        unsafe {
+            let it = dpiData_getIntervalDS(self.data);
+            Ok(IntervalDS::from_dpi_interval_ds(&*it))
+        }
+    }
+
+    fn get_interval_ym_unchecked(&self) -> Result<IntervalYM> {
+        check_not_null!(self);
+        unsafe {
+            let it = dpiData_getIntervalYM(self.data);
+            Ok(IntervalYM::from_dpi_interval_ym(&*it))
+        }
+    }
+
+    fn get_bool_unchecked(&self) -> Result<bool> {
+        check_not_null!(self);
+        unsafe { Ok(dpiData_getBool(self.data) != 0) }
+    }
+
     pub fn as_int64(&self) -> Result<i64> {
-        match *self.oratype {
-            OracleType::BinaryFloat => {
-                let n = try!(self.data.as_float());
-                if i64::min_value() as f32 <= n && n <= i64::max_value() as f32 {
-                    Ok(n as i64)
-                } else {
-                    self.out_of_range("f32", "i64")
-                }
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                self.get_int64_unchecked()
             },
-            OracleType::BinaryDouble => {
-                let n = try!(self.data.as_double());
-                if i64::min_value() as f64 <= n && n <= i64::max_value() as f64 {
-                    Ok(n as i64)
-                } else {
-                    self.out_of_range("f64", "i64")
-                }
-            },
-            OracleType::Number(_,_) => {
-                let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "i64"))
-            }
-            OracleType::Int64 => {
-                self.data.as_int64()
-            },
-            OracleType::UInt64 => {
-                let n = try!(self.data.as_uint64());
+            DPI_NATIVE_TYPE_UINT64 => {
+                let n = self.get_uint64_unchecked()?;
                 if n <= i64::max_value() as u64 {
                     Ok(n as i64)
                 } else {
                     self.out_of_range("u64", "i64")
                 }
             },
+            DPI_NATIVE_TYPE_FLOAT => {
+                let n = self.get_float_unchecked()?;
+                if i64::min_value() as f32 <= n && n <= i64::max_value() as f32 {
+                    Ok(n as i64)
+                } else {
+                    self.out_of_range("f32", "i64")
+                }
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                let n = self.get_double_unchecked()?;
+                if i64::min_value() as f64 <= n && n <= i64::max_value() as f64 {
+                    Ok(n as i64)
+                } else {
+                    self.out_of_range("f64", "i64")
+                }
+            },
+            DPI_NATIVE_TYPE_BYTES => {
+                let s = self.get_string_unchecked()?;
+                s.parse().or(self.out_of_range("string", "i64"))
+            },
             _ => self.invalid_type_conversion("i64"),
         }
     }
 
     pub fn as_uint64(&self) -> Result<u64> {
-        match *self.oratype {
-            OracleType::BinaryFloat => {
-                let n = try!(self.data.as_float());
-                if 0.0f32 <= n && n <= u64::max_value() as f32 {
-                    Ok(n as u64)
-                } else {
-                    self.out_of_range("f32", "u64")
-                }
-            },
-            OracleType::BinaryDouble => {
-                let n = try!(self.data.as_double());
-                if 0.0 <= n && n <= u64::max_value() as f64 {
-                    Ok(n as u64)
-                } else {
-                    self.out_of_range("f64", "u64")
-                }
-            },
-            OracleType::Number(_,_) => {
-                let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "u64"))
-            },
-            OracleType::Int64 => {
-                let n = try!(self.data.as_int64());
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                let n = self.get_int64_unchecked()?;
                 if 0 <= n {
                     Ok(n as u64)
                 } else {
                     self.out_of_range("i64", "u64")
                 }
             },
-            OracleType::UInt64 => {
-                self.data.as_uint64()
+            DPI_NATIVE_TYPE_UINT64 => {
+                self.get_uint64_unchecked()
+            },
+            DPI_NATIVE_TYPE_FLOAT => {
+                let n = self.get_float_unchecked()?;
+                if 0.0f32 <= n && n <= u64::max_value() as f32 {
+                    Ok(n as u64)
+                } else {
+                    self.out_of_range("f32", "u64")
+                }
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                let n = self.get_double_unchecked()?;
+                if 0.0 <= n && n <= u64::max_value() as f64 {
+                    Ok(n as u64)
+                } else {
+                    self.out_of_range("f64", "u64")
+                }
+            },
+            DPI_NATIVE_TYPE_BYTES => {
+                let s = self.get_string_unchecked()?;
+                s.parse().or(self.out_of_range("string", "u64"))
             },
             _ => self.invalid_type_conversion("u64"),
         }
     }
 
     pub fn as_double(&self) -> Result<f64> {
-        match *self.oratype {
-            OracleType::BinaryFloat => {
-                self.data.as_float().map(|n| n as f64)
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                Ok(self.get_int64_unchecked()? as f64)
             },
-            OracleType::BinaryDouble => {
-                self.data.as_double()
+            DPI_NATIVE_TYPE_UINT64 => {
+                Ok(self.get_uint64_unchecked()? as f64)
             },
-            OracleType::Number(_,_) => {
-                let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "f64"))
+            DPI_NATIVE_TYPE_FLOAT => {
+                Ok(self.get_float_unchecked()? as f64)
             },
-            OracleType::Int64 => {
-                self.data.as_int64().map(|n| n as f64)
+            DPI_NATIVE_TYPE_DOUBLE => {
+                self.get_double_unchecked()
             },
-            OracleType::UInt64 => {
-                self.data.as_int64().map(|n| n as f64)
+            DPI_NATIVE_TYPE_BYTES => {
+                let s = self.get_string_unchecked()?;
+                s.parse().or(self.out_of_range("string", "f64"))
             },
             _ => self.invalid_type_conversion("f64"),
         }
     }
 
     pub fn as_float(&self) -> Result<f32> {
-        match *self.oratype {
-            OracleType::BinaryFloat => {
-                self.data.as_float()
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                Ok(self.get_int64_unchecked()? as f32)
             },
-            OracleType::BinaryDouble => {
-                self.data.as_double().map(|n| n as f32)
+            DPI_NATIVE_TYPE_UINT64 => {
+                Ok(self.get_uint64_unchecked()? as f32)
             },
-            OracleType::Number(_,_) => {
-                let s = try!(self.data.as_string());
-                s.parse().or(self.out_of_range("number", "f32"))
+            DPI_NATIVE_TYPE_FLOAT => {
+                self.get_float_unchecked()
             },
-            OracleType::Int64 => {
-                self.data.as_int64().map(|n| n as f32)
+            DPI_NATIVE_TYPE_DOUBLE => {
+                Ok(self.get_double_unchecked()? as f32)
             },
-            OracleType::UInt64 => {
-                self.data.as_int64().map(|n| n as f32)
+            DPI_NATIVE_TYPE_BYTES => {
+                let s = self.get_string_unchecked()?;
+                s.parse().or(self.out_of_range("string", "f32"))
             },
             _ => self.invalid_type_conversion("f32"),
         }
     }
 
     pub fn as_string(&self) -> Result<String> {
-        match *self.oratype {
-            OracleType::Varchar2(_) |
-            OracleType::Nvarchar2(_) |
-            OracleType::Char(_) |
-            OracleType::NChar(_) |
-            OracleType::Raw(_) |
-            OracleType::Long |
-            OracleType::LongRaw |
-            OracleType::Number(_,_) => {
-                self.data.as_string()
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                Ok(self.get_int64_unchecked()?.to_string())
             },
-            _ => {
-                self.invalid_type_conversion("String")
+            DPI_NATIVE_TYPE_UINT64 => {
+                Ok(self.get_uint64_unchecked()?.to_string())
             },
+            DPI_NATIVE_TYPE_FLOAT => {
+                Ok(self.get_float_unchecked()?.to_string())
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                Ok(self.get_double_unchecked()?.to_string())
+            },
+            DPI_NATIVE_TYPE_BYTES => {
+                self.get_string_unchecked()
+            },
+            _ => self.invalid_type_conversion("string"),
+        }
+    }
+
+    pub fn as_bytes(&self) -> Result<Vec<u8>> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_BYTES => {
+                self.get_bytes_unchecked()
+            },
+            _ => self.invalid_type_conversion("bytes"),
         }
     }
 
     pub fn as_bool(&self) -> Result<bool> {
-        match *self.oratype {
-            OracleType::Boolean => {
-                self.data.as_bool()
+        match self.native_type {
+            DPI_NATIVE_TYPE_BOOLEAN => {
+                Ok(self.get_bool_unchecked()?)
             },
             _ => {
                 self.invalid_type_conversion("bool")
@@ -190,38 +294,26 @@ impl<'stmt> ValueRef<'stmt> {
     }
 
     pub fn as_timestamp(&self) -> Result<Timestamp> {
-        match *self.oratype {
-            OracleType::Date |
-            OracleType::Timestamp(_) |
-            OracleType::TimestampTZ(_) |
-            OracleType::TimestampLTZ(_) => {
-                self.data.as_timestamp()
-            },
-            _ => {
-                self.invalid_type_conversion("Timestamp")
-            },
+        if self.native_type == DPI_NATIVE_TYPE_TIMESTAMP {
+            self.get_timestamp_unchecked()
+        } else {
+            self.invalid_type_conversion("Timestamp")
         }
     }
 
     pub fn as_interval_ds(&self) -> Result<IntervalDS> {
-        match *self.oratype {
-            OracleType::IntervalDS(_,_) => {
-                self.data.as_interval_ds()
-            },
-            _ => {
-                self.invalid_type_conversion("intervalDS")
-            },
+        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_DS {
+            self.get_interval_ds_unchecked()
+        } else {
+            self.invalid_type_conversion("IntervalDS")
         }
     }
 
     pub fn as_interval_ym(&self) -> Result<IntervalYM> {
-        match *self.oratype {
-            OracleType::IntervalYM(_) => {
-                self.data.as_interval_ym()
-            },
-            _ => {
-                self.invalid_type_conversion("intervalYM")
-            },
+        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_YM {
+            self.get_interval_ym_unchecked()
+        } else {
+            self.invalid_type_conversion("IntervalYM")
         }
     }
 }

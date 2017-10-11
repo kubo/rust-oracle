@@ -4,12 +4,11 @@ use std::slice;
 use libc::c_char;
 use libc::uint32_t;
 
-use super::binding::*;
-use super::Error;
-use super::error::error_from_context;
-use super::Result;
-use connection::Connection;
-use statement::Statement;
+use binding::*;
+use Error;
+use error::error_from_context;
+use Result;
+use Connection;
 
 //
 // OracleType
@@ -264,7 +263,7 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    fn from_dpi_timestamp(ts: &dpiTimestamp) -> Timestamp {
+    pub(crate) fn from_dpi_timestamp(ts: &dpiTimestamp) -> Timestamp {
         Timestamp {
             year: ts.year as i32,
             month: ts.month as u32,
@@ -383,7 +382,7 @@ pub struct IntervalDS {
 }
 
 impl IntervalDS {
-    fn from_dpi_interval_ds(it: &dpiIntervalDS) -> IntervalDS {
+    pub(crate) fn from_dpi_interval_ds(it: &dpiIntervalDS) -> IntervalDS {
         IntervalDS {
             days: it.days,
             hours: it.hours,
@@ -452,7 +451,7 @@ pub struct IntervalYM {
 }
 
 impl IntervalYM {
-    fn from_dpi_interval_ym(it: &dpiIntervalYM) -> IntervalYM {
+    pub(crate) fn from_dpi_interval_ym(it: &dpiIntervalYM) -> IntervalYM {
         IntervalYM {
             years: it.years,
             months: it.months,
@@ -511,7 +510,7 @@ impl Version {
                   patch: patch, port_update: port_update }
     }
 
-    pub fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
+    pub(crate) fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
         Version::new(ver.versionNum, ver.releaseNum, ver.updateNum, ver.portReleaseNum, ver.portUpdateNum)
     }
 
@@ -575,20 +574,6 @@ impl OdpiStr {
         OdpiStr {
             ptr: ptr,
             len: len,
-        }
-    }
-    unsafe fn from_bytes(bytes: *mut dpiBytes) -> OdpiStr {
-        let len = (*bytes).length;
-        if len != 0 {
-            OdpiStr {
-                ptr: (*bytes).ptr,
-                len: len,
-            }
-        } else {
-            OdpiStr {
-                ptr: ptr::null(),
-                len: 0,
-            }
         }
     }
     pub fn to_string(&self) -> String {
@@ -779,148 +764,5 @@ impl<'conn> DpiVar<'conn> {
 impl<'conn> Drop for DpiVar<'conn> {
     fn drop(&mut self) {
         let _ = unsafe { dpiVar_release(self.var) };
-    }
-}
-
-//
-// DpiData
-//
-
-pub struct DpiData<'stmt> {
-    _stmt: &'stmt Statement<'stmt>,
-    oratype: &'stmt OracleType,
-    native_type: u32,
-    data: *mut dpiData,
-}
-
-macro_rules! check_not_null {
-    ($var:ident) => {
-        if $var.is_null() {
-            return Err(Error::NullConversionError);
-        }
-    }
-}
-
-impl<'stmt> DpiData<'stmt> {
-    pub(crate) fn new(stmt: &'stmt Statement, oratype: &'stmt OracleType, native_type: u32, data: *mut dpiData) -> DpiData<'stmt> {
-        DpiData {
-            _stmt: stmt,
-            oratype: oratype,
-            native_type: native_type,
-            data: data,
-        }
-    }
-
-    fn invalid_type_conversion<T>(&self, to_type: &str) -> Result<T> {
-        Err(Error::InvalidTypeConversion(self.oratype.to_string(), to_type.to_string()))
-    }
-
-    pub fn is_null(&self) -> bool {
-        unsafe {
-            (&*self.data).isNull != 0
-        }
-    }
-
-    pub fn as_int64(&self) -> Result<i64> {
-        if self.native_type == DPI_NATIVE_TYPE_INT64 {
-            check_not_null!(self);
-            unsafe {
-                Ok(dpiData_getInt64(self.data))
-            }
-        } else {
-            self.invalid_type_conversion("i64")
-        }
-    }
-
-    pub fn as_uint64(&self) -> Result<u64> {
-        if self.native_type == DPI_NATIVE_TYPE_UINT64 {
-            check_not_null!(self);
-            unsafe {
-                Ok(dpiData_getUint64(self.data))
-            }
-        } else {
-            self.invalid_type_conversion("uint64")
-        }
-    }
-
-    pub fn as_double(&self) -> Result<f64> {
-        if self.native_type == DPI_NATIVE_TYPE_DOUBLE {
-            check_not_null!(self);
-            unsafe {
-                Ok(dpiData_getDouble(self.data))
-            }
-        } else {
-            self.invalid_type_conversion("f64")
-        }
-    }
-
-    pub fn as_float(&self) -> Result<f32> {
-        if self.native_type == DPI_NATIVE_TYPE_FLOAT {
-            check_not_null!(self);
-            unsafe {
-                Ok(dpiData_getFloat(self.data))
-            }
-        } else {
-            self.invalid_type_conversion("f32")
-        }
-    }
-
-    pub fn as_string(&self) -> Result<String> {
-        if self.native_type == DPI_NATIVE_TYPE_BYTES {
-            check_not_null!(self);
-            unsafe {
-                let bytes = dpiData_getBytes(self.data);
-                Ok(OdpiStr::from_bytes(bytes).to_string())
-            }
-        } else {
-            self.invalid_type_conversion("String")
-        }
-    }
-
-    pub fn as_bool(&self) -> Result<bool> {
-        if self.native_type == DPI_NATIVE_TYPE_BOOLEAN {
-            check_not_null!(self);
-            unsafe {
-                Ok(dpiData_getBool(self.data) != 0)
-            }
-        } else {
-            self.invalid_type_conversion("bool")
-        }
-    }
-
-    pub fn as_timestamp(&self) -> Result<Timestamp> {
-        if self.native_type == DPI_NATIVE_TYPE_TIMESTAMP {
-            check_not_null!(self);
-            unsafe {
-                let ts = dpiData_getTimestamp(self.data);
-                Ok(Timestamp::from_dpi_timestamp(&*ts))
-            }
-        } else {
-            self.invalid_type_conversion("Timestamp")
-        }
-    }
-
-    pub fn as_interval_ds(&self) -> Result<IntervalDS> {
-        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_DS {
-            check_not_null!(self);
-            unsafe {
-                let it = dpiData_getIntervalDS(self.data);
-                Ok(IntervalDS::from_dpi_interval_ds(&*it))
-            }
-        } else {
-            self.invalid_type_conversion("IntervalDS")
-        }
-    }
-
-    pub fn as_interval_ym(&self) -> Result<IntervalYM> {
-        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_YM {
-            check_not_null!(self);
-            unsafe {
-                let it = dpiData_getIntervalYM(self.data);
-                Ok(IntervalYM::from_dpi_interval_ym(&*it))
-            }
-        } else {
-            self.invalid_type_conversion("IntervalYM")
-        }
     }
 }

@@ -3,7 +3,6 @@ use std::fmt;
 
 use binding::*;
 use odpi::OracleType;
-use odpi::DpiData;
 use odpi::DpiVar;
 use odpi::OdpiStr;
 use odpi::to_odpi_str;
@@ -20,8 +19,8 @@ use StatementType;
 //
 
 pub struct Statement<'conn> {
-    conn: &'conn Connection,
-    handle: *mut dpiStmt,
+    pub(crate) conn: &'conn Connection,
+    pub(crate) handle: *mut dpiStmt,
     fetch_array_size: u32,
     is_query: bool,
     is_plsql: bool,
@@ -36,7 +35,7 @@ pub struct Statement<'conn> {
     // This attribute stores OrcleTypes used to define columns.
     // The OracleType may be different with the OracleType in
     // ColumnInfo.
-    defined_columns: Vec<OracleType>,
+    pub(crate) defined_columns: Vec<OracleType>,
     colums_are_defined: bool,
 }
 
@@ -115,10 +114,8 @@ impl<'conn> Statement<'conn> {
         if self.is_query() {
             self.column_info = Vec::with_capacity(self.num_cols);
             for i in 0..self.num_cols {
-                let mut info = Default::default();
-                chkerr!(self.conn.ctxt,
-                        dpiStmt_getQueryInfo(self.handle, (i + 1) as u32, &mut info));
-                self.column_info.push(ColumnInfo::new(&info)?)
+                let ci = ColumnInfo::new(self, i)?;
+                self.column_info.push(ci);
             }
             self.defined_columns = Vec::with_capacity(self.num_cols);
             self.defined_columns.resize(self.num_cols, OracleType::None);
@@ -199,14 +196,6 @@ impl<'conn> Statement<'conn> {
     pub fn is_returning(&self) -> bool {
         self.is_returning
     }
-
-    fn query_value<'stmt>(&'stmt self, pos: usize, oratype: &'stmt OracleType) -> Result<DpiData<'stmt>> {
-        let mut native_type = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.conn.ctxt,
-                dpiStmt_getQueryValue(self.handle, pos as u32, &mut native_type, &mut data));
-        Ok(DpiData::new(self, oratype, native_type, data))
-    }
 }
 
 impl<'conn> Drop for Statement<'conn> {
@@ -226,7 +215,10 @@ pub struct ColumnInfo {
 }
 
 impl ColumnInfo {
-    fn new(info: &dpiQueryInfo) -> Result<ColumnInfo> {
+    fn new(stmt: &Statement, idx: usize) -> Result<ColumnInfo> {
+        let mut info = Default::default();
+        chkerr!(stmt.conn.ctxt,
+                dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info));
         Ok(ColumnInfo {
             name: OdpiStr::new(info.name, info.nameLength).to_string(),
             oracle_type: OracleType::from_type_info(&info.typeInfo)?,
@@ -270,9 +262,7 @@ impl<'stmt> Row<'stmt> {
     fn new(stmt: &'stmt Statement<'stmt>) -> Result<Row<'stmt>> {
         let mut columns = Vec::<ValueRef>::with_capacity(stmt.num_cols);
         for i in 0..stmt.num_cols {
-            let oratype = &stmt.defined_columns[i];
-            let data = stmt.query_value(i + 1, oratype)?;
-            columns.push(ValueRef::new(data, oratype));
+            columns.push(ValueRef::new(stmt, i)?);
         }
         Ok(Row {
             stmt: stmt,
