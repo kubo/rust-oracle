@@ -36,6 +36,8 @@ pub struct Statement<'conn> {
     // ColumnInfo.
     pub(crate) defined_columns: Vec<OracleType>,
     colums_are_defined: bool,
+    bind_count: usize,
+    bind_names: Vec<String>,
 }
 
 impl<'conn> Statement<'conn> {
@@ -52,6 +54,25 @@ impl<'conn> Statement<'conn> {
         chkerr!(conn.ctxt,
                 dpiStmt_getInfo(handle, &mut info),
                 unsafe { dpiStmt_release(handle); });
+        let mut num = 0;
+        chkerr!(conn.ctxt,
+                dpiStmt_getBindCount(handle, &mut num),
+                unsafe { dpiStmt_release(handle); });
+        let bind_count = num as usize;
+        let mut bind_names = Vec::new();
+        if bind_count > 0 {
+            let mut num = 0;
+            let mut names: Vec<*const i8> = vec![ptr::null_mut(); bind_count];
+            let mut lengths = vec![0; bind_count];
+            chkerr!(conn.ctxt,
+                    dpiStmt_getBindNames(handle, &mut num,
+                                         names.as_mut_ptr(), lengths.as_mut_ptr()),
+                    unsafe { dpiStmt_release(handle); });
+            bind_names = Vec::with_capacity(num as usize);
+            for i in 0..(num as usize) {
+                bind_names.push(OdpiStr::new(names[i], lengths[i]).to_string());
+            }
+        };
         Ok(Statement {
             conn: conn,
             handle: handle,
@@ -65,7 +86,9 @@ impl<'conn> Statement<'conn> {
             num_cols: 0,
             column_info: Vec::new(),
             defined_columns: Vec::new(),
-            colums_are_defined: false
+            colums_are_defined: false,
+            bind_count: bind_count,
+            bind_names: bind_names,
         })
     }
 
@@ -142,6 +165,14 @@ impl<'conn> Statement<'conn> {
             }
         }
         Ok(())
+    }
+
+    pub fn bind_count(&self) -> usize {
+        self.bind_count
+    }
+
+    pub fn bind_names(&self) -> Vec<&str> {
+        self.bind_names.iter().map(|name| name.as_str()).collect()
     }
 
     pub fn column_count(&self) -> usize {
