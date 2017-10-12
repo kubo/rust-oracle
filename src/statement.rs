@@ -125,44 +125,30 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    pub fn set_bind_value<I, T>(&self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
+    fn bind_value_ref<I>(&self, bindidx: I) -> Result<ValueRef> where I: BindIndex {
         let pos = bindidx.idx(&self)?;
         let var = &self.bind_vars[pos];
         let mut num = 0;
         let mut data = ptr::null_mut();
         chkerr!(self.conn.ctxt,
                 dpiVar_getData(var.handle, &mut num, &mut data));
-        ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).set(value)
+        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype))
+    }
+
+    pub fn set_bind_value<I, T>(&self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
+        self.bind_value_ref(bindidx)?.set(value)
     }
 
     pub fn set_null_value<I>(&self, bindidx: I) -> Result<()> where I: BindIndex {
-        let pos = bindidx.idx(&self)?;
-        let var = &self.bind_vars[pos];
-        let mut num = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.conn.ctxt,
-                dpiVar_getData(var.handle, &mut num, &mut data));
-        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).set_null())
+        Ok(self.bind_value_ref(bindidx)?.set_null())
     }
 
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
-        let pos = bindidx.idx(&self)?;
-        let var = &self.bind_vars[pos];
-        let mut num = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.conn.ctxt,
-                dpiVar_getData(var.handle, &mut num, &mut data));
-        ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).get()
+        self.bind_value_ref(bindidx)?.get()
     }
 
     pub fn is_null_value<I>(&self, bindidx: I) -> Result<bool> where I: BindIndex {
-        let pos = bindidx.idx(&self)?;
-        let var = &self.bind_vars[pos];
-        let mut num = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.conn.ctxt,
-                dpiVar_getData(var.handle, &mut num, &mut data));
-        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).is_null())
+        Ok(self.bind_value_ref(bindidx)?.is_null())
     }
 
     pub fn define<I>(&mut self, colidx: I, oratype: &OracleType) -> Result<()> where I: ColumnIndex {
