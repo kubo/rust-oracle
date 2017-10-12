@@ -39,6 +39,7 @@ pub use oracle_type::IntervalDS;
 pub use oracle_type::IntervalYM;
 pub use oracle_type::Version;
 pub use types::FromSql;
+pub use types::ToSql;
 
 use binding::*;
 use error::error_from_context;

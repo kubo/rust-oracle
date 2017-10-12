@@ -8,6 +8,7 @@ use oracle_type::OracleType;
 use connection::Connection;
 use error::error_from_context;
 use types::FromSql;
+use types::ToSql;
 use value_ref::ValueRef;
 use Result;
 use Error;
@@ -124,6 +125,26 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
+    pub fn set_bind_value<I, T>(&self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
+        let pos = bindidx.idx(&self)?;
+        let var = &self.bind_vars[pos];
+        let mut num = 0;
+        let mut data = ptr::null_mut();
+        chkerr!(self.conn.ctxt,
+                dpiVar_getData(var.handle, &mut num, &mut data));
+        ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).set(value)
+    }
+
+    pub fn set_null_value<I>(&self, bindidx: I) -> Result<()> where I: BindIndex {
+        let pos = bindidx.idx(&self)?;
+        let var = &self.bind_vars[pos];
+        let mut num = 0;
+        let mut data = ptr::null_mut();
+        chkerr!(self.conn.ctxt,
+                dpiVar_getData(var.handle, &mut num, &mut data));
+        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).set_null())
+    }
+
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
         let pos = bindidx.idx(&self)?;
         let var = &self.bind_vars[pos];
@@ -131,7 +152,17 @@ impl<'conn> Statement<'conn> {
         let mut data = ptr::null_mut();
         chkerr!(self.conn.ctxt,
                 dpiVar_getData(var.handle, &mut num, &mut data));
-        ValueRef::new(data, var.oratype.native_type()?, &var.oratype)?.get()
+        ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).get()
+    }
+
+    pub fn is_null_value<I>(&self, bindidx: I) -> Result<bool> where I: BindIndex {
+        let pos = bindidx.idx(&self)?;
+        let var = &self.bind_vars[pos];
+        let mut num = 0;
+        let mut data = ptr::null_mut();
+        chkerr!(self.conn.ctxt,
+                dpiVar_getData(var.handle, &mut num, &mut data));
+        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype).is_null())
     }
 
     pub fn define<I>(&mut self, colidx: I, oratype: &OracleType) -> Result<()> where I: ColumnIndex {
@@ -314,7 +345,7 @@ impl<'stmt> Row<'stmt> {
             let mut data = ptr::null_mut();
             chkerr!(stmt.conn.ctxt,
                     dpiStmt_getQueryValue(stmt.handle, (i + 1) as u32, &mut native_type, &mut data));
-            columns.push(ValueRef::new(data, native_type, &var.oratype)?);
+            columns.push(ValueRef::new(data, 1, native_type, &var.oratype));
         }
         Ok(Row {
             stmt: stmt,

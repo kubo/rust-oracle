@@ -4,7 +4,13 @@ use Result;
 use Timestamp;
 
 pub trait FromSql {
-    fn from(value: &ValueRef) -> Result<Self> where Self: Sized;
+    fn from(valref: &ValueRef) -> Result<Self> where Self: Sized;
+    /// type name just for information put in error messages.
+    fn type_name() -> String;
+}
+
+pub trait ToSql {
+    fn to(valref: &mut ValueRef, val: Self) -> Result<()>;
     /// type name just for information put in error messages.
     fn type_name() -> String;
 }
@@ -12,9 +18,9 @@ pub trait FromSql {
 macro_rules! define_from_sql {
     ($type_:ident, $func:ident) => {
         impl FromSql for $type_ {
-            fn from(value: &ValueRef) -> Result<$type_> {
+            fn from(valref: &ValueRef) -> Result<$type_> {
                 //println!("Converting {} to {}", value, Self::type_name());
-                value.$func()
+                valref.$func()
             }
             fn type_name() -> String {
                 stringify!($type_).to_string()
@@ -42,6 +48,19 @@ macro_rules! define_from_sql_with_range_check {
     };
 }
 
+macro_rules! define_to_sql {
+    ($type_:ident, $func:ident) => {
+        impl ToSql for $type_ {
+            fn to(valref: &mut ValueRef, val: $type_) -> Result<()> {
+                valref.$func(val)
+            }
+            fn type_name() -> String {
+                stringify!($type_).to_string()
+            }
+        }
+    };
+}
+
 define_from_sql_with_range_check!(i8, as_int64, i64);
 define_from_sql_with_range_check!(i16, as_int64, i64);
 define_from_sql_with_range_check!(i32, as_int64, i64);
@@ -55,9 +74,14 @@ define_from_sql!(f32, as_float);
 define_from_sql!(bool, as_bool);
 define_from_sql!(String, as_string);
 
+define_to_sql!(i64, set_int64);
+define_to_sql!(u64, set_uint64);
+define_to_sql!(f64, set_double);
+define_to_sql!(f32, set_float);
+
 impl<T: FromSql> FromSql for Option<T> {
-    fn from(value: &ValueRef) -> Result<Option<T>> {
-        match <T>::from(value) {
+    fn from(valref: &ValueRef) -> Result<Option<T>> {
+        match <T>::from(valref) {
             Ok(val) => Ok(Some(val)),
             Err(Error::NullConversionError) => Ok(None),
             Err(err) => Err(err),
@@ -70,11 +94,24 @@ impl<T: FromSql> FromSql for Option<T> {
 }
 
 impl FromSql for Timestamp {
-    fn from(value: &ValueRef) -> Result<Timestamp> {
-        value.as_timestamp()
+    fn from(valref: &ValueRef) -> Result<Timestamp> {
+        valref.as_timestamp()
     }
 
     fn type_name() -> String {
         "Timestamp".to_string()
+    }
+}
+
+impl<T: ToSql> ToSql for Option<T> {
+    fn to(valref: &mut ValueRef, val: Option<T>) -> Result<()> {
+        match val {
+            Some(v) => <T>::to(valref, v),
+            None => Ok(valref.set_null()),
+        }
+    }
+
+    fn type_name() -> String {
+        format!("Option<{}>", <T>::type_name())
     }
 }

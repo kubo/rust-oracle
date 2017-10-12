@@ -3,6 +3,7 @@ use std::slice;
 
 use binding::*;
 use types::FromSql;
+use types::ToSql;
 use Error;
 use Result;
 use OracleType;
@@ -20,25 +21,35 @@ macro_rules! check_not_null {
 
 pub struct ValueRef<'stmt> {
     data: *mut dpiData,
+    num_data: usize,
     native_type: u32,
     oratype: &'stmt OracleType,
 }
 
 impl<'stmt> ValueRef<'stmt> {
-    pub(crate) fn new(data: *mut dpiData, native_type: u32, oratype: &'stmt OracleType) -> Result<ValueRef<'stmt>> {
-        Ok(ValueRef {
+    pub(crate) fn new(data: *mut dpiData, num_data: u32, native_type: u32, oratype: &'stmt OracleType) -> ValueRef<'stmt> {
+        ValueRef {
             data: data,
+            num_data: num_data as usize,
             native_type: native_type,
             oratype: oratype,
-        })
+        }
     }
 
     pub fn get<T>(&self) -> Result<T> where T: FromSql {
         <T>::from(self)
     }
 
+    pub fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
+        <T>::to(self, val)
+    }
+
     fn invalid_type_conversion<T>(&self, to_type: &str) -> Result<T> {
         Err(Error::InvalidTypeConversion(self.oratype.to_string(), to_type.to_string()))
+    }
+
+    fn invalid_to_sql_type_conversion<T>(&self, from_type: &str) -> Result<T> {
+        Err(Error::InvalidTypeConversion(from_type.to_string(), self.oratype.to_string()))
     }
 
     fn out_of_range<T>(&self, from_type: &str, to_type: &str) -> Result<T> {
@@ -48,6 +59,12 @@ impl<'stmt> ValueRef<'stmt> {
     pub fn is_null(&self) -> bool {
         unsafe {
             (&*self.data).isNull != 0
+        }
+    }
+
+    pub fn set_null(&mut self) {
+        unsafe {
+            (&mut *self.data).isNull = 1;
         }
     }
 
@@ -126,6 +143,22 @@ impl<'stmt> ValueRef<'stmt> {
         unsafe { Ok(dpiData_getBool(self.data) != 0) }
     }
 
+    fn set_int64_unchecked(&mut self, val: i64) -> Result<()> {
+        unsafe { Ok(dpiData_setInt64(self.data, val)) }
+    }
+
+    fn set_uint64_unchecked(&mut self, val: u64) -> Result<()> {
+        unsafe { Ok(dpiData_setUint64(self.data, val)) }
+    }
+
+    fn set_float_unchecked(&mut self, val: f32) -> Result<()> {
+        unsafe { Ok(dpiData_setFloat(self.data, val)) }
+    }
+
+    fn set_double_unchecked(&mut self, val: f64) -> Result<()> {
+        unsafe { Ok(dpiData_setDouble(self.data, val)) }
+    }
+
     pub fn as_int64(&self) -> Result<i64> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
@@ -157,7 +190,7 @@ impl<'stmt> ValueRef<'stmt> {
             },
             DPI_NATIVE_TYPE_BYTES => {
                 let s = self.get_string_unchecked()?;
-                s.parse().or(self.out_of_range("string", "i64"))
+                s.parse().or(self.out_of_range("string", "i64")) // TODO: map core::num::ParseIntErrorto error::Error
             },
             _ => self.invalid_type_conversion("i64"),
         }
@@ -306,6 +339,78 @@ impl<'stmt> ValueRef<'stmt> {
             self.get_interval_ym_unchecked()
         } else {
             self.invalid_type_conversion("IntervalYM")
+        }
+    }
+
+    pub fn set_int64(&mut self, val: i64) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                self.set_int64_unchecked(val)
+            },
+            DPI_NATIVE_TYPE_UINT64 => {
+                self.set_uint64_unchecked(val as u64)
+            },
+            DPI_NATIVE_TYPE_FLOAT => {
+                self.set_float_unchecked(val as f32)
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                self.set_double_unchecked(val as f64)
+            },
+            _ => self.invalid_to_sql_type_conversion("i64"),
+        }
+    }
+
+    pub fn set_uint64(&mut self, val: u64) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                self.set_int64_unchecked(val as i64)
+            },
+            DPI_NATIVE_TYPE_UINT64 => {
+                self.set_uint64_unchecked(val)
+            },
+            DPI_NATIVE_TYPE_FLOAT => {
+                self.set_float_unchecked(val as f32)
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                self.set_double_unchecked(val as f64)
+            },
+            _ => self.invalid_to_sql_type_conversion("u64"),
+        }
+    }
+
+    pub fn set_float(&mut self, val: f32) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                self.set_int64_unchecked(val as i64)
+            },
+            DPI_NATIVE_TYPE_UINT64 => {
+                self.set_uint64_unchecked(val as u64)
+            },
+            DPI_NATIVE_TYPE_FLOAT => {
+                self.set_float_unchecked(val)
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                self.set_double_unchecked(val as f64)
+            },
+            _ => self.invalid_to_sql_type_conversion("f32"),
+        }
+    }
+
+    pub fn set_double(&mut self, val: f64) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_INT64 => {
+                self.set_int64_unchecked(val as i64)
+            },
+            DPI_NATIVE_TYPE_UINT64 => {
+                self.set_uint64_unchecked(val as u64)
+            },
+            DPI_NATIVE_TYPE_FLOAT => {
+                self.set_float_unchecked(val as f32)
+            },
+            DPI_NATIVE_TYPE_DOUBLE => {
+                self.set_double_unchecked(val)
+            },
+            _ => self.invalid_to_sql_type_conversion("f64"),
         }
     }
 }
