@@ -1,6 +1,7 @@
 extern crate core;
 #[macro_use]
 extern crate lazy_static;
+extern crate try_from;
 
 use std::os::raw::c_char;
 use std::ptr;

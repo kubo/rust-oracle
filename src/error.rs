@@ -9,13 +9,8 @@ use Context;
 pub enum Error {
     OciError(DbError),
     DpiError(DbError),
-    InvalidBindIndex(usize, usize),
-    InvalidBindName(String),
-    InvalidColumnIndex(usize, usize),
-    InvalidColumnName(String),
-    InvalidTypeConversion(String, String),
-    OutOfRange(String, String),
-    NullConversionError,
+    IndexError(IndexError),
+    ConversionError(ConversionError),
     UninitializedBindValue,
     NoMoreData,
     InternalError(String),
@@ -67,6 +62,20 @@ impl DbError {
     }
 }
 
+pub enum IndexError {
+    BindIndex(usize),
+    BindName(String),
+    ColumnIndex(usize),
+    ColumnName(String),
+}
+
+pub enum ConversionError {
+    NullValue,
+    ParseError(Box<error::Error>),
+    Overflow(String, &'static str),
+    UnsupportedType(String, String),
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -74,20 +83,30 @@ impl fmt::Display for Error {
                 write!(f, "OCI Error: {}", err.message),
             Error::DpiError(ref err) =>
                 write!(f, "DPI Error: {}", err.message),
-            Error::InvalidBindIndex(idx, num) =>
-                write!(f, "Invalid bind index {} for 1..{}", idx, num),
-            Error::InvalidBindName(ref name) =>
-                write!(f, "Invalid bind name {}", name),
-            Error::InvalidColumnIndex(idx, num_cols) =>
-                write!(f, "Invalid column index {} for 1..{}", idx, num_cols),
-            Error::InvalidColumnName(ref name) =>
-                write!(f, "Invalid column name {}", name),
-            Error::InvalidTypeConversion(ref from_type, ref to_type) =>
-                write!(f, "Invalid type conversion from {} to {}", from_type, to_type),
-            Error::OutOfRange(ref from_type, ref to_type) =>
-                write!(f, "Out of range while converting {} to {}", from_type, to_type),
-            Error::NullConversionError =>
-                write!(f, "Null conversion error"),
+            Error::IndexError(ref err) => {
+                match *err {
+                    IndexError::BindIndex(ref idx) =>
+                        write!(f, "invalid bind index (one-based): {}", idx),
+                    IndexError::BindName(ref name) =>
+                        write!(f, "invalid bind name: {}", name),
+                    IndexError::ColumnIndex(ref idx) =>
+                        write!(f, "invalid column index (zero-based): {}", idx),
+                    IndexError::ColumnName(ref name) =>
+                        write!(f, "invalid column name: {}", name),
+                }
+            },
+            Error::ConversionError(ref err) => {
+                match *err {
+                    ConversionError::NullValue =>
+                        write!(f, "NULL value found"),
+                    ConversionError::ParseError(ref err) =>
+                        write!(f, "{}", err),
+                    ConversionError::Overflow(ref src, dst) =>
+                        write!(f, "number too large to convert {} to {}", src, dst),
+                    ConversionError::UnsupportedType(ref from, ref to) =>
+                        write!(f, "unsupported type conversion from {} to {}", from, to),
+                }
+            },
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -107,13 +126,30 @@ impl fmt::Debug for Error {
             Error::DpiError(ref err) =>
                 write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
                        err.code, err.offset, err.message, err.fn_name, err.action),
-            Error::InvalidBindIndex(_, _) |
-            Error::InvalidBindName(_) |
-            Error::InvalidColumnIndex(_, _) |
-            Error::InvalidColumnName(_) |
-            Error::InvalidTypeConversion(_, _) |
-            Error::OutOfRange(_, _) |
-            Error::NullConversionError |
+            Error::IndexError(ref err) => {
+                match *err {
+                    IndexError::BindIndex(ref idx) =>
+                        write!(f, "IndexError {{ bind index: {} }}", idx),
+                    IndexError::BindName(ref name) =>
+                        write!(f, "IndexError {{ bind name: {} }}", name),
+                    IndexError::ColumnIndex(ref idx) =>
+                        write!(f, "IndexError {{ column index: {} }}", idx),
+                    IndexError::ColumnName(ref name) =>
+                        write!(f, "IndexError {{ column name: {} }}", name),
+                }
+            },
+            Error::ConversionError(ref err) => {
+                match *err {
+                    ConversionError::NullValue =>
+                        write!(f, "ConversionError {{ NULL value }}"),
+                    ConversionError::ParseError(ref err) =>
+                        write!(f, "ConversionError {{ ParseError: {:?} }}", err),
+                    ConversionError::Overflow(ref src, dst) =>
+                        write!(f, "ConversionError {{ Overflow {{ src: {}, dest: {} }} }}", src, dst),
+                    ConversionError::UnsupportedType(ref from, ref to) =>
+                        write!(f, "ConversionError {{ UnsupportedType {{ from: {}, to: {} }} }}", from, to),
+                }
+            },
             Error::UninitializedBindValue |
             Error::NoMoreData |
             Error::InternalError(_) =>
@@ -127,13 +163,8 @@ impl error::Error for Error {
         match *self {
             Error::OciError(_) => "Oracle OCI error",
             Error::DpiError(_) => "Oracle DPI Error",
-            Error::InvalidBindIndex(_, _) => "Invalid bind index",
-            Error::InvalidBindName(_) => "Invalid bind name",
-            Error::InvalidColumnIndex(_, _) => "Invalid column index",
-            Error::InvalidColumnName(_) => "Invalid column name",
-            Error::InvalidTypeConversion(_, _) => "Invalid type conversion",
-            Error::OutOfRange(_, _) => "Out of range error",
-            Error::NullConversionError => "Null conversion error",
+            Error::IndexError(_) => "invalid index",
+            Error::ConversionError(_) => "conversion error",
             Error::UninitializedBindValue => "Uninitialided bind value error",
             Error::NoMoreData => "No more data",
             Error::InternalError(_) => "Internal error",
@@ -141,7 +172,11 @@ impl error::Error for Error {
     }
 
     fn cause(&self) -> Option<&error::Error> {
-        None
+        match *self {
+            Error::ConversionError(ConversionError::ParseError(ref err)) =>
+                Some(err.as_ref()),
+            _ => None,
+        }
     }
 }
 

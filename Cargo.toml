@@ -6,6 +6,7 @@ build = "build.rs"
 
 [dependencies]
 lazy_static = "0.1"
+try_from = "0.2.2"
 #chrono = "0.2"  # 'cargo run` gets error 'An unknown error occurred' if this line is uncommented...
 
 [build-dependencies]

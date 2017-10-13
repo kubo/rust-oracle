@@ -2,6 +2,9 @@ use value::Value;
 use Error;
 use Result;
 use Timestamp;
+use IntervalYM;
+use IntervalDS;
+use error::ConversionError;
 
 pub trait FromSql {
     fn from(val: &Value) -> Result<Self> where Self: Sized;
@@ -16,10 +19,9 @@ pub trait ToSql {
 }
 
 macro_rules! define_from_sql {
-    ($type_:ident, $func:ident) => {
+    ($type_:ty, $func:ident) => {
         impl FromSql for $type_ {
             fn from(val: &Value) -> Result<$type_> {
-                //println!("Converting {} to {}", value, Self::type_name());
                 val.$func()
             }
             fn type_name() -> String {
@@ -29,27 +31,8 @@ macro_rules! define_from_sql {
     };
 }
 
-macro_rules! define_from_sql_with_range_check {
-    ($type_:ident, $func:ident, $func_ret_type:ident) => {
-        impl FromSql for $type_ {
-            fn from(value: &Value) -> Result<$type_> {
-                //println!("Converting {} to {}", value, Self::type_name());
-                let n = try!(value.$func());
-                if $type_::min_value() as $func_ret_type <= n && n <= $type_::max_value() as $func_ret_type{
-                    Ok(n as $type_)
-                } else {
-                    Err(Error::OutOfRange(value.oracle_type().to_string(), $type_::type_name()))
-                }
-            }
-            fn type_name() -> String {
-                stringify!($type_).to_string()
-            }
-        }
-    };
-}
-
 macro_rules! define_to_sql {
-    ($type_:ident, $func:ident) => {
+    ($type_:ty, $func:ident) => {
         impl ToSql for $type_ {
             fn to(val: &mut Value, newval: $type_) -> Result<()> {
                 val.$func(newval)
@@ -61,18 +44,22 @@ macro_rules! define_to_sql {
     };
 }
 
-define_from_sql_with_range_check!(i8, as_int64, i64);
-define_from_sql_with_range_check!(i16, as_int64, i64);
-define_from_sql_with_range_check!(i32, as_int64, i64);
-define_from_sql!(i64, as_int64);
-define_from_sql_with_range_check!(u8, as_uint64, u64);
-define_from_sql_with_range_check!(u16, as_uint64, u64);
-define_from_sql_with_range_check!(u32, as_uint64, u64);
-define_from_sql!(u64, as_uint64);
-define_from_sql!(f64, as_double);
-define_from_sql!(f32, as_float);
+define_from_sql!(i8, as_i8);
+define_from_sql!(i16, as_i16);
+define_from_sql!(i32, as_i32);
+define_from_sql!(i64, as_i64);
+define_from_sql!(u8, as_u8);
+define_from_sql!(u16, as_u16);
+define_from_sql!(u32, as_u32);
+define_from_sql!(u64, as_u64);
+define_from_sql!(f64, as_f64);
+define_from_sql!(f32, as_f32);
 define_from_sql!(bool, as_bool);
 define_from_sql!(String, as_string);
+define_from_sql!(Vec<u8>, as_bytes);
+define_from_sql!(Timestamp, as_timestamp);
+define_from_sql!(IntervalDS, as_interval_ds);
+define_from_sql!(IntervalYM, as_interval_ym);
 
 define_to_sql!(i64, set_int64);
 define_to_sql!(u64, set_uint64);
@@ -83,23 +70,13 @@ impl<T: FromSql> FromSql for Option<T> {
     fn from(val: &Value) -> Result<Option<T>> {
         match <T>::from(val) {
             Ok(v) => Ok(Some(v)),
-            Err(Error::NullConversionError) => Ok(None),
+            Err(Error::ConversionError(ConversionError::NullValue)) => Ok(None),
             Err(err) => Err(err),
         }
     }
 
     fn type_name() -> String {
         format!("Option<{}>", <T>::type_name())
-    }
-}
-
-impl FromSql for Timestamp {
-    fn from(val: &Value) -> Result<Timestamp> {
-        val.as_timestamp()
-    }
-
-    fn type_name() -> String {
-        "Timestamp".to_string()
     }
 }
 

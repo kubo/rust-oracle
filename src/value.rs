@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ptr;
 use std::slice;
+use try_from::TryInto;
 
 use binding::*;
 use types::FromSql;
@@ -14,14 +15,56 @@ use OracleType;
 use Timestamp;
 use IntervalDS;
 use IntervalYM;
+use error::ConversionError;
 
-macro_rules! check_not_null {
-    ($var:ident) => {
-        if $var.is_null()? {
-            return Err(Error::NullConversionError);
+macro_rules! conv_err_on_fail {
+    ($expr:expr) => {
+        match $expr {
+            Ok(val) => Ok(val),
+            Err(err) =>
+                Err(Error::ConversionError(ConversionError::ParseError(Box::new(err)))),
         }
     }
 }
+
+macro_rules! flt_to_int {
+    ($expr:expr, $src_type:ident, $dest_type:ident) => {
+        {
+            let src_val = $expr;
+            if $dest_type::min_value() as $src_type <= src_val && src_val <= $dest_type::max_value() as $src_type {
+                Ok(src_val as $dest_type)
+            } else {
+                Err(Error::ConversionError(ConversionError::Overflow(format!("{}", src_val), stringify!($dest_type))))
+            }
+        }
+    }
+}
+
+macro_rules! define_fn_as_int {
+    ($func_name:ident, $type:ident) => {
+        pub fn $func_name(&self) -> Result<$type> {
+            match self.native_type {
+                DPI_NATIVE_TYPE_INT64 => {
+                    conv_err_on_fail!(self.get_i64_unchecked()?.try_into())
+                },
+                DPI_NATIVE_TYPE_UINT64 => {
+                    conv_err_on_fail!(self.get_u64_unchecked()?.try_into())
+                },
+                DPI_NATIVE_TYPE_FLOAT => {
+                    flt_to_int!(self.get_f32_unchecked()?, f32, $type)
+                },
+                DPI_NATIVE_TYPE_DOUBLE => {
+                    flt_to_int!(self.get_f64_unchecked()?, f64, $type)
+                },
+                DPI_NATIVE_TYPE_BYTES => {
+                    conv_err_on_fail!(self.get_string_unchecked()?.parse())
+                },
+                _ => self.unsupported_as_type_conversion(stringify!($type))
+            }
+        }
+    }
+}
+
 
 pub struct Value {
     ctxt: &'static Context,
@@ -89,16 +132,20 @@ impl Value {
         <T>::to(self, val)
     }
 
-    fn invalid_type_conversion<T>(&self, to_type: &str) -> Result<T> {
-        Err(Error::InvalidTypeConversion(self.oratype.to_string(), to_type.to_string()))
+    fn unsupported_as_type_conversion<T>(&self, to_type: &str) -> Result<T> {
+        Err(Error::ConversionError(ConversionError::UnsupportedType(self.oratype.to_string(), to_type.to_string())))
     }
 
-    fn invalid_to_sql_type_conversion<T>(&self, from_type: &str) -> Result<T> {
-        Err(Error::InvalidTypeConversion(from_type.to_string(), self.oratype.to_string()))
+    fn unsupported_set_type_conversion<T>(&self, from_type: &str) -> Result<T> {
+        Err(Error::ConversionError(ConversionError::UnsupportedType(from_type.to_string(), self.oratype.to_string())))
     }
 
-    fn out_of_range<T>(&self, from_type: &str, to_type: &str) -> Result<T> {
-        Err(Error::OutOfRange(from_type.to_string(), to_type.to_string()))
+    fn check_not_null(&self) -> Result<()> {
+        if self.is_null()? {
+            Err(Error::ConversionError(ConversionError::NullValue))
+        } else {
+            Ok(())
+        }
     }
 
     pub fn is_null(&self) -> Result<bool> {
@@ -118,28 +165,28 @@ impl Value {
         &self.oratype
     }
 
-    fn get_int64_unchecked(&self) -> Result<i64> {
-        check_not_null!(self);
+    fn get_i64_unchecked(&self) -> Result<i64> {
+        self.check_not_null()?;
         unsafe { Ok(dpiData_getInt64(self.data()?)) }
     }
 
-    fn get_uint64_unchecked(&self) -> Result<u64> {
-        check_not_null!(self);
+    fn get_u64_unchecked(&self) -> Result<u64> {
+        self.check_not_null()?;
         unsafe { Ok(dpiData_getUint64(self.data()?)) }
     }
 
-    fn get_float_unchecked(&self) -> Result<f32> {
-        check_not_null!(self);
+    fn get_f32_unchecked(&self) -> Result<f32> {
+        self.check_not_null()?;
         unsafe { Ok(dpiData_getFloat(self.data()?)) }
     }
 
-    fn get_double_unchecked(&self) -> Result<f64> {
-        check_not_null!(self);
+    fn get_f64_unchecked(&self) -> Result<f64> {
+        self.check_not_null()?;
         unsafe { Ok(dpiData_getDouble(self.data()?)) }
     }
 
     fn get_string_unchecked(&self) -> Result<String> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data()?);
             let ptr = (*bytes).ptr as *mut u8;
@@ -149,7 +196,7 @@ impl Value {
     }
 
     fn get_bytes_unchecked(&self) -> Result<Vec<u8>> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data()?);
             let ptr = (*bytes).ptr as *mut u8;
@@ -161,7 +208,7 @@ impl Value {
     }
 
     fn get_timestamp_unchecked(&self) -> Result<Timestamp> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe {
             let ts = dpiData_getTimestamp(self.data()?);
             Ok(Timestamp::from_dpi_timestamp(&*ts))
@@ -169,7 +216,7 @@ impl Value {
     }
 
     fn get_interval_ds_unchecked(&self) -> Result<IntervalDS> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalDS(self.data()?);
             Ok(IntervalDS::from_dpi_interval_ds(&*it))
@@ -177,7 +224,7 @@ impl Value {
     }
 
     fn get_interval_ym_unchecked(&self) -> Result<IntervalYM> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalYM(self.data()?);
             Ok(IntervalYM::from_dpi_interval_ym(&*it))
@@ -185,7 +232,7 @@ impl Value {
     }
 
     fn get_bool_unchecked(&self) -> Result<bool> {
-        check_not_null!(self);
+        self.check_not_null()?;
         unsafe { Ok(dpiData_getBool(self.data()?) != 0) }
     }
 
@@ -205,142 +252,115 @@ impl Value {
         unsafe { Ok(dpiData_setDouble(self.data()?, val)) }
     }
 
-    pub fn as_int64(&self) -> Result<i64> {
+    pub fn as_i64(&self) -> Result<i64> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
-                self.get_int64_unchecked()
+                self.get_i64_unchecked()
             },
             DPI_NATIVE_TYPE_UINT64 => {
-                let n = self.get_uint64_unchecked()?;
-                if n <= i64::max_value() as u64 {
-                    Ok(n as i64)
-                } else {
-                    self.out_of_range("u64", "i64")
-                }
+                conv_err_on_fail!(self.get_u64_unchecked()?.try_into())
             },
             DPI_NATIVE_TYPE_FLOAT => {
-                let n = self.get_float_unchecked()?;
-                if i64::min_value() as f32 <= n && n <= i64::max_value() as f32 {
-                    Ok(n as i64)
-                } else {
-                    self.out_of_range("f32", "i64")
-                }
+                flt_to_int!(self.get_f32_unchecked()?, f32, i64)
             },
             DPI_NATIVE_TYPE_DOUBLE => {
-                let n = self.get_double_unchecked()?;
-                if i64::min_value() as f64 <= n && n <= i64::max_value() as f64 {
-                    Ok(n as i64)
-                } else {
-                    self.out_of_range("f64", "i64")
-                }
+                flt_to_int!(self.get_f64_unchecked()?, f64, i64)
             },
             DPI_NATIVE_TYPE_BYTES => {
-                let s = self.get_string_unchecked()?;
-                s.parse().or(self.out_of_range("string", "i64")) // TODO: map core::num::ParseIntErrorto error::Error
+                conv_err_on_fail!(self.get_string_unchecked()?.parse())
             },
-            _ => self.invalid_type_conversion("i64"),
+            _ => self.unsupported_as_type_conversion("i64"),
         }
     }
 
-    pub fn as_uint64(&self) -> Result<u64> {
+    pub fn as_u64(&self) -> Result<u64> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
-                let n = self.get_int64_unchecked()?;
-                if 0 <= n {
-                    Ok(n as u64)
-                } else {
-                    self.out_of_range("i64", "u64")
-                }
+                conv_err_on_fail!(self.get_i64_unchecked()?.try_into())
             },
             DPI_NATIVE_TYPE_UINT64 => {
-                self.get_uint64_unchecked()
+                self.get_u64_unchecked()
             },
             DPI_NATIVE_TYPE_FLOAT => {
-                let n = self.get_float_unchecked()?;
-                if 0.0f32 <= n && n <= u64::max_value() as f32 {
-                    Ok(n as u64)
-                } else {
-                    self.out_of_range("f32", "u64")
-                }
+                flt_to_int!(self.get_f32_unchecked()?, f32, u64)
             },
             DPI_NATIVE_TYPE_DOUBLE => {
-                let n = self.get_double_unchecked()?;
-                if 0.0 <= n && n <= u64::max_value() as f64 {
-                    Ok(n as u64)
-                } else {
-                    self.out_of_range("f64", "u64")
-                }
+                flt_to_int!(self.get_f64_unchecked()?, f64, u64)
             },
             DPI_NATIVE_TYPE_BYTES => {
-                let s = self.get_string_unchecked()?;
-                s.parse().or(self.out_of_range("string", "u64"))
+                conv_err_on_fail!(self.get_string_unchecked()?.parse())
             },
-            _ => self.invalid_type_conversion("u64"),
+            _ => self.unsupported_as_type_conversion("u64"),
         }
     }
 
-    pub fn as_double(&self) -> Result<f64> {
+    define_fn_as_int!(as_i8, i8);
+    define_fn_as_int!(as_i16, i16);
+    define_fn_as_int!(as_i32, i32);
+    define_fn_as_int!(as_u8, u8);
+    define_fn_as_int!(as_u16, u16);
+    define_fn_as_int!(as_u32, u32);
+
+    pub fn as_f64(&self) -> Result<f64> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_int64_unchecked()? as f64)
+                Ok(self.get_i64_unchecked()? as f64)
             },
             DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_uint64_unchecked()? as f64)
+                Ok(self.get_u64_unchecked()? as f64)
             },
             DPI_NATIVE_TYPE_FLOAT => {
-                Ok(self.get_float_unchecked()? as f64)
+                Ok(self.get_f32_unchecked()? as f64)
             },
             DPI_NATIVE_TYPE_DOUBLE => {
-                self.get_double_unchecked()
+                self.get_f64_unchecked()
             },
             DPI_NATIVE_TYPE_BYTES => {
-                let s = self.get_string_unchecked()?;
-                s.parse().or(self.out_of_range("string", "f64"))
+                conv_err_on_fail!(self.get_string_unchecked()?.parse())
             },
-            _ => self.invalid_type_conversion("f64"),
+            _ => self.unsupported_as_type_conversion("f64"),
         }
     }
 
-    pub fn as_float(&self) -> Result<f32> {
+    pub fn as_f32(&self) -> Result<f32> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_int64_unchecked()? as f32)
+                Ok(self.get_i64_unchecked()? as f32)
             },
             DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_uint64_unchecked()? as f32)
+                Ok(self.get_u64_unchecked()? as f32)
             },
             DPI_NATIVE_TYPE_FLOAT => {
-                self.get_float_unchecked()
+                self.get_f32_unchecked()
             },
             DPI_NATIVE_TYPE_DOUBLE => {
-                Ok(self.get_double_unchecked()? as f32)
+                Ok(self.get_f64_unchecked()? as f32)
             },
             DPI_NATIVE_TYPE_BYTES => {
-                let s = self.get_string_unchecked()?;
-                s.parse().or(self.out_of_range("string", "f32"))
+                conv_err_on_fail!(self.get_string_unchecked()?.parse())
             },
-            _ => self.invalid_type_conversion("f32"),
+            _ => self.unsupported_as_type_conversion("f32"),
         }
     }
 
     pub fn as_string(&self) -> Result<String> {
         match self.native_type {
             DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_int64_unchecked()?.to_string())
+                Ok(self.get_i64_unchecked()?.to_string())
             },
             DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_uint64_unchecked()?.to_string())
+                Ok(self.get_u64_unchecked()?.to_string())
             },
             DPI_NATIVE_TYPE_FLOAT => {
-                Ok(self.get_float_unchecked()?.to_string())
+                Ok(self.get_f32_unchecked()?.to_string())
             },
             DPI_NATIVE_TYPE_DOUBLE => {
-                Ok(self.get_double_unchecked()?.to_string())
+                Ok(self.get_f64_unchecked()?.to_string())
             },
             DPI_NATIVE_TYPE_BYTES => {
                 self.get_string_unchecked()
             },
-            _ => self.invalid_type_conversion("string"),
+            _ => self.unsupported_as_type_conversion("string"),
         }
     }
 
@@ -349,7 +369,7 @@ impl Value {
             DPI_NATIVE_TYPE_BYTES => {
                 self.get_bytes_unchecked()
             },
-            _ => self.invalid_type_conversion("bytes"),
+            _ => self.unsupported_as_type_conversion("bytes"),
         }
     }
 
@@ -359,7 +379,7 @@ impl Value {
                 Ok(self.get_bool_unchecked()?)
             },
             _ => {
-                self.invalid_type_conversion("bool")
+                self.unsupported_as_type_conversion("bool")
             },
         }
     }
@@ -368,7 +388,7 @@ impl Value {
         if self.native_type == DPI_NATIVE_TYPE_TIMESTAMP {
             self.get_timestamp_unchecked()
         } else {
-            self.invalid_type_conversion("Timestamp")
+            self.unsupported_as_type_conversion("Timestamp")
         }
     }
 
@@ -376,7 +396,7 @@ impl Value {
         if self.native_type == DPI_NATIVE_TYPE_INTERVAL_DS {
             self.get_interval_ds_unchecked()
         } else {
-            self.invalid_type_conversion("IntervalDS")
+            self.unsupported_as_type_conversion("IntervalDS")
         }
     }
 
@@ -384,7 +404,7 @@ impl Value {
         if self.native_type == DPI_NATIVE_TYPE_INTERVAL_YM {
             self.get_interval_ym_unchecked()
         } else {
-            self.invalid_type_conversion("IntervalYM")
+            self.unsupported_as_type_conversion("IntervalYM")
         }
     }
 
@@ -402,7 +422,7 @@ impl Value {
             DPI_NATIVE_TYPE_DOUBLE => {
                 self.set_double_unchecked(val as f64)
             },
-            _ => self.invalid_to_sql_type_conversion("i64"),
+            _ => self.unsupported_set_type_conversion("i64"),
         }
     }
 
@@ -420,7 +440,7 @@ impl Value {
             DPI_NATIVE_TYPE_DOUBLE => {
                 self.set_double_unchecked(val as f64)
             },
-            _ => self.invalid_to_sql_type_conversion("u64"),
+            _ => self.unsupported_set_type_conversion("u64"),
         }
     }
 
@@ -438,7 +458,7 @@ impl Value {
             DPI_NATIVE_TYPE_DOUBLE => {
                 self.set_double_unchecked(val as f64)
             },
-            _ => self.invalid_to_sql_type_conversion("f32"),
+            _ => self.unsupported_set_type_conversion("f32"),
         }
     }
 
@@ -456,7 +476,7 @@ impl Value {
             DPI_NATIVE_TYPE_DOUBLE => {
                 self.set_double_unchecked(val)
             },
-            _ => self.invalid_to_sql_type_conversion("f64"),
+            _ => self.unsupported_set_type_conversion("f64"),
         }
     }
 }
