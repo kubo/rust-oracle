@@ -23,7 +23,7 @@ macro_rules! check_not_null {
     }
 }
 
-pub struct ValueRef {
+pub struct Value {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiVar,
     num_data: usize,
@@ -32,10 +32,10 @@ pub struct ValueRef {
     pub(crate) buffer_row_index: u32,
 }
 
-impl ValueRef {
+impl Value {
 
-    pub(crate) fn new(ctxt: &'static Context) -> ValueRef {
-        ValueRef {
+    pub(crate) fn new(ctxt: &'static Context) -> Value {
+        Value {
             ctxt: ctxt,
             handle: ptr::null_mut(),
             num_data: 0,
@@ -461,18 +461,18 @@ impl ValueRef {
     }
 }
 
-impl fmt::Display for ValueRef {
+impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ValueRef({})", self.oratype)
+        write!(f, "Value({})", self.oratype)
     }
 }
 
-impl Clone for ValueRef {
-    fn clone(&self) -> ValueRef {
+impl Clone for Value {
+    fn clone(&self) -> Value {
         if !self.handle.is_null() {
             unsafe { dpiVar_addRef(self.handle); }
         }
-        ValueRef {
+        Value {
             ctxt: self.ctxt,
             handle: self.handle,
             num_data: self.num_data,
@@ -483,7 +483,7 @@ impl Clone for ValueRef {
     }
 }
 
-impl Drop for ValueRef {
+impl Drop for Value {
     fn drop(&mut self) {
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };

@@ -18,7 +18,7 @@ mod connection;
 mod statement;
 mod oracle_type;
 mod types;
-mod value_ref;
+mod value;
 
 pub use binding::dpiAuthMode as AuthMode;
 pub use binding::dpiStatementType as StatementType;
