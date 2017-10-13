@@ -17,6 +17,8 @@ use IntervalDS;
 use IntervalYM;
 use error::ConversionError;
 use to_odpi_str;
+use oracle_type::NativeType;
+use oracle_type::to_native_type_num;
 
 macro_rules! conv_err_on_fail {
     ($expr:expr) => {
@@ -45,22 +47,19 @@ macro_rules! define_fn_as_int {
     ($func_name:ident, $type:ident) => {
         pub fn $func_name(&self) -> Result<$type> {
             match self.native_type {
-                DPI_NATIVE_TYPE_INT64 => {
-                    conv_err_on_fail!(self.get_i64_unchecked()?.try_into())
-                },
-                DPI_NATIVE_TYPE_UINT64 => {
-                    conv_err_on_fail!(self.get_u64_unchecked()?.try_into())
-                },
-                DPI_NATIVE_TYPE_FLOAT => {
-                    flt_to_int!(self.get_f32_unchecked()?, f32, $type)
-                },
-                DPI_NATIVE_TYPE_DOUBLE => {
-                    flt_to_int!(self.get_f64_unchecked()?, f64, $type)
-                },
-                DPI_NATIVE_TYPE_BYTES => {
-                    conv_err_on_fail!(self.get_string_unchecked()?.parse())
-                },
-                _ => self.unsupported_as_type_conversion(stringify!($type))
+                NativeType::Int64 =>
+                    conv_err_on_fail!(self.get_i64_unchecked()?.try_into()),
+                NativeType::UInt64 =>
+                    conv_err_on_fail!(self.get_u64_unchecked()?.try_into()),
+                NativeType::Float =>
+                    flt_to_int!(self.get_f32_unchecked()?, f32, $type),
+                NativeType::Double =>
+                    flt_to_int!(self.get_f64_unchecked()?, f64, $type),
+                NativeType::Char |
+                NativeType::Number =>
+                    conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                _ =>
+                    self.unsupported_as_type_conversion(stringify!($type))
             }
         }
     }
@@ -70,23 +69,21 @@ macro_rules! define_fn_set_int {
     ($func_name:ident, $type:ident) => {
         pub fn $func_name(&mut self, val: $type) -> Result<()> {
             match self.native_type {
-                DPI_NATIVE_TYPE_INT64 => {
-                    self.set_i64_unchecked(val as i64)
-                },
-                DPI_NATIVE_TYPE_UINT64 => {
-                    self.set_u64_unchecked(val as u64)
-                },
-                DPI_NATIVE_TYPE_FLOAT => {
-                    self.set_f32_unchecked(val as f32)
-                },
-                DPI_NATIVE_TYPE_DOUBLE => {
-                    self.set_f64_unchecked(val as f64)
-                },
-                DPI_NATIVE_TYPE_BYTES => {
+                NativeType::Int64 =>
+                    self.set_i64_unchecked(val as i64),
+                NativeType::UInt64 =>
+                    self.set_u64_unchecked(val as u64),
+                NativeType::Float =>
+                    self.set_f32_unchecked(val as f32),
+                NativeType::Double =>
+                    self.set_f64_unchecked(val as f64),
+                NativeType::Char |
+                NativeType::Number => {
                     let s = format!("{}", val);
                     self.set_string_unchecked(&s)
                 },
-                _ => self.unsupported_set_type_conversion(stringify!($type))
+                _ =>
+                    self.unsupported_set_type_conversion(stringify!($type))
             }
         }
     }
@@ -96,8 +93,7 @@ macro_rules! define_fn_set_int {
 pub struct Value {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiVar,
-    num_data: usize,
-    native_type: u32,
+    native_type: NativeType,
     oratype: OracleType,
     pub(crate) buffer_row_index: u32,
 }
@@ -108,8 +104,7 @@ impl Value {
         Value {
             ctxt: ctxt,
             handle: ptr::null_mut(),
-            num_data: 0,
-            native_type: 0,
+            native_type: NativeType::Int64,
             oratype: OracleType::None,
             buffer_row_index: 0,
         }
@@ -123,8 +118,9 @@ impl Value {
         let mut handle: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
+        let native_type_num = to_native_type_num(&native_type);
         chkerr!(conn.ctxt,
-                dpiConn_newVar(conn.handle, oratype_num, native_type, array_size, size, size_is_byte,
+                dpiConn_newVar(conn.handle, oratype_num, native_type_num, array_size, size, size_is_byte,
                                0, ptr::null_mut(), &mut handle, &mut data));
         self.handle = handle;
         self.native_type = native_type;
@@ -336,43 +332,37 @@ impl Value {
 
     pub fn as_i64(&self) -> Result<i64> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                self.get_i64_unchecked()
-            },
-            DPI_NATIVE_TYPE_UINT64 => {
-                conv_err_on_fail!(self.get_u64_unchecked()?.try_into())
-            },
-            DPI_NATIVE_TYPE_FLOAT => {
-                flt_to_int!(self.get_f32_unchecked()?, f32, i64)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                flt_to_int!(self.get_f64_unchecked()?, f64, i64)
-            },
-            DPI_NATIVE_TYPE_BYTES => {
-                conv_err_on_fail!(self.get_string_unchecked()?.parse())
-            },
-            _ => self.unsupported_as_type_conversion("i64"),
+            NativeType::Int64 =>
+                self.get_i64_unchecked(),
+            NativeType::UInt64 =>
+                conv_err_on_fail!(self.get_u64_unchecked()?.try_into()),
+            NativeType::Float =>
+                flt_to_int!(self.get_f32_unchecked()?, f32, i64),
+            NativeType::Double =>
+                flt_to_int!(self.get_f64_unchecked()?, f64, i64),
+            NativeType::Char |
+            NativeType::Number =>
+                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+            _ =>
+                self.unsupported_as_type_conversion("i64"),
         }
     }
 
     pub fn as_u64(&self) -> Result<u64> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                conv_err_on_fail!(self.get_i64_unchecked()?.try_into())
-            },
-            DPI_NATIVE_TYPE_UINT64 => {
-                self.get_u64_unchecked()
-            },
-            DPI_NATIVE_TYPE_FLOAT => {
-                flt_to_int!(self.get_f32_unchecked()?, f32, u64)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                flt_to_int!(self.get_f64_unchecked()?, f64, u64)
-            },
-            DPI_NATIVE_TYPE_BYTES => {
-                conv_err_on_fail!(self.get_string_unchecked()?.parse())
-            },
-            _ => self.unsupported_as_type_conversion("u64"),
+            NativeType::Int64 =>
+                conv_err_on_fail!(self.get_i64_unchecked()?.try_into()),
+            NativeType::UInt64 =>
+                self.get_u64_unchecked(),
+            NativeType::Float =>
+                flt_to_int!(self.get_f32_unchecked()?, f32, u64),
+            NativeType::Double =>
+                flt_to_int!(self.get_f64_unchecked()?, f64, u64),
+            NativeType::Char |
+            NativeType::Number =>
+                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+            _ =>
+                self.unsupported_as_type_conversion("u64"),
         }
     }
 
@@ -385,89 +375,78 @@ impl Value {
 
     pub fn as_f64(&self) -> Result<f64> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_i64_unchecked()? as f64)
-            },
-            DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_u64_unchecked()? as f64)
-            },
-            DPI_NATIVE_TYPE_FLOAT => {
-                Ok(self.get_f32_unchecked()? as f64)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                self.get_f64_unchecked()
-            },
-            DPI_NATIVE_TYPE_BYTES => {
-                conv_err_on_fail!(self.get_string_unchecked()?.parse())
-            },
-            _ => self.unsupported_as_type_conversion("f64"),
+            NativeType::Int64 =>
+                Ok(self.get_i64_unchecked()? as f64),
+            NativeType::UInt64 =>
+                Ok(self.get_u64_unchecked()? as f64),
+            NativeType::Float =>
+                Ok(self.get_f32_unchecked()? as f64),
+            NativeType::Double =>
+                self.get_f64_unchecked(),
+            NativeType::Char |
+            NativeType::Number =>
+                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+            _ =>
+                self.unsupported_as_type_conversion("f64"),
         }
     }
 
     pub fn as_f32(&self) -> Result<f32> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_i64_unchecked()? as f32)
-            },
-            DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_u64_unchecked()? as f32)
-            },
-            DPI_NATIVE_TYPE_FLOAT => {
-                self.get_f32_unchecked()
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                Ok(self.get_f64_unchecked()? as f32)
-            },
-            DPI_NATIVE_TYPE_BYTES => {
-                conv_err_on_fail!(self.get_string_unchecked()?.parse())
-            },
-            _ => self.unsupported_as_type_conversion("f32"),
+            NativeType::Int64 =>
+                Ok(self.get_i64_unchecked()? as f32),
+            NativeType::UInt64 =>
+                Ok(self.get_u64_unchecked()? as f32),
+            NativeType::Float =>
+                self.get_f32_unchecked(),
+            NativeType::Double =>
+                Ok(self.get_f64_unchecked()? as f32),
+            NativeType::Char |
+            NativeType::Number =>
+                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+            _ =>
+                self.unsupported_as_type_conversion("f32"),
         }
     }
 
     pub fn as_string(&self) -> Result<String> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                Ok(self.get_i64_unchecked()?.to_string())
-            },
-            DPI_NATIVE_TYPE_UINT64 => {
-                Ok(self.get_u64_unchecked()?.to_string())
-            },
-            DPI_NATIVE_TYPE_FLOAT => {
-                Ok(self.get_f32_unchecked()?.to_string())
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                Ok(self.get_f64_unchecked()?.to_string())
-            },
-            DPI_NATIVE_TYPE_BYTES => {
-                self.get_string_unchecked()
-            },
-            _ => self.unsupported_as_type_conversion("string"),
+            NativeType::Int64 =>
+                Ok(self.get_i64_unchecked()?.to_string()),
+            NativeType::UInt64 =>
+                Ok(self.get_u64_unchecked()?.to_string()),
+            NativeType::Float =>
+                Ok(self.get_f32_unchecked()?.to_string()),
+            NativeType::Double =>
+                Ok(self.get_f64_unchecked()?.to_string()),
+            NativeType::Char |
+            NativeType::Number =>
+                self.get_string_unchecked(),
+            _ =>
+                self.unsupported_as_type_conversion("string"),
         }
     }
 
     pub fn as_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
-            DPI_NATIVE_TYPE_BYTES => {
-                self.get_bytes_unchecked()
-            },
-            _ => self.unsupported_as_type_conversion("bytes"),
+            NativeType::Raw =>
+                self.get_bytes_unchecked(),
+            _ =>
+                self.unsupported_as_type_conversion("bytes"),
         }
     }
 
     pub fn as_bool(&self) -> Result<bool> {
         match self.native_type {
-            DPI_NATIVE_TYPE_BOOLEAN => {
-                Ok(self.get_bool_unchecked()?)
-            },
-            _ => {
-                self.unsupported_as_type_conversion("bool")
-            },
+            NativeType::Boolean =>
+                Ok(self.get_bool_unchecked()?),
+            _ =>
+                self.unsupported_as_type_conversion("bool"),
         }
     }
 
     pub fn as_timestamp(&self) -> Result<Timestamp> {
-        if self.native_type == DPI_NATIVE_TYPE_TIMESTAMP {
+        if self.native_type == NativeType::Timestamp {
             self.get_timestamp_unchecked()
         } else {
             self.unsupported_as_type_conversion("Timestamp")
@@ -475,7 +454,7 @@ impl Value {
     }
 
     pub fn as_interval_ds(&self) -> Result<IntervalDS> {
-        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_DS {
+        if self.native_type == NativeType::IntervalDS {
             self.get_interval_ds_unchecked()
         } else {
             self.unsupported_as_type_conversion("IntervalDS")
@@ -483,7 +462,7 @@ impl Value {
     }
 
     pub fn as_interval_ym(&self) -> Result<IntervalYM> {
-        if self.native_type == DPI_NATIVE_TYPE_INTERVAL_YM {
+        if self.native_type == NativeType::IntervalYM {
             self.get_interval_ym_unchecked()
         } else {
             self.unsupported_as_type_conversion("IntervalYM")
@@ -507,67 +486,55 @@ impl Value {
 
     pub fn set_string(&mut self, val: &str) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_BYTES => {
-                Ok(self.set_string_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("&str")
-            },
+            NativeType::Char =>
+                Ok(self.set_string_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("&str"),
         }
     }
 
     pub fn set_bytes(&self, val: &Vec<u8>) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_BYTES => {
-                Ok(self.set_bytes_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("Vec<u8>")
-            },
+            NativeType::Raw =>
+                Ok(self.set_bytes_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("Vec<u8>"),
         }
     }
 
     pub fn set_timestamp(&self, val: &Timestamp) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_TIMESTAMP => {
-                Ok(self.set_timestamp_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("Timestamp")
-            },
+            NativeType::Timestamp =>
+                Ok(self.set_timestamp_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("Timestamp"),
         }
     }
 
     pub fn set_interval_ds(&self, val: &IntervalDS) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INTERVAL_DS => {
-                Ok(self.set_interval_ds_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("IntervalDS")
-            },
+            NativeType::IntervalDS =>
+                Ok(self.set_interval_ds_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("IntervalDS"),
         }
     }
 
     pub fn set_interval_ym(&self, val: &IntervalYM) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INTERVAL_YM => {
-                Ok(self.set_interval_ym_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("IntervalYM")
-            },
+            NativeType::IntervalYM =>
+                Ok(self.set_interval_ym_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("IntervalYM"),
         }
     }
 
     pub fn set_bool(&mut self, val: bool) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_BOOLEAN => {
-                Ok(self.set_bool_unchecked(val)?)
-            },
-            _ => {
-                self.unsupported_set_type_conversion("bool")
-            },
+            NativeType::Boolean =>
+                Ok(self.set_bool_unchecked(val)?),
+            _ =>
+                self.unsupported_set_type_conversion("bool"),
         }
     }
 }
@@ -586,8 +553,7 @@ impl Clone for Value {
         Value {
             ctxt: self.ctxt,
             handle: self.handle,
-            num_data: self.num_data,
-            native_type: self.native_type,
+            native_type: self.native_type.clone(),
             oratype: self.oratype.clone(),
             buffer_row_index: self.buffer_row_index,
         }

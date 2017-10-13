@@ -4,6 +4,54 @@ use binding::*;
 use error::Error;
 use Result;
 
+// NativeType corresponds to dpiNativeTypeNum in ODPI
+// except Char, Number, Raw, CLOB and BLOB.
+#[derive(Debug, Clone, PartialEq)]
+pub enum NativeType {
+    Int64,      // i64 in rust
+    UInt64,     // u64 in rust
+    Float,      // f32 in rust
+    Double,     // f64 in rust
+    Char,       // String or `str in rust
+    Number,     // string represention of Oracle number
+    Raw,        // Vec<u8> in rust
+    Timestamp,  // oracle::Timestamp in rust
+    IntervalDS, // oracle::IntervalDS in rust
+    IntervalYM, // oracle::IntervalYM in rust
+    #[allow(dead_code)]
+    CLOB,
+    #[allow(dead_code)]
+    BLOB,
+    #[allow(dead_code)]
+    Object,
+    #[allow(dead_code)]
+    Stmt,
+    #[allow(dead_code)]
+    Boolean,    // bool in rust
+    Rowid,
+}
+
+pub fn to_native_type_num(native_type: &NativeType) -> dpiNativeTypeNum {
+    match *native_type {
+        NativeType::Int64 => DPI_NATIVE_TYPE_INT64,
+        NativeType::UInt64 => DPI_NATIVE_TYPE_UINT64,
+        NativeType::Float => DPI_NATIVE_TYPE_FLOAT,
+        NativeType::Double => DPI_NATIVE_TYPE_DOUBLE,
+        NativeType::Char => DPI_NATIVE_TYPE_BYTES,
+        NativeType::Number => DPI_NATIVE_TYPE_BYTES,
+        NativeType::Raw => DPI_NATIVE_TYPE_BYTES,
+        NativeType::Timestamp => DPI_NATIVE_TYPE_TIMESTAMP,
+        NativeType::IntervalDS => DPI_NATIVE_TYPE_INTERVAL_DS,
+        NativeType::IntervalYM => DPI_NATIVE_TYPE_INTERVAL_YM,
+        NativeType::CLOB => DPI_NATIVE_TYPE_LOB,
+        NativeType::BLOB => DPI_NATIVE_TYPE_LOB,
+        NativeType::Object => DPI_NATIVE_TYPE_OBJECT,
+        NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
+        NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
+        NativeType::Rowid => DPI_NATIVE_TYPE_ROWID,
+    }
+}
+
 //
 // OracleType
 //
@@ -98,8 +146,8 @@ impl OracleType {
         }
     }
 
-    // Returns parameters to create a new dpiVar.
-    pub(crate) fn var_create_param(&self) -> Result<(u32, u32, u32, i32)> {
+    // Returns parameters to create a dpiVar handle.
+    pub(crate) fn var_create_param(&self) -> Result<(u32, NativeType, u32, i32)> {
         // The followings are basically same with dpiAllOracleTypes[] in
         // dpiOracleType.c. If enum OracleType has an attribute corresponding
         // to defaultNativeTypeNum of dpiQueryInfo, this mapping is not needed.
@@ -107,57 +155,57 @@ impl OracleType {
         // as dpiNativeTypeNum.
         match *self {
             OracleType::Varchar2(size) =>
-                Ok((DPI_ORACLE_TYPE_VARCHAR, DPI_NATIVE_TYPE_BYTES, size, 1)),
+                Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 1)),
             OracleType::Nvarchar2(size) =>
-                Ok((DPI_ORACLE_TYPE_NVARCHAR, DPI_NATIVE_TYPE_BYTES, size, 0)),
+                Ok((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, 0)),
             OracleType::Char(size) =>
-                Ok((DPI_ORACLE_TYPE_CHAR, DPI_NATIVE_TYPE_BYTES, size, 1)),
+                Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 1)),
             OracleType::NChar(size) =>
-                Ok((DPI_ORACLE_TYPE_NCHAR, DPI_NATIVE_TYPE_BYTES, size, 0)),
+                Ok((DPI_ORACLE_TYPE_NCHAR, NativeType::Char, size, 0)),
             OracleType::Rowid =>
-                Ok((DPI_ORACLE_TYPE_ROWID, DPI_NATIVE_TYPE_ROWID, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_ROWID, NativeType::Rowid, 0, 0)),
             OracleType::Raw(size) =>
-                Ok((DPI_ORACLE_TYPE_RAW, DPI_NATIVE_TYPE_BYTES, size, 1)),
+                Ok((DPI_ORACLE_TYPE_RAW, NativeType::Raw, size, 1)),
             OracleType::BinaryFloat =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_FLOAT, DPI_NATIVE_TYPE_FLOAT, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_NATIVE_FLOAT, NativeType::Float, 0, 0)),
             OracleType::BinaryDouble =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, DPI_NATIVE_TYPE_DOUBLE, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, NativeType::Double, 0, 0)),
             OracleType::Number(_, _) =>
-                Ok((DPI_ORACLE_TYPE_NUMBER, DPI_NATIVE_TYPE_BYTES, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_NUMBER, NativeType::Number, 0, 0)),
             OracleType::Date =>
-                Ok((DPI_ORACLE_TYPE_DATE, DPI_NATIVE_TYPE_TIMESTAMP, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_DATE, NativeType::Timestamp, 0, 0)),
             OracleType::Timestamp(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP, DPI_NATIVE_TYPE_TIMESTAMP, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP, NativeType::Timestamp, 0, 0)),
             OracleType::TimestampTZ(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP_TZ, DPI_NATIVE_TYPE_TIMESTAMP, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP_TZ, NativeType::Timestamp, 0, 0)),
             OracleType::TimestampLTZ(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP_LTZ, DPI_NATIVE_TYPE_TIMESTAMP, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP_LTZ, NativeType::Timestamp, 0, 0)),
             OracleType::IntervalDS(_, _) =>
-                Ok((DPI_ORACLE_TYPE_INTERVAL_DS, DPI_NATIVE_TYPE_INTERVAL_DS, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_INTERVAL_DS, NativeType::IntervalDS, 0, 0)),
             OracleType::IntervalYM(_) =>
-                Ok((DPI_ORACLE_TYPE_INTERVAL_YM, DPI_NATIVE_TYPE_INTERVAL_YM, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, 0, 0)),
 //            OracleType::CLob =>
-//                Ok((DPI_ORACLE_TYPE_CLOB, DPI_NATIVE_TYPE_LOB, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_CLOB, NativeType::CLOB, 0, 0)),
 //            OracleType::NCLob =>
-//                Ok((DPI_ORACLE_TYPE_NCLOB, DPI_NATIVE_TYPE_LOB, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
 //            OracleType::BLob =>
-//                Ok((DPI_ORACLE_TYPE_BLOB, DPI_NATIVE_TYPE_LOB, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
 //            OracleType::BFile =>
-//                Ok((DPI_ORACLE_TYPE_BFILE, DPI_NATIVE_TYPE_LOB, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
 //            OracleType::RefCursor =>
-//                Ok((DPI_ORACLE_TYPE_STMT, DPI_NATIVE_TYPE_STMT, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
 //            OracleType::Boolean =>
-//                Ok((DPI_ORACLE_TYPE_BOOLEAN, DPI_NATIVE_TYPE_BOOLEAN, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
 //            OracleType::Object =>
-//                Ok((DPI_ORACLE_TYPE_OBJECT, DPI_NATIVE_TYPE_OBJECT, 0, 0)),
+//                Ok((DPI_ORACLE_TYPE_OBJECT, NativeType::Object, 0, 0)),
             OracleType::Long =>
-                Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, DPI_NATIVE_TYPE_BYTES, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, 0, 0)),
             OracleType::LongRaw =>
-                Ok((DPI_ORACLE_TYPE_LONG_RAW, DPI_NATIVE_TYPE_BYTES, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw, 0, 0)),
             OracleType::Int64 =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_INT, DPI_NATIVE_TYPE_INT64, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, 0, 0)),
             OracleType::UInt64 =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_UINT, DPI_NATIVE_TYPE_UINT64, 0, 0)),
+                Ok((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, 0, 0)),
             _ =>
                 Err(Error::InternalError(format!("Unsupported Oracle type {}", self))),
         }
