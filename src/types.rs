@@ -107,7 +107,7 @@ impl<T: ToSql> ToSql for Option<T> {
     fn to(valref: &mut ValueRef, val: Option<T>) -> Result<()> {
         match val {
             Some(v) => <T>::to(valref, v),
-            None => Ok(valref.set_null()),
+            None => valref.set_null(),
         }
     }
 

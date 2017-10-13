@@ -16,6 +16,7 @@ pub enum Error {
     InvalidTypeConversion(String, String),
     OutOfRange(String, String),
     NullConversionError,
+    UninitializedBindValue,
     NoMoreData,
     InternalError(String),
 }
@@ -87,6 +88,8 @@ impl fmt::Display for Error {
                 write!(f, "Out of range while converting {} to {}", from_type, to_type),
             Error::NullConversionError =>
                 write!(f, "Null conversion error"),
+            Error::UninitializedBindValue =>
+                write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
                 write!(f, "No more data to be fetched"),
             Error::InternalError(ref msg) =>
@@ -111,6 +114,7 @@ impl fmt::Debug for Error {
             Error::InvalidTypeConversion(_, _) |
             Error::OutOfRange(_, _) |
             Error::NullConversionError |
+            Error::UninitializedBindValue |
             Error::NoMoreData |
             Error::InternalError(_) =>
                 write!(f, "{}", *self),
@@ -130,6 +134,7 @@ impl error::Error for Error {
             Error::InvalidTypeConversion(_, _) => "Invalid type conversion",
             Error::OutOfRange(_, _) => "Out of range error",
             Error::NullConversionError => "Null conversion error",
+            Error::UninitializedBindValue => "Uninitialided bind value error",
             Error::NoMoreData => "No more data",
             Error::InternalError(_) => "Internal error",
         }

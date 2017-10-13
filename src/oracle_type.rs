@@ -162,11 +162,6 @@ impl OracleType {
                 Err(Error::InternalError(format!("Unsupported Oracle type {}", self))),
         }
     }
-
-    pub(crate) fn native_type(&self) -> Result<u32> {
-        let (_, native_type, _, _) = self.var_create_param()?;
-        return Ok(native_type);
-    }
 }
 
 impl fmt::Display for OracleType {

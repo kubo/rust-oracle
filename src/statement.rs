@@ -21,6 +21,7 @@ use StatementType;
 pub struct Statement<'conn> {
     conn: &'conn Connection,
     handle: *mut dpiStmt,
+    row: Row,
     fetch_array_size: u32,
     is_query: bool,
     is_plsql: bool,
@@ -28,15 +29,10 @@ pub struct Statement<'conn> {
     is_dml: bool,
     statement_type: dpiStatementType,
     is_returning: bool,
-    // shorthand of column_info.len()
-    num_cols: usize,
-    // Column information of a query.
-    column_info: Vec<ColumnInfo>,
     colums_are_defined: bool,
     bind_count: usize,
     bind_names: Vec<String>,
-    column_vars: Vec<Variable>,
-    bind_vars: Vec<Variable>,
+    bind_values: Vec<ValueRef>,
 }
 
 impl<'conn> Statement<'conn> {
@@ -74,6 +70,7 @@ impl<'conn> Statement<'conn> {
         Ok(Statement {
             conn: conn,
             handle: handle,
+            row: Row { column_info: Vec::new(), column_values: Vec::new(), },
             fetch_array_size: 0,
             is_query: info.isQuery != 0,
             is_plsql: info.isPLSQL != 0,
@@ -81,26 +78,11 @@ impl<'conn> Statement<'conn> {
             is_dml: info.isDML != 0,
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
-            num_cols: 0,
-            column_info: Vec::new(),
             colums_are_defined: false,
             bind_count: bind_count,
             bind_names: bind_names,
-            column_vars: Vec::new(),
-            bind_vars: Variable::new_vec(bind_count),
+            bind_values: vec![ValueRef::new(conn.ctxt); bind_count],
         })
-    }
-
-    // pos: zero-based position
-    fn find_defined_column(&self, pos: usize) -> Option<&OracleType> {
-        match self.column_vars.get(pos) {
-            Some(x) =>
-                 match (*x).oratype {
-                     OracleType::None => None,
-                     _ => Some(&(*x).oratype),
-                 },
-            None => None,
-        }
     }
 
     pub fn close(&mut self) -> Result<()> {
@@ -118,45 +100,37 @@ impl<'conn> Statement<'conn> {
 
     pub fn bind<I>(&mut self, bindidx: I, oratype: &OracleType) -> Result<()> where I: BindIndex {
         let pos = bindidx.idx(&self)?;
-        let var = Variable::new(self.conn, oratype, 1)?;
+        self.bind_values[pos].init_handle(self.conn, oratype, 1)?;
         chkerr!(self.conn.ctxt,
-                bindidx.bind(self.handle, var.handle));
-        self.bind_vars[pos] = var;
+                bindidx.bind(self.handle, self.bind_values[pos].handle));
         Ok(())
     }
 
-    fn bind_value_ref<I>(&self, bindidx: I) -> Result<ValueRef> where I: BindIndex {
+    pub fn set_bind_value<I, T>(&mut self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
         let pos = bindidx.idx(&self)?;
-        let var = &self.bind_vars[pos];
-        let mut num = 0;
-        let mut data = ptr::null_mut();
-        chkerr!(self.conn.ctxt,
-                dpiVar_getData(var.handle, &mut num, &mut data));
-        Ok(ValueRef::new(data, num, var.oratype.native_type()?, &var.oratype))
+        self.bind_values[pos].set(value)
     }
 
-    pub fn set_bind_value<I, T>(&self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
-        self.bind_value_ref(bindidx)?.set(value)
-    }
-
-    pub fn set_null_value<I>(&self, bindidx: I) -> Result<()> where I: BindIndex {
-        Ok(self.bind_value_ref(bindidx)?.set_null())
+    pub fn set_null_value<I>(&mut self, bindidx: I) -> Result<()> where I: BindIndex {
+        let pos = bindidx.idx(&self)?;
+        self.bind_values[pos].set_null()
     }
 
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
-        self.bind_value_ref(bindidx)?.get()
+        let pos = bindidx.idx(&self)?;
+        self.bind_values[pos].get()
     }
 
     pub fn is_null_value<I>(&self, bindidx: I) -> Result<bool> where I: BindIndex {
-        Ok(self.bind_value_ref(bindidx)?.is_null())
+        let pos = bindidx.idx(&self)?;
+        self.bind_values[pos].is_null()
     }
 
     pub fn define<I>(&mut self, colidx: I, oratype: &OracleType) -> Result<()> where I: ColumnIndex {
-        let pos = colidx.idx(&self)?;
-        let var = Variable::new(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
+        let pos = colidx.idx(&self.row.column_info)?;
+        self.row.column_values[pos].init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
         chkerr!(self.conn.ctxt,
-                dpiStmt_define(self.handle, (pos + 1) as u32, var.handle));
-        self.column_vars[pos] = var;
+                dpiStmt_define(self.handle, (pos + 1) as u32, self.row.column_values[pos].handle));
         Ok(())
     }
 
@@ -167,22 +141,24 @@ impl<'conn> Statement<'conn> {
         chkerr!(self.conn.ctxt,
                 dpiStmt_getFetchArraySize(self.handle, &mut self.fetch_array_size));
         if self.is_query() {
-            self.num_cols = num_query_columns as usize;
-            self.column_info = Vec::with_capacity(self.num_cols);
-            for i in 0..self.num_cols {
+            let num_cols = num_query_columns as usize;
+
+            self.row.column_info = Vec::with_capacity(num_cols);
+            self.row.column_values = vec![ValueRef::new(self.conn.ctxt); num_cols];
+
+            for i in 0..num_cols {
                 let ci = ColumnInfo::new(self, i)?;
-                self.column_info.push(ci);
+                self.row.column_info.push(ci);
             }
-            self.column_vars = Variable::new_vec(self.num_cols);
         }
         Ok(())
     }
 
     // Define columns when they are not defined explicitly.
     fn define_columns(&mut self) -> Result<()> {
-        for i in 0..self.num_cols {
-            if self.find_defined_column(i).is_none() {
-                let oratype = self.column_info[i].oracle_type();
+        for (idx, val) in self.row.column_values.iter_mut().enumerate() {
+            if !val.initialized() {
+                let oratype = self.row.column_info[idx].oracle_type();
                 let oratype_i64 = OracleType::Int64;
                 let oratype = match *oratype {
                     // When the column type is number whose prec is less than 18
@@ -192,10 +168,9 @@ impl<'conn> Statement<'conn> {
                     _ =>
                         oratype,
                 };
-                let var = Variable::new(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
+                val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
                 chkerr!(self.conn.ctxt,
-                        dpiStmt_define(self.handle, (i + 1) as u32, var.handle));
-                self.column_vars[i] = var;
+                        dpiStmt_define(self.handle, (idx + 1) as u32, val.handle));
             }
         }
         Ok(())
@@ -210,18 +185,18 @@ impl<'conn> Statement<'conn> {
     }
 
     pub fn column_count(&self) -> usize {
-        self.num_cols
+        self.row.column_info.len()
     }
 
     pub fn column_names(&self) -> Vec<&str> {
-        self.column_info.iter().map(|info| info.name().as_str()).collect()
+        self.row.column_info.iter().map(|info| info.name().as_str()).collect()
     }
 
     pub fn column_info(&self) -> &Vec<ColumnInfo> {
-        &self.column_info
+        &self.row.column_info
     }
 
-    pub fn fetch(&mut self) -> Result<Row> {
+    pub fn fetch(&mut self) -> Result<&Row> {
         if !self.colums_are_defined {
             self.define_columns()?;
             self.colums_are_defined = true;
@@ -231,7 +206,10 @@ impl<'conn> Statement<'conn> {
         chkerr!(self.conn.ctxt,
                 dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index));
         if found != 0 {
-            Ok(Row::new(self)?)
+            for val in self.row.column_values.iter_mut() {
+                val.buffer_row_index = buffer_row_index;
+            }
+            Ok(&self.row)
         } else {
             Err(Error::NoMoreData)
         }
@@ -272,6 +250,7 @@ impl<'conn> Drop for Statement<'conn> {
 // ColumnInfo
 //
 
+#[derive(Clone)]
 pub struct ColumnInfo {
     name: String,
     oracle_type: OracleType,
@@ -317,35 +296,19 @@ impl fmt::Display for ColumnInfo {
 // Row
 //
 
-pub struct Row<'stmt> {
-    stmt: &'stmt Statement<'stmt>,
-    columns: Vec<ValueRef<'stmt>>,
+pub struct Row {
+    column_info: Vec<ColumnInfo>,
+    column_values: Vec<ValueRef>,
 }
 
-impl<'stmt> Row<'stmt> {
-    fn new(stmt: &'stmt Statement<'stmt>) -> Result<Row<'stmt>> {
-        let mut columns = Vec::<ValueRef>::with_capacity(stmt.num_cols);
-        for i in 0..stmt.num_cols {
-            let var = &stmt.column_vars[i];
-            let mut native_type = 0;
-            let mut data = ptr::null_mut();
-            chkerr!(stmt.conn.ctxt,
-                    dpiStmt_getQueryValue(stmt.handle, (i + 1) as u32, &mut native_type, &mut data));
-            columns.push(ValueRef::new(data, 1, native_type, &var.oratype));
-        }
-        Ok(Row {
-            stmt: stmt,
-            columns: columns,
-        })
-    }
-
+impl Row {
     pub fn get<I, T>(&self, colidx: I) -> Result<T> where I: ColumnIndex, T: FromSql {
-        let pos = colidx.idx(self.stmt)?;
-        self.columns[pos].get()
+        let pos = colidx.idx(&self.column_info)?;
+        self.column_values[pos].get()
     }
 
     pub fn columns(&self) -> &Vec<ValueRef> {
-        &self.columns
+        &self.column_values
     }
 }
 
@@ -390,12 +353,12 @@ impl<'a> BindIndex for &'a str {
 //
 
 pub trait ColumnIndex {
-    fn idx(&self, stmt: &Statement) -> Result<usize>;
+    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize>;
 }
 
 impl ColumnIndex for usize {
-    fn idx(&self, stmt: &Statement) -> Result<usize> {
-        let ncols = stmt.column_count();
+    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize> {
+        let ncols = column_info.len();
         if *self < ncols {
             Ok(*self)
         } else {
@@ -405,56 +368,12 @@ impl ColumnIndex for usize {
 }
 
 impl<'a> ColumnIndex for &'a str {
-    fn idx(&self, stmt: &Statement) -> Result<usize> {
-        stmt.column_names().iter().position(|&name| name == *self)
-            .ok_or_else(|| Error::InvalidColumnName((*self).to_string()))
-    }
-}
-
-//
-// Variable
-//
-
-pub struct Variable {
-    handle: *mut dpiVar,
-    oratype: OracleType,
-}
-
-impl Variable {
-    fn new(conn: &Connection, oratype: &OracleType, array_size: u32) -> Result<Variable> {
-        let mut handle: *mut dpiVar = ptr::null_mut();
-        let mut data: *mut dpiData = ptr::null_mut();
-        let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
-        chkerr!(conn.ctxt,
-                dpiConn_newVar(conn.handle, oratype_num, native_type, array_size, size, size_is_byte,
-                               0, ptr::null_mut(), &mut handle, &mut data));
-        Ok(Variable {
-            handle: handle,
-            oratype: oratype.clone(),
-        })
-    }
-
-    fn new_vec(size: usize) -> Vec<Variable> {
-        vec![Variable {handle: ptr::null_mut(), oratype: OracleType::None} ; size]
-    }
-}
-
-impl Clone for Variable {
-    fn clone(&self) -> Variable {
-        if self.handle != ptr::null_mut() {
-            unsafe { dpiVar_addRef(self.handle); }
+    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize> {
+        for (idx, info) in column_info.iter().enumerate() {
+            if info.name().as_str() == *self {
+                return Ok(idx);
+            }
         }
-        Variable {
-            handle: self.handle,
-            oratype: self.oratype.clone(),
-        }
-    }
-}
-
-impl Drop for Variable {
-    fn drop(&mut self) {
-        if self.handle != ptr::null_mut() {
-            unsafe { dpiVar_release(self.handle) };
-        }
+        Err(Error::InvalidColumnName((*self).to_string()))
     }
 }
