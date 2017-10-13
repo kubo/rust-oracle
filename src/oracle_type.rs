@@ -271,19 +271,6 @@ impl Timestamp {
         }
     }
 
-    #[allow(dead_code)] // This function will be used to bind timestamp
-    fn set_dpi_timestamp(&self, ts: &mut dpiTimestamp) {
-        ts.year = self.year as i16;
-        ts.month = self.month as u8;
-        ts.day = self.day as u8;
-        ts.hour = self.hour as u8;
-        ts.minute = self.minute as u8;
-        ts.second = self.second as u8;
-        ts.fsecond = self.nanosecond;
-        ts.tzHourOffset = self.tz_hour_offset as i8;
-        ts.tzMinuteOffset = self.tz_minute_offset as i8;
-    }
-
     pub fn new(year: i32, month: u32, day: u32,
                hour: u32, minute: u32, second: u32, nanosecond: u32) -> Timestamp {
         Timestamp {
@@ -386,15 +373,6 @@ impl IntervalDS {
         }
     }
 
-    #[allow(dead_code)] // This function will be used to bind timestamp
-    fn set_dpi_interval_ds(&self, it: &mut dpiIntervalDS) {
-        it.days = self.days;
-        it.hours = self.hours;
-        it.minutes = self.minutes;
-        it.seconds = self.seconds;
-        it.fseconds = self.nanoseconds;
-    }
-
     pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
         IntervalDS {
             days: days,
@@ -450,12 +428,6 @@ impl IntervalYM {
             years: it.years,
             months: it.months,
         }
-    }
-
-    #[allow(dead_code)] // This function will be used to bind timestamp
-    fn set_dpi_interval_ym(&self, it: &mut dpiIntervalYM) {
-        it.years = self.years;
-        it.months = self.months;
     }
 
     pub fn new(years: i32, months: i32) -> IntervalYM {

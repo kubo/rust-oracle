@@ -16,6 +16,7 @@ use Timestamp;
 use IntervalDS;
 use IntervalYM;
 use error::ConversionError;
+use to_odpi_str;
 
 macro_rules! conv_err_on_fail {
     ($expr:expr) => {
@@ -60,6 +61,32 @@ macro_rules! define_fn_as_int {
                     conv_err_on_fail!(self.get_string_unchecked()?.parse())
                 },
                 _ => self.unsupported_as_type_conversion(stringify!($type))
+            }
+        }
+    }
+}
+
+macro_rules! define_fn_set_int {
+    ($func_name:ident, $type:ident) => {
+        pub fn $func_name(&mut self, val: $type) -> Result<()> {
+            match self.native_type {
+                DPI_NATIVE_TYPE_INT64 => {
+                    self.set_i64_unchecked(val as i64)
+                },
+                DPI_NATIVE_TYPE_UINT64 => {
+                    self.set_u64_unchecked(val as u64)
+                },
+                DPI_NATIVE_TYPE_FLOAT => {
+                    self.set_f32_unchecked(val as f32)
+                },
+                DPI_NATIVE_TYPE_DOUBLE => {
+                    self.set_f64_unchecked(val as f64)
+                },
+                DPI_NATIVE_TYPE_BYTES => {
+                    let s = format!("{}", val);
+                    self.set_string_unchecked(&s)
+                },
+                _ => self.unsupported_set_type_conversion(stringify!($type))
             }
         }
     }
@@ -165,6 +192,10 @@ impl Value {
         &self.oratype
     }
 
+    //
+    // get_TYPE_unchecked methods
+    //
+
     fn get_i64_unchecked(&self) -> Result<i64> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getInt64(self.data()?)) }
@@ -236,21 +267,72 @@ impl Value {
         unsafe { Ok(dpiData_getBool(self.data()?) != 0) }
     }
 
-    fn set_int64_unchecked(&mut self, val: i64) -> Result<()> {
-        unsafe { Ok(dpiData_setInt64(self.data()?, val)) }
+    //
+    // set_TYPE_unchecked methods
+    //
+
+    fn set_i64_unchecked(&mut self, val: i64) -> Result<()> {
+        unsafe { dpiData_setInt64(self.data()?, val) }
+        Ok(())
     }
 
-    fn set_uint64_unchecked(&mut self, val: u64) -> Result<()> {
-        unsafe { Ok(dpiData_setUint64(self.data()?, val)) }
+    fn set_u64_unchecked(&mut self, val: u64) -> Result<()> {
+        unsafe { dpiData_setUint64(self.data()?, val) }
+        Ok(())
     }
 
-    fn set_float_unchecked(&mut self, val: f32) -> Result<()> {
-        unsafe { Ok(dpiData_setFloat(self.data()?, val)) }
+    fn set_f32_unchecked(&mut self, val: f32) -> Result<()> {
+        unsafe { dpiData_setFloat(self.data()?, val) }
+        Ok(())
     }
 
-    fn set_double_unchecked(&mut self, val: f64) -> Result<()> {
-        unsafe { Ok(dpiData_setDouble(self.data()?, val)) }
+    fn set_f64_unchecked(&mut self, val: f64) -> Result<()> {
+        unsafe { dpiData_setDouble(self.data()?, val) }
+        Ok(())
     }
+
+    fn set_string_unchecked(&self, val: &str) -> Result<()> {
+        let val = to_odpi_str(val);
+        chkerr!(self.ctxt,
+                dpiVar_setFromBytes(self.handle, self.buffer_row_index, val.ptr, val.len));
+        Ok(())
+    }
+
+    fn set_bytes_unchecked(&self, val: &Vec<u8>) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiVar_setFromBytes(self.handle, self.buffer_row_index,
+                                    val.as_ptr() as *const i8, val.len() as u32));
+        Ok(())
+    }
+
+    fn set_timestamp_unchecked(&self, val: &Timestamp) -> Result<()> {
+        unsafe { dpiData_setTimestamp(self.data()?, val.year() as i16,
+                                      val.month() as u8, val.day() as u8,
+                                      val.hour() as u8, val.minute() as u8, val.second() as u8,
+                                      val.nanosecond(), val.tz_hour_offset() as i8,
+                                      val.tz_minute_offset() as i8) }
+        Ok(())
+    }
+
+    fn set_interval_ds_unchecked(&self, val: &IntervalDS) -> Result<()> {
+        unsafe { dpiData_setIntervalDS(self.data()?, val.days(), val.hours(),
+                                       val.minutes(), val.seconds(), val.nanoseconds()) }
+        Ok(())
+    }
+
+    fn set_interval_ym_unchecked(&self, val: &IntervalYM) -> Result<()> {
+        unsafe { dpiData_setIntervalYM(self.data()?, val.years(), val.months()) }
+        Ok(())
+    }
+
+    fn set_bool_unchecked(&self, val: bool) -> Result<()> {
+        unsafe { dpiData_setBool(self.data()?, if val { 1 } else { 0 }) }
+        Ok(())
+    }
+
+    //
+    // as_TYPE methods
+    //
 
     pub fn as_i64(&self) -> Result<i64> {
         match self.native_type {
@@ -408,75 +490,84 @@ impl Value {
         }
     }
 
-    pub fn set_int64(&mut self, val: i64) -> Result<()> {
+    //
+    // set_TYPE methods
+    //
+
+    define_fn_set_int!(set_i8, i8);
+    define_fn_set_int!(set_i16, i16);
+    define_fn_set_int!(set_i32, i32);
+    define_fn_set_int!(set_i64, i64);
+    define_fn_set_int!(set_u8, u8);
+    define_fn_set_int!(set_u16, u16);
+    define_fn_set_int!(set_u32, u32);
+    define_fn_set_int!(set_u64, u64);
+    define_fn_set_int!(set_f64, f64);
+    define_fn_set_int!(set_f32, f32);
+
+    pub fn set_string(&mut self, val: &str) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                self.set_int64_unchecked(val)
+            DPI_NATIVE_TYPE_BYTES => {
+                Ok(self.set_string_unchecked(val)?)
             },
-            DPI_NATIVE_TYPE_UINT64 => {
-                self.set_uint64_unchecked(val as u64)
+            _ => {
+                self.unsupported_set_type_conversion("&str")
             },
-            DPI_NATIVE_TYPE_FLOAT => {
-                self.set_float_unchecked(val as f32)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                self.set_double_unchecked(val as f64)
-            },
-            _ => self.unsupported_set_type_conversion("i64"),
         }
     }
 
-    pub fn set_uint64(&mut self, val: u64) -> Result<()> {
+    pub fn set_bytes(&self, val: &Vec<u8>) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                self.set_int64_unchecked(val as i64)
+            DPI_NATIVE_TYPE_BYTES => {
+                Ok(self.set_bytes_unchecked(val)?)
             },
-            DPI_NATIVE_TYPE_UINT64 => {
-                self.set_uint64_unchecked(val)
+            _ => {
+                self.unsupported_set_type_conversion("Vec<u8>")
             },
-            DPI_NATIVE_TYPE_FLOAT => {
-                self.set_float_unchecked(val as f32)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                self.set_double_unchecked(val as f64)
-            },
-            _ => self.unsupported_set_type_conversion("u64"),
         }
     }
 
-    pub fn set_float(&mut self, val: f32) -> Result<()> {
+    pub fn set_timestamp(&self, val: &Timestamp) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                self.set_int64_unchecked(val as i64)
+            DPI_NATIVE_TYPE_TIMESTAMP => {
+                Ok(self.set_timestamp_unchecked(val)?)
             },
-            DPI_NATIVE_TYPE_UINT64 => {
-                self.set_uint64_unchecked(val as u64)
+            _ => {
+                self.unsupported_set_type_conversion("Timestamp")
             },
-            DPI_NATIVE_TYPE_FLOAT => {
-                self.set_float_unchecked(val)
-            },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                self.set_double_unchecked(val as f64)
-            },
-            _ => self.unsupported_set_type_conversion("f32"),
         }
     }
 
-    pub fn set_double(&mut self, val: f64) -> Result<()> {
+    pub fn set_interval_ds(&self, val: &IntervalDS) -> Result<()> {
         match self.native_type {
-            DPI_NATIVE_TYPE_INT64 => {
-                self.set_int64_unchecked(val as i64)
+            DPI_NATIVE_TYPE_INTERVAL_DS => {
+                Ok(self.set_interval_ds_unchecked(val)?)
             },
-            DPI_NATIVE_TYPE_UINT64 => {
-                self.set_uint64_unchecked(val as u64)
+            _ => {
+                self.unsupported_set_type_conversion("IntervalDS")
             },
-            DPI_NATIVE_TYPE_FLOAT => {
-                self.set_float_unchecked(val as f32)
+        }
+    }
+
+    pub fn set_interval_ym(&self, val: &IntervalYM) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_INTERVAL_YM => {
+                Ok(self.set_interval_ym_unchecked(val)?)
             },
-            DPI_NATIVE_TYPE_DOUBLE => {
-                self.set_double_unchecked(val)
+            _ => {
+                self.unsupported_set_type_conversion("IntervalYM")
             },
-            _ => self.unsupported_set_type_conversion("f64"),
+        }
+    }
+
+    pub fn set_bool(&mut self, val: bool) -> Result<()> {
+        match self.native_type {
+            DPI_NATIVE_TYPE_BOOLEAN => {
+                Ok(self.set_bool_unchecked(val)?)
+            },
+            _ => {
+                self.unsupported_set_type_conversion("bool")
+            },
         }
     }
 }

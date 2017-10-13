@@ -18,53 +18,73 @@ pub trait ToSql {
     fn type_name() -> String;
 }
 
-macro_rules! define_from_sql {
-    ($type_:ty, $func:ident) => {
-        impl FromSql for $type_ {
-            fn from(val: &Value) -> Result<$type_> {
+macro_rules! impl_from_sql {
+    ($type:ty, $func:ident) => {
+        impl FromSql for $type {
+            fn from(val: &Value) -> Result<$type> {
                 val.$func()
             }
             fn type_name() -> String {
-                stringify!($type_).to_string()
+                stringify!($type).to_string()
             }
         }
     };
 }
 
-macro_rules! define_to_sql {
-    ($type_:ty, $func:ident) => {
-        impl ToSql for $type_ {
-            fn to(val: &mut Value, newval: $type_) -> Result<()> {
+macro_rules! impl_to_sql {
+    ($type:ty, $func:ident) => {
+        impl ToSql for $type {
+            fn to(val: &mut Value, newval: $type) -> Result<()> {
                 val.$func(newval)
             }
             fn type_name() -> String {
-                stringify!($type_).to_string()
+                stringify!($type).to_string()
+            }
+        }
+    };
+    (ref $type:ty, $func:ident) => {
+        impl<'a> ToSql for &'a $type {
+            fn to(val: &mut Value, newval: &'a $type) -> Result<()> {
+                val.$func(newval)
+            }
+            fn type_name() -> String {
+                concat!("&", stringify!($type)).to_string()
             }
         }
     };
 }
 
-define_from_sql!(i8, as_i8);
-define_from_sql!(i16, as_i16);
-define_from_sql!(i32, as_i32);
-define_from_sql!(i64, as_i64);
-define_from_sql!(u8, as_u8);
-define_from_sql!(u16, as_u16);
-define_from_sql!(u32, as_u32);
-define_from_sql!(u64, as_u64);
-define_from_sql!(f64, as_f64);
-define_from_sql!(f32, as_f32);
-define_from_sql!(bool, as_bool);
-define_from_sql!(String, as_string);
-define_from_sql!(Vec<u8>, as_bytes);
-define_from_sql!(Timestamp, as_timestamp);
-define_from_sql!(IntervalDS, as_interval_ds);
-define_from_sql!(IntervalYM, as_interval_ym);
+macro_rules! impl_from_and_to_sql {
+    ($type:ty, $as_func:ident, $set_func:ident) => {
+        impl_from_sql!($type, $as_func);
+        impl_to_sql!($type, $set_func);
+    };
+    ($as_type:ty, $as_func:ident, $set_type:ty, $set_func:ident) => {
+        impl_from_sql!($as_type, $as_func);
+        impl_to_sql!($set_type, $set_func);
+    };
+    ($as_type:ty, $as_func:ident, ref $set_type:ty, $set_func:ident) => {
+        impl_from_sql!($as_type, $as_func);
+        impl_to_sql!(ref $set_type, $set_func);
+    };
+}
 
-define_to_sql!(i64, set_int64);
-define_to_sql!(u64, set_uint64);
-define_to_sql!(f64, set_double);
-define_to_sql!(f32, set_float);
+impl_from_and_to_sql!(i8, as_i8, set_i8);
+impl_from_and_to_sql!(i16, as_i16, set_i16);
+impl_from_and_to_sql!(i32, as_i32, set_i32);
+impl_from_and_to_sql!(i64, as_i64, set_i64);
+impl_from_and_to_sql!(u8, as_u8, set_u8);
+impl_from_and_to_sql!(u16, as_u16, set_u16);
+impl_from_and_to_sql!(u32, as_u32, set_u32);
+impl_from_and_to_sql!(u64, as_u64, set_u64);
+impl_from_and_to_sql!(f64, as_f64, set_f64);
+impl_from_and_to_sql!(f32, as_f32, set_f32);
+impl_from_and_to_sql!(bool, as_bool, set_bool);
+impl_from_and_to_sql!(String, as_string, ref str, set_string);
+impl_from_and_to_sql!(Vec<u8>, as_bytes, ref Vec<u8>, set_bytes);
+impl_from_and_to_sql!(Timestamp, as_timestamp, ref Timestamp, set_timestamp);
+impl_from_and_to_sql!(IntervalDS, as_interval_ds, ref IntervalDS, set_interval_ds);
+impl_from_and_to_sql!(IntervalYM, as_interval_ym, ref IntervalYM, set_interval_ym);
 
 impl<T: FromSql> FromSql for Option<T> {
     fn from(val: &Value) -> Result<Option<T>> {
