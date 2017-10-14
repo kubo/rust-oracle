@@ -32,16 +32,6 @@ macro_rules! impl_from_sql {
 }
 
 macro_rules! impl_to_sql {
-    ($type:ty, $func:ident) => {
-        impl ToSql for $type {
-            fn to(val: &mut Value, newval: $type) -> Result<()> {
-                val.$func(newval)
-            }
-            fn type_name() -> String {
-                stringify!($type).to_string()
-            }
-        }
-    };
     (ref $type:ty, $func:ident) => {
         impl<'a> ToSql for &'a $type {
             fn to(val: &mut Value, newval: &'a $type) -> Result<()> {
@@ -52,6 +42,16 @@ macro_rules! impl_to_sql {
             }
         }
     };
+    ($type:ty, $func:ident) => {
+        impl ToSql for $type {
+            fn to(val: &mut Value, newval: $type) -> Result<()> {
+                val.$func(newval)
+            }
+            fn type_name() -> String {
+                stringify!($type).to_string()
+            }
+        }
+    };
 }
 
 macro_rules! impl_from_and_to_sql {
@@ -59,13 +59,13 @@ macro_rules! impl_from_and_to_sql {
         impl_from_sql!($type, $as_func);
         impl_to_sql!($type, $set_func);
     };
-    ($as_type:ty, $as_func:ident, $set_type:ty, $set_func:ident) => {
-        impl_from_sql!($as_type, $as_func);
-        impl_to_sql!($set_type, $set_func);
-    };
     ($as_type:ty, $as_func:ident, ref $set_type:ty, $set_func:ident) => {
         impl_from_sql!($as_type, $as_func);
         impl_to_sql!(ref $set_type, $set_func);
+    };
+    ($as_type:ty, $as_func:ident, $set_type:ty, $set_func:ident) => {
+        impl_from_sql!($as_type, $as_func);
+        impl_to_sql!($set_type, $set_func);
     };
 }
 
