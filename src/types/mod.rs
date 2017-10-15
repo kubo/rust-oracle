@@ -1,10 +1,16 @@
-use value::Value;
 use Error;
+use error::ConversionError;
+use IntervalDS;
+use IntervalYM;
 use Result;
 use Timestamp;
-use IntervalYM;
-use IntervalDS;
-use error::ConversionError;
+use Value;
+
+pub mod interval_ds;
+pub mod interval_ym;
+pub mod oracle_type;
+pub mod timestamp;
+pub mod version;
 
 pub trait FromSql {
     fn from(val: &Value) -> Result<Self> where Self: Sized;

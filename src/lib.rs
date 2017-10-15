@@ -17,8 +17,8 @@ mod binding;
 mod error;
 mod connection;
 mod statement;
-mod oracle_type;
 mod types;
+mod util;
 mod value;
 
 pub use binding::dpiAuthMode as AuthMode;
@@ -33,18 +33,19 @@ pub use statement::Row;
 pub use statement::BindIndex;
 pub use statement::ColumnIndex;
 pub use error::Error;
+pub use error::ParseError;
 pub use error::DbError;
-pub use oracle_type::OracleType;
-pub use oracle_type::Timestamp;
-pub use oracle_type::IntervalDS;
-pub use oracle_type::IntervalYM;
-pub use oracle_type::Version;
 pub use types::FromSql;
 pub use types::ToSql;
+pub use types::oracle_type::OracleType;
+pub use types::timestamp::Timestamp;
+pub use types::interval_ds::IntervalDS;
+pub use types::interval_ym::IntervalYM;
+pub use types::version::Version;
+pub use value::Value;
 
 use binding::*;
-use error::error_from_context;
-use error::error_from_dpi_error;
+use types::oracle_type::NativeType;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -120,7 +121,7 @@ impl Context {
     pub fn get() -> Result<&'static Context> {
         match *DPI_CONTEXT {
             ContextResult::Ok(ref ctxt) => Ok(ctxt),
-            ContextResult::Err(ref err) => Err(error_from_dpi_error(err)),
+            ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
         }
     }
 }

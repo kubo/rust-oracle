@@ -1,7 +1,9 @@
 use std::ffi::CStr;
 use std::error;
 use std::fmt;
+use std::num;
 use std::slice;
+use try_from;
 use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
 use Context;
@@ -14,6 +16,41 @@ pub enum Error {
     UninitializedBindValue,
     NoMoreData,
     InternalError(String),
+}
+
+#[derive(Eq, PartialEq, Clone)]
+pub struct ParseError {
+    typename: &'static str,
+}
+
+impl ParseError {
+    pub fn new(typename: &'static str) -> ParseError {
+        ParseError {
+            typename: typename,
+        }
+    }
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} parse error", self.typename)
+    }
+}
+
+impl fmt::Debug for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ParseError")
+    }
+}
+
+impl error::Error for ParseError {
+    fn description(&self) -> &str {
+        "parse error"
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        None
+    }
 }
 
 #[derive(Eq, PartialEq, Clone)]
@@ -141,7 +178,7 @@ impl fmt::Debug for Error {
             Error::ConversionError(ref err) => {
                 match *err {
                     ConversionError::NullValue =>
-                        write!(f, "ConversionError {{ NULL value }}"),
+                        write!(f, "ConversionError {{ NULLValue }}"),
                     ConversionError::ParseError(ref err) =>
                         write!(f, "ConversionError {{ ParseError: {:?} }}", err),
                     ConversionError::Overflow(ref src, dst) =>
@@ -180,6 +217,30 @@ impl error::Error for Error {
     }
 }
 
+impl From<ParseError> for Error {
+    fn from(err: ParseError) -> Self {
+        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+    }
+}
+
+impl From<num::ParseIntError> for Error {
+    fn from(err: num::ParseIntError) -> Self {
+        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+    }
+}
+
+impl From<num::ParseFloatError> for Error {
+    fn from(err: num::ParseFloatError) -> Self {
+        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+    }
+}
+
+impl From<try_from::TryFromIntError> for Error {
+    fn from(err: try_from::TryFromIntError) -> Self {
+        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+    }
+}
+
 //
 // functions to check errors
 //
@@ -203,7 +264,7 @@ pub fn error_from_context(ctxt: &Context) -> Error {
     unsafe {
         dpiContext_getError(ctxt.context, &mut err);
     };
-    error_from_dpi_error(&err)
+    ::error::error_from_dpi_error(&err)
 }
 
 macro_rules! chkerr {
@@ -211,14 +272,14 @@ macro_rules! chkerr {
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
-            return Err(error_from_context($ctxt));
+            return Err(::error::error_from_context($ctxt));
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
-            let err = error_from_context($ctxt);
+            let err = ::error::error_from_context($ctxt);
             $cleanup
             return Err(err);
         }

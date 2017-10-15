@@ -7,7 +7,6 @@ use binding::*;
 use types::FromSql;
 use types::ToSql;
 use Connection;
-use error::error_from_context;
 use Context;
 use Error;
 use Result;
@@ -16,19 +15,10 @@ use Timestamp;
 use IntervalDS;
 use IntervalYM;
 use error::ConversionError;
+use ParseError;
 use to_odpi_str;
-use oracle_type::NativeType;
-use oracle_type::to_native_type_num;
-
-macro_rules! conv_err_on_fail {
-    ($expr:expr) => {
-        match $expr {
-            Ok(val) => Ok(val),
-            Err(err) =>
-                Err(Error::ConversionError(ConversionError::ParseError(Box::new(err)))),
-        }
-    }
-}
+use NativeType;
+use util::check_number_format;
 
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {
@@ -48,16 +38,16 @@ macro_rules! define_fn_as_int {
         pub fn $func_name(&self) -> Result<$type> {
             match self.native_type {
                 NativeType::Int64 =>
-                    conv_err_on_fail!(self.get_i64_unchecked()?.try_into()),
+                    Ok(self.get_i64_unchecked()?.try_into()?),
                 NativeType::UInt64 =>
-                    conv_err_on_fail!(self.get_u64_unchecked()?.try_into()),
+                    Ok(self.get_u64_unchecked()?.try_into()?),
                 NativeType::Float =>
                     flt_to_int!(self.get_f32_unchecked()?, f32, $type),
                 NativeType::Double =>
                     flt_to_int!(self.get_f64_unchecked()?, f64, $type),
                 NativeType::Char |
                 NativeType::Number =>
-                    conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                    Ok(self.get_string_unchecked()?.parse()?),
                 _ =>
                     self.unsupported_as_type_conversion(stringify!($type))
             }
@@ -118,7 +108,7 @@ impl Value {
         let mut handle: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
-        let native_type_num = to_native_type_num(&native_type);
+        let native_type_num = native_type.to_native_type_num();
         chkerr!(conn.ctxt,
                 dpiConn_newVar(conn.handle, oratype_num, native_type_num, array_size, size, size_is_byte,
                                0, ptr::null_mut(), &mut handle, &mut data));
@@ -238,7 +228,7 @@ impl Value {
         self.check_not_null()?;
         unsafe {
             let ts = dpiData_getTimestamp(self.data()?);
-            Ok(Timestamp::from_dpi_timestamp(&*ts))
+            Ok(Timestamp::from_dpi_timestamp(&*ts, &self.oratype))
         }
     }
 
@@ -246,7 +236,7 @@ impl Value {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalDS(self.data()?);
-            Ok(IntervalDS::from_dpi_interval_ds(&*it))
+            Ok(IntervalDS::from_dpi_interval_ds(&*it, &self.oratype))
         }
     }
 
@@ -254,7 +244,7 @@ impl Value {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalYM(self.data()?);
-            Ok(IntervalYM::from_dpi_interval_ym(&*it))
+            Ok(IntervalYM::from_dpi_interval_ym(&*it, &self.oratype))
         }
     }
 
@@ -302,22 +292,22 @@ impl Value {
     }
 
     fn set_timestamp_unchecked(&self, val: &Timestamp) -> Result<()> {
-        unsafe { dpiData_setTimestamp(self.data()?, val.year() as i16,
-                                      val.month() as u8, val.day() as u8,
-                                      val.hour() as u8, val.minute() as u8, val.second() as u8,
-                                      val.nanosecond(), val.tz_hour_offset() as i8,
-                                      val.tz_minute_offset() as i8) }
+        unsafe { dpiData_setTimestamp(self.data()?, val.year as i16,
+                                      val.month as u8, val.day as u8,
+                                      val.hour as u8, val.minute as u8, val.second as u8,
+                                      val.nanosecond, val.tz_hour_offset as i8,
+                                      val.tz_minute_offset.abs() as i8) }
         Ok(())
     }
 
     fn set_interval_ds_unchecked(&self, val: &IntervalDS) -> Result<()> {
-        unsafe { dpiData_setIntervalDS(self.data()?, val.days(), val.hours(),
-                                       val.minutes(), val.seconds(), val.nanoseconds()) }
+        unsafe { dpiData_setIntervalDS(self.data()?, val.days, val.hours,
+                                       val.minutes, val.seconds, val.nanoseconds) }
         Ok(())
     }
 
     fn set_interval_ym_unchecked(&self, val: &IntervalYM) -> Result<()> {
-        unsafe { dpiData_setIntervalYM(self.data()?, val.years(), val.months()) }
+        unsafe { dpiData_setIntervalYM(self.data()?, val.years, val.months) }
         Ok(())
     }
 
@@ -335,14 +325,14 @@ impl Value {
             NativeType::Int64 =>
                 self.get_i64_unchecked(),
             NativeType::UInt64 =>
-                conv_err_on_fail!(self.get_u64_unchecked()?.try_into()),
+                Ok(self.get_u64_unchecked()?.try_into()?),
             NativeType::Float =>
                 flt_to_int!(self.get_f32_unchecked()?, f32, i64),
             NativeType::Double =>
                 flt_to_int!(self.get_f64_unchecked()?, f64, i64),
             NativeType::Char |
             NativeType::Number =>
-                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                Ok(self.get_string_unchecked()?.parse()?),
             _ =>
                 self.unsupported_as_type_conversion("i64"),
         }
@@ -351,7 +341,7 @@ impl Value {
     pub fn as_u64(&self) -> Result<u64> {
         match self.native_type {
             NativeType::Int64 =>
-                conv_err_on_fail!(self.get_i64_unchecked()?.try_into()),
+                Ok(self.get_i64_unchecked()?.try_into()?),
             NativeType::UInt64 =>
                 self.get_u64_unchecked(),
             NativeType::Float =>
@@ -360,7 +350,7 @@ impl Value {
                 flt_to_int!(self.get_f64_unchecked()?, f64, u64),
             NativeType::Char |
             NativeType::Number =>
-                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                Ok(self.get_string_unchecked()?.parse()?),
             _ =>
                 self.unsupported_as_type_conversion("u64"),
         }
@@ -385,7 +375,7 @@ impl Value {
                 self.get_f64_unchecked(),
             NativeType::Char |
             NativeType::Number =>
-                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                Ok(self.get_string_unchecked()?.parse()?),
             _ =>
                 self.unsupported_as_type_conversion("f64"),
         }
@@ -403,7 +393,7 @@ impl Value {
                 Ok(self.get_f64_unchecked()? as f32),
             NativeType::Char |
             NativeType::Number =>
-                conv_err_on_fail!(self.get_string_unchecked()?.parse()),
+                Ok(self.get_string_unchecked()?.parse()?),
             _ =>
                 self.unsupported_as_type_conversion("f32"),
         }
@@ -422,6 +412,12 @@ impl Value {
             NativeType::Char |
             NativeType::Number =>
                 self.get_string_unchecked(),
+            NativeType::Timestamp =>
+                Ok(self.get_timestamp_unchecked()?.to_string()),
+            NativeType::IntervalDS =>
+                Ok(self.get_interval_ds_unchecked()?.to_string()),
+            NativeType::IntervalYM =>
+                Ok(self.get_interval_ym_unchecked()?.to_string()),
             _ =>
                 self.unsupported_as_type_conversion("string"),
         }
@@ -486,8 +482,28 @@ impl Value {
 
     pub fn set_string(&mut self, val: &str) -> Result<()> {
         match self.native_type {
+            NativeType::Int64 =>
+                self.set_i64_unchecked(val.parse()?),
+            NativeType::UInt64 =>
+                self.set_u64_unchecked(val.parse()?),
+            NativeType::Float =>
+                self.set_f32_unchecked(val.parse()?),
+            NativeType::Double =>
+                self.set_f64_unchecked(val.parse()?),
             NativeType::Char =>
                 Ok(self.set_string_unchecked(val)?),
+            NativeType::Number => {
+                if !check_number_format(val) {
+                    return Err(Error::ConversionError(ConversionError::ParseError(Box::new(ParseError::new("number")))));
+                }
+                Ok(self.set_string_unchecked(val)?)
+            },
+            NativeType::Timestamp =>
+                self.set_timestamp_unchecked(&val.parse()?),
+            NativeType::IntervalDS =>
+                self.set_interval_ds_unchecked(&val.parse()?),
+            NativeType::IntervalYM =>
+                self.set_interval_ym_unchecked(&val.parse()?),
             _ =>
                 self.unsupported_set_type_conversion("&str"),
         }

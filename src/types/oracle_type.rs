@@ -1,8 +1,9 @@
 use std::fmt;
 
-use binding::*;
-use error::Error;
+use Error;
 use Result;
+
+use binding::*;
 
 // NativeType corresponds to dpiNativeTypeNum in ODPI
 // except Char, Number, Raw, CLOB and BLOB.
@@ -31,30 +32,28 @@ pub enum NativeType {
     Rowid,
 }
 
-pub fn to_native_type_num(native_type: &NativeType) -> dpiNativeTypeNum {
-    match *native_type {
-        NativeType::Int64 => DPI_NATIVE_TYPE_INT64,
-        NativeType::UInt64 => DPI_NATIVE_TYPE_UINT64,
-        NativeType::Float => DPI_NATIVE_TYPE_FLOAT,
-        NativeType::Double => DPI_NATIVE_TYPE_DOUBLE,
-        NativeType::Char => DPI_NATIVE_TYPE_BYTES,
-        NativeType::Number => DPI_NATIVE_TYPE_BYTES,
-        NativeType::Raw => DPI_NATIVE_TYPE_BYTES,
-        NativeType::Timestamp => DPI_NATIVE_TYPE_TIMESTAMP,
-        NativeType::IntervalDS => DPI_NATIVE_TYPE_INTERVAL_DS,
-        NativeType::IntervalYM => DPI_NATIVE_TYPE_INTERVAL_YM,
-        NativeType::CLOB => DPI_NATIVE_TYPE_LOB,
-        NativeType::BLOB => DPI_NATIVE_TYPE_LOB,
-        NativeType::Object => DPI_NATIVE_TYPE_OBJECT,
-        NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
-        NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
-        NativeType::Rowid => DPI_NATIVE_TYPE_ROWID,
+impl NativeType {
+    pub fn to_native_type_num(&self) -> dpiNativeTypeNum {
+        match *self {
+            NativeType::Int64 => DPI_NATIVE_TYPE_INT64,
+            NativeType::UInt64 => DPI_NATIVE_TYPE_UINT64,
+            NativeType::Float => DPI_NATIVE_TYPE_FLOAT,
+            NativeType::Double => DPI_NATIVE_TYPE_DOUBLE,
+            NativeType::Char => DPI_NATIVE_TYPE_BYTES,
+            NativeType::Number => DPI_NATIVE_TYPE_BYTES,
+            NativeType::Raw => DPI_NATIVE_TYPE_BYTES,
+            NativeType::Timestamp => DPI_NATIVE_TYPE_TIMESTAMP,
+            NativeType::IntervalDS => DPI_NATIVE_TYPE_INTERVAL_DS,
+            NativeType::IntervalYM => DPI_NATIVE_TYPE_INTERVAL_YM,
+            NativeType::CLOB => DPI_NATIVE_TYPE_LOB,
+            NativeType::BLOB => DPI_NATIVE_TYPE_LOB,
+            NativeType::Object => DPI_NATIVE_TYPE_OBJECT,
+            NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
+            NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
+            NativeType::Rowid => DPI_NATIVE_TYPE_ROWID,
+        }
     }
 }
-
-//
-// OracleType
-//
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OracleType {
@@ -284,278 +283,5 @@ impl fmt::Display for OracleType {
             OracleType::Int64 => write!(f, "INT64 used internally"),
             OracleType::UInt64 =>write!(f, "UINT64 used internally"),
         }
-    }
-}
-
-//
-// Timestamp
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Timestamp {
-    year: i32,
-    month: u32,
-    day: u32,
-    hour: u32,
-    minute: u32,
-    second: u32,
-    nanosecond: u32,
-    tz_hour_offset: i32,
-    tz_minute_offset: i32,
-}
-
-impl Timestamp {
-    pub(crate) fn from_dpi_timestamp(ts: &dpiTimestamp) -> Timestamp {
-        Timestamp {
-            year: ts.year as i32,
-            month: ts.month as u32,
-            day: ts.day as u32,
-            hour: ts.hour as u32,
-            minute: ts.minute as u32,
-            second: ts.second as u32,
-            nanosecond: ts.fsecond as u32,
-            tz_hour_offset: ts.tzHourOffset as i32,
-            tz_minute_offset: ts.tzMinuteOffset as i32,
-        }
-    }
-
-    pub fn new(year: i32, month: u32, day: u32,
-               hour: u32, minute: u32, second: u32, nanosecond: u32) -> Timestamp {
-        Timestamp {
-            year: year,
-            month: month,
-            day: day,
-            hour: hour,
-            minute: minute,
-            second: second,
-            nanosecond: nanosecond,
-            tz_hour_offset: 0,
-            tz_minute_offset: 0,
-        }
-    }
-
-    pub fn and_tz_offset(self: Timestamp, tz_hour_offset: i32, tz_minute_offset: i32) -> Timestamp {
-        Timestamp {
-            tz_hour_offset: tz_hour_offset,
-            tz_minute_offset: tz_minute_offset,
-            .. self
-        }
-    }
-
-    pub fn and_tz_offset_sec(self: Timestamp, tz_offset_sec: i32) -> Timestamp {
-        let tz_offset_minute = tz_offset_sec / 60;
-        let (hour, minute) = if tz_offset_minute >= 0 {
-            (tz_offset_minute / 60, tz_offset_minute % 60)
-        } else {
-            (- (- tz_offset_minute / 60), - (- tz_offset_minute % 60))
-        };
-        Timestamp {
-            tz_hour_offset: hour,
-            tz_minute_offset: minute,
-            .. self
-        }
-    }
-
-    pub fn year(&self) -> i32 {
-        self.year
-    }
-    pub fn month(&self) -> u32 {
-        self.month
-    }
-    pub fn day(&self) -> u32 {
-        self.day
-    }
-    pub fn hour(&self) -> u32 {
-        self.hour
-    }
-    pub fn minute(&self) -> u32 {
-        self.minute
-    }
-    pub fn second(&self) -> u32 {
-        self.second
-    }
-    pub fn nanosecond(&self) -> u32 {
-        self.nanosecond
-    }
-    pub fn tz_hour_offset(&self) -> i32 {
-        self.tz_hour_offset
-    }
-    pub fn tz_minute_offset(&self) -> i32 {
-        self.tz_minute_offset
-    }
-    pub fn tz_offset_sec(&self) -> i32 {
-        self.tz_hour_offset * 3600 + self.tz_minute_offset * 60
-    }
-}
-
-impl fmt::Display for Timestamp {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}-{:02}-{:02} {:02}:{:02}:{:02}.{:09} {:+02}:{:02}",
-               self.year, self.month, self.day,
-               self.hour, self.minute, self.second, self.nanosecond,
-               self.tz_hour_offset, self.tz_minute_offset)
-    }
-}
-
-//
-// IntervalDS
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IntervalDS {
-    days: i32,
-    hours: i32,
-    minutes: i32,
-    seconds: i32,
-    nanoseconds: i32,
-}
-
-impl IntervalDS {
-    pub(crate) fn from_dpi_interval_ds(it: &dpiIntervalDS) -> IntervalDS {
-        IntervalDS {
-            days: it.days,
-            hours: it.hours,
-            minutes: it.minutes,
-            seconds: it.seconds,
-            nanoseconds: it.fseconds,
-        }
-    }
-
-    pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
-        IntervalDS {
-            days: days,
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            nanoseconds: nanoseconds,
-        }
-    }
-
-    pub fn days(&self) -> i32 {
-        self.days
-    }
-    pub fn hours(&self) -> i32 {
-        self.hours
-    }
-    pub fn minutes(&self) -> i32 {
-        self.minutes
-    }
-    pub fn seconds(&self) -> i32 {
-        self.seconds
-    }
-    pub fn nanoseconds(&self) -> i32 {
-        self.nanoseconds
-    }
-}
-
-impl fmt::Display for IntervalDS {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.days < 0 || self.hours < 0 || self.minutes < 0 || self.seconds < 0 || self.nanoseconds < 0 {
-            write!(f, "INTERVAL '-{} {:02}:{:02}:{:02}.{:09}' DAY TO SECOND",
-                   -self.days, -self.hours, -self.minutes, -self.seconds, -self.nanoseconds)
-        } else {
-            write!(f, "INTERVAL '+{} {:02}:{:02}:{:02}.{:09}' DAY TO SECOND",
-                   self.days, self.hours, self.minutes, self.seconds, self.nanoseconds)
-        }
-    }
-}
-
-//
-// IntervalYM
-//
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IntervalYM {
-    years: i32,
-    months: i32,
-}
-
-impl IntervalYM {
-    pub(crate) fn from_dpi_interval_ym(it: &dpiIntervalYM) -> IntervalYM {
-        IntervalYM {
-            years: it.years,
-            months: it.months,
-        }
-    }
-
-    pub fn new(years: i32, months: i32) -> IntervalYM {
-        IntervalYM {
-            years: years,
-            months: months,
-        }
-    }
-
-    pub fn years(&self) -> i32 {
-        self.years
-    }
-    pub fn months(&self) -> i32 {
-        self.months
-    }
-}
-
-impl fmt::Display for IntervalYM {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.years < 0 || self.months < 0 {
-            write!(f, "INTERVAL '-{}-{}' YEAR TO MONTH",
-                   -self.years, -self.months)
-        } else {
-            write!(f, "INTERVAL '{}-{}' YEAR TO MONTH",
-                   self.years, self.months)
-        }
-    }
-}
-
-//
-// Version
-//
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-pub struct Version {
-    major: i32,
-    minor: i32,
-    update: i32,
-    patch: i32,
-    port_update: i32,
-}
-
-impl Version {
-    pub fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
-        Version { major: major, minor: minor, update: update,
-                  patch: patch, port_update: port_update }
-    }
-
-    pub(crate) fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
-        Version::new(ver.versionNum, ver.releaseNum, ver.updateNum, ver.portReleaseNum, ver.portUpdateNum)
-    }
-
-    /// 1st part of Oracle version number
-    pub fn major(&self) -> i32 {
-        self.major
-    }
-
-    /// 2nd part of Oracle version number
-    pub fn minor(&self) -> i32 {
-        self.minor
-    }
-
-    /// 3rd part of Oracle version number
-    pub fn update(&self) -> i32 {
-        self.update
-    }
-
-    /// 4th part of Oracle version number
-    pub fn patch(&self) -> i32 {
-        self.patch
-    }
-
-    /// 5th part of Oracle version number
-    pub fn port_update(&self) -> i32 {
-        self.port_update
-    }
-}
-
-impl fmt::Display for Version {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}.{}.{}.{}", self.major, self.minor, self.update, self.patch, self.port_update)
     }
 }
