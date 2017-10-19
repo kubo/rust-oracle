@@ -1,4 +1,5 @@
 extern crate core;
+extern crate chrono;
 #[macro_use]
 extern crate lazy_static;
 extern crate try_from;
@@ -33,6 +34,7 @@ pub use statement::Row;
 pub use statement::BindIndex;
 pub use statement::ColumnIndex;
 pub use error::Error;
+pub use error::ConversionError;
 pub use error::ParseError;
 pub use error::DbError;
 pub use types::FromSql;

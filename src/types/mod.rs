@@ -6,6 +6,7 @@ use Result;
 use Timestamp;
 use Value;
 
+pub mod chrono;
 pub mod interval_ds;
 pub mod interval_ym;
 pub mod oracle_type;
@@ -14,14 +15,10 @@ pub mod version;
 
 pub trait FromSql {
     fn from(val: &Value) -> Result<Self> where Self: Sized;
-    /// type name just for information put in error messages.
-    fn type_name() -> String;
 }
 
 pub trait ToSql {
     fn to(val: &mut Value, newval: Self) -> Result<()>;
-    /// type name just for information put in error messages.
-    fn type_name() -> String;
 }
 
 macro_rules! impl_from_sql {
@@ -29,9 +26,6 @@ macro_rules! impl_from_sql {
         impl FromSql for $type {
             fn from(val: &Value) -> Result<$type> {
                 val.$func()
-            }
-            fn type_name() -> String {
-                stringify!($type).to_string()
             }
         }
     };
@@ -43,18 +37,12 @@ macro_rules! impl_to_sql {
             fn to(val: &mut Value, newval: &'a $type) -> Result<()> {
                 val.$func(newval)
             }
-            fn type_name() -> String {
-                concat!("&", stringify!($type)).to_string()
-            }
         }
     };
     ($type:ty, $func:ident) => {
         impl ToSql for $type {
             fn to(val: &mut Value, newval: $type) -> Result<()> {
                 val.$func(newval)
-            }
-            fn type_name() -> String {
-                stringify!($type).to_string()
             }
         }
     };
@@ -100,10 +88,6 @@ impl<T: FromSql> FromSql for Option<T> {
             Err(err) => Err(err),
         }
     }
-
-    fn type_name() -> String {
-        format!("Option<{}>", <T>::type_name())
-    }
 }
 
 impl<T: ToSql> ToSql for Option<T> {
@@ -112,9 +96,5 @@ impl<T: ToSql> ToSql for Option<T> {
             Some(v) => <T>::to(val, v),
             None => val.set_null(),
         }
-    }
-
-    fn type_name() -> String {
-        format!("Option<{}>", <T>::type_name())
     }
 }

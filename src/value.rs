@@ -27,7 +27,7 @@ macro_rules! flt_to_int {
             if $dest_type::min_value() as $src_type <= src_val && src_val <= $dest_type::max_value() as $src_type {
                 Ok(src_val as $dest_type)
             } else {
-                Err(Error::ConversionError(ConversionError::Overflow(format!("{}", src_val), stringify!($dest_type))))
+                Err(Error::ConversionError(ConversionError::Overflow(src_val.to_string(), stringify!($dest_type))))
             }
         }
     }
@@ -69,7 +69,7 @@ macro_rules! define_fn_set_int {
                     self.set_f64_unchecked(val as f64),
                 NativeType::Char |
                 NativeType::Number => {
-                    let s = format!("{}", val);
+                    let s = val.to_string();
                     self.set_string_unchecked(&s)
                 },
                 _ =>

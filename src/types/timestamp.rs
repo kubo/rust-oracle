@@ -68,14 +68,9 @@ impl Timestamp {
 
     #[inline]
     pub fn and_tz_offset(&self, offset: i32) -> Timestamp {
-        let (tz_hour, tz_min) = if offset >= 0 {
-            (offset / 3600, (offset % 3600) / 60)
-        } else {
-            (-offset / 3600, (-offset % 3600) / 60)
-        };
         Timestamp {
-            tz_hour_offset: tz_hour,
-            tz_minute_offset: tz_min,
+            tz_hour_offset: offset / 3600,
+            tz_minute_offset: offset % 3600 / 60,
             with_tz: true,
             .. *self
         }
@@ -87,6 +82,14 @@ impl Timestamp {
             tz_hour_offset: hour_offset,
             tz_minute_offset: minute_offset,
             with_tz: true,
+            .. *self
+        }
+    }
+
+    #[inline]
+    pub fn with_precision(&self, precision: u8) -> Timestamp {
+        Timestamp {
+            precision: precision,
             .. *self
         }
     }
@@ -112,8 +115,13 @@ impl fmt::Display for Timestamp {
             _ => (),
         }
         if self.with_tz {
-            write!(f, " {:+03}:{:02}",
-                   self.tz_hour_offset, self.tz_minute_offset.abs())?;
+            let sign = if self.tz_hour_offset < 0 || self.tz_minute_offset < 0 {
+                '-'
+            } else {
+                '+'
+            };
+            write!(f, " {}{:02}:{:02}", sign,
+                   self.tz_hour_offset.abs(), self.tz_minute_offset.abs())?;
         }
         Ok(())
     }
@@ -281,6 +289,16 @@ mod tests {
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07 -08:45");
         ts.year = -123;
         assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -08:45");
+        let mut ts = ts.and_tz_offset(-3600 - 1800);
+        assert_eq!(ts.tz_hour_offset, -1);
+        assert_eq!(ts.tz_minute_offset, -30);
+        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -01:30");
+        ts.tz_hour_offset = 0;
+        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -00:30");
+        ts.tz_minute_offset = 30;
+        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:30");
+        ts.tz_minute_offset = 0;
+        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:00");
     }
 
     #[test]
@@ -337,5 +355,9 @@ mod tests {
         assert_eq!("2012-03-04 05:06:07.123 -08:45".parse(), Ok(ts));
         ts.year = -123;
         assert_eq!("-123-03-04 05:06:07.123 -08:45".parse(), Ok(ts));
+        ts.tz_hour_offset = 0;
+        assert_eq!("-123-03-04 05:06:07.123 -00:45".parse(), Ok(ts));
+        ts.tz_minute_offset = 45;
+        assert_eq!("-123-03-04 05:06:07.123 +00:45".parse(), Ok(ts));
     }
 }
