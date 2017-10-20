@@ -1,3 +1,4 @@
+use std::cmp;
 use std::fmt;
 use std::str;
 
@@ -10,7 +11,7 @@ use ParseError;
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {
     pub days: i32,
     pub hours: i32,
@@ -45,9 +46,19 @@ impl IntervalDS {
             minutes: minutes,
             seconds: seconds,
             nanoseconds: nanoseconds,
-            lfprecision: 2,
-            fsprecision: 6,
+            lfprecision: 9,
+            fsprecision: 9,
         }
+    }
+}
+
+impl cmp::PartialEq for IntervalDS {
+    fn eq(&self, other: &Self) -> bool {
+        self.days == other.days
+            && self.hours == other.hours
+            && self.minutes == other.minutes
+            && self.seconds == other.seconds
+            && self.nanoseconds == other.nanoseconds
     }
 }
 

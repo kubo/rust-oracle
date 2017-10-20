@@ -1,3 +1,4 @@
+use std::cmp;
 use std::fmt;
 use std::str;
 
@@ -11,7 +12,7 @@ use ParseError;
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Timestamp {
     pub year: i32,
     pub month: u32,
@@ -61,7 +62,7 @@ impl Timestamp {
             nanosecond: nanosecond,
             tz_hour_offset: 0,
             tz_minute_offset: 0,
-            precision: 0,
+            precision: 9,
             with_tz: false,
         }
     }
@@ -96,6 +97,20 @@ impl Timestamp {
 
     pub fn tz_offset(&self) -> i32 {
         self.tz_hour_offset * 3600 + self.tz_minute_offset * 60
+    }
+}
+
+impl cmp::PartialEq for Timestamp {
+    fn eq(&self, other: &Self) -> bool {
+        self.year == other.year
+            && self.month == other.month
+            && self.day == other.day
+            && self.hour == other.hour
+            && self.minute == other.minute
+            && self.second == other.second
+            && self.nanosecond == other.nanosecond
+            && self.tz_hour_offset == other.tz_hour_offset
+            && self.tz_minute_offset == other.tz_minute_offset
     }
 }
 
@@ -262,6 +277,7 @@ mod tests {
     fn to_string() {
         let mut ts = Timestamp::new(2012, 3, 4, 5, 6, 7, 890123456).and_tz_hm_offset(8, 45);
         ts.with_tz = false;
+        ts.precision = 0;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07");
         ts.precision = 1;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.8");
@@ -305,6 +321,7 @@ mod tests {
     fn parse() {
         let mut ts = Timestamp::new(2012, 1, 1, // year, month, day,
                                     0, 0, 0, 0); // hour, minute, second, nanosecond,
+        ts.precision = 0;
         assert_eq!("2012".parse(), Ok(ts));
         ts.month = 3; ts.day = 4;
         assert_eq!("20120304".parse(), Ok(ts));

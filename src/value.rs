@@ -57,16 +57,16 @@ macro_rules! define_fn_as_int {
 
 macro_rules! define_fn_set_int {
     ($func_name:ident, $type:ident) => {
-        pub fn $func_name(&mut self, val: $type) -> Result<()> {
+        pub fn $func_name(&mut self, val: &$type) -> Result<()> {
             match self.native_type {
                 NativeType::Int64 =>
-                    self.set_i64_unchecked(val as i64),
+                    self.set_i64_unchecked(*val as i64),
                 NativeType::UInt64 =>
-                    self.set_u64_unchecked(val as u64),
+                    self.set_u64_unchecked(*val as u64),
                 NativeType::Float =>
-                    self.set_f32_unchecked(val as f32),
+                    self.set_f32_unchecked(*val as f32),
                 NativeType::Double =>
-                    self.set_f64_unchecked(val as f64),
+                    self.set_f64_unchecked(*val as f64),
                 NativeType::Char |
                 NativeType::Number => {
                     let s = val.to_string();
@@ -142,7 +142,7 @@ impl Value {
     }
 
     pub fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
-        <T>::to(self, val)
+        val.to(self)
     }
 
     fn unsupported_as_type_conversion<T>(&self, to_type: &str) -> Result<T> {
@@ -545,10 +545,10 @@ impl Value {
         }
     }
 
-    pub fn set_bool(&mut self, val: bool) -> Result<()> {
+    pub fn set_bool(&mut self, val: &bool) -> Result<()> {
         match self.native_type {
             NativeType::Boolean =>
-                Ok(self.set_bool_unchecked(val)?),
+                Ok(self.set_bool_unchecked(*val)?),
             _ =>
                 self.unsupported_set_type_conversion("bool"),
         }

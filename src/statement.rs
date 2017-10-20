@@ -9,6 +9,7 @@ use Connection;
 use error::IndexError;
 use types::FromSql;
 use types::ToSql;
+use types::ToSqlInTuple;
 use value::Value;
 use Result;
 use Error;
@@ -134,7 +135,8 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    pub fn execute(&mut self) -> Result<()> {
+    pub fn execute<T, U>(&mut self, params: &T) -> Result<()> where T: ToSqlInTuple<U> {
+        params.bind(self)?;
         let mut num_query_columns = 0;
         chkerr!(self.conn.ctxt,
                 dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));

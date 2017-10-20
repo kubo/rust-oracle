@@ -1,3 +1,4 @@
+use std::cmp;
 use std::fmt;
 use std::str;
 
@@ -10,7 +11,7 @@ use ParseError;
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {
     pub years: i32,
     pub months: i32,
@@ -34,8 +35,14 @@ impl IntervalYM {
         IntervalYM {
             years: years,
             months: months,
-            precision: 2,
+            precision: 9,
         }
+    }
+}
+
+impl cmp::PartialEq for IntervalYM {
+    fn eq(&self, other: &Self) -> bool {
+        self.years == other.years && self.months == other.months
     }
 }
 
@@ -105,7 +112,6 @@ mod tests {
     #[test]
     fn to_string() {
         let mut it = IntervalYM::new(1, 2);
-        assert_eq!(it.to_string(), "+01-02");
         it.precision = 0;
         assert_eq!(it.to_string(), "+1-02");
         it.precision = 1;
@@ -128,7 +134,6 @@ mod tests {
         assert_eq!(it.to_string(), "+000000001-02");
 
         let mut it = IntervalYM::new(-1, -2);
-        assert_eq!(it.to_string(), "-01-02");
         it.precision = 0;
         assert_eq!(it.to_string(), "-1-02");
         it.precision = 1;
@@ -175,6 +180,6 @@ mod tests {
         assert_eq!("+000000001-02".parse(), Ok(it));
 
         let it = IntervalYM::new(-1, -2);
-        assert_eq!("-01-02".parse(), Ok(it));
+        assert_eq!("-000000001-02".parse(), Ok(it));
     }
 }

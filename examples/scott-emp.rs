@@ -5,7 +5,7 @@ fn main() {
     println!("Oracle Client Version: {}", ver);
     let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
-    stmt.execute().unwrap();
+    stmt.execute(&()).unwrap();
 
     // stmt.define("HIREDATE", oracle::OracleType::Varchar2(60)).unwrap();
 
@@ -45,19 +45,19 @@ fn main() {
     stmt.bind(1, &oracle::OracleType::Varchar2(30)).unwrap();
     stmt.bind(2, &oracle::OracleType::Int64).unwrap();
     stmt.set_bind_value(2, 123.0).unwrap();
-    stmt.execute().unwrap();
+    stmt.execute(&()).unwrap();
     let retval: String = stmt.bind_value(1).unwrap();
     println!(":1 (as String) => {}", retval);
     let retval: i32 = stmt.bind_value(1).unwrap();
     println!(":1 (as i32) => {}", retval);
     println!(":1 is null? => {}", stmt.is_null_value(1).unwrap());
     stmt.set_null_value(2).unwrap();
-    stmt.execute().unwrap();
+    stmt.execute(&()).unwrap();
     println!(":1 is null? => {}", stmt.is_null_value(1).unwrap());
 
     if false {
         let mut stmt = conn.prepare("select 100000 from dual").unwrap();
-        stmt.execute().unwrap();
+        stmt.execute(&()).unwrap();
         let row = stmt.fetch().unwrap();
         // This cause panic because 10000 is out of the range of `i8`.
         let _val: i8 = row.get(0).unwrap();

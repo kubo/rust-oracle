@@ -3,6 +3,7 @@ use chrono::prelude::*;
 use FromSql;
 use Result;
 use Timestamp;
+use OracleType;
 use IntervalDS;
 use ToSql;
 use Value;
@@ -43,12 +44,16 @@ impl FromSql for DateTime<FixedOffset> {
     }
 }
 
-impl<'a, Tz> ToSql for &'a DateTime<Tz> where Tz: TimeZone {
-    fn to(val: &mut Value, newval: &'a DateTime<Tz>) -> Result<()> {
-        let ts = Timestamp::new(newval.year(), newval.month(), newval.day(),
-                                newval.hour(), newval.minute(), newval.second(),
-                                newval.nanosecond());
-        let ts = ts.and_tz_offset(newval.offset().fix().local_minus_utc());
+impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
+    fn oratype() -> OracleType {
+        OracleType::Timestamp(9)
+    }
+
+    fn to(&self, val: &mut Value) -> Result<()> {
+        let ts = Timestamp::new(self.year(), self.month(), self.day(),
+                                self.hour(), self.minute(), self.second(),
+                                self.nanosecond());
+        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
         let ts = ts.with_precision(9);
         val.set_timestamp(&ts)
     }
@@ -85,11 +90,15 @@ impl FromSql for Date<FixedOffset> {
     }
 }
 
-impl<'a, Tz> ToSql for &'a Date<Tz> where Tz: TimeZone {
-    fn to(val: &mut Value, newval: &'a Date<Tz>) -> Result<()> {
-        let ts = Timestamp::new(newval.year(), newval.month(), newval.day(),
+impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
+    fn oratype() -> OracleType {
+        OracleType::Timestamp(9)
+    }
+
+    fn to(&self, val: &mut Value) -> Result<()> {
+        let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 0, 0, 0, 0);
-        let ts = ts.and_tz_offset(newval.offset().fix().local_minus_utc());
+        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
         val.set_timestamp(&ts)
     }
 }
@@ -112,10 +121,14 @@ impl FromSql for Duration {
     }
 }
 
-impl<'a> ToSql for &'a Duration {
-    fn to(val: &mut Value, newval: &'a Duration) -> Result<()> {
-        let secs = newval.num_seconds();
-        let nsecs = (*newval - Duration::seconds(secs)).num_nanoseconds().unwrap();
+impl ToSql for Duration {
+    fn oratype() -> OracleType {
+        OracleType::IntervalDS(9, 9)
+    }
+
+    fn to(&self, val: &mut Value) -> Result<()> {
+        let secs = self.num_seconds();
+        let nsecs = (*self - Duration::seconds(secs)).num_nanoseconds().unwrap();
         let days = secs / (24 * 60 * 60);
         let secs = secs % (24 * 60 * 60);
         let hours = secs / (60 * 60);
@@ -123,7 +136,7 @@ impl<'a> ToSql for &'a Duration {
         let minutes = secs / 60;
         let secs = secs % 60;
         if days.abs() >= 1000000000 {
-            return Err(Error::ConversionError(ConversionError::Overflow(newval.to_string(), "INTERVAL DAY TO SECOND")));
+            return Err(Error::ConversionError(ConversionError::Overflow(self.to_string(), "INTERVAL DAY TO SECOND")));
         }
         let it = IntervalDS::new(days as i32, hours as i32, minutes as i32, secs as i32, nsecs as i32);
         val.set_interval_ds(&it)

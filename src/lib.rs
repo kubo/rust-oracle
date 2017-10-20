@@ -39,6 +39,7 @@ pub use error::ParseError;
 pub use error::DbError;
 pub use types::FromSql;
 pub use types::ToSql;
+pub use types::Null;
 pub use types::oracle_type::OracleType;
 pub use types::timestamp::Timestamp;
 pub use types::interval_ds::IntervalDS;
