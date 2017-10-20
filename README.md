@@ -2,12 +2,14 @@
 
 This is an Oracle driver for [Rust][] based on [ODPI-C][].
 
-Supported Oracle version is 11.2 or later.
+## Compile-time Requirements
 
-Note that this is work-in-progress and will not be finished because
-I stopped to develop it. If you are interested in this driver, look
-at [this file][notes.md] and feel free to take over this task. The code I wrote
-is in public domain. You can apply any license.
+* Rust 1.18 or later
+* C compiler. See [Compile-time Requirements](https://docs.rs/crate/gcc/) in the this document.
+
+## Run-time Requirements
+
+* Oracle Client 11.2 or later
 
 ## Installation
 
@@ -100,6 +102,15 @@ Look at `src/main.rs` as a sample.
 * BOOLEAN
 * Bind parameters
 * Test code to check whether this crate works
+
+## License
+
+Rust Oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
+
+ODPI-C bundled in Rust Oracle is under the terms of:
+
+1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
+2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
 
 [Rust]:                 https://www.rust-lang.org/
 [ODPI-C]:               https://oracle.github.io/odpi/
