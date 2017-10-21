@@ -30,8 +30,6 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
-use std::marker::PhantomData;
-
 use Error;
 use error::ConversionError;
 use IntervalDS;
@@ -54,7 +52,10 @@ pub trait FromSql {
 }
 
 pub trait ToSql {
-    fn oratype() -> OracleType;
+    fn oratype_default() -> OracleType;
+    fn oratype(&self) -> OracleType {
+        Self::oratype_default()
+    }
     fn to(&self, val: &mut Value) -> Result<()>;
 }
 
@@ -69,19 +70,9 @@ macro_rules! impl_from_sql {
 }
 
 macro_rules! impl_to_sql {
-    (ref $type:ty, $func:ident, $oratype:expr) => {
-        impl<'a> ToSql for &'a $type {
-            fn oratype() -> OracleType {
-                $oratype
-            }
-            fn to(&self, val: &mut Value) -> Result<()> {
-                val.$func(self)
-            }
-        }
-    };
     ($type:ty, $func:ident, $oratype:expr) => {
         impl ToSql for $type {
-            fn oratype() -> OracleType {
+            fn oratype_default() -> OracleType {
                 $oratype
             }
             fn to(&self, val: &mut Value) -> Result<()> {
@@ -95,10 +86,6 @@ macro_rules! impl_from_and_to_sql {
     ($type:ty, $as_func:ident, $set_func:ident, $oratype:expr) => {
         impl_from_sql!($type, $as_func);
         impl_to_sql!($type, $set_func, $oratype);
-    };
-    ($as_type:ty, $as_func:ident, ref $set_type:ty, $set_func:ident, $oratype:expr) => {
-        impl_from_sql!($as_type, $as_func);
-        impl_to_sql!(ref $set_type, $set_func, $oratype);
     };
     ($as_type:ty, $as_func:ident, $set_type:ty, $set_func:ident, $oratype:expr) => {
         impl_from_sql!($as_type, $as_func);
@@ -117,17 +104,43 @@ impl_from_and_to_sql!(u64, as_u64, set_u64, OracleType::Number(0,0));
 impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::BinaryDouble);
 impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::BinaryDouble);
 impl_from_and_to_sql!(bool, as_bool, set_bool, OracleType::Boolean);
-impl_from_and_to_sql!(String, as_string, set_string, OracleType::Long);
-impl_from_and_to_sql!(Vec<u8>, as_bytes, Vec<u8>, set_bytes, OracleType::LongRaw);
-impl_from_and_to_sql!(Timestamp, as_timestamp, Timestamp, set_timestamp, OracleType::Timestamp(9));
+impl_from_sql!(String, as_string);
+impl_from_sql!(Vec<u8>, as_bytes);
+impl_from_and_to_sql!(Timestamp, as_timestamp, Timestamp, set_timestamp, OracleType::TimestampTZ(9));
 impl_from_and_to_sql!(IntervalDS, as_interval_ds, IntervalDS, set_interval_ds, OracleType::IntervalDS(9,9));
 impl_from_and_to_sql!(IntervalYM, as_interval_ym, IntervalYM, set_interval_ym, OracleType::IntervalYM(9));
 
-impl<'a> ToSql for &'a str {
-    fn oratype() -> OracleType {
-        OracleType::Long
+impl ToSql for String {
+    fn oratype_default() -> OracleType {
+        OracleType::Varchar2(0)
     }
+    fn oratype(&self) -> OracleType {
+        OracleType::Varchar2(self.len() as u32)
+    }
+    fn to(&self, val: &mut Value) -> Result<()> {
+        val.set_string(self)
+    }
+}
 
+impl ToSql for Vec<u8> {
+    fn oratype_default() -> OracleType {
+        OracleType::Raw(0)
+    }
+    fn oratype(&self) -> OracleType {
+        OracleType::Raw(self.len() as u32)
+    }
+    fn to(&self, val: &mut Value) -> Result<()> {
+        val.set_bytes(self)
+    }
+}
+
+impl<'a> ToSql for &'a str {
+    fn oratype_default() -> OracleType {
+        OracleType::Varchar2(0)
+    }
+    fn oratype(&self) -> OracleType {
+        OracleType::Varchar2(self.len() as u32)
+    }
     fn to(&self, val: &mut Value) -> Result<()> {
         val.set_string(*self)
     }
@@ -145,10 +158,15 @@ impl<T: FromSql> FromSql for Option<T> {
 }
 
 impl<T: ToSql> ToSql for Option<T> {
-    fn oratype() -> OracleType {
-        <T>::oratype()
+    fn oratype_default() -> OracleType {
+        <T>::oratype_default()
     }
-
+    fn oratype(&self) -> OracleType {
+        match *self {
+            Some(ref t) => t.oratype(),
+            None => <T>::oratype_default(),
+        }
+    }
     fn to(&self, val: &mut Value) -> Result<()> {
         match *self {
             Some(ref t) => t.to(val),
@@ -158,34 +176,50 @@ impl<T: ToSql> ToSql for Option<T> {
 }
 
 impl<'a, T: ToSql> ToSql for &'a T {
-    fn oratype() -> OracleType {
-        <T>::oratype()
+    fn oratype_default() -> OracleType {
+        <T>::oratype_default()
     }
-
+    fn oratype(&self) -> OracleType {
+        (*self).oratype()
+    }
     fn to(&self, val: &mut Value) -> Result<()> {
         (*self).to(val)
     }
 }
 
-pub struct Null<T> where T: ToSql {
-    dummy: PhantomData<T>,
+//
+// BindValue
+//
+
+pub struct BindValue<'a, T> where T: 'a + ToSql {
+    data: &'a T,
+    len: u32,
 }
 
-impl<T> Null<T> where T: ToSql {
-    pub fn new() -> Null<T> {
-        Null {
-            dummy: PhantomData,
+pub fn bind_value<'a, T>(data: &'a T, len: u32) -> BindValue<'a, T> where T: ToSql {
+    BindValue {
+        data: data,
+        len: len,
+    }
+}
+
+impl<'a, T> ToSql for BindValue<'a, T> where T: ToSql {
+    fn oratype_default() -> OracleType {
+        <T>::oratype_default()
+    }
+    fn oratype(&self) -> OracleType {
+        let oratype = <T>::oratype_default();
+        match oratype {
+            OracleType::Varchar2(_) => OracleType::Varchar2(self.len),
+            OracleType::NVarchar2(_) => OracleType::NVarchar2(self.len),
+            OracleType::Char(_) => OracleType::Char(self.len),
+            OracleType::NChar(_) => OracleType::NChar(self.len),
+            OracleType::Raw(_) => OracleType::Raw(self.len),
+            _ => oratype,
         }
     }
-}
-
-impl<T: ToSql> ToSql for Null<T> {
-    fn oratype() -> OracleType {
-        <T>::oratype()
-    }
-
     fn to(&self, val: &mut Value) -> Result<()> {
-        val.set_null()
+        self.data.to(val)
     }
 }
 
@@ -212,8 +246,7 @@ macro_rules! to_sql_in_tuple_impl {
             impl<$($T:ToSql,)+> ToSqlInTuple<($($T,)+)> for ($($T,)+) {
                 fn bind(&self, stmt: &mut Statement) -> Result<()> {
                     $(
-                        stmt.bind($idx + 1, &<$T>::oratype())?;
-                        stmt.set_bind_value($idx + 1, &self.$idx)?;
+                        stmt.bind($idx + 1, &self.$idx)?;
                     )+
                     Ok(())
                 }

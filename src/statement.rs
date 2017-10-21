@@ -131,22 +131,13 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    pub fn bind<I>(&mut self, bindidx: I, oratype: &OracleType) -> Result<()> where I: BindIndex {
+    pub fn bind<I, T>(&mut self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
         let pos = bindidx.idx(&self)?;
-        self.bind_values[pos].init_handle(self.conn, oratype, 1)?;
-        chkerr!(self.conn.ctxt,
-                bindidx.bind(self.handle, self.bind_values[pos].handle));
-        Ok(())
-    }
-
-    pub fn set_bind_value<I, T>(&mut self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
-        let pos = bindidx.idx(&self)?;
+        if self.bind_values[pos].init_handle(self.conn, &value.oratype(), 1)? {
+            chkerr!(self.conn.ctxt,
+                    bindidx.bind(self.handle, self.bind_values[pos].handle));
+        }
         self.bind_values[pos].set(value)
-    }
-
-    pub fn set_null_value<I>(&mut self, bindidx: I) -> Result<()> where I: BindIndex {
-        let pos = bindidx.idx(&self)?;
-        self.bind_values[pos].set_null()
     }
 
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
@@ -154,16 +145,12 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].get()
     }
 
-    pub fn is_null_value<I>(&self, bindidx: I) -> Result<bool> where I: BindIndex {
-        let pos = bindidx.idx(&self)?;
-        self.bind_values[pos].is_null()
-    }
-
     pub fn define<I>(&mut self, colidx: I, oratype: &OracleType) -> Result<()> where I: ColumnIndex {
         let pos = colidx.idx(&self.row.column_info)?;
-        self.row.column_values[pos].init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
-        chkerr!(self.conn.ctxt,
-                dpiStmt_define(self.handle, (pos + 1) as u32, self.row.column_values[pos].handle));
+        if self.row.column_values[pos].init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)? {
+            chkerr!(self.conn.ctxt,
+                    dpiStmt_define(self.handle, (pos + 1) as u32, self.row.column_values[pos].handle));
+        }
         Ok(())
     }
 
@@ -202,9 +189,10 @@ impl<'conn> Statement<'conn> {
                     _ =>
                         oratype,
                 };
-                val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
-                chkerr!(self.conn.ctxt,
-                        dpiStmt_define(self.handle, (idx + 1) as u32, val.handle));
+                if val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)? {
+                    chkerr!(self.conn.ctxt,
+                            dpiStmt_define(self.handle, (idx + 1) as u32, val.handle));
+                }
             }
         }
         Ok(())

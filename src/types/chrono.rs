@@ -77,8 +77,8 @@ impl FromSql for DateTime<FixedOffset> {
 }
 
 impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
-    fn oratype() -> OracleType {
-        OracleType::Timestamp(9)
+    fn oratype_default() -> OracleType {
+        OracleType::TimestampTZ(9)
     }
 
     fn to(&self, val: &mut Value) -> Result<()> {
@@ -86,7 +86,6 @@ impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
                                 self.hour(), self.minute(), self.second(),
                                 self.nanosecond());
         let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
-        let ts = ts.with_precision(9);
         val.set_timestamp(&ts)
     }
 }
@@ -123,8 +122,8 @@ impl FromSql for Date<FixedOffset> {
 }
 
 impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
-    fn oratype() -> OracleType {
-        OracleType::Timestamp(9)
+    fn oratype_default() -> OracleType {
+        OracleType::TimestampTZ(9)
     }
 
     fn to(&self, val: &mut Value) -> Result<()> {
@@ -154,7 +153,7 @@ impl FromSql for Duration {
 }
 
 impl ToSql for Duration {
-    fn oratype() -> OracleType {
+    fn oratype_default() -> OracleType {
         OracleType::IntervalDS(9, 9)
     }
 

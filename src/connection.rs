@@ -36,6 +36,7 @@ use Version;
 use Statement;
 
 use binding::*;
+use types::ToSqlInTuple;
 use Context;
 use Result;
 
@@ -261,6 +262,13 @@ impl Connection {
         chkerr!(self.ctxt,
                 dpiConn_getEdition(self.handle, &mut s.ptr, &mut s.len));
         Ok(s.to_string())
+    }
+
+    /// Prepares statement, binds values and executes it.
+    pub fn execute<T, U>(&self, sql: &str, params: &T)-> Result<Statement> where T: ToSqlInTuple<U> {
+        let mut stmt = self.prepare(sql)?;
+        stmt.execute(params)?;
+        Ok(stmt)
     }
 
     /// get external name associated with the connection

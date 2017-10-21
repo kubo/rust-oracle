@@ -74,18 +74,18 @@ fn main() {
 
     // Set/Get bind values
     let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
-    stmt.bind(1, &oracle::OracleType::Varchar2(30)).unwrap();
-    stmt.bind(2, &oracle::OracleType::Int64).unwrap();
-    stmt.set_bind_value(2, 123.0).unwrap();
+    stmt.bind(1, oracle::bind_value(&None::<&str>, 5)).unwrap();
+    stmt.bind(2, 123).unwrap();
     stmt.execute(&()).unwrap();
     let retval: String = stmt.bind_value(1).unwrap();
     println!(":1 (as String) => {}", retval);
     let retval: i32 = stmt.bind_value(1).unwrap();
     println!(":1 (as i32) => {}", retval);
-    println!(":1 is null? => {}", stmt.is_null_value(1).unwrap());
-    stmt.set_null_value(2).unwrap();
+    //    stmt.bind(2, oracle::null_bind_value::<i32>()).unwrap();
+    stmt.bind(2, &None::<i32>).unwrap();
     stmt.execute(&()).unwrap();
-    println!(":1 is null? => {}", stmt.is_null_value(1).unwrap());
+    let retval: Option<i32> = stmt.bind_value(1).unwrap();
+    println!(":1 is null? => {}", retval.is_none());
 
     if false {
         let mut stmt = conn.prepare("select 100000 from dual").unwrap();

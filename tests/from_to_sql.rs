@@ -109,69 +109,56 @@ fn timestamp_to_sql() {
 
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 00:00:00");
 
     ts.hour = 5; ts.minute = 6; ts.second = 7;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 05:06:07");
 
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Timestamp(0),
                  "2012-03-04 05:06:07");
     ts.precision = 1;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Timestamp(1),
                  "2012-03-04 05:06:07");
     ts.precision = 6;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Timestamp(6),
                  "2012-03-04 05:06:07");
     ts.precision = 9;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07");
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07");
     ts.nanosecond = 123456789;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123456789");
     ts.nanosecond = 123456000;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF6')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123456");
     ts.nanosecond = 123000000;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF3')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123");
 
     ts.with_tz = true;
     ts.nanosecond = 0;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 05:06:07 +00:00");
     ts.tz_hour_offset = 8; ts.tz_minute_offset = 45;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 05:06:07 +08:45");
     ts.tz_hour_offset = -8; ts.tz_minute_offset = -45;
     test_to_sql!(&conn, &ts,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 05:06:07 -08:45");
 }
 
@@ -222,34 +209,28 @@ fn interval_ds_to_sql() {
 
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "+000000001 02:03:04.000000000");
     it.nanoseconds = 123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "+000000001 02:03:04.123456789");
     it.days = 123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "+123456789 02:03:04.123456789");
 
     let mut it = IntervalDS::new(-1, -2, -3, -4, 0);
 
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "-000000001 02:03:04.000000000");
     it.nanoseconds = -123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "-000000001 02:03:04.123456789");
     it.days = -123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(1,0),
                  "-123456789 02:03:04.123456789");
 }
 
@@ -290,24 +271,20 @@ fn interval_ym_to_sql() {
 
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalYM(2),
                  "+000000001-02");
     it.years = 123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalYM(9),
                  "+123456789-02");
 
     let mut it = IntervalYM::new(-1, -2);
 
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalYM(2),
                  "-000000001-02");
     it.years = -123456789;
     test_to_sql!(&conn, &it,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalYM(9),
                  "-123456789-02");
 }
 
@@ -388,43 +365,36 @@ fn chrono_datetime_to_sql() {
     // DateTime<Utc> -> DATE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 05:06:07");
 
     // DateTime<Local> -> DATE
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 05:06:07");
 
     // DateTime<FixedOffset> -> DATE
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 05:06:07");
 
     // DateTime<Utc> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123456789");
 
     // DateTime<Local> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123456789");
 
     // DateTime<FixedOffset> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 05:06:07.123456789");
 
     // DateTime<Utc> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 05:06:07.123456789 +00:00");
 
     // DateTime<Local> -> TIMESTAMP WITH TIME ZONE
@@ -434,13 +404,11 @@ fn chrono_datetime_to_sql() {
     let tz_min = tz_offset.abs() % 3600 / 60;
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  &format!("2012-03-04 05:06:07.123456789 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
 
     // DateTime<FixedOffset> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 05:06:07.123456789 +01:00");
 }
 
@@ -521,43 +489,36 @@ fn chrono_date_to_sql() {
     // Date<Utc> -> DATE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 00:00:00");
 
     // Date<Local> -> DATE
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 00:00:00");
 
     // Date<FixedOffset> -> DATE
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 &OracleType::Date,
                  "2012-03-04 00:00:00");
 
     // Date<Utc> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 00:00:00.000000000");
 
     // Date<Local> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 00:00:00.000000000");
 
     // Date<FixedOffset> -> TIMESTAMP
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 &OracleType::Timestamp(9),
                  "2012-03-04 00:00:00.000000000");
 
     // Date<Utc> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 00:00:00.000000000 +00:00");
 
     // Date<Local> -> TIMESTAMP WITH TIME ZONE
@@ -567,13 +528,11 @@ fn chrono_date_to_sql() {
     let tz_min = tz_offset.abs() % 3600 / 60;
     test_to_sql!(&conn, &dttm_local,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  &format!("2012-03-04 00:00:00.000000000 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
 
     // Date<FixedOffset> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &OracleType::TimestampTZ(9),
                  "2012-03-04 00:00:00.000000000 +01:00");
 }
 
@@ -617,34 +576,28 @@ fn chrono_duration_to_sql() {
         + Duration::seconds(4) + Duration::nanoseconds(123456789);
     test_to_sql!(&conn, &d,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(2,9),
                  "+000000001 02:03:04.123456789");
 
     let d = -d;
     test_to_sql!(&conn, &d,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(2,9),
                  "-000000001 02:03:04.123456789");
 
     let d = Duration::days(999999999) + Duration::hours(23) + Duration::minutes(59)
         + Duration::seconds(59) + Duration::nanoseconds(999999999);
     test_to_sql!(&conn, &d,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(2,9),
                  "+999999999 23:59:59.999999999");
 
     let d = -d;
     test_to_sql!(&conn, &d,
                  "TO_CHAR(:1)",
-                 &OracleType::IntervalDS(2,9),
                  "-999999999 23:59:59.999999999");
 
     // Overflow
     let d = Duration::days(1000000000);
     let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;").unwrap();
-    stmt.bind(1, &OracleType::Varchar2(1000)).unwrap();
-    stmt.bind(2, &OracleType::IntervalDS(9,9)).unwrap();
-    let bind_result = stmt.set_bind_value(2, &d);
+    let bind_result = stmt.bind(2, &d);
     if let Err(Error::ConversionError(ConversionError::Overflow(_, _))) = bind_result {
         ; /* OK */
     } else {

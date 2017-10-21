@@ -94,7 +94,7 @@ pub enum OracleType {
     /// VARCHAR2 data type
     Varchar2(u32), // size
     /// NVARCHAR2 data type
-    Nvarchar2(u32), // size
+    NVarchar2(u32), // size
     /// CHAR data type
     Char(u32), // size
     /// NCHAR data type
@@ -150,7 +150,7 @@ impl OracleType {
     pub(crate) fn from_type_info(info: &dpiDataTypeInfo) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
-            DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::Nvarchar2(info.sizeInChars)),
+            DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::NVarchar2(info.sizeInChars)),
             DPI_ORACLE_TYPE_CHAR => Ok(OracleType::Char(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NCHAR => Ok(OracleType::NChar(info.sizeInChars)),
             DPI_ORACLE_TYPE_ROWID => Ok(OracleType::Rowid),
@@ -187,7 +187,7 @@ impl OracleType {
         match *self {
             OracleType::Varchar2(size) =>
                 Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 1)),
-            OracleType::Nvarchar2(size) =>
+            OracleType::NVarchar2(size) =>
                 Ok((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, 0)),
             OracleType::Char(size) =>
                 Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 1)),
@@ -248,7 +248,7 @@ impl fmt::Display for OracleType {
         match *self {
             OracleType::None => write!(f, "?"),
             OracleType::Varchar2(size) => write!(f, "VARCHAR2({})", size),
-            OracleType::Nvarchar2(size) => write!(f, "NVARCHAR2({})", size),
+            OracleType::NVarchar2(size) => write!(f, "NVARCHAR2({})", size),
             OracleType::Char(size) => write!(f, "CHAR({})", size),
             OracleType::NChar(size) => write!(f, "NCHAR({})", size),
             OracleType::Rowid => write!(f, "ROWID"),

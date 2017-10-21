@@ -117,6 +117,7 @@ pub struct Value {
     pub(crate) handle: *mut dpiVar,
     native_type: NativeType,
     oratype: OracleType,
+    array_size: u32,
     pub(crate) buffer_row_index: u32,
 }
 
@@ -128,11 +129,37 @@ impl Value {
             handle: ptr::null_mut(),
             native_type: NativeType::Int64,
             oratype: OracleType::None,
+            array_size: 0,
             buffer_row_index: 0,
         }
     }
 
-    pub(crate) fn init_handle(&mut self, conn: &Connection, oratype: &OracleType, array_size: u32) -> Result<()> {
+    fn handle_is_reusable(&self, oratype: &OracleType, array_size: u32) -> Result<bool> {
+        if self.handle.is_null() {
+            return Ok(false);
+        }
+        if self.array_size != array_size {
+            return Ok(false);
+        }
+        let (current_oratype_num, _, current_size, _) = self.oratype.var_create_param()?;
+        let (new_oratype_num, _, new_size, _) = oratype.var_create_param()?;
+        if current_oratype_num != new_oratype_num  {
+            return Ok(false);
+        }
+        match current_oratype_num {
+            DPI_ORACLE_TYPE_VARCHAR |
+            DPI_ORACLE_TYPE_NVARCHAR |
+            DPI_ORACLE_TYPE_CHAR |
+            DPI_ORACLE_TYPE_NCHAR |
+            DPI_ORACLE_TYPE_RAW => Ok(current_size >= new_size),
+            _ => Ok(true),
+        }
+    }
+
+    pub(crate) fn init_handle(&mut self, conn: &Connection, oratype: &OracleType, array_size: u32) -> Result<bool> {
+        if self.handle_is_reusable(oratype, array_size)? {
+            return Ok(false)
+        }
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };
         }
@@ -147,7 +174,8 @@ impl Value {
         self.handle = handle;
         self.native_type = native_type;
         self.oratype = oratype.clone();
-        Ok(())
+        self.array_size = array_size;
+        Ok(true)
     }
 
     pub(crate) fn initialized(&self) -> bool {
@@ -603,6 +631,7 @@ impl Clone for Value {
             handle: self.handle,
             native_type: self.native_type.clone(),
             oratype: self.oratype.clone(),
+            array_size: self.array_size,
             buffer_row_index: self.buffer_row_index,
         }
     }
