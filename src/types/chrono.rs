@@ -42,6 +42,8 @@ use Value;
 use Error;
 use error::ConversionError;
 use chrono::Duration;
+use chrono::naive::NaiveDate;
+use chrono::naive::NaiveDateTime;
 
 //
 // chrono::DateTime<Utc>
@@ -123,13 +125,60 @@ impl FromSql for Date<FixedOffset> {
 
 impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
     fn oratype_default() -> OracleType {
-        OracleType::TimestampTZ(9)
+        OracleType::TimestampTZ(0)
     }
 
     fn to(&self, val: &mut Value) -> Result<()> {
         let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 0, 0, 0, 0);
         let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
+        val.set_timestamp(&ts)
+    }
+}
+
+//
+// chrono::naive::NaiveDateTime
+//
+
+impl FromSql for NaiveDateTime {
+    fn from(val: &Value) -> Result<NaiveDateTime> {
+        let ts = val.as_timestamp()?;
+        Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day).and_hms_nano(ts.hour, ts.minute, ts.second, ts.nanosecond))
+    }
+}
+
+impl ToSql for NaiveDateTime  {
+    fn oratype_default() -> OracleType {
+        OracleType::Timestamp(9)
+    }
+
+    fn to(&self, val: &mut Value) -> Result<()> {
+        let ts = Timestamp::new(self.year(), self.month(), self.day(),
+                                self.hour(), self.minute(), self.second(),
+                                self.nanosecond());
+        val.set_timestamp(&ts)
+    }
+}
+
+//
+// chrono::naive::NaiveDate
+//
+
+impl FromSql for NaiveDate {
+    fn from(val: &Value) -> Result<NaiveDate> {
+        let ts = val.as_timestamp()?;
+        Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day))
+    }
+}
+
+impl ToSql for NaiveDate {
+    fn oratype_default() -> OracleType {
+        OracleType::Timestamp(0)
+    }
+
+    fn to(&self, val: &mut Value) -> Result<()> {
+        let ts = Timestamp::new(self.year(), self.month(), self.day(),
+                                0, 0, 0, 0);
         val.set_timestamp(&ts)
     }
 }

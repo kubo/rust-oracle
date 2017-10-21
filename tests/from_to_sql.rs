@@ -37,6 +37,7 @@ mod common;
 
 use chrono::prelude::*;
 use chrono::Duration;
+use chrono::naive::NaiveDate;
 use oracle::*;
 
 //
@@ -362,36 +363,6 @@ fn chrono_datetime_to_sql() {
     let dttm_local = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
     let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
 
-    // DateTime<Utc> -> DATE
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 05:06:07");
-
-    // DateTime<Local> -> DATE
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 05:06:07");
-
-    // DateTime<FixedOffset> -> DATE
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 05:06:07");
-
-    // DateTime<Utc> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 05:06:07.123456789");
-
-    // DateTime<Local> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 05:06:07.123456789");
-
-    // DateTime<FixedOffset> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 05:06:07.123456789");
-
     // DateTime<Utc> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
@@ -486,36 +457,6 @@ fn chrono_date_to_sql() {
     let dttm_local = Local.ymd(2012, 3, 4);
     let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4);
 
-    // Date<Utc> -> DATE
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 00:00:00");
-
-    // Date<Local> -> DATE
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 00:00:00");
-
-    // Date<FixedOffset> -> DATE
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS')",
-                 "2012-03-04 00:00:00");
-
-    // Date<Utc> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 00:00:00.000000000");
-
-    // Date<Local> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 00:00:00.000000000");
-
-    // Date<FixedOffset> -> TIMESTAMP
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 00:00:00.000000000");
-
     // Date<Utc> -> TIMESTAMP WITH TIME ZONE
     test_to_sql!(&conn, &dttm_utc,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
@@ -534,6 +475,82 @@ fn chrono_date_to_sql() {
     test_to_sql!(&conn, &dttm_fixed_cet,
                  "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                  "2012-03-04 00:00:00.000000000 +01:00");
+}
+
+//
+// chrono::naive::NaiveDateTime
+//
+
+#[test]
+fn chrono_naive_datetime_from_sql() {
+    let conn = common::connect().unwrap();
+
+    // DATE -> NaiveDateTime
+    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms(5, 6, 7);
+    test_from_sql!(&conn,
+                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                   &OracleType::Date, &dttm);
+
+    // TIMESTAMP -> NaiveDateTime
+    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+    test_from_sql!(&conn,
+                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                   &OracleType::Timestamp(9), &dttm);
+
+    // TIMESTAMP WITH TIME ZONE -> NaiveDateTime (TZ is ignored.)
+    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+    test_from_sql!(&conn,
+                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                   &OracleType::TimestampTZ(9), &dttm);
+}
+
+#[test]
+fn chrono_naive_datetime_to_sql() {
+    let conn = common::connect().unwrap();
+
+    // NaiveDateTime -> TIMESTAMP
+    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+    test_to_sql!(&conn, &dttm,
+                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                 "2012-03-04 05:06:07.123456789");
+}
+
+//
+// chrono::NaiveDate
+//
+
+#[test]
+fn chrono_naive_date_from_sql() {
+    let conn = common::connect().unwrap();
+
+    // DATE -> NaiveDate
+    let dttm = NaiveDate::from_ymd(2012, 3, 4);
+    test_from_sql!(&conn,
+                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                   &OracleType::Date, &dttm);
+
+    // TIMESTAMP -> NaiveDate
+    let dttm = NaiveDate::from_ymd(2012, 3, 4);
+    test_from_sql!(&conn,
+                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                   &OracleType::Timestamp(9), &dttm);
+
+    // TIMESTAMP WITH TIME ZONE -> NaiveDate (TZ is ignored.)
+    let dttm = NaiveDate::from_ymd(2012, 3, 4);
+    test_from_sql!(&conn,
+                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                   &OracleType::TimestampTZ(9), &dttm);
+}
+
+#[test]
+fn chrono_naive_date_to_sql() {
+    let conn = common::connect().unwrap();
+
+    // NaiveDate -> TIMESTAMP
+    let dttm = NaiveDate::from_ymd(2012, 3, 4);
+    test_to_sql!(&conn, &dttm,
+                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                 "2012-03-04 00:00:00.000000000");
 }
 
 //
