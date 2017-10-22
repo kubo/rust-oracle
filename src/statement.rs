@@ -62,7 +62,6 @@ pub struct Statement<'conn> {
     is_dml: bool,
     statement_type: dpiStatementType,
     is_returning: bool,
-    colums_are_defined: bool,
     bind_count: usize,
     bind_names: Vec<String>,
     bind_values: Vec<Value>,
@@ -111,7 +110,6 @@ impl<'conn> Statement<'conn> {
             is_dml: info.isDML != 0,
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
-            colums_are_defined: false,
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: vec![Value::new(conn.ctxt); bind_count],
@@ -145,15 +143,6 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].get()
     }
 
-    pub fn define<I>(&mut self, colidx: I, oratype: &OracleType) -> Result<()> where I: ColumnIndex {
-        let pos = colidx.idx(&self.row.column_info)?;
-        if self.row.column_values[pos].init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)? {
-            chkerr!(self.conn.ctxt,
-                    dpiStmt_define(self.handle, (pos + 1) as u32, self.row.column_values[pos].handle));
-        }
-        Ok(())
-    }
-
     pub fn execute<T, U>(&mut self, params: &T) -> Result<()> where T: ToSqlInTuple<U> {
         params.bind(self)?;
         let mut num_query_columns = 0;
@@ -168,18 +157,12 @@ impl<'conn> Statement<'conn> {
             self.row.column_values = vec![Value::new(self.conn.ctxt); num_cols];
 
             for i in 0..num_cols {
+                // set column info
                 let ci = ColumnInfo::new(self, i)?;
                 self.row.column_info.push(ci);
-            }
-        }
-        Ok(())
-    }
-
-    // Define columns when they are not defined explicitly.
-    fn define_columns(&mut self) -> Result<()> {
-        for (idx, val) in self.row.column_values.iter_mut().enumerate() {
-            if !val.initialized() {
-                let oratype = self.row.column_info[idx].oracle_type();
+                // setup column value
+                let mut val = unsafe { self.row.column_values.get_unchecked_mut(i) };
+                let oratype = self.row.column_info[i].oracle_type();
                 let oratype_i64 = OracleType::Int64;
                 let oratype = match *oratype {
                     // When the column type is number whose prec is less than 18
@@ -189,10 +172,9 @@ impl<'conn> Statement<'conn> {
                     _ =>
                         oratype,
                 };
-                if val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)? {
-                    chkerr!(self.conn.ctxt,
-                            dpiStmt_define(self.handle, (idx + 1) as u32, val.handle));
-                }
+                val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
+                chkerr!(self.conn.ctxt,
+                        dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
             }
         }
         Ok(())
@@ -219,10 +201,6 @@ impl<'conn> Statement<'conn> {
     }
 
     pub fn fetch(&mut self) -> Result<&Row> {
-        if !self.colums_are_defined {
-            self.define_columns()?;
-            self.colums_are_defined = true;
-        }
         let mut found = 0;
         let mut buffer_row_index = 0;
         chkerr!(self.conn.ctxt,

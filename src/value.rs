@@ -178,10 +178,6 @@ impl Value {
         Ok(true)
     }
 
-    pub(crate) fn initialized(&self) -> bool {
-        self.oratype != OracleType::None
-    }
-
     fn data(&self) -> Result<*mut dpiData> {
         if self.oratype == OracleType::None {
             return Err(Error::UninitializedBindValue);
