@@ -290,14 +290,25 @@ impl Connection {
     //pub fn dpiConn_getLTXID
     //pub fn dpiConn_getObjectType
 
-    /// return information about the server version in use
-    pub fn server_version(&self) -> Result<(String, Version)> {
+    /// Return information about the server version
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// let (version, banner) = conn.server_version().unwrap();
+    /// println!("Oracle Version: {}", version);
+    /// println!("--- Version Banner ---");
+    /// println!("{}", banner);
+    /// println!("---------------------");
+    /// ```
+    pub fn server_version(&self) -> Result<(Version, String)> {
         let mut s = new_odpi_str();
         let mut dpi_ver = Default::default();
         chkerr!(self.ctxt,
                 dpiConn_getServerVersion(self.handle, &mut s.ptr, &mut s.len,
                                          &mut dpi_ver));
-        Ok((s.to_string(), Version::new_from_dpi_ver(dpi_ver)))
+        Ok((Version::new_from_dpi_ver(dpi_ver), s.to_string()))
     }
 
     /// return the statement cache size
