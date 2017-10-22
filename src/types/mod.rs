@@ -101,8 +101,8 @@ impl_from_and_to_sql!(u8, as_u8, set_u8, OracleType::Number(0,0));
 impl_from_and_to_sql!(u16, as_u16, set_u16, OracleType::Number(0,0));
 impl_from_and_to_sql!(u32, as_u32, set_u32, OracleType::Number(0,0));
 impl_from_and_to_sql!(u64, as_u64, set_u64, OracleType::Number(0,0));
-impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::BinaryDouble);
-impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::BinaryDouble);
+impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::Number(126,-127)); // FLOAT
+impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::Number(126,-127)); // FLOAT
 impl_from_and_to_sql!(bool, as_bool, set_bool, OracleType::Boolean);
 impl_from_sql!(String, as_string);
 impl_from_sql!(Vec<u8>, as_bytes);
@@ -112,10 +112,10 @@ impl_from_and_to_sql!(IntervalYM, as_interval_ym, IntervalYM, set_interval_ym, O
 
 impl ToSql for String {
     fn oratype_default() -> OracleType {
-        OracleType::Varchar2(0)
+        OracleType::NVarchar2(0)
     }
     fn oratype(&self) -> OracleType {
-        OracleType::Varchar2(self.len() as u32)
+        OracleType::NVarchar2(self.len() as u32)
     }
     fn to(&self, val: &mut Value) -> Result<()> {
         val.set_string(self)
@@ -136,10 +136,10 @@ impl ToSql for Vec<u8> {
 
 impl<'a> ToSql for &'a str {
     fn oratype_default() -> OracleType {
-        OracleType::Varchar2(0)
+        OracleType::NVarchar2(0)
     }
     fn oratype(&self) -> OracleType {
-        OracleType::Varchar2(self.len() as u32)
+        OracleType::NVarchar2(self.len() as u32)
     }
     fn to(&self, val: &mut Value) -> Result<()> {
         val.set_string(*self)
@@ -215,6 +215,7 @@ impl<'a, T> ToSql for BindValue<'a, T> where T: ToSql {
             OracleType::Char(_) => OracleType::Char(self.len),
             OracleType::NChar(_) => OracleType::NChar(self.len),
             OracleType::Raw(_) => OracleType::Raw(self.len),
+            OracleType::Number(126, -127) => OracleType::BinaryDouble,
             _ => oratype,
         }
     }

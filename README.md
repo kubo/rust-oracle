@@ -23,6 +23,45 @@ You need to put this in your Cargo.toml:
 oracle = { git = "https://github.com/kubo/rust-oracle.git" }
 ```
 
+## Conversion from Oracle types to Rust types
+
+Values in Oracle are converted to Rust type as possible as it can.
+The following table indicates supported conversion.
+
+| Oracle Type | Rust Type |
+| --- | --- |
+| CHAR, NCHAR, VARCHAR2, NVARCHAR2 | String |
+| ″ | i8, i16, i32, i64, u8, u16, u32, u64 via `parse()` |
+| ... | ... |
+
+This conversion is used also to get values from output parameters.
+
+## Conversion from Rust types to Oracle types
+
+When a rust value is set to an input parameter, its Oracle type is
+determined by the rust type.
+
+| Rust Type | Oracle Type |
+| --- | --- |
+| str, String | NVARCHAR2(length of the rust value) |
+| str, String via `bind_value(value, length)` | NVARCHAR2(length passed to `bind_value()`) |
+| i8, i16, i32, i64, u8, u16, u32, u64 | NUMBER |
+| f32, f64 | NUMBER |
+| f32, f64 via `bind_value(&value, 0)` | BINARY_DOUBLE |
+| Vec\<u8> | RAW(length of the rust value) |
+| Vec\<u8> via `bind_value(value, length)` | RAW(length passed to `bind_value()`) |
+| chrono::DateTime, Timestamp | TIMESTAMP(9) WITH TIME ZONE |
+| chrono::Date | TIMESTAMP(0) WITH TIME ZONE |
+| chrono::naive::NaiveDateTime | TIMESTAMP(9) |
+| chrono::naive::NaiveDate | TIMESTAMP(0) |
+| chrono::Duration, IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
+| IntervalYM | INTERVAL YEAR(9) TO MONTH |
+
+## Unsupported features
+
+* CLOB, NCLOB, BLOB, BFILE, REF CURSOR, BOOLEAN, OBJECT types
+* Pass strings longer than 4000(Oracle 11g) or 64k(Oracle 12c) as input parameters
+
 ## License
 
 Rust Oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
