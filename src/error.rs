@@ -291,7 +291,7 @@ pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
     }
 }
 
-pub fn error_from_context(ctxt: &Context) -> Error {
+pub(crate) fn error_from_context(ctxt: &Context) -> Error {
     let mut err: dpiErrorInfo = Default::default();
     unsafe {
         dpiContext_getError(ctxt.context, &mut err);

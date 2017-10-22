@@ -57,10 +57,12 @@ determined by the rust type.
 | chrono::Duration, IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
 | IntervalYM | INTERVAL YEAR(9) TO MONTH |
 
-## Unsupported features
+## TODO
 
+* Connection pooling
 * CLOB, NCLOB, BLOB, BFILE, REF CURSOR, BOOLEAN, OBJECT types
 * Pass strings longer than 4000(Oracle 11g) or 64k(Oracle 12c) as input parameters
+* Autocommit mode
 
 ## License
 

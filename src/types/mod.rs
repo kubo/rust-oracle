@@ -47,10 +47,51 @@ pub mod oracle_type;
 pub mod timestamp;
 pub mod version;
 
+/// A trait to convert Oracle values to rust values.
+///
+/// Values in Oracle are converted to Rust type as possible as it can.
+/// The following table indicates supported conversion.
+///
+/// | Oracle Type | Rust Type |
+/// | --- | --- |
+/// | CHAR, NCHAR, VARCHAR2, NVARCHAR2 | String |
+/// | ″ | i8, i16, i32, i64, u8, u16, u32, u64 by `String.parse()` |
+/// | ... | ... |
+///
+/// This conversion is used also to get values from output parameters.
+///
 pub trait FromSql {
     fn from(val: &Value) -> Result<Self> where Self: Sized;
 }
 
+/// A trait to convert rust values to Oracle values.
+///
+/// The type of converted Oracle value is determined by the rust type.
+/// Some types are customizable by [bind_value][] function.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | str, String | NVARCHAR2(length of the rust value) |
+/// | str, String via `bind_value(value, length)` | NVARCHAR2(length passed to `bind_value()`) |
+/// | i8, i16, i32, i64, u8, u16, u32, u64 | NUMBER |
+/// | f32, f64 | NUMBER |
+/// | f32, f64 via `bind_value(&value, 0)` | BINARY_DOUBLE |
+/// | Vec\<u8> | RAW(length of the rust value) |
+/// | Vec\<u8> via `bind_value(value, length)` | RAW(length passed to `bind_value()`) |
+/// | [chrono::DateTime][], Timestamp | TIMESTAMP(9) WITH TIME ZONE |
+/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
+/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
+/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
+/// | [chrono::Duration][], IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
+/// | IntervalYM | INTERVAL YEAR(9) TO MONTH |
+///
+/// [bind_value]: fn.bind_value.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4.0/chrono/struct.DateTime.html
+/// [chrono::Date]: https://docs.rs/chrono/0.4.0/chrono/struct.Date.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDate.html
+/// [chrono::Duration]: https://docs.rs/chrono/0.4.0/chrono/struct.Duration.html
+///
 pub trait ToSql {
     fn oratype_default() -> OracleType;
     fn oratype(&self) -> OracleType {

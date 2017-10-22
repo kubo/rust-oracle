@@ -63,8 +63,6 @@ pub use connection::Connection;
 pub use statement::Statement;
 pub use statement::ColumnInfo;
 pub use statement::Row;
-pub use statement::BindIndex;
-pub use statement::ColumnIndex;
 pub use error::Error;
 pub use error::ConversionError;
 pub use error::ParseError;
@@ -85,6 +83,14 @@ use types::oracle_type::NativeType;
 
 pub type Result<T> = result::Result<T, Error>;
 
+/// Returns Oracle client version
+///
+/// # Examples
+///
+/// ```
+/// let client_ver = oracle::client_version().unwrap();
+/// println!("Oracle Client Version: {}", client_ver);
+/// ```
 pub fn client_version() -> Result<Version> {
     let mut dpi_ver = Default::default();
     let ctx = Context::get()?;
@@ -103,7 +109,7 @@ pub const AUTH_SYSASM: dpiAuthMode = DPI_MODE_AUTH_SYSASM;
 // Context
 //
 
-pub struct Context {
+struct Context {
     pub context: *mut dpiContext,
     pub common_create_params: dpiCommonCreateParams,
     pub conn_create_params: dpiConnCreateParams,
@@ -318,19 +324,19 @@ impl Default for dpiStmtInfo {
 // Utility struct to convert Rust strings from/to ODPI-C strings
 //
 
-pub struct OdpiStr {
+struct OdpiStr {
     pub ptr: *const c_char,
     pub len: u32,
 }
 
-pub fn new_odpi_str() -> OdpiStr {
+fn new_odpi_str() -> OdpiStr {
     OdpiStr {
         ptr: ptr::null(),
         len: 0,
     }
 }
 
-pub fn to_odpi_str(s: &str) -> OdpiStr {
+fn to_odpi_str(s: &str) -> OdpiStr {
     OdpiStr {
         ptr: s.as_ptr() as *const c_char,
         len: s.len() as u32,
