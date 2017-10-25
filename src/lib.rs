@@ -54,12 +54,13 @@ mod types;
 mod util;
 mod value;
 
-pub use binding::dpiAuthMode as AuthMode;
-pub use binding::dpiStatementType as StatementType;
-pub use binding::dpiShutdownMode as ShutdownMode;
-pub use binding::dpiStartupMode as StartupMode;
+pub use connection::AuthMode;
+pub use connection::StartupMode;
+pub use connection::ShutdownMode;
+pub use connection::Purity;
 pub use connection::Connector;
 pub use connection::Connection;
+pub use statement::StatementType;
 pub use statement::Statement;
 pub use statement::ColumnInfo;
 pub use statement::Row;
@@ -98,12 +99,6 @@ pub fn client_version() -> Result<Version> {
             dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
     Ok(Version::new_from_dpi_ver(dpi_ver))
 }
-
-pub const AUTH_DEFAULT: dpiAuthMode = DPI_MODE_AUTH_DEFAULT;
-pub const AUTH_SYSDBA: dpiAuthMode = DPI_MODE_AUTH_SYSDBA;
-pub const AUTH_SYSOPER: dpiAuthMode = DPI_MODE_AUTH_SYSOPER;
-pub const AUTH_PRELIM: dpiAuthMode = DPI_MODE_AUTH_PRELIM;
-pub const AUTH_SYSASM: dpiAuthMode = DPI_MODE_AUTH_SYSASM;
 
 //
 // Context

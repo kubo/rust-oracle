@@ -45,7 +45,52 @@ use types::ToSqlInTuple;
 use value::Value;
 use Result;
 use Error;
-use StatementType;
+
+//
+// StatementType
+//
+
+/// Statement type returned by [Statement.statement_type()](struct.Statement.html#method.statement_type).
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum StatementType {
+    /// select statement
+    Select,
+    /// update statement
+    Update,
+    /// delete statement
+    Delete,
+    /// insert statement
+    Insert,
+    /// create statement
+    Create,
+    /// drop statement
+    Drop,
+    /// alter statement
+    Alter,
+    /// PL/SQL statement without declare clause
+    Begin,
+    /// PL/SQL statement with declare clause
+    Declare,
+    /// Undocumented value in [Oracle manual](https://docs.oracle.com/database/122/LNOCI/handle-and-descriptor-attributes.htm#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-8D4D4620-9318-4AD3-8E59-231EB71901B8)
+    Other(u32),
+}
+
+impl fmt::Display for StatementType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            StatementType::Select => write!(f, "select"),
+            StatementType::Update => write!(f, "update"),
+            StatementType::Delete => write!(f, "delete"),
+            StatementType::Insert => write!(f, "insert"),
+            StatementType::Create => write!(f, "create"),
+            StatementType::Drop => write!(f, "drop"),
+            StatementType::Alter => write!(f, "alter"),
+            StatementType::Begin => write!(f, "PL/SQL(begin)"),
+            StatementType::Declare => write!(f, "PL/SQL(declare)"),
+            StatementType::Other(ref n) => write!(f, "other({})", n),
+        }
+    }
+}
 
 //
 // Statement
@@ -56,10 +101,6 @@ pub struct Statement<'conn> {
     handle: *mut dpiStmt,
     row: Row,
     fetch_array_size: u32,
-    is_query: bool,
-    is_plsql: bool,
-    is_ddl: bool,
-    is_dml: bool,
     statement_type: dpiStatementType,
     is_returning: bool,
     bind_count: usize,
@@ -104,10 +145,6 @@ impl<'conn> Statement<'conn> {
             handle: handle,
             row: Row { column_info: Vec::new(), column_values: Vec::new(), },
             fetch_array_size: 0,
-            is_query: info.isQuery != 0,
-            is_plsql: info.isPLSQL != 0,
-            is_ddl: info.isDDL != 0,
-            is_dml: info.isDML != 0,
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
@@ -150,7 +187,7 @@ impl<'conn> Statement<'conn> {
                 dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));
         chkerr!(self.conn.ctxt,
                 dpiStmt_getFetchArraySize(self.handle, &mut self.fetch_array_size));
-        if self.is_query() {
+        if self.statement_type == DPI_STMT_TYPE_SELECT {
             let num_cols = num_query_columns as usize;
 
             self.row.column_info = Vec::with_capacity(num_cols);
@@ -215,26 +252,23 @@ impl<'conn> Statement<'conn> {
         }
     }
 
-    pub fn is_query(&self) -> bool {
-        self.is_query
-    }
-
-    pub fn is_plsql(&self) -> bool {
-        self.is_plsql
-    }
-
-    pub fn is_ddl(&self) -> bool {
-        self.is_ddl
-    }
-
-    pub fn is_dml(&self) -> bool {
-        self.is_dml
-    }
-
+    /// Returns statement type
     pub fn statement_type(&self) -> StatementType {
-        self.statement_type.clone()
+        match self.statement_type {
+            DPI_STMT_TYPE_SELECT => StatementType::Select,
+            DPI_STMT_TYPE_UPDATE => StatementType::Update,
+            DPI_STMT_TYPE_DELETE => StatementType::Delete,
+            DPI_STMT_TYPE_INSERT => StatementType::Insert,
+            DPI_STMT_TYPE_CREATE => StatementType::Create,
+            DPI_STMT_TYPE_DROP => StatementType::Drop,
+            DPI_STMT_TYPE_ALTER => StatementType::Alter,
+            DPI_STMT_TYPE_BEGIN => StatementType::Begin,
+            DPI_STMT_TYPE_DECLARE => StatementType::Declare,
+            _ => StatementType::Other(self.statement_type),
+        }
     }
 
+    /// Returns true when the SQL statement has a `RETURNING INTO` clause.
     pub fn is_returning(&self) -> bool {
         self.is_returning
     }

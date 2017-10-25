@@ -5,9 +5,9 @@ $HOME/.cargo/bin/bindgen odpi/include/dpi.h -o src/binding.rs \
   --whitelist-type "^dpi.*" \
   --whitelist-function "^dpi.*" \
   --whitelist-var "^DPI_.*" \
-  --bitfield-enum   dpiAuthMode \
+  --constified-enum dpiAuthMode \
   --constified-enum dpiConnCloseMode \
-  --bitfield-enum   dpiCreateMode \
+  --constified-enum dpiCreateMode \
   --constified-enum dpiDeqMode \
   --constified-enum dpiDeqNavigation \
   --constified-enum dpiEventType \

@@ -67,6 +67,7 @@ pub fn dir_name() -> String {
     env_var_or("ODPIC_TEST_DIR_NAME", "odpic_dir")
 }
 
+#[allow(dead_code)]
 pub fn connect() -> Result<oracle::Connection, oracle::Error> {
     oracle::Connection::new(&main_user(), &main_password(), &connect_string())
 }

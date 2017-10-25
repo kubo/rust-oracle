@@ -122,13 +122,13 @@ pub enum OracleType {
     /// INTERVAL YEAR TO MONTH data type
     IntervalYM(i16), // lfprec
     /// CLOB data type. not supported yet
-    CLob,
+    CLOB,
     /// NCLOB data type. not supported yet
-    NCLob,
+    NCLOB,
     /// BLOB data type. not supported yet
-    BLob,
+    BLOB,
     /// BFILE data type. not supported yet
-    BFile,
+    BFILE,
     /// REF CURSOR data type. not supported yet
     RefCursor,
     /// BOOLEAN data type used in PL/SQL, not supported yet
@@ -139,9 +139,9 @@ pub enum OracleType {
     Long,
     /// LONG RAW data type
     LongRaw,
-    /// Not an Oracle type, used only for internally to bind/define values as i64
+    /// Not an Oracle type, used only internally to bind/define values as i64
     Int64,
-    /// Not an Oracle type, used only for internally to bind/define values as u64
+    /// Not an Oracle type, used only internally to bind/define values as u64
     UInt64,
 }
 
@@ -164,10 +164,10 @@ impl OracleType {
             DPI_ORACLE_TYPE_TIMESTAMP_LTZ => Ok(OracleType::TimestampLTZ(info.fsPrecision)),
             DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(info.precision, info.fsPrecision)),
             DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(info.precision)),
-            DPI_ORACLE_TYPE_CLOB => Ok(OracleType::CLob),
-            DPI_ORACLE_TYPE_NCLOB => Ok(OracleType::NCLob),
-            DPI_ORACLE_TYPE_BLOB => Ok(OracleType::BLob),
-            DPI_ORACLE_TYPE_BFILE => Ok(OracleType::BFile),
+            DPI_ORACLE_TYPE_CLOB => Ok(OracleType::CLOB),
+            DPI_ORACLE_TYPE_NCLOB => Ok(OracleType::NCLOB),
+            DPI_ORACLE_TYPE_BLOB => Ok(OracleType::BLOB),
+            DPI_ORACLE_TYPE_BFILE => Ok(OracleType::BFILE),
             DPI_ORACLE_TYPE_STMT => Ok(OracleType::RefCursor),
             DPI_ORACLE_TYPE_BOOLEAN => Ok(OracleType::Boolean),
             DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object),
@@ -215,13 +215,13 @@ impl OracleType {
                 Ok((DPI_ORACLE_TYPE_INTERVAL_DS, NativeType::IntervalDS, 0, 0)),
             OracleType::IntervalYM(_) =>
                 Ok((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, 0, 0)),
-//            OracleType::CLob =>
+//            OracleType::CLOB =>
 //                Ok((DPI_ORACLE_TYPE_CLOB, NativeType::CLOB, 0, 0)),
-//            OracleType::NCLob =>
+//            OracleType::NCLOB =>
 //                Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
-//            OracleType::BLob =>
+//            OracleType::BLOB =>
 //                Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
-//            OracleType::BFile =>
+//            OracleType::BFILE =>
 //                Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
 //            OracleType::RefCursor =>
 //                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
@@ -303,10 +303,10 @@ impl fmt::Display for OracleType {
                 } else {
                     write!(f, "INTERVAL YEAR({}) TO MONTH", lfprec)
                 },
-            OracleType::CLob => write!(f, "CLOB"),
-            OracleType::NCLob => write!(f, "NCLOB"),
-            OracleType::BLob => write!(f, "BLOB"),
-            OracleType::BFile => write!(f, "BFILE"),
+            OracleType::CLOB => write!(f, "CLOB"),
+            OracleType::NCLOB => write!(f, "NCLOB"),
+            OracleType::BLOB => write!(f, "BLOB"),
+            OracleType::BFILE => write!(f, "BFILE"),
             OracleType::RefCursor => write!(f, "REF CURSOR"),
             OracleType::Boolean => write!(f, "BOOLEAN"),
             OracleType::Object => write!(f, "OBJECT"),

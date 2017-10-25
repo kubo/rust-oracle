@@ -44,123 +44,280 @@ use OdpiStr;
 use new_odpi_str;
 use to_odpi_str;
 
+/// Authorization mode
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum AuthMode {
+    /// connect without system privileges
+    Default,
+    /// connect as [SYSDBA](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
+    SYSDBA,
+    /// connect as [SYSOPER](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
+    SYSOPER,
+    /// connect as [SYSASM](https://docs.oracle.com/database/122/OSTMG/authenticate-access-asm-instance.htm#OSTMG02600) (Oracle 12c or later)
+    SYSASM,
+    /// connect as [SYSBACKUP](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG785) (Oracle 12c or later)
+    SYSBACKUP,
+    /// connect as [SYSDG](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
+    SYSDG,
+    /// connect as [SYSKM](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
+    SYSKM,
+}
+
+/// Database startup mode
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum StartupMode {
+    /// Shuts down a running instance (if there is any) using ABORT before
+    /// starting a new one. This mode should be used only in unusual circumstances.
+    Force,
+    /// Allows database access only to users with both the CREATE SESSION
+    /// and RESTRICTED SESSION privileges (normally, the DBA).
+    Restrict,
+}
+
+/// Database shutdown mode
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ShutdownMode {
+    /// Further connects are prohibited. Waits for users to disconnect from
+    /// the database.
+    Default,
+    /// Further connects are prohibited and no new transactions are allowed.
+    /// Waits for active transactions to complete.
+    Transactional,
+    /// Further connects are prohibited and no new transactions are allowed.
+    /// Waits only for local transactions to complete.
+    TransactionalLocal,
+    /// Does not wait for current calls to complete or users to disconnect
+    /// from the database. All uncommitted transactions are terminated and
+    /// rolled back.
+    Immediate,
+    /// Does not wait for current calls to complete or users to disconnect
+    /// from the database. All uncommitted transactions are terminated and
+    /// are not rolled back. This is the fastest possible way to shut down
+    /// the database, but the next database startup may require instance
+    /// recovery. Therefore, this option should be used only in unusual
+    /// circumstances; for example, if a background process terminates abnormally.
+    Abort,
+    /// Shuts down the database. Should be used only in the second call
+    /// to [shutdown_database](struct.Connection.html#method.shutdown_database) after the database is closed and dismounted.
+    Final,
+}
+
+#[doc(hidden)] // hiden until connection pooling is supported.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Purity {
+    Default,
+    New,
+    Self_,
+}
+
 //
 // Connector
 //
 
 /// Connection Builder
-pub struct Connector<'a> {
-    ctxt: &'static Context,
-    username: &'a str,
-    password: &'a str,
-    connect_string: &'a str,
-    common_params: dpiCommonCreateParams,
-    conn_params: dpiConnCreateParams,
-    app_ctxt: Vec<dpiAppContext>,
+pub struct Connector {
+    username: String,
+    password: String,
+    connect_string: String,
+    events: bool,
+    edition: Option<String>,
+    driver_name: Option<String>,
+    auth_mode: AuthMode,
+    prelim_auth: bool,
+    connection_class: Option<String>,
+    purity: Purity,
+    new_password: Option<String>,
+    app_context: Vec<String>,
+    tag: Option<String>,
+    match_any_tag: bool,
 }
 
-impl<'a> Connector<'a> {
-    pub fn new(username: &'a str, password: &'a str, connect_string: &'a str) -> Result<Connector<'a>> {
-        let ctxt = try!(Context::get());
-        Ok(Connector {
-            ctxt: ctxt,
-            username: username,
-            password: password,
-            connect_string: connect_string,
-            common_params: ctxt.common_create_params,
-            conn_params: ctxt.conn_create_params,
-            app_ctxt: Vec::new(),
-        })
-    }
-
-    pub fn events(&'a mut self, b: bool) -> &'a mut Connector {
-        if b {
-            self.common_params.createMode |= DPI_MODE_CREATE_EVENTS;
-        } else {
-            self.common_params.createMode &= dpiCreateMode(!DPI_MODE_CREATE_EVENTS.0);
+impl Connector {
+    pub fn new(username: &str, password: &str, connect_string: &str) -> Connector {
+        Connector {
+            username: username.to_string(),
+            password: password.to_string(),
+            connect_string: connect_string.to_string(),
+            events: false,
+            edition: None,
+            driver_name: None,
+            auth_mode: AuthMode::Default,
+            prelim_auth: false,
+            connection_class: None,
+            purity: Purity::Default,
+            new_password: None,
+            app_context: Vec::new(),
+            tag: None,
+            match_any_tag: false,
         }
+    }
+
+    pub fn connect(&self) -> Result<Connection> {
+        let ctxt = Context::get()?;
+        let mut common_params = ctxt.common_create_params;
+        let mut conn_params = ctxt.conn_create_params;
+
+        if self.events {
+            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
+        }
+        if let Some(ref edition) = self.edition {
+            let s = to_odpi_str(edition);
+            common_params.edition = s.ptr;
+            common_params.editionLength = s.len;
+        }
+        if let Some(ref name) = self.driver_name {
+            let s = to_odpi_str(name);
+            common_params.driverName = s.ptr;
+            common_params.driverNameLength = s.len;
+        }
+        conn_params.authMode = match self.auth_mode {
+            AuthMode::Default   => DPI_MODE_AUTH_DEFAULT,
+            AuthMode::SYSDBA    => DPI_MODE_AUTH_SYSDBA,
+            AuthMode::SYSOPER   => DPI_MODE_AUTH_SYSOPER,
+            AuthMode::SYSASM    => DPI_MODE_AUTH_SYSASM,
+            AuthMode::SYSBACKUP => 0x00020000, // OCI_SYSBKP in oci.h
+            AuthMode::SYSDG     => 0x00040000, // OCI_SYSDGD in oci.h
+            AuthMode::SYSKM     => 0x00080000, // OCI_SYSKMT in oci.h
+        };
+        if self.prelim_auth {
+            conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
+        }
+
+        if let Some(ref name) = self.connection_class {
+            let s = to_odpi_str(name);
+            conn_params.connectionClass = s.ptr;
+            conn_params.connectionClassLength = s.len;
+        }
+        if let Some(ref password) = self.new_password {
+            let s = to_odpi_str(password);
+            conn_params.newPassword = s.ptr;
+            conn_params.newPasswordLength = s.len;
+        }
+        conn_params.purity = match self.purity {
+            Purity::Default => DPI_PURITY_DEFAULT,
+            Purity::New => DPI_PURITY_NEW,
+            Purity::Self_ => DPI_PURITY_SELF,
+        };
+        let mut app_context = Vec::new();
+        if !self.app_context.is_empty() {
+            let n = self.app_context.len() / 3;
+            app_context = Vec::with_capacity(n);
+            for i in 0..n {
+                let namespace = to_odpi_str(&self.app_context[i * 3 + 0]);
+                let name = to_odpi_str(&self.app_context[i * 3 + 1]);
+                let value = to_odpi_str(&self.app_context[i * 3 + 2]);
+                app_context.push(
+                    dpiAppContext {
+                        namespaceName: namespace.ptr,
+                        namespaceNameLength: namespace.len,
+                        name: name.ptr,
+                        nameLength: name.len,
+                        value: value.ptr,
+                        valueLength: value.len,
+                    });
+            }
+        }
+        if self.username.len() == 0 && self.password.len() == 0 {
+            conn_params.externalAuth = 1;
+        }
+        if let Some(ref name) = self.tag {
+            let s = to_odpi_str(name);
+            conn_params.tag = s.ptr;
+            conn_params.tagLength = s.len;
+        }
+        if self.match_any_tag {
+            conn_params.matchAnyTag = 1;
+        }
+        conn_params.outTag = ptr::null();
+        conn_params.outTagLength = 0;
+        conn_params.outTagFound = 0;
+        conn_params.appContext = app_context.as_mut_ptr();
+        conn_params.numAppContext = app_context.len() as u32;
+        Connection::connect_internal(ctxt, &self.username, &self.password, &self.connect_string, &common_params, &conn_params)
+    }
+
+    /// Sets a system privilege such as SYSDBA.
+    pub fn auth_mode<'a>(&'a mut self, auth_mode: AuthMode) -> &'a mut Connector {
+        self.auth_mode = auth_mode;
         self
     }
 
-    pub fn edition(&'a mut self, edition: &'a str) -> &'a mut Connector {
-        let s = to_odpi_str(edition);
-        self.common_params.edition = s.ptr;
-        self.common_params.editionLength = s.len;
+    /// Sets prelim_auth mode. This is required to connect to an idle instance.
+    pub fn prelim_auth<'a>(&'a mut self, prelim_auth: bool) -> &'a mut Connector {
+        self.prelim_auth = prelim_auth;
         self
     }
 
-    pub fn driver_name(&'a mut self, name: &'a str) -> &'a mut Connector {
-        let s = to_odpi_str(name);
-        self.common_params.driverName = s.ptr;
-        self.common_params.driverNameLength = s.len;
+    pub fn events<'a>(&'a mut self, events: bool) -> &'a mut Connector {
+        self.events = events;
         self
     }
 
-    pub fn auth_mode(&'a mut self, mode: dpiAuthMode) -> &'a mut Connector {
-        self.conn_params.authMode = mode;
+    // https://docs.oracle.com/database/122/ADFNS/editions.htm#ADFNS020
+    pub fn edition<'a>(&'a mut self, edition: &str) -> &'a mut Connector {
+        self.edition = Some(edition.to_string());
         self
     }
 
-    pub fn connection_class(&'a mut self, name: &'a str) -> &'a mut Connector {
-        let s = to_odpi_str(name);
-        self.conn_params.connectionClass = s.ptr;
-        self.conn_params.connectionClassLength = s.len;
+    pub fn new_password<'a>(&'a mut self, password: &str) -> &'a mut Connector {
+        self.new_password = Some(password.to_string());
         self
     }
 
-    pub fn purity(&'a mut self, purity: dpiPurity) -> &'a mut Connector {
-        self.conn_params.purity = purity;
+    /// Sets an application context.
+    /// See [Oracle manual](https://docs.oracle.com/database/122/DBSEG/using-application-contexts-to-retrieve-user-information.htm#DBSEG165)
+    ///
+    /// This is same with [DBMS_SESSION.SET_CONTEXT][] but this can set application contexts before a connection is established.
+    /// [DBMS_SESSION.SET_CONTEXT]: https://docs.oracle.com/database/122/ARPLS/DBMS_SESSION.htm#GUID-395C622C-ED79-44CC-9157-6A320934F2A9
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let mut connector = oracle::Connector::new("scott", "tiger", "");
+    /// connector.app_context("CLIENTCONTEXT", "foo", "bar");
+    /// connector.app_context("CLIENTCONTEXT", "baz", "qux");
+    /// let conn = connector.connect().unwrap();
+    /// let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'baz') from dual", &()).unwrap();
+    /// let row = stmt.fetch().unwrap();
+    /// let val: String = row.get(0).unwrap(); // -> "qux"
+    /// ```
+    pub fn app_context<'a>(&'a mut self, namespace: &str, name: &str, value: &str) -> &'a mut Connector {
+        self.app_context.reserve(3);
+        self.app_context.push(namespace.to_string());
+        self.app_context.push(name.to_string());
+        self.app_context.push(value.to_string());
         self
     }
 
-    pub fn new_password(&'a mut self, password: &'a str) -> &'a mut Connector {
-        let s = to_odpi_str(password);
-        self.conn_params.newPassword = s.ptr;
-        self.conn_params.newPasswordLength = s.len;
+    // https://docs.oracle.com/database/122/ADFNS/performance-and-scalability.htm#ADFNS494
+    #[doc(hidden)] // hiden until connection pooling is supported.
+    pub fn purity<'a>(&'a mut self, purity: Purity) -> &'a mut Connector {
+        self.purity = purity;
         self
     }
 
-    pub fn app_context(&'a mut self, namespace: &'a str, name: &'a str, value: &'a str) -> &'a mut Connector {
-        let ns = to_odpi_str(namespace);
-        let n = to_odpi_str(name);
-        let v = to_odpi_str(value);
-        self.app_ctxt.push(dpiAppContext{
-            namespaceName: ns.ptr,
-            namespaceNameLength: ns.len,
-            name: n.ptr,
-            nameLength: n.len,
-            value: v.ptr,
-            valueLength: v.len
-        });
-        self
-    }
-
-    pub fn external_auth(&'a mut self, b: bool) -> &'a mut Connector {
-        self.conn_params.externalAuth = if b {1} else {0};
+    // https://docs.oracle.com/database/122/ADFNS/performance-and-scalability.htm#GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37
+    #[doc(hidden)] // hiden until connection pooling is supported.
+    pub fn connection_class<'a>(&'a mut self, name: &str) -> &'a mut Connector {
+        self.connection_class = Some(name.to_string());
         self
     }
 
     #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn tag(&'a mut self, name: &'a str) -> &'a mut Connector {
-        let s = to_odpi_str(name);
-        self.conn_params.tag = s.ptr;
-        self.conn_params.tagLength = s.len;
+    pub fn tag<'a>(&'a mut self, name: &str) -> &'a mut Connector {
+        self.tag = Some(name.to_string());
         self
     }
 
     #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn match_any_tag(&'a mut self, b: bool) -> &'a mut Connector {
-        self.conn_params.matchAnyTag = if b {1} else {0};
+    pub fn match_any_tag<'a>(&'a mut self, b: bool) -> &'a mut Connector {
+        self.match_any_tag = b;
         self
     }
 
-    pub fn connect(&mut self) -> Result<Connection> {
-        self.conn_params.appContext = self.app_ctxt.as_mut_ptr();
-        self.conn_params.numAppContext = self.app_ctxt.len() as u32;
-        self.conn_params.outTag = ptr::null();
-        self.conn_params.outTagLength = 0;
-        self.conn_params.outTagFound = 0;
-        Connection::connect_internal(self.ctxt, self.username, self.password, self.connect_string, &self.common_params, &self.conn_params)
+    pub fn driver_name<'a>(&'a mut self, name: &str) -> &'a mut Connector {
+        self.driver_name = Some(name.to_string());
+        self
     }
 }
 
@@ -195,7 +352,7 @@ impl Connection {
     /// let conn = oracle::Connection::new("scott", "tiger", "server_name:1521/service_name").unwrap();
     /// ```
     pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
-        Connector::new(username, password, connect_string)?.connect()
+        Connector::new(username, password, connect_string).connect()
     }
 
     /// Prepares a statement and returns it for subsequent execution/fetching
@@ -464,17 +621,135 @@ impl Connection {
         Ok(())
     }
 
-    /// Starts up the database
-    pub fn startup_database(&self, mode: dpiStartupMode) -> Result<()> {
+    /// Starts up a database
+    ///
+    /// This corresponds to sqlplus command `startup nomount`.
+    /// You need to connect the databas as system privilege in prelim_auth
+    /// mode in advance.
+    /// After this method is executed, you need to reconnect the server
+    /// as system privilege *without* prelim_auth and executes
+    /// `alter database mount` and then `alter database open`.
+    ///
+    /// # Examples
+    ///
+    /// Connect to an idle instance as sysdba and start up a database
+    ///
+    /// ```no_run
+    /// use oracle::{Connector, AuthMode};
+    /// // connect to an idle instance
+    /// let conn = Connector::new("sys", "change_on_install", "")
+    ///              .prelim_auth(true) // required to connect to an idle instance
+    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
+    ///              .connect().unwrap();
+    ///
+    /// // start the instance
+    /// conn.startup_database(&[]).unwrap();
+    /// conn.close().unwrap();
+    ///
+    /// // connect again without prelim_auth
+    /// let conn = Connector::new("sys", "change_on_install", "")
+    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
+    ///              .connect().unwrap();
+    ///
+    /// // mount and open a database
+    /// conn.execute("alter database mount", &()).unwrap();
+    /// conn.execute("alter database open", &()).unwrap();
+    /// ```
+    ///
+    /// Start up a database in restricted mode
+    ///
+    /// ```ignore
+    /// ...
+    /// conn.startup_database(&[StartupMode::Restrict]).unwrap();
+    /// ...
+    /// ```
+    ///
+    /// If the database is running, shut it down with mode ABORT and then
+    /// start up in restricted mode
+    ///
+    /// ```ignore
+    /// ...
+    /// conn.startup_database(&[StartupMode::Force, StartupMode::Restrict]).unwrap();
+    /// ...
+    /// ```
+    pub fn startup_database(&self, modes: &[StartupMode]) -> Result<()> {
+        let mut mode_num = 0;
+        for mode in modes {
+            mode_num |= match *mode {
+                StartupMode::Force => DPI_MODE_STARTUP_FORCE,
+                StartupMode::Restrict => DPI_MODE_STARTUP_RESTRICT,
+            };
+        }
         chkerr!(self.ctxt,
-                dpiConn_startupDatabase(self.handle, mode as u32));
+                dpiConn_startupDatabase(self.handle, mode_num));
         Ok(())
     }
 
-    /// Shuts down the database
-    pub fn shutdown_database(&self, mode: dpiShutdownMode) -> Result<()> {
+    /// Shuts down a database
+    ///
+    /// When this method is called with [ShutdownMode::Default][],
+    /// [ShutdownMode::Transactional][], [ShutdownMode::TransactionalLocal][]
+    /// or [ShutdownMode::Immediate], execute "alter database close normal"
+    /// and "alter database dismount" and call this method again with
+    /// [ShutdownMode::Final].
+    ///
+    /// When this method is called with [ShutdownMode::Abort][],
+    /// the database is aborted immediately.
+    ///
+    /// [ShutdownMode::Default]: enum.ShutdownMode.html#variant.Default
+    /// [ShutdownMode::Transactional]: enum.ShutdownMode.html#variant.Transactional
+    /// [ShutdownMode::TransactionalLocal]: enum.ShutdownMode.html#variant.TransactionalLocal
+    /// [ShutdownMode::Immediate]: enum.ShutdownMode.html#variant.Immediate
+    /// [ShutdownMode::Abort]: enum.ShutdownMode.html#variant.Abort
+    /// [ShutdownMode::Final]: enum.ShutdownMode.html#variant.Final
+    ///
+    /// # Examples
+    ///
+    /// Same with `shutdown immediate` on sqlplus.
+    ///
+    /// ```no_run
+    /// use oracle::{Connector, AuthMode, ShutdownMode};
+    /// // connect
+    /// let conn = Connector::new("sys", "change_on_install", "")
+    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
+    ///              .connect().unwrap();
+    ///
+    /// // begin 'shutdown immediate'
+    /// conn.shutdown_database(ShutdownMode::Immediate).unwrap();
+    ///
+    /// // close and dismount the database
+    /// conn.execute("alter database close normal", &()).unwrap();
+    /// conn.execute("alter database dismount", &()).unwrap();
+    ///
+    /// // finish shutdown
+    /// conn.shutdown_database(oracle::ShutdownMode::Final).unwrap();
+    /// ```
+    ///
+    /// Same with `shutdown abort` on sqlplus.
+    ///
+    /// ```no_run
+    /// use oracle::{Connector, AuthMode, ShutdownMode};
+    /// // connect
+    /// let conn = Connector::new("sys", "change_on_install", "")
+    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
+    ///              .connect().unwrap();
+    ///
+    /// // 'shutdown abort'
+    /// conn.shutdown_database(ShutdownMode::Abort).unwrap();
+    ///
+    /// // The database is aborted here.
+    /// ```
+    pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
+        let mode = match mode {
+            ShutdownMode::Default => DPI_MODE_SHUTDOWN_DEFAULT,
+            ShutdownMode::Transactional => DPI_MODE_SHUTDOWN_TRANSACTIONAL,
+            ShutdownMode::TransactionalLocal => DPI_MODE_SHUTDOWN_TRANSACTIONAL_LOCAL,
+            ShutdownMode::Immediate => DPI_MODE_SHUTDOWN_IMMEDIATE,
+            ShutdownMode::Abort => DPI_MODE_SHUTDOWN_ABORT,
+            ShutdownMode::Final => DPI_MODE_SHUTDOWN_FINAL,
+        };
         chkerr!(self.ctxt,
-                dpiConn_shutdownDatabase(self.handle, mode as u32));
+                dpiConn_shutdownDatabase(self.handle, mode));
         Ok(())
     }
 

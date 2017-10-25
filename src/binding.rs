@@ -40,72 +40,20 @@ pub const DPI_DEBUG_LEVEL_REFS: ::std::os::raw::c_uint = 2;
 pub const DPI_DEBUG_LEVEL_FNS: ::std::os::raw::c_uint = 4;
 pub const DPI_DEBUG_LEVEL_ERRORS: ::std::os::raw::c_uint = 8;
 pub const DPI_DEBUG_LEVEL_SQL: ::std::os::raw::c_uint = 16;
-pub const DPI_MODE_AUTH_DEFAULT: dpiAuthMode = dpiAuthMode(0);
-pub const DPI_MODE_AUTH_SYSDBA: dpiAuthMode = dpiAuthMode(2);
-pub const DPI_MODE_AUTH_SYSOPER: dpiAuthMode = dpiAuthMode(4);
-pub const DPI_MODE_AUTH_PRELIM: dpiAuthMode = dpiAuthMode(8);
-pub const DPI_MODE_AUTH_SYSASM: dpiAuthMode = dpiAuthMode(32768);
-impl ::std::ops::BitOr<dpiAuthMode> for dpiAuthMode {
-    type
-    Output
-    =
-    Self;
-    #[inline]
-    fn bitor(self, other: Self) -> Self { dpiAuthMode(self.0 | other.0) }
-}
-impl ::std::ops::BitOrAssign for dpiAuthMode {
-    #[inline]
-    fn bitor_assign(&mut self, rhs: dpiAuthMode) { self.0 |= rhs.0; }
-}
-impl ::std::ops::BitAnd<dpiAuthMode> for dpiAuthMode {
-    type
-    Output
-    =
-    Self;
-    #[inline]
-    fn bitand(self, other: Self) -> Self { dpiAuthMode(self.0 & other.0) }
-}
-impl ::std::ops::BitAndAssign for dpiAuthMode {
-    #[inline]
-    fn bitand_assign(&mut self, rhs: dpiAuthMode) { self.0 &= rhs.0; }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct dpiAuthMode(pub ::std::os::raw::c_uint);
+pub const DPI_MODE_AUTH_DEFAULT: dpiAuthMode = 0;
+pub const DPI_MODE_AUTH_SYSDBA: dpiAuthMode = 2;
+pub const DPI_MODE_AUTH_SYSOPER: dpiAuthMode = 4;
+pub const DPI_MODE_AUTH_PRELIM: dpiAuthMode = 8;
+pub const DPI_MODE_AUTH_SYSASM: dpiAuthMode = 32768;
+pub type dpiAuthMode = ::std::os::raw::c_uint;
 pub const DPI_MODE_CONN_CLOSE_DEFAULT: dpiConnCloseMode = 0;
 pub const DPI_MODE_CONN_CLOSE_DROP: dpiConnCloseMode = 1;
 pub const DPI_MODE_CONN_CLOSE_RETAG: dpiConnCloseMode = 2;
 pub type dpiConnCloseMode = ::std::os::raw::c_uint;
-pub const DPI_MODE_CREATE_DEFAULT: dpiCreateMode = dpiCreateMode(0);
-pub const DPI_MODE_CREATE_THREADED: dpiCreateMode = dpiCreateMode(1);
-pub const DPI_MODE_CREATE_EVENTS: dpiCreateMode = dpiCreateMode(4);
-impl ::std::ops::BitOr<dpiCreateMode> for dpiCreateMode {
-    type
-    Output
-    =
-    Self;
-    #[inline]
-    fn bitor(self, other: Self) -> Self { dpiCreateMode(self.0 | other.0) }
-}
-impl ::std::ops::BitOrAssign for dpiCreateMode {
-    #[inline]
-    fn bitor_assign(&mut self, rhs: dpiCreateMode) { self.0 |= rhs.0; }
-}
-impl ::std::ops::BitAnd<dpiCreateMode> for dpiCreateMode {
-    type
-    Output
-    =
-    Self;
-    #[inline]
-    fn bitand(self, other: Self) -> Self { dpiCreateMode(self.0 & other.0) }
-}
-impl ::std::ops::BitAndAssign for dpiCreateMode {
-    #[inline]
-    fn bitand_assign(&mut self, rhs: dpiCreateMode) { self.0 &= rhs.0; }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct dpiCreateMode(pub ::std::os::raw::c_uint);
+pub const DPI_MODE_CREATE_DEFAULT: dpiCreateMode = 0;
+pub const DPI_MODE_CREATE_THREADED: dpiCreateMode = 1;
+pub const DPI_MODE_CREATE_EVENTS: dpiCreateMode = 4;
+pub type dpiCreateMode = ::std::os::raw::c_uint;
 pub const DPI_MODE_DEQ_BROWSE: dpiDeqMode = 1;
 pub const DPI_MODE_DEQ_LOCKED: dpiDeqMode = 2;
 pub const DPI_MODE_DEQ_REMOVE: dpiDeqMode = 3;
