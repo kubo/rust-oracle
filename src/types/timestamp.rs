@@ -37,7 +37,7 @@ use std::str;
 use binding::dpiTimestamp;
 use util::Scanner;
 use OracleType;
-use ParseError;
+use ParseOracleTypeError;
 
 /// Timestamp type corresponding to Oracle datetime types: `DATE`, `TIMESTAMP`,
 /// `TIMESTAMP WITH TIME ZONE` and `TIMESTAMP WITH LOCAL TIME ZONE`.
@@ -175,10 +175,10 @@ impl fmt::Display for Timestamp {
 }
 
 impl str::FromStr for Timestamp {
-    type Err = ParseError;
+    type Err = ParseOracleTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let err = || ParseError::new("Timestamp");
+        let err = || ParseOracleTypeError::new("Timestamp");
         let mut s = Scanner::new(s);
         let minus = if let Some('-') = s.char() {
             s.next();

@@ -37,7 +37,7 @@ use std::str;
 use binding::dpiIntervalDS;
 use util::Scanner;
 use OracleType;
-use ParseError;
+use ParseOracleTypeError;
 
 /// Interval type corresponding to Oracle type: `INTERVAL DAY TO SECOND`.
 ///
@@ -131,10 +131,10 @@ impl fmt::Display for IntervalDS {
 }
 
 impl str::FromStr for IntervalDS {
-    type Err = ParseError;
+    type Err = ParseOracleTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let err = || ParseError::new("IntervalDS");
+        let err = || ParseOracleTypeError::new("IntervalDS");
         let mut s = Scanner::new(s);
         let minus = match s.char() {
             Some('+') => {

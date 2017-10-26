@@ -31,6 +31,8 @@
 // or implied, of the authors.
 
 use std::str;
+use std::result;
+use ParseOracleTypeError;
 
 pub struct Scanner<'a> {
     chars: str::Chars<'a>,
@@ -91,7 +93,8 @@ impl<'a> Scanner<'a> {
     }
 }
 
-pub fn check_number_format(s: &str) -> bool {
+pub fn check_number_format(s: &str) -> result::Result<(), ParseOracleTypeError> {
+    let err = || ParseOracleTypeError::new("Oracle number");
     let mut s = Scanner::new(s);
 
     // optional negative sign
@@ -101,13 +104,13 @@ pub fn check_number_format(s: &str) -> bool {
 
     // decimal part
     if s.read_digits().is_none() {
-        return false;
+        return Err(err());
     }
     // optional fractional part
     if let Some('.') = s.char() {
         s.next();
         if s.read_digits().is_none() {
-            return false;
+            return Err(err());
         }
     }
     // an optional exponent
@@ -121,15 +124,15 @@ pub fn check_number_format(s: &str) -> bool {
                 _ => (),
             }
             if s.read_digits().is_none() {
-                return false;
+                return Err(err());
             }
         },
         _ => (),
     }
     if let Some(_) = s.char() {
-        return false;
+        return Err(err());
     }
-    return true;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -149,22 +152,24 @@ mod tests {
 
     #[test]
     fn test_check_number_format() {
-        assert_eq!(check_number_format("123"), true);
-        assert_eq!(check_number_format("-123"), true);
-        assert_eq!(check_number_format("-123."), false);
-        assert_eq!(check_number_format("-123.5"), true);
-        assert_eq!(check_number_format("-123e"), false);
-        assert_eq!(check_number_format("-123e1"), true);
-        assert_eq!(check_number_format("-123e+1"), true);
-        assert_eq!(check_number_format("-123e-1"), true);
-        assert_eq!(check_number_format("-123e-10"), true);
-        assert_eq!(check_number_format(".123"), false);
-        assert_eq!(check_number_format("0.123"), true);
-        assert_eq!(check_number_format(" 123"), false);
-        assert_eq!(check_number_format(""), false);
-        assert_eq!(check_number_format("a"), false);
-        assert_eq!(check_number_format("0.0"), true);
-        assert_eq!(check_number_format("9.9"), true);
+        let ok = Ok(());
+        let err = Err(ParseOracleTypeError::new("Oracle number"));
+        assert_eq!(check_number_format("123"), ok);
+        assert_eq!(check_number_format("-123"), ok);
+        assert_eq!(check_number_format("-123."), err);
+        assert_eq!(check_number_format("-123.5"), ok);
+        assert_eq!(check_number_format("-123e"), err);
+        assert_eq!(check_number_format("-123e1"), ok);
+        assert_eq!(check_number_format("-123e+1"), ok);
+        assert_eq!(check_number_format("-123e-1"), ok);
+        assert_eq!(check_number_format("-123e-10"), ok);
+        assert_eq!(check_number_format(".123"), err);
+        assert_eq!(check_number_format("0.123"), ok);
+        assert_eq!(check_number_format(" 123"), err);
+        assert_eq!(check_number_format(""), err);
+        assert_eq!(check_number_format("a"), err);
+        assert_eq!(check_number_format("0.0"), ok);
+        assert_eq!(check_number_format("9.9"), ok);
     }
 }
 

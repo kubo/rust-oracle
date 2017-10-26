@@ -37,7 +37,7 @@ use std::str;
 use binding::dpiIntervalYM;
 use util::Scanner;
 use OracleType;
-use ParseError;
+use ParseOracleTypeError;
 
 /// Interval type corresponding to Oracle type: `INTERVAL YEAR TO MONTH`.
 ///
@@ -102,10 +102,10 @@ impl fmt::Display for IntervalYM {
 }
 
 impl str::FromStr for IntervalYM {
-    type Err = ParseError;
+    type Err = ParseOracleTypeError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let err = || ParseError::new("IntervalYM");
+        let err = || ParseOracleTypeError::new("IntervalYM");
         let mut s = Scanner::new(s);
         let minus = match s.char() {
             Some('+') => {

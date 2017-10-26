@@ -38,7 +38,6 @@ use OdpiStr;
 use to_odpi_str;
 use OracleType;
 use Connection;
-use error::IndexError;
 use types::FromSql;
 use types::ToSql;
 use types::ToSqlInTuple;
@@ -361,7 +360,7 @@ impl BindIndex for usize {
         if 0 < num && *self <= num {
             Ok(*self - 1)
         } else {
-            Err(Error::IndexError(IndexError::BindIndex(*self)))
+            Err(Error::InvalidBindIndex(*self))
         }
     }
 
@@ -373,7 +372,7 @@ impl BindIndex for usize {
 impl<'a> BindIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         stmt.bind_names().iter().position(|&name| name == *self)
-            .ok_or_else(|| Error::IndexError(IndexError::BindName((*self).to_string())))
+            .ok_or_else(|| Error::InvalidBindName((*self).to_string()))
     }
 
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
@@ -396,7 +395,7 @@ impl ColumnIndex for usize {
         if *self < ncols {
             Ok(*self)
         } else {
-            Err(Error::IndexError(IndexError::ColumnIndex(*self)))
+            Err(Error::InvalidColumnIndex(*self))
         }
     }
 }
@@ -408,6 +407,6 @@ impl<'a> ColumnIndex for &'a str {
                 return Ok(idx);
             }
         }
-        Err(Error::IndexError(IndexError::ColumnName((*self).to_string())))
+        Err(Error::InvalidColumnName((*self).to_string()))
     }
 }

@@ -46,8 +46,6 @@ use OracleType;
 use Timestamp;
 use IntervalDS;
 use IntervalYM;
-use error::ConversionError;
-use ParseError;
 use to_odpi_str;
 use NativeType;
 use util::check_number_format;
@@ -59,7 +57,7 @@ macro_rules! flt_to_int {
             if $dest_type::min_value() as $src_type <= src_val && src_val <= $dest_type::max_value() as $src_type {
                 Ok(src_val as $dest_type)
             } else {
-                Err(Error::ConversionError(ConversionError::Overflow(src_val.to_string(), stringify!($dest_type))))
+                Err(Error::Overflow(src_val.to_string(), stringify!($dest_type)))
             }
         }
     }
@@ -81,7 +79,7 @@ macro_rules! define_fn_as_int {
                 NativeType::Number =>
                     Ok(self.get_string_unchecked()?.parse()?),
                 _ =>
-                    self.unsupported_as_type_conversion(stringify!($type))
+                    self.invalid_conversion_to_rust_type(stringify!($type))
             }
         }
     }
@@ -105,7 +103,7 @@ macro_rules! define_fn_set_int {
                     self.set_string_unchecked(&s)
                 },
                 _ =>
-                    self.unsupported_set_type_conversion(stringify!($type))
+                    self.invalid_conversion_from_rust_type(stringify!($type))
             }
         }
     }
@@ -201,17 +199,17 @@ impl Value {
         val.to(self)
     }
 
-    fn unsupported_as_type_conversion<T>(&self, to_type: &str) -> Result<T> {
-        Err(Error::ConversionError(ConversionError::UnsupportedType(self.oratype.to_string(), to_type.to_string())))
+    fn invalid_conversion_to_rust_type<T>(&self, to_type: &str) -> Result<T> {
+        Err(Error::InvalidTypeConversion(self.oratype.to_string(), to_type.to_string()))
     }
 
-    fn unsupported_set_type_conversion<T>(&self, from_type: &str) -> Result<T> {
-        Err(Error::ConversionError(ConversionError::UnsupportedType(from_type.to_string(), self.oratype.to_string())))
+    fn invalid_conversion_from_rust_type<T>(&self, from_type: &str) -> Result<T> {
+        Err(Error::InvalidTypeConversion(from_type.to_string(), self.oratype.to_string()))
     }
 
     fn check_not_null(&self) -> Result<()> {
         if self.is_null()? {
-            Err(Error::ConversionError(ConversionError::NullValue))
+            Err(Error::NullValue)
         } else {
             Ok(())
         }
@@ -390,7 +388,7 @@ impl Value {
             NativeType::Number =>
                 Ok(self.get_string_unchecked()?.parse()?),
             _ =>
-                self.unsupported_as_type_conversion("i64"),
+                self.invalid_conversion_to_rust_type("i64"),
         }
     }
 
@@ -408,7 +406,7 @@ impl Value {
             NativeType::Number =>
                 Ok(self.get_string_unchecked()?.parse()?),
             _ =>
-                self.unsupported_as_type_conversion("u64"),
+                self.invalid_conversion_to_rust_type("u64"),
         }
     }
 
@@ -433,7 +431,7 @@ impl Value {
             NativeType::Number =>
                 Ok(self.get_string_unchecked()?.parse()?),
             _ =>
-                self.unsupported_as_type_conversion("f64"),
+                self.invalid_conversion_to_rust_type("f64"),
         }
     }
 
@@ -451,7 +449,7 @@ impl Value {
             NativeType::Number =>
                 Ok(self.get_string_unchecked()?.parse()?),
             _ =>
-                self.unsupported_as_type_conversion("f32"),
+                self.invalid_conversion_to_rust_type("f32"),
         }
     }
 
@@ -475,7 +473,7 @@ impl Value {
             NativeType::IntervalYM =>
                 Ok(self.get_interval_ym_unchecked()?.to_string()),
             _ =>
-                self.unsupported_as_type_conversion("string"),
+                self.invalid_conversion_to_rust_type("string"),
         }
     }
 
@@ -484,7 +482,7 @@ impl Value {
             NativeType::Raw =>
                 self.get_bytes_unchecked(),
             _ =>
-                self.unsupported_as_type_conversion("bytes"),
+                self.invalid_conversion_to_rust_type("bytes"),
         }
     }
 
@@ -493,7 +491,7 @@ impl Value {
             NativeType::Boolean =>
                 Ok(self.get_bool_unchecked()?),
             _ =>
-                self.unsupported_as_type_conversion("bool"),
+                self.invalid_conversion_to_rust_type("bool"),
         }
     }
 
@@ -501,7 +499,7 @@ impl Value {
         if self.native_type == NativeType::Timestamp {
             self.get_timestamp_unchecked()
         } else {
-            self.unsupported_as_type_conversion("Timestamp")
+            self.invalid_conversion_to_rust_type("Timestamp")
         }
     }
 
@@ -509,7 +507,7 @@ impl Value {
         if self.native_type == NativeType::IntervalDS {
             self.get_interval_ds_unchecked()
         } else {
-            self.unsupported_as_type_conversion("IntervalDS")
+            self.invalid_conversion_to_rust_type("IntervalDS")
         }
     }
 
@@ -517,7 +515,7 @@ impl Value {
         if self.native_type == NativeType::IntervalYM {
             self.get_interval_ym_unchecked()
         } else {
-            self.unsupported_as_type_conversion("IntervalYM")
+            self.invalid_conversion_to_rust_type("IntervalYM")
         }
     }
 
@@ -549,9 +547,7 @@ impl Value {
             NativeType::Char =>
                 Ok(self.set_string_unchecked(val)?),
             NativeType::Number => {
-                if !check_number_format(val) {
-                    return Err(Error::ConversionError(ConversionError::ParseError(Box::new(ParseError::new("number")))));
-                }
+                check_number_format(val)?;
                 Ok(self.set_string_unchecked(val)?)
             },
             NativeType::Timestamp =>
@@ -561,7 +557,7 @@ impl Value {
             NativeType::IntervalYM =>
                 self.set_interval_ym_unchecked(&val.parse()?),
             _ =>
-                self.unsupported_set_type_conversion("&str"),
+                self.invalid_conversion_from_rust_type("&str"),
         }
     }
 
@@ -570,7 +566,7 @@ impl Value {
             NativeType::Raw =>
                 Ok(self.set_bytes_unchecked(val)?),
             _ =>
-                self.unsupported_set_type_conversion("Vec<u8>"),
+                self.invalid_conversion_from_rust_type("Vec<u8>"),
         }
     }
 
@@ -579,7 +575,7 @@ impl Value {
             NativeType::Timestamp =>
                 Ok(self.set_timestamp_unchecked(val)?),
             _ =>
-                self.unsupported_set_type_conversion("Timestamp"),
+                self.invalid_conversion_from_rust_type("Timestamp"),
         }
     }
 
@@ -588,7 +584,7 @@ impl Value {
             NativeType::IntervalDS =>
                 Ok(self.set_interval_ds_unchecked(val)?),
             _ =>
-                self.unsupported_set_type_conversion("IntervalDS"),
+                self.invalid_conversion_from_rust_type("IntervalDS"),
         }
     }
 
@@ -597,7 +593,7 @@ impl Value {
             NativeType::IntervalYM =>
                 Ok(self.set_interval_ym_unchecked(val)?),
             _ =>
-                self.unsupported_set_type_conversion("IntervalYM"),
+                self.invalid_conversion_from_rust_type("IntervalYM"),
         }
     }
 
@@ -606,7 +602,7 @@ impl Value {
             NativeType::Boolean =>
                 Ok(self.set_bool_unchecked(*val)?),
             _ =>
-                self.unsupported_set_type_conversion("bool"),
+                self.invalid_conversion_from_rust_type("bool"),
         }
     }
 }

@@ -40,44 +40,72 @@ use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
 use Context;
 
+/// Enum listing possible errors from rust oracle.
 pub enum Error {
+    /// Error from an underlying Oracle client library.
     OciError(DbError),
+    /// Error from an underlying ODPI-C layer.
     DpiError(DbError),
-    IndexError(IndexError),
-    ConversionError(ConversionError),
+    /// Error when NULL value is got but the target rust type cannot handle NULL.
+    /// Use `Option<...>` in this case.
+    NullValue,
+    /// Error when conversion from a string to an Oracle value fails
+    ParseError(Box<error::Error>),
+    /// Error when conversion from a type to another fails due to overflow
+    Overflow(String, &'static str),
+    /// Error when conversion from a type to another is not allowed.
+    InvalidTypeConversion(String, String),
+    /// Error when a bind parameter index is out of range. (one based)
+    InvalidBindIndex(usize),
+    /// Error when a bind parameter name is not in the SQL.
+    InvalidBindName(String),
+    /// Error when a column index is out of range. (zero based)
+    InvalidColumnIndex(usize),
+    /// Error when a column name is not in the SQL.
+    InvalidColumnName(String),
+    /// Error when an uninitialized bind value is accessed. Bind values
+    /// must be initialized by [Statement.bind][], [Statement.execute][]
+    /// or [Connection.execute][] in advance.
+    ///
+    /// [Statement.bind]: struct.Statement.html#method.bind
+    /// [Statement.execute]: struct.Statement.html#method.execute
+    /// [Connection.execute]: struct.Connection.html#method.execute
     UninitializedBindValue,
+    /// Error when no more rows exist in the SQL.
     NoMoreData,
+    /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError(String),
 }
 
+/// An error when parsing a string into an Oracle type fails.
 #[derive(Eq, PartialEq, Clone)]
-pub struct ParseError {
+pub struct ParseOracleTypeError {
     typename: &'static str,
 }
 
-impl ParseError {
-    pub fn new(typename: &'static str) -> ParseError {
-        ParseError {
+impl ParseOracleTypeError {
+    pub fn new(typename: &'static str) -> ParseOracleTypeError {
+        ParseOracleTypeError {
             typename: typename,
         }
     }
 }
 
-impl fmt::Display for ParseError {
+impl fmt::Display for ParseOracleTypeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} parse error", self.typename)
     }
 }
 
-impl fmt::Debug for ParseError {
+impl fmt::Debug for ParseOracleTypeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ParseError")
+        write!(f, "ParseOracleTypeError")
     }
 }
 
-impl error::Error for ParseError {
+impl error::Error for ParseOracleTypeError {
     fn description(&self) -> &str {
-        "parse error"
+        "Oracle type parse error"
     }
 
     fn cause(&self) -> Option<&error::Error> {
@@ -94,6 +122,7 @@ pub struct DbError {
     action: String,
 }
 
+/// Oracle database or ODPI-C error
 impl DbError {
     pub fn new(code: i32, offset: u16, message: String, fn_name: String, action: String) -> DbError {
         DbError {
@@ -131,20 +160,6 @@ impl DbError {
     }
 }
 
-pub enum IndexError {
-    BindIndex(usize),
-    BindName(String),
-    ColumnIndex(usize),
-    ColumnName(String),
-}
-
-pub enum ConversionError {
-    NullValue,
-    ParseError(Box<error::Error>),
-    Overflow(String, &'static str),
-    UnsupportedType(String, String),
-}
-
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -152,30 +167,22 @@ impl fmt::Display for Error {
                 write!(f, "OCI Error: {}", err.message),
             Error::DpiError(ref err) =>
                 write!(f, "DPI Error: {}", err.message),
-            Error::IndexError(ref err) => {
-                match *err {
-                    IndexError::BindIndex(ref idx) =>
-                        write!(f, "invalid bind index (one-based): {}", idx),
-                    IndexError::BindName(ref name) =>
-                        write!(f, "invalid bind name: {}", name),
-                    IndexError::ColumnIndex(ref idx) =>
-                        write!(f, "invalid column index (zero-based): {}", idx),
-                    IndexError::ColumnName(ref name) =>
-                        write!(f, "invalid column name: {}", name),
-                }
-            },
-            Error::ConversionError(ref err) => {
-                match *err {
-                    ConversionError::NullValue =>
-                        write!(f, "NULL value found"),
-                    ConversionError::ParseError(ref err) =>
-                        write!(f, "{}", err),
-                    ConversionError::Overflow(ref src, dst) =>
-                        write!(f, "number too large to convert {} to {}", src, dst),
-                    ConversionError::UnsupportedType(ref from, ref to) =>
-                        write!(f, "unsupported type conversion from {} to {}", from, to),
-                }
-            },
+            Error::NullValue =>
+                write!(f, "NULL value found"),
+            Error::ParseError(ref err) =>
+                write!(f, "{}", err),
+            Error::Overflow(ref src, dst) =>
+                write!(f, "number too large to convert {} to {}", src, dst),
+            Error::InvalidTypeConversion(ref from, ref to) =>
+                write!(f, "invalid type conversion from {} to {}", from, to),
+            Error::InvalidBindIndex(ref idx) =>
+                write!(f, "invalid bind index (one-based): {}", idx),
+            Error::InvalidBindName(ref name) =>
+                write!(f, "invalid bind name: {}", name),
+            Error::InvalidColumnIndex(ref idx) =>
+                write!(f, "invalid column index (zero-based): {}", idx),
+            Error::InvalidColumnName(ref name) =>
+                write!(f, "invalid column name: {}", name),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -195,30 +202,22 @@ impl fmt::Debug for Error {
             Error::DpiError(ref err) =>
                 write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
                        err.code, err.offset, err.message, err.fn_name, err.action),
-            Error::IndexError(ref err) => {
-                match *err {
-                    IndexError::BindIndex(ref idx) =>
-                        write!(f, "IndexError {{ bind index: {} }}", idx),
-                    IndexError::BindName(ref name) =>
-                        write!(f, "IndexError {{ bind name: {} }}", name),
-                    IndexError::ColumnIndex(ref idx) =>
-                        write!(f, "IndexError {{ column index: {} }}", idx),
-                    IndexError::ColumnName(ref name) =>
-                        write!(f, "IndexError {{ column name: {} }}", name),
-                }
-            },
-            Error::ConversionError(ref err) => {
-                match *err {
-                    ConversionError::NullValue =>
-                        write!(f, "ConversionError {{ NULLValue }}"),
-                    ConversionError::ParseError(ref err) =>
-                        write!(f, "ConversionError {{ ParseError: {:?} }}", err),
-                    ConversionError::Overflow(ref src, dst) =>
-                        write!(f, "ConversionError {{ Overflow {{ src: {}, dest: {} }} }}", src, dst),
-                    ConversionError::UnsupportedType(ref from, ref to) =>
-                        write!(f, "ConversionError {{ UnsupportedType {{ from: {}, to: {} }} }}", from, to),
-                }
-            },
+            Error::NullValue =>
+                write!(f, "NULLValue"),
+            Error::ParseError(ref err) =>
+                write!(f, "ParseError: {:?}", err),
+            Error::Overflow(ref src, dst) =>
+                write!(f, "Overflow {{ src: {}, dest: {} }}", src, dst),
+            Error::InvalidTypeConversion(ref from, ref to) =>
+                write!(f, "InvalidTypeConversion {{ from: {}, to: {} }}", from, to),
+            Error::InvalidBindIndex(ref idx) =>
+                write!(f, "InvalidBindIndex: {}", idx),
+            Error::InvalidBindName(ref name) =>
+                write!(f, "InvalidBindName: {}", name),
+            Error::InvalidColumnIndex(ref idx) =>
+                write!(f, "InvalidColumnIndex: {}", idx),
+            Error::InvalidColumnName(ref name) =>
+                write!(f, "InvalidColumnName: {}", name),
             Error::UninitializedBindValue |
             Error::NoMoreData |
             Error::InternalError(_) =>
@@ -231,45 +230,50 @@ impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
             Error::OciError(_) => "Oracle OCI error",
-            Error::DpiError(_) => "Oracle DPI Error",
-            Error::IndexError(_) => "invalid index",
-            Error::ConversionError(_) => "conversion error",
-            Error::UninitializedBindValue => "Uninitialided bind value error",
-            Error::NoMoreData => "No more data",
-            Error::InternalError(_) => "Internal error",
+            Error::DpiError(_) => "ODPI-C error",
+            Error::NullValue => "NULL value",
+            Error::ParseError(_) => "parse error",
+            Error::Overflow(_, _) => "overflow",
+            Error::InvalidTypeConversion(_, _) => "invalid type conversion",
+            Error::InvalidBindIndex(_) => "index bind index",
+            Error::InvalidBindName(_) => "index bind name",
+            Error::InvalidColumnIndex(_) => "index column index",
+            Error::InvalidColumnName(_) => "index column name",
+            Error::UninitializedBindValue => "uninitialided bind value error",
+            Error::NoMoreData => "no more data",
+            Error::InternalError(_) => "internal error",
         }
     }
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            Error::ConversionError(ConversionError::ParseError(ref err)) =>
-                Some(err.as_ref()),
+            Error::ParseError(ref err) => Some(err.as_ref()),
             _ => None,
         }
     }
 }
 
-impl From<ParseError> for Error {
-    fn from(err: ParseError) -> Self {
-        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+impl From<ParseOracleTypeError> for Error {
+    fn from(err: ParseOracleTypeError) -> Self {
+        Error::ParseError(Box::new(err))
     }
 }
 
 impl From<num::ParseIntError> for Error {
     fn from(err: num::ParseIntError) -> Self {
-        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+        Error::ParseError(Box::new(err))
     }
 }
 
 impl From<num::ParseFloatError> for Error {
     fn from(err: num::ParseFloatError) -> Self {
-        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+        Error::ParseError(Box::new(err))
     }
 }
 
 impl From<try_from::TryFromIntError> for Error {
     fn from(err: try_from::TryFromIntError) -> Self {
-        Error::ConversionError(ConversionError::ParseError(Box::new(err)))
+        Error::ParseError(Box::new(err))
     }
 }
 

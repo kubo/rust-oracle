@@ -31,7 +31,6 @@
 // or implied, of the authors.
 
 use Error;
-use error::ConversionError;
 use IntervalDS;
 use IntervalYM;
 use OracleType;
@@ -192,7 +191,7 @@ impl<T: FromSql> FromSql for Option<T> {
     fn from(val: &Value) -> Result<Option<T>> {
         match <T>::from(val) {
             Ok(v) => Ok(Some(v)),
-            Err(Error::ConversionError(ConversionError::NullValue)) => Ok(None),
+            Err(Error::NullValue) => Ok(None),
             Err(err) => Err(err),
         }
     }

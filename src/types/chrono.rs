@@ -40,7 +40,6 @@ use IntervalDS;
 use ToSql;
 use Value;
 use Error;
-use error::ConversionError;
 use chrono::Duration;
 use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
@@ -189,7 +188,7 @@ impl ToSql for NaiveDate {
 
 impl FromSql for Duration {
     fn from(val: &Value) -> Result<Duration> {
-        let err = |it: IntervalDS| Error::ConversionError(ConversionError::Overflow(it.to_string(), "Duration"));
+        let err = |it: IntervalDS| Error::Overflow(it.to_string(), "Duration");
         let it = val.as_interval_ds()?;
         let d = Duration::milliseconds(0);
         let d = d.checked_add(&Duration::days(it.days as i64)).ok_or(err(it))?;
@@ -216,7 +215,7 @@ impl ToSql for Duration {
         let minutes = secs / 60;
         let secs = secs % 60;
         if days.abs() >= 1000000000 {
-            return Err(Error::ConversionError(ConversionError::Overflow(self.to_string(), "INTERVAL DAY TO SECOND")));
+            return Err(Error::Overflow(self.to_string(), "INTERVAL DAY TO SECOND"));
         }
         let it = IntervalDS::new(days as i32, hours as i32, minutes as i32, secs as i32, nsecs as i32);
         val.set_interval_ds(&it)
