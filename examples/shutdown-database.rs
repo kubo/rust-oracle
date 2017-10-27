@@ -37,8 +37,7 @@ fn main() {
     let password = "change_on_install";
     let database = "";
     let auth_mode = oracle::AuthMode::SYSDBA;
-    //let shutdown_mode = oracle::ShutdownMode::Immediate;
-    let shutdown_mode = oracle::ShutdownMode::Abort;
+    let shutdown_mode = oracle::ShutdownMode::Immediate;
 
     // connect as sysdba or sysoper
     let mut connector = oracle::Connector::new(username, password, database);
