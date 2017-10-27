@@ -164,7 +164,7 @@ pub struct SqlValue {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiVar,
     native_type: NativeType,
-    oratype: OracleType,
+    oratype: Option<OracleType>,
     array_size: u32,
     pub(crate) buffer_row_index: u32,
 }
@@ -176,7 +176,7 @@ impl SqlValue {
             ctxt: ctxt,
             handle: ptr::null_mut(),
             native_type: NativeType::Int64,
-            oratype: OracleType::None,
+            oratype: None,
             array_size: 0,
             buffer_row_index: 0,
         }
@@ -189,7 +189,11 @@ impl SqlValue {
         if self.array_size != array_size {
             return Ok(false);
         }
-        let (current_oratype_num, _, current_size, _) = self.oratype.var_create_param()?;
+        let current_oratype = match self.oratype {
+            Some(ref oratype) => oratype,
+            None => return Ok(false),
+        };
+        let (current_oratype_num, _, current_size, _) = current_oratype.var_create_param()?;
         let (new_oratype_num, _, new_size, _) = oratype.var_create_param()?;
         if current_oratype_num != new_oratype_num  {
             return Ok(false);
@@ -221,13 +225,13 @@ impl SqlValue {
                                0, ptr::null_mut(), &mut handle, &mut data));
         self.handle = handle;
         self.native_type = native_type;
-        self.oratype = oratype.clone();
+        self.oratype = Some(oratype.clone());
         self.array_size = array_size;
         Ok(true)
     }
 
     fn data(&self) -> Result<*mut dpiData> {
-        if self.oratype == OracleType::None {
+        if self.oratype.is_none() {
             return Err(Error::UninitializedBindValue);
         }
         let mut num = 0;
@@ -250,11 +254,21 @@ impl SqlValue {
     }
 
     fn invalid_conversion_to_rust_type<T>(&self, to_type: &str) -> Result<T> {
-        Err(Error::InvalidTypeConversion(self.oratype.to_string(), to_type.to_string()))
+        match self.oratype {
+            Some(ref oratype) =>
+                Err(Error::InvalidTypeConversion(oratype.to_string(), to_type.to_string())),
+            None =>
+                Err(Error::UninitializedBindValue),
+        }
     }
 
     fn invalid_conversion_from_rust_type<T>(&self, from_type: &str) -> Result<T> {
-        Err(Error::InvalidTypeConversion(from_type.to_string(), self.oratype.to_string()))
+        match self.oratype {
+            Some(ref oratype) =>
+                Err(Error::InvalidTypeConversion(from_type.to_string(), oratype.to_string())),
+            None =>
+                Err(Error::UninitializedBindValue),
+        }
     }
 
     fn check_not_null(&self) -> Result<()> {
@@ -281,8 +295,11 @@ impl SqlValue {
     }
 
     /// Gets the Oracle type of the SQL value.
-    pub fn oracle_type(&self) -> &OracleType {
-        &self.oratype
+    pub fn oracle_type(&self) -> Result<&OracleType> {
+        match self.oratype {
+            Some(ref oratype) => Ok(&oratype),
+            None => Err(Error::UninitializedBindValue),
+        }
     }
 
     //
@@ -370,7 +387,7 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let ts = dpiData_getTimestamp(self.data()?);
-            Ok(Timestamp::from_dpi_timestamp(&*ts, &self.oratype))
+            Ok(Timestamp::from_dpi_timestamp(&*ts, self.oracle_type()?))
         }
     }
 
@@ -380,7 +397,7 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalDS(self.data()?);
-            Ok(IntervalDS::from_dpi_interval_ds(&*it, &self.oratype))
+            Ok(IntervalDS::from_dpi_interval_ds(&*it, self.oracle_type()?))
         }
     }
 
@@ -390,7 +407,7 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalYM(self.data()?);
-            Ok(IntervalYM::from_dpi_interval_ym(&*it, &self.oratype))
+            Ok(IntervalYM::from_dpi_interval_ym(&*it, self.oracle_type()?))
         }
     }
 
@@ -805,7 +822,10 @@ impl SqlValue {
 
 impl fmt::Display for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SqlValue({})", self.oratype)
+        match self.oratype {
+            Some(ref oratype) => write!(f, "SqlValue({})", oratype),
+            None => write!(f, "SqlValue(uninitialized)"),
+        }
     }
 }
 

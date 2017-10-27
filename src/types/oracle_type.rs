@@ -89,8 +89,6 @@ impl NativeType {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OracleType {
-    #[doc(hidden)]
-    None,
     /// VARCHAR2 data type
     Varchar2(u32), // size
     /// NVARCHAR2 data type
@@ -246,7 +244,6 @@ impl OracleType {
 impl fmt::Display for OracleType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            OracleType::None => write!(f, "?"),
             OracleType::Varchar2(size) => write!(f, "VARCHAR2({})", size),
             OracleType::NVarchar2(size) => write!(f, "NVARCHAR2({})", size),
             OracleType::Char(size) => write!(f, "CHAR({})", size),
