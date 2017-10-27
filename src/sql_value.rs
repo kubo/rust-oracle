@@ -49,6 +49,7 @@ use IntervalYM;
 use to_odpi_str;
 use NativeType;
 use util::check_number_format;
+use util::parse_str_into_raw;
 
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {
@@ -64,7 +65,8 @@ macro_rules! flt_to_int {
 }
 
 macro_rules! define_fn_as_int {
-    ($func_name:ident, $type:ident) => {
+    ($(#[$attr:meta])* : $func_name:ident, $type:ident) => {
+        $(#[$attr])*
         pub fn $func_name(&self) -> Result<$type> {
             match self.native_type {
                 NativeType::Int64 =>
@@ -86,7 +88,8 @@ macro_rules! define_fn_as_int {
 }
 
 macro_rules! define_fn_set_int {
-    ($func_name:ident, $type:ident) => {
+    ($(#[$attr:meta])* : $func_name:ident, $type:ident) => {
+        $(#[$attr])*
         pub fn $func_name(&mut self, val: &$type) -> Result<()> {
             match self.native_type {
                 NativeType::Int64 =>
@@ -109,8 +112,55 @@ macro_rules! define_fn_set_int {
     }
 }
 
-
-pub struct Value {
+/// A type containing an Oracle value.
+///
+/// General users cannot use this directly. They access this via [FromSql][] and
+/// [ToSql][].
+///
+/// When this is a column value in a select statement, the Oracle type is
+/// determined by the column type.
+///
+/// When this is a bind value in a SQL statement, the Oracle type is determined
+/// by [ToSql.oratype][] which is internally called within [Statement.bind][],
+/// [Statement.execute][] and [Connection.execute][].
+///
+/// Getter methods such as `as_i64()` do the followings:
+///
+/// 1. Checks whether the conversion from the Oracle type to the target rust type
+///    is allowed. It returns `Err(Error::InvalidTypeConversion(...))` when it
+///    isn't allowed.
+/// 2. Checks whether the Oracle value is null. It returns `Err(Error::NullValue)`
+///    when it is null. (`is_null()` is also available to check whether the
+///    value is null.)
+/// 3. Converts the Oracle value to the rust value. The data type is converted
+///    implicitly if required. For example string is converted to i64 by
+///    [parse][] if `as_i64()` is called for `VARCHAR2` columns.
+///    If the conversion fails, various errors are returned.
+///
+/// Setter methods such as `set_i64()` do the followings:
+///
+/// 1. Checks whether the conversion from the rust type to the target Oracle type
+///    is allowed. It returns `Err(Error::InvalidTypeConversion(...))` when it
+///    isn't allowed.
+/// 2. Converts the rust value to the Oracle value. The data type is converted
+///    implicitly if required. For example i64 is converted to string by
+///    `to_string()` if `set_i64()` is called for `VARCHAR2` columns.
+///    If the conversion fails, various errors are returned.
+///    The value becomes `not null`.
+///
+/// The setter methods change the SQL value `not null`. You need to call
+/// [set_null][] to make it `null`.
+///
+///
+/// [FromSql]: trait.FromSql.html
+/// [ToSql]: trait.ToSql.html
+/// [ToSql.oratype]: trait.ToSql.html#method.oratype
+/// [Statement.bind]: struct.Statement.html#method.bind
+/// [Statement.execute]: struct.Statement.html#method.execute
+/// [Connection.execute]: struct.Connection.html#method.execute
+/// [parse]: https://doc.rust-lang.org/std/primitive.str.html#method.parse
+/// [set_null]: struct.SqlValue.html#method.set_null
+pub struct SqlValue {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiVar,
     native_type: NativeType,
@@ -119,10 +169,10 @@ pub struct Value {
     pub(crate) buffer_row_index: u32,
 }
 
-impl Value {
+impl SqlValue {
 
-    pub(crate) fn new(ctxt: &'static Context) -> Value {
-        Value {
+    pub(crate) fn new(ctxt: &'static Context) -> SqlValue {
+        SqlValue {
             ctxt: ctxt,
             handle: ptr::null_mut(),
             native_type: NativeType::Int64,
@@ -191,11 +241,11 @@ impl Value {
         }
     }
 
-    pub fn get<T>(&self) -> Result<T> where T: FromSql {
+    pub(crate) fn get<T>(&self) -> Result<T> where T: FromSql {
         <T>::from(self)
     }
 
-    pub fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
+    pub(crate) fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
         val.to(self)
     }
 
@@ -215,12 +265,14 @@ impl Value {
         }
     }
 
+    /// Returns `Ok(true)` when the SQL value is null. `Ok(false)` when it isn't null.
     pub fn is_null(&self) -> Result<bool> {
         unsafe {
             Ok((*self.data()?).isNull != 0)
         }
     }
 
+    /// Sets null to the SQL value.
     pub fn set_null(&mut self) -> Result<()> {
         unsafe {
             (*self.data()?).isNull = 1;
@@ -228,6 +280,7 @@ impl Value {
         Ok(())
     }
 
+    /// Gets the Oracle type of the SQL value.
     pub fn oracle_type(&self) -> &OracleType {
         &self.oratype
     }
@@ -236,26 +289,37 @@ impl Value {
     // get_TYPE_unchecked methods
     //
 
+    /// Gets the SQL value as i64. The native_type must be
+    /// NativeType::Int64. Otherwise, this returns unexpected value.
     fn get_i64_unchecked(&self) -> Result<i64> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getInt64(self.data()?)) }
     }
 
+    /// Gets the SQL value as u64. The native_type must be
+    /// NativeType::UInt64. Otherwise, this returns unexpected value.
     fn get_u64_unchecked(&self) -> Result<u64> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getUint64(self.data()?)) }
     }
 
+    /// Gets the SQL value as f32. The native_type must be
+    /// NativeType::Float. Otherwise, this returns unexpected value.
     fn get_f32_unchecked(&self) -> Result<f32> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getFloat(self.data()?)) }
     }
 
+    /// Gets the SQL value as f64. The native_type must be
+    /// NativeType::Double. Otherwise, this returns unexpected value.
     fn get_f64_unchecked(&self) -> Result<f64> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getDouble(self.data()?)) }
     }
 
+    /// Gets the SQL value as utf8 string. The native_type must be
+    /// NativeType::Char or NativeType::Number. Otherwise, this may cause access
+    /// violation.
     fn get_string_unchecked(&self) -> Result<String> {
         self.check_not_null()?;
         unsafe {
@@ -266,6 +330,8 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as Vec<u8>. The native_type must be
+    /// NativeType::Raw. Otherwise, this may cause access violation.
     fn get_bytes_unchecked(&self) -> Result<Vec<u8>> {
         self.check_not_null()?;
         unsafe {
@@ -278,6 +344,28 @@ impl Value {
         }
     }
 
+    fn get_hex_string_unchecked(&self) -> Result<String> {
+        self.check_not_null()?;
+        unsafe {
+            let bytes = dpiData_getBytes(self.data()?);
+            let ptr = (*bytes).ptr as *mut u8;
+            let len = (*bytes).length as usize;
+            let mut str = String::with_capacity(len * 2);
+            let to_hex = |x| if x < 10 {
+                (b'0' + x) as char
+            } else {
+                (b'A' + (x - 10)) as char
+            };
+            for byte in slice::from_raw_parts(ptr, len) {
+                str.push(to_hex(byte >> 4));
+                str.push(to_hex(byte & 0xF));
+            }
+            Ok(str)
+        }
+    }
+
+    /// Gets the SQL value as Timestamp. The native_type must be
+    /// NativeType::Timestamp. Otherwise, this returns unexpected value.
     fn get_timestamp_unchecked(&self) -> Result<Timestamp> {
         self.check_not_null()?;
         unsafe {
@@ -286,6 +374,8 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as IntervalDS. The native_type must be
+    /// NativeType::IntervalDS. Otherwise, this returns unexpected value.
     fn get_interval_ds_unchecked(&self) -> Result<IntervalDS> {
         self.check_not_null()?;
         unsafe {
@@ -294,6 +384,8 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as IntervalYM. The native_type must be
+    /// NativeType::IntervalYM. Otherwise, this returns unexpected value.
     fn get_interval_ym_unchecked(&self) -> Result<IntervalYM> {
         self.check_not_null()?;
         unsafe {
@@ -302,6 +394,8 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as bool. The native_type must be
+    /// NativeType::Boolean. Otherwise, this returns unexpected value.
     fn get_bool_unchecked(&self) -> Result<bool> {
         self.check_not_null()?;
         unsafe { Ok(dpiData_getBool(self.data()?) != 0) }
@@ -311,26 +405,37 @@ impl Value {
     // set_TYPE_unchecked methods
     //
 
+    /// Sets i64 to the SQL value. The native_type must be
+    /// NativeType::Int64. Otherwise, this may cause access violation.
     fn set_i64_unchecked(&mut self, val: i64) -> Result<()> {
         unsafe { dpiData_setInt64(self.data()?, val) }
         Ok(())
     }
 
+    /// Sets u64 to the SQL value. The native_type must be
+    /// NativeType::UInt64. Otherwise, this may cause access violation.
     fn set_u64_unchecked(&mut self, val: u64) -> Result<()> {
         unsafe { dpiData_setUint64(self.data()?, val) }
         Ok(())
     }
 
+    /// Sets f32 to the SQL value. The native_type must be
+    /// NativeType::Float. Otherwise, this may cause access violation.
     fn set_f32_unchecked(&mut self, val: f32) -> Result<()> {
         unsafe { dpiData_setFloat(self.data()?, val) }
         Ok(())
     }
 
+    /// Sets f64 to the SQL value. The native_type must be
+    /// NativeType::Double. Otherwise, this may cause access violation.
     fn set_f64_unchecked(&mut self, val: f64) -> Result<()> {
         unsafe { dpiData_setDouble(self.data()?, val) }
         Ok(())
     }
 
+    /// Sets utf8 string to the SQL value. The native_type must be
+    /// NativeType::Char or NativeType::Number. Otherwise, this may cause access
+    /// violation.
     fn set_string_unchecked(&self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(self.ctxt,
@@ -338,6 +443,8 @@ impl Value {
         Ok(())
     }
 
+    /// Sets Vec<u8> to the SQL value. The native_type must be
+    /// NativeType::Raw. Otherwise, this may cause access violation.
     fn set_bytes_unchecked(&self, val: &Vec<u8>) -> Result<()> {
         chkerr!(self.ctxt,
                 dpiVar_setFromBytes(self.handle, self.buffer_row_index,
@@ -345,6 +452,8 @@ impl Value {
         Ok(())
     }
 
+    /// Sets Timestamp to the SQL value. The native_type must be
+    /// NativeType::Timestamp. Otherwise, this may cause access violation.
     fn set_timestamp_unchecked(&self, val: &Timestamp) -> Result<()> {
         unsafe { dpiData_setTimestamp(self.data()?, val.year as i16,
                                       val.month as u8, val.day as u8,
@@ -354,17 +463,23 @@ impl Value {
         Ok(())
     }
 
+    /// Sets IntervalDS to the SQL value. The native_type must be
+    /// NativeType::IntervalDS. Otherwise, this may cause access violation.
     fn set_interval_ds_unchecked(&self, val: &IntervalDS) -> Result<()> {
         unsafe { dpiData_setIntervalDS(self.data()?, val.days, val.hours,
                                        val.minutes, val.seconds, val.nanoseconds) }
         Ok(())
     }
 
+    /// Sets IntervalYM to the SQL value. The native_type must be
+    /// NativeType::IntervalYM. Otherwise, this may cause access violation.
     fn set_interval_ym_unchecked(&self, val: &IntervalYM) -> Result<()> {
         unsafe { dpiData_setIntervalYM(self.data()?, val.years, val.months) }
         Ok(())
     }
 
+    /// Sets bool to the SQL value. The native_type must be
+    /// NativeType::Boolean. Otherwise, this may cause access violation.
     fn set_bool_unchecked(&self, val: bool) -> Result<()> {
         unsafe { dpiData_setBool(self.data()?, if val { 1 } else { 0 }) }
         Ok(())
@@ -374,6 +489,21 @@ impl Value {
     // as_TYPE methods
     //
 
+    define_fn_as_int!(
+        /// Gets the SQL value as i8. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_i8, i8);
+    define_fn_as_int!(
+        /// Gets the SQL value as i16. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_i16, i16);
+    define_fn_as_int!(
+        /// Gets the SQL value as i32. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_i32, i32);
+
+    /// Gets the SQL value as i64. The Oracle type must be
+    /// numeric or string (excluding LOB) types.
     pub fn as_i64(&self) -> Result<i64> {
         match self.native_type {
             NativeType::Int64 =>
@@ -392,6 +522,21 @@ impl Value {
         }
     }
 
+    define_fn_as_int!(
+        /// Gets the SQL value as u8. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_u8, u8);
+    define_fn_as_int!(
+        /// Gets the SQL value as u16. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_u16, u16);
+    define_fn_as_int!(
+        /// Gets the SQL value as u32. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_u32, u32);
+
+    /// Gets the SQL value as u64. The Oracle type must be
+    /// numeric or string (excluding LOB) types.
     pub fn as_u64(&self) -> Result<u64> {
         match self.native_type {
             NativeType::Int64 =>
@@ -410,31 +555,8 @@ impl Value {
         }
     }
 
-    define_fn_as_int!(as_i8, i8);
-    define_fn_as_int!(as_i16, i16);
-    define_fn_as_int!(as_i32, i32);
-    define_fn_as_int!(as_u8, u8);
-    define_fn_as_int!(as_u16, u16);
-    define_fn_as_int!(as_u32, u32);
-
-    pub fn as_f64(&self) -> Result<f64> {
-        match self.native_type {
-            NativeType::Int64 =>
-                Ok(self.get_i64_unchecked()? as f64),
-            NativeType::UInt64 =>
-                Ok(self.get_u64_unchecked()? as f64),
-            NativeType::Float =>
-                Ok(self.get_f32_unchecked()? as f64),
-            NativeType::Double =>
-                self.get_f64_unchecked(),
-            NativeType::Char |
-            NativeType::Number =>
-                Ok(self.get_string_unchecked()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("f64"),
-        }
-    }
-
+    /// Gets the SQL value as f32. The Oracle type must be
+    /// numeric or string (excluding LOB) types.
     pub fn as_f32(&self) -> Result<f32> {
         match self.native_type {
             NativeType::Int64 =>
@@ -453,6 +575,27 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as f64. The Oracle type must be
+    /// numeric or string (excluding LOB) types.
+    pub fn as_f64(&self) -> Result<f64> {
+        match self.native_type {
+            NativeType::Int64 =>
+                Ok(self.get_i64_unchecked()? as f64),
+            NativeType::UInt64 =>
+                Ok(self.get_u64_unchecked()? as f64),
+            NativeType::Float =>
+                Ok(self.get_f32_unchecked()? as f64),
+            NativeType::Double =>
+                self.get_f64_unchecked(),
+            NativeType::Char |
+            NativeType::Number =>
+                Ok(self.get_string_unchecked()?.parse()?),
+            _ =>
+                self.invalid_conversion_to_rust_type("f64"),
+        }
+    }
+
+    /// Gets the SQL value as string. ...
     pub fn as_string(&self) -> Result<String> {
         match self.native_type {
             NativeType::Int64 =>
@@ -466,6 +609,8 @@ impl Value {
             NativeType::Char |
             NativeType::Number =>
                 self.get_string_unchecked(),
+            NativeType::Raw =>
+                self.get_hex_string_unchecked(),
             NativeType::Timestamp =>
                 Ok(self.get_timestamp_unchecked()?.to_string()),
             NativeType::IntervalDS =>
@@ -477,6 +622,7 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as Vec\<u8>. ...
     pub fn as_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
             NativeType::Raw =>
@@ -486,6 +632,38 @@ impl Value {
         }
     }
 
+    /// Gets the SQL value as Timestamp. The Oracle type must be
+    /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
+    pub fn as_timestamp(&self) -> Result<Timestamp> {
+        if self.native_type == NativeType::Timestamp {
+            self.get_timestamp_unchecked()
+        } else {
+            self.invalid_conversion_to_rust_type("Timestamp")
+        }
+    }
+
+    /// Gets the SQL value as IntervalDS. The Oracle type must be
+    /// `INTERVAL DAY TO SECOND`.
+    pub fn as_interval_ds(&self) -> Result<IntervalDS> {
+        if self.native_type == NativeType::IntervalDS {
+            self.get_interval_ds_unchecked()
+        } else {
+            self.invalid_conversion_to_rust_type("IntervalDS")
+        }
+    }
+
+    /// Gets the SQL value as IntervalYM. The Oracle type must be
+    /// `INTERVAL YEAR TO MONTH`.
+    pub fn as_interval_ym(&self) -> Result<IntervalYM> {
+        if self.native_type == NativeType::IntervalYM {
+            self.get_interval_ym_unchecked()
+        } else {
+            self.invalid_conversion_to_rust_type("IntervalYM")
+        }
+    }
+
+    /// Gets the SQL value as bool. The Oracle type must be
+    /// `BOOLEAN`(PL/SQL only).
     pub fn as_bool(&self) -> Result<bool> {
         match self.native_type {
             NativeType::Boolean =>
@@ -495,45 +673,52 @@ impl Value {
         }
     }
 
-    pub fn as_timestamp(&self) -> Result<Timestamp> {
-        if self.native_type == NativeType::Timestamp {
-            self.get_timestamp_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("Timestamp")
-        }
-    }
-
-    pub fn as_interval_ds(&self) -> Result<IntervalDS> {
-        if self.native_type == NativeType::IntervalDS {
-            self.get_interval_ds_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("IntervalDS")
-        }
-    }
-
-    pub fn as_interval_ym(&self) -> Result<IntervalYM> {
-        if self.native_type == NativeType::IntervalYM {
-            self.get_interval_ym_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("IntervalYM")
-        }
-    }
-
     //
     // set_TYPE methods
     //
 
-    define_fn_set_int!(set_i8, i8);
-    define_fn_set_int!(set_i16, i16);
-    define_fn_set_int!(set_i32, i32);
-    define_fn_set_int!(set_i64, i64);
-    define_fn_set_int!(set_u8, u8);
-    define_fn_set_int!(set_u16, u16);
-    define_fn_set_int!(set_u32, u32);
-    define_fn_set_int!(set_u64, u64);
-    define_fn_set_int!(set_f64, f64);
-    define_fn_set_int!(set_f32, f32);
+    define_fn_set_int!(
+        /// Sets i8 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_i8, i8);
+    define_fn_set_int!(
+        /// Sets i16 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_i16, i16);
+    define_fn_set_int!(
+        /// Sets i32 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_i32, i32);
+    define_fn_set_int!(
+        /// Sets i64 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_i64, i64);
+    define_fn_set_int!(
+        /// Sets u8 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_u8, u8);
+    define_fn_set_int!(
+        /// Sets u16 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_u16, u16);
+    define_fn_set_int!(
+        /// Sets u32 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_u32, u32);
+    define_fn_set_int!(
+        /// Sets u64 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_u64, u64);
+    define_fn_set_int!(
+        /// Sets f32 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_f32, f32);
+    define_fn_set_int!(
+        /// Sets f64 to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_f64, f64);
 
+    /// Sets &str to the SQL value. ...
     pub fn set_string(&mut self, val: &str) -> Result<()> {
         match self.native_type {
             NativeType::Int64 =>
@@ -550,6 +735,8 @@ impl Value {
                 check_number_format(val)?;
                 Ok(self.set_string_unchecked(val)?)
             },
+            NativeType::Raw =>
+                self.set_bytes_unchecked(&parse_str_into_raw(val)?),
             NativeType::Timestamp =>
                 self.set_timestamp_unchecked(&val.parse()?),
             NativeType::IntervalDS =>
@@ -561,6 +748,7 @@ impl Value {
         }
     }
 
+    /// Sets Vec\<u8> to the SQL value. ...
     pub fn set_bytes(&self, val: &Vec<u8>) -> Result<()> {
         match self.native_type {
             NativeType::Raw =>
@@ -570,6 +758,8 @@ impl Value {
         }
     }
 
+    /// Sets Timestamp to the SQL value. The Oracle type must be
+    /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
     pub fn set_timestamp(&self, val: &Timestamp) -> Result<()> {
         match self.native_type {
             NativeType::Timestamp =>
@@ -579,6 +769,8 @@ impl Value {
         }
     }
 
+    /// Sets IntervalDS to the SQL value. The Oracle type must be
+    /// `INTERVAL DAY TO SECOND`.
     pub fn set_interval_ds(&self, val: &IntervalDS) -> Result<()> {
         match self.native_type {
             NativeType::IntervalDS =>
@@ -588,6 +780,8 @@ impl Value {
         }
     }
 
+    /// Sets IntervalYM to the SQL value. The Oracle type must be
+    /// `INTERVAL YEAR TO MONTH`.
     pub fn set_interval_ym(&self, val: &IntervalYM) -> Result<()> {
         match self.native_type {
             NativeType::IntervalYM =>
@@ -597,6 +791,8 @@ impl Value {
         }
     }
 
+    /// Sets boolean to the SQL value. The Oracle type must be
+    /// `BOOLEAN`(PL/SQL only).
     pub fn set_bool(&mut self, val: &bool) -> Result<()> {
         match self.native_type {
             NativeType::Boolean =>
@@ -607,18 +803,18 @@ impl Value {
     }
 }
 
-impl fmt::Display for Value {
+impl fmt::Display for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Value({})", self.oratype)
+        write!(f, "SqlValue({})", self.oratype)
     }
 }
 
-impl Clone for Value {
-    fn clone(&self) -> Value {
+impl Clone for SqlValue {
+    fn clone(&self) -> SqlValue {
         if !self.handle.is_null() {
             unsafe { dpiVar_addRef(self.handle); }
         }
-        Value {
+        SqlValue {
             ctxt: self.ctxt,
             handle: self.handle,
             native_type: self.native_type.clone(),
@@ -629,7 +825,7 @@ impl Clone for Value {
     }
 }
 
-impl Drop for Value {
+impl Drop for SqlValue {
     fn drop(&mut self) {
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };

@@ -38,7 +38,7 @@ use Timestamp;
 use OracleType;
 use IntervalDS;
 use ToSql;
-use Value;
+use SqlValue;
 use Error;
 use chrono::Duration;
 use chrono::naive::NaiveDate;
@@ -57,21 +57,21 @@ fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>> where 
 }
 
 impl FromSql for DateTime<Utc> {
-    fn from(val: &Value) -> Result<DateTime<Utc>> {
+    fn from(val: &SqlValue) -> Result<DateTime<Utc>> {
         let ts = val.as_timestamp()?;
         datetime_from_sql(&Utc, &ts)
     }
 }
 
 impl FromSql for DateTime<Local> {
-    fn from(val: &Value) -> Result<DateTime<Local>> {
+    fn from(val: &SqlValue) -> Result<DateTime<Local>> {
         let ts = val.as_timestamp()?;
         datetime_from_sql(&Local, &ts)
     }
 }
 
 impl FromSql for DateTime<FixedOffset> {
-    fn from(val: &Value) -> Result<DateTime<FixedOffset>> {
+    fn from(val: &SqlValue) -> Result<DateTime<FixedOffset>> {
         let ts = val.as_timestamp()?;
         datetime_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
     }
@@ -82,7 +82,7 @@ impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
         OracleType::TimestampTZ(9)
     }
 
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 self.hour(), self.minute(), self.second(),
                                 self.nanosecond());
@@ -102,21 +102,21 @@ fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>> where Tz: Time
 }
 
 impl FromSql for Date<Utc> {
-    fn from(val: &Value) -> Result<Date<Utc>> {
+    fn from(val: &SqlValue) -> Result<Date<Utc>> {
         let ts = val.as_timestamp()?;
         date_from_sql(&Utc, &ts)
     }
 }
 
 impl FromSql for Date<Local> {
-    fn from(val: &Value) -> Result<Date<Local>> {
+    fn from(val: &SqlValue) -> Result<Date<Local>> {
         let ts = val.as_timestamp()?;
         date_from_sql(&Local, &ts)
     }
 }
 
 impl FromSql for Date<FixedOffset> {
-    fn from(val: &Value) -> Result<Date<FixedOffset>> {
+    fn from(val: &SqlValue) -> Result<Date<FixedOffset>> {
         let ts = val.as_timestamp()?;
         date_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
     }
@@ -127,7 +127,7 @@ impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
         OracleType::TimestampTZ(0)
     }
 
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 0, 0, 0, 0);
         let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
@@ -140,7 +140,7 @@ impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
 //
 
 impl FromSql for NaiveDateTime {
-    fn from(val: &Value) -> Result<NaiveDateTime> {
+    fn from(val: &SqlValue) -> Result<NaiveDateTime> {
         let ts = val.as_timestamp()?;
         Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day).and_hms_nano(ts.hour, ts.minute, ts.second, ts.nanosecond))
     }
@@ -151,7 +151,7 @@ impl ToSql for NaiveDateTime  {
         OracleType::Timestamp(9)
     }
 
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 self.hour(), self.minute(), self.second(),
                                 self.nanosecond());
@@ -164,7 +164,7 @@ impl ToSql for NaiveDateTime  {
 //
 
 impl FromSql for NaiveDate {
-    fn from(val: &Value) -> Result<NaiveDate> {
+    fn from(val: &SqlValue) -> Result<NaiveDate> {
         let ts = val.as_timestamp()?;
         Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day))
     }
@@ -175,7 +175,7 @@ impl ToSql for NaiveDate {
         OracleType::Timestamp(0)
     }
 
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         let ts = Timestamp::new(self.year(), self.month(), self.day(),
                                 0, 0, 0, 0);
         val.set_timestamp(&ts)
@@ -187,7 +187,7 @@ impl ToSql for NaiveDate {
 //
 
 impl FromSql for Duration {
-    fn from(val: &Value) -> Result<Duration> {
+    fn from(val: &SqlValue) -> Result<Duration> {
         let err = |it: IntervalDS| Error::Overflow(it.to_string(), "Duration");
         let it = val.as_interval_ds()?;
         let d = Duration::milliseconds(0);
@@ -205,7 +205,7 @@ impl ToSql for Duration {
         OracleType::IntervalDS(9, 9)
     }
 
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         let secs = self.num_seconds();
         let nsecs = (*self - Duration::seconds(secs)).num_nanoseconds().unwrap();
         let days = secs / (24 * 60 * 60);

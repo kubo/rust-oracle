@@ -41,7 +41,7 @@ use Connection;
 use types::FromSql;
 use types::ToSql;
 use types::ToSqlInTuple;
-use value::Value;
+use sql_value::SqlValue;
 use Result;
 use Error;
 
@@ -104,7 +104,7 @@ pub struct Statement<'conn> {
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec<String>,
-    bind_values: Vec<Value>,
+    bind_values: Vec<SqlValue>,
 }
 
 impl<'conn> Statement<'conn> {
@@ -148,7 +148,7 @@ impl<'conn> Statement<'conn> {
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
             bind_names: bind_names,
-            bind_values: vec![Value::new(conn.ctxt); bind_count],
+            bind_values: vec![SqlValue::new(conn.ctxt); bind_count],
         })
     }
 
@@ -190,7 +190,7 @@ impl<'conn> Statement<'conn> {
             let num_cols = num_query_columns as usize;
 
             self.row.column_info = Vec::with_capacity(num_cols);
-            self.row.column_values = vec![Value::new(self.conn.ctxt); num_cols];
+            self.row.column_values = vec![SqlValue::new(self.conn.ctxt); num_cols];
 
             for i in 0..num_cols {
                 // set column info
@@ -331,7 +331,7 @@ impl fmt::Display for ColumnInfo {
 
 pub struct Row {
     column_info: Vec<ColumnInfo>,
-    column_values: Vec<Value>,
+    column_values: Vec<SqlValue>,
 }
 
 impl Row {
@@ -340,7 +340,7 @@ impl Row {
         self.column_values[pos].get()
     }
 
-    pub fn columns(&self) -> &Vec<Value> {
+    pub fn columns(&self) -> &Vec<SqlValue> {
         &self.column_values
     }
 }

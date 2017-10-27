@@ -52,11 +52,9 @@ macro_rules! test_to_string {
         assert_eq!(v1, v2);
     };
     ($stmt:expr, $val:expr, $expected_str:expr) => {
-        $stmt.bind(1, &oracle::bind_value(&None::<&str>, 4000)).unwrap();
         $stmt.bind(2, $val).unwrap();
-        $stmt.execute(&()).expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v1: String = $stmt.bind_value(1).unwrap(); // convert $val to string in Oracle
-        assert_eq!(v1, $expected_str);
+        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust oracle
+        assert_eq!(v2, $expected_str);
     };
 }
 
@@ -79,12 +77,11 @@ fn to_string_in_rust_oracle() {
     test_to_string!(stmt, -123.5f32);
     test_to_string!(stmt, 123456789123.5f64);
     test_to_string!(stmt, "12345");
-    //test_to_string!(stmt, vec![1u8,2u8,3u8,4u8,5u8]);
+    test_to_string!(stmt, vec![0x01u8, 0x19u8, 0x9au8, 0xafu8, 0xf0u8]);
     test_to_string!(stmt, Timestamp::new(2012, 3, 4, 5, 6, 7, 123456789));
     test_to_string!(stmt, IntervalDS::new(1, 2, 3, 4, 123456789));
     test_to_string!(stmt, IntervalYM::new(10, 2));
 
-    // bind as BINARY_DOUBLE. Oracle convert it to scientific notation string.
-    test_to_string!(stmt, &bind_value(&-123.5f32, 0), "-1.235E+002");
-    test_to_string!(stmt, &bind_value(&123456789123.5f64, 0), "1.234567891235E+011");
+    test_to_string!(stmt, &bind_value(&-123.5f32, 0), "-123.5");
+    test_to_string!(stmt, &bind_value(&123456789123.5f64, 0), "123456789123.5");
 }

@@ -37,7 +37,7 @@ use OracleType;
 use Result;
 use Statement;
 use Timestamp;
-use Value;
+use SqlValue;
 
 pub mod chrono;
 pub mod interval_ds;
@@ -60,7 +60,7 @@ pub mod version;
 /// This conversion is used also to get values from output parameters.
 ///
 pub trait FromSql {
-    fn from(val: &Value) -> Result<Self> where Self: Sized;
+    fn from(val: &SqlValue) -> Result<Self> where Self: Sized;
 }
 
 /// A trait to convert rust values to Oracle values.
@@ -96,13 +96,13 @@ pub trait ToSql {
     fn oratype(&self) -> OracleType {
         Self::oratype_default()
     }
-    fn to(&self, val: &mut Value) -> Result<()>;
+    fn to(&self, val: &mut SqlValue) -> Result<()>;
 }
 
 macro_rules! impl_from_sql {
     ($type:ty, $func:ident) => {
         impl FromSql for $type {
-            fn from(val: &Value) -> Result<$type> {
+            fn from(val: &SqlValue) -> Result<$type> {
                 val.$func()
             }
         }
@@ -115,7 +115,7 @@ macro_rules! impl_to_sql {
             fn oratype_default() -> OracleType {
                 $oratype
             }
-            fn to(&self, val: &mut Value) -> Result<()> {
+            fn to(&self, val: &mut SqlValue) -> Result<()> {
                 val.$func(self)
             }
         }
@@ -157,7 +157,7 @@ impl ToSql for String {
     fn oratype(&self) -> OracleType {
         OracleType::NVarchar2(self.len() as u32)
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_string(self)
     }
 }
@@ -169,7 +169,7 @@ impl ToSql for Vec<u8> {
     fn oratype(&self) -> OracleType {
         OracleType::Raw(self.len() as u32)
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_bytes(self)
     }
 }
@@ -181,14 +181,14 @@ impl<'a> ToSql for &'a str {
     fn oratype(&self) -> OracleType {
         OracleType::NVarchar2(self.len() as u32)
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_string(*self)
     }
 }
 
 
 impl<T: FromSql> FromSql for Option<T> {
-    fn from(val: &Value) -> Result<Option<T>> {
+    fn from(val: &SqlValue) -> Result<Option<T>> {
         match <T>::from(val) {
             Ok(v) => Ok(Some(v)),
             Err(Error::NullValue) => Ok(None),
@@ -207,7 +207,7 @@ impl<T: ToSql> ToSql for Option<T> {
             None => <T>::oratype_default(),
         }
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         match *self {
             Some(ref t) => t.to(val),
             None => val.set_null(),
@@ -222,7 +222,7 @@ impl<'a, T: ToSql> ToSql for &'a T {
     fn oratype(&self) -> OracleType {
         (*self).oratype()
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         (*self).to(val)
     }
 }
@@ -259,7 +259,7 @@ impl<'a, T> ToSql for BindValue<'a, T> where T: ToSql {
             _ => oratype,
         }
     }
-    fn to(&self, val: &mut Value) -> Result<()> {
+    fn to(&self, val: &mut SqlValue) -> Result<()> {
         self.data.to(val)
     }
 }

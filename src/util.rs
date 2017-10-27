@@ -135,6 +135,27 @@ pub fn check_number_format(s: &str) -> result::Result<(), ParseOracleTypeError> 
     Ok(())
 }
 
+pub fn parse_str_into_raw(s: &str) -> result::Result<Vec<u8>, ParseOracleTypeError> {
+    let mut vec: Vec<u8> = Vec::with_capacity((s.len() + 1) / 2);
+    let mut upper = s.len() % 2 == 0; // set upper half
+    let mut upper_half = 0u8;
+    for chr in s.bytes() {
+        let half_byte = match chr {
+            b'0' ... b'9' => chr - b'0',
+            b'A' ... b'F' => chr - b'A' + 10,
+            b'a' ... b'f' => chr - b'a' + 10,
+            _ => return Err(ParseOracleTypeError::new("raw")),
+        };
+        if upper {
+            upper_half = half_byte << 4;
+        } else {
+            vec.push(upper_half + half_byte);
+        }
+        upper = !upper;
+    }
+    Ok(vec)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -170,6 +191,20 @@ mod tests {
         assert_eq!(check_number_format("a"), err);
         assert_eq!(check_number_format("0.0"), ok);
         assert_eq!(check_number_format("9.9"), ok);
+    }
+
+    #[test]
+    fn test_parse_str_into_raw() {
+        let err = Err(ParseOracleTypeError::new("raw"));
+        assert_eq!(parse_str_into_raw(""), Ok(vec![]));
+        assert_eq!(parse_str_into_raw("010203"), Ok(vec![1, 2, 3]));
+        assert_eq!(parse_str_into_raw("10203"), Ok(vec![1, 2, 3]));
+        assert_eq!(parse_str_into_raw("090a0A0f0F"), Ok(vec![9, 10, 10, 15, 15]));
+        assert_eq!(parse_str_into_raw("G"), err);
+        assert_eq!(parse_str_into_raw("g"), err);
+        assert_eq!(parse_str_into_raw("1223344556677889"), Ok(vec![0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89]));
+        assert_eq!(parse_str_into_raw("9aabbccddeeff0"), Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0]));
+        assert_eq!(parse_str_into_raw("9AABBCCDDEEFF0"), Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0]));
     }
 }
 
