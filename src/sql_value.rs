@@ -476,7 +476,7 @@ impl SqlValue {
                                       val.month as u8, val.day as u8,
                                       val.hour as u8, val.minute as u8, val.second as u8,
                                       val.nanosecond, val.tz_hour_offset as i8,
-                                      val.tz_minute_offset.abs() as i8) }
+                                      val.tz_minute_offset as i8) }
         Ok(())
     }
 
