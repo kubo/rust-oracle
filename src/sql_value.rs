@@ -249,11 +249,11 @@ impl SqlValue {
     }
 
     pub(crate) fn get<T>(&self) -> Result<T> where T: FromSql {
-        <T>::from(self)
+        <T>::from_sql(self)
     }
 
     pub(crate) fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
-        val.to(self)
+        val.to_sql(self)
     }
 
     fn invalid_conversion_to_rust_type<T>(&self, to_type: &str) -> Result<T> {
