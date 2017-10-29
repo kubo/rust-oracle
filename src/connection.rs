@@ -45,6 +45,8 @@ use new_odpi_str;
 use to_odpi_str;
 
 /// Authorization mode
+///
+/// See [Connector.auth_mode](struct.Connector.html#method.auth_mode).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum AuthMode {
     /// connect without system privileges
@@ -133,6 +135,7 @@ pub struct Connector {
 }
 
 impl Connector {
+    /// Creates a connection builder.
     pub fn new(username: &str, password: &str, connect_string: &str) -> Connector {
         Connector {
             username: username.to_string(),
@@ -152,6 +155,7 @@ impl Connector {
         }
     }
 
+    /// Establishes a connection.
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
         let mut common_params = ctxt.common_create_params;
@@ -237,12 +241,22 @@ impl Connector {
     }
 
     /// Sets a system privilege such as SYSDBA.
+    ///
+    /// ```no_run
+    /// // same with `sqlplus system/manager as sysdba` on command line.
+    /// let connector = oracle::Connector::new("system", "manager", "");
+    /// connector.auth_mode(oracle::AuthMode::SYSDBA);
+    /// let conn = connector.connect().unwrap();
+    /// ```
+    ///
     pub fn auth_mode<'a>(&'a mut self, auth_mode: AuthMode) -> &'a mut Connector {
         self.auth_mode = auth_mode;
         self
     }
 
     /// Sets prelim_auth mode. This is required to connect to an idle instance.
+    ///
+    /// This is required only when [starting up a database](struct.Connection.html#method.startup_database).
     pub fn prelim_auth<'a>(&'a mut self, prelim_auth: bool) -> &'a mut Connector {
         self.prelim_auth = prelim_auth;
         self
@@ -315,6 +329,13 @@ impl Connector {
         self
     }
 
+    /// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].
+    ///
+    /// The default value is "rust-oracle : version number". Only the first 8
+    /// chracters "rust-ora" are displayed when the Oracle server version is
+    /// lower than 12.0.1.2.
+    ///
+    /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://docs.oracle.com/database/122/REFRN/V-SESSION_CONNECT_INFO.htm
     pub fn driver_name<'a>(&'a mut self, name: &str) -> &'a mut Connector {
         self.driver_name = Some(name.to_string());
         self

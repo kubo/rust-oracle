@@ -85,58 +85,129 @@ impl NativeType {
     }
 }
 
+/// Oracle data type
 #[derive(Debug, Clone, PartialEq)]
 pub enum OracleType {
-    /// VARCHAR2 data type
-    Varchar2(u32), // size
-    /// NVARCHAR2 data type
-    NVarchar2(u32), // size
-    /// CHAR data type
-    Char(u32), // size
-    /// NCHAR data type
-    NChar(u32), // size
-    /// ROWID data type
+    /// VARCHAR2(size)
+    Varchar2(u32),
+
+    /// NVARCHAR2(size)
+    NVarchar2(u32),
+
+    /// CHAR(size)
+    Char(u32),
+
+    /// NCHAR(size)
+    NChar(u32),
+
+    /// ROWID
     Rowid,
-    /// RAW data type
-    Raw(u32), // size
-    /// BINARY_FLOAT data type
+
+    /// RAW(size)
+    Raw(u32),
+
+    /// BINARY_FLOAT
+    ///
+    /// IEEE 754 single-precision (32-bit) floating-point number
     BinaryFloat,
-    /// BINARY_DOUBLE data type
+
+    /// BINARY_DOUBLE
+    ///
+    /// IEEE 754 double-precision (64-bit) floating-point number
     BinaryDouble,
-    /// NUMBER data type
-    Number(i16, i8), // prec, scale
+
+    /// NUMBER(precision, scale)
+    ///
+    /// `precision` is between 0 and 38. When it is 0, its actual precision is
+    /// 38 and `(precision, scale)` is omitted in text represention.
+    ///
+    /// `scale` is between -87 and 127. When it is 0, this is represented
+    /// as `NUMBER(precision)` in text.
+    Number(u8, i8),
+
+    /// FLOAT(precision)
+    ///
+    /// This is a subtype of NUMBER. The internal format is same with NUMBER,
+    /// which means that numbers are stored as decimal not as binary.
+    /// Use BINARY_DOUBLE or BINARY_FLOAT to store f64 or f32 rust types.
+    ///
+    /// `precision` is between 0 and 126. When it is 126, `(precision)` is
+    /// omitted in text represention.
+    Float(u8),
+
     /// DATE data type
     Date,
-    /// TIMESTAMP data type
-    Timestamp(u8), // fsprec
-    /// TIMESTAMP WITH TIME ZONE data type
-    TimestampTZ(u8), // fsprec
-    /// TIMESTAMP WITH LOCAL TIME ZONE data type
-    TimestampLTZ(u8), // fsprec
-    /// INTERVAL DAY TO SECOND data type
-    IntervalDS(i16, u8), // lfprec, fsprec
-    /// INTERVAL YEAR TO MONTH data type
-    IntervalYM(i16), // lfprec
-    /// CLOB data type. not supported yet
+
+    /// TIMESTAMP(fsprec)
+    ///
+    /// Timestamp data type without time zone.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    Timestamp(u8),
+
+    /// TIMESTAMP(fsprec) WITH TIME ZONE
+    ///
+    /// Timestamp data type with time zone.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    TimestampTZ(u8),
+
+    /// TIMESTAMP(fsprec) WITH LOCAL TIME ZONE
+    ///
+    /// Timestamp data type in local session time zone. Clients in different
+    /// session time zones retrieves different timestamp.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    TimestampLTZ(u8),
+
+    /// INTERVAL DAY(lfprec) TO SECOND(fsprec)
+    ///
+    /// `lfprec` is leading field precision between 0 and 9. When it is 2,
+    /// `(lfprec)` is omitted in text represention.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    IntervalDS(u8, u8),
+
+    /// INTERVAL YEAR(lfprec) TO MONTH
+    ///
+    /// `lfprec` is leading field precision between 0 and 9. When it is 2,
+    /// `(lfprec)` is omitted in text represention.
+    IntervalYM(u8),
+
+    /// CLOB
     CLOB,
-    /// NCLOB data type. not supported yet
+
+    /// NCLOB
     NCLOB,
-    /// BLOB data type. not supported yet
+
+    /// BLOB
     BLOB,
-    /// BFILE data type. not supported yet
+
+    /// BFILE
     BFILE,
-    /// REF CURSOR data type. not supported yet
+
+    /// REF CURSOR (not supported)
     RefCursor,
-    /// BOOLEAN data type used in PL/SQL, not supported yet
+
+    /// BOOLEAN (not supported)
     Boolean,
-    /// Object data type. not supported yet
-    Object, // fix when object type is supported.
-    /// LONG data type
+
+    /// Object (not supported)
+    Object,
+
+    /// LONG
     Long,
-    /// LONG RAW data type
+
+    /// LONG RAW
     LongRaw,
+
     /// Not an Oracle type, used only internally to bind/define values as i64
     Int64,
+
     /// Not an Oracle type, used only internally to bind/define values as u64
     UInt64,
 }
@@ -153,13 +224,19 @@ impl OracleType {
             DPI_ORACLE_TYPE_RAW => Ok(OracleType::Raw(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NATIVE_FLOAT => Ok(OracleType::BinaryFloat),
             DPI_ORACLE_TYPE_NATIVE_DOUBLE => Ok(OracleType::BinaryDouble),
-            DPI_ORACLE_TYPE_NUMBER => Ok(OracleType::Number(info.precision, info.scale)),
+            DPI_ORACLE_TYPE_NUMBER => {
+                if info.precision != 0 && info.scale == -127 {
+                    Ok(OracleType::Float(info.precision as u8))
+                } else {
+                    Ok(OracleType::Number(info.precision as u8, info.scale))
+                }
+            },
             DPI_ORACLE_TYPE_DATE => Ok(OracleType::Date),
             DPI_ORACLE_TYPE_TIMESTAMP => Ok(OracleType::Timestamp(info.fsPrecision)),
             DPI_ORACLE_TYPE_TIMESTAMP_TZ => Ok(OracleType::TimestampTZ(info.fsPrecision)),
             DPI_ORACLE_TYPE_TIMESTAMP_LTZ => Ok(OracleType::TimestampLTZ(info.fsPrecision)),
-            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(info.precision, info.fsPrecision)),
-            DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(info.precision)),
+            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(info.precision as u8, info.fsPrecision)),
+            DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(info.precision as u8)),
             DPI_ORACLE_TYPE_CLOB => Ok(OracleType::CLOB),
             DPI_ORACLE_TYPE_NCLOB => Ok(OracleType::NCLOB),
             DPI_ORACLE_TYPE_BLOB => Ok(OracleType::BLOB),
@@ -197,7 +274,8 @@ impl OracleType {
                 Ok((DPI_ORACLE_TYPE_NATIVE_FLOAT, NativeType::Float, 0, 0)),
             OracleType::BinaryDouble =>
                 Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, NativeType::Double, 0, 0)),
-            OracleType::Number(_, _) =>
+            OracleType::Number(_, _) |
+            OracleType::Float(_) =>
                 Ok((DPI_ORACLE_TYPE_NUMBER, NativeType::Number, 0, 0)),
             OracleType::Date =>
                 Ok((DPI_ORACLE_TYPE_DATE, NativeType::Timestamp, 0, 0)),
@@ -251,21 +329,18 @@ impl fmt::Display for OracleType {
             OracleType::BinaryFloat => write!(f, "BINARY_FLOAT"),
             OracleType::BinaryDouble => write!(f, "BINARY_DOUBLE"),
             OracleType::Number(prec, scale) =>
-                match scale {
-                    -127 => {
-                        match prec {
-                            0 => write!(f, "NUMBER"),
-                            126 => write!(f, "FLOAT"),
-                            _ => write!(f, "FLOAT({})", prec),
-                        }
-                    },
-                    0 => {
-                        match prec {
-                            0 => write!(f, "NUMBER"),
-                            _ => write!(f, "NUMBER({})", prec),
-                        }
-                    },
-                    _ => write!(f, "NUMBER({},{})", prec, scale),
+                if prec == 0 {
+                    write!(f, "NUMBER")
+                } else if scale == 0 {
+                    write!(f, "NUMBER({})", prec)
+                } else {
+                    write!(f, "NUMBER({},{})", prec, scale)
+                },
+            OracleType::Float(prec) =>
+                if prec == 126 {
+                    write!(f, "FLOAT")
+                } else {
+                    write!(f, "FLOAT({})", prec)
                 },
             OracleType::Date => write!(f, "DATE"),
             OracleType::Timestamp(fsprec) =>

@@ -152,8 +152,8 @@ impl_from_and_to_sql!(u8, as_u8, set_u8, OracleType::Number(0,0));
 impl_from_and_to_sql!(u16, as_u16, set_u16, OracleType::Number(0,0));
 impl_from_and_to_sql!(u32, as_u32, set_u32, OracleType::Number(0,0));
 impl_from_and_to_sql!(u64, as_u64, set_u64, OracleType::Number(0,0));
-impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::Number(126,-127)); // FLOAT
-impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::Number(126,-127)); // FLOAT
+impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::Number(0,0));
+impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::Number(0,0));
 impl_from_and_to_sql!(bool, as_bool, set_bool, OracleType::Boolean);
 impl_from_sql!(String, as_string);
 impl_from_sql!(Vec<u8>, as_bytes);

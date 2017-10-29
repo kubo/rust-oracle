@@ -203,7 +203,7 @@ impl<'conn> Statement<'conn> {
                 let oratype = match *oratype {
                     // When the column type is number whose prec is less than 18
                     // and the scale is zero, define it as int64.
-                    OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as i16 =>
+                    OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
                         &oratype_i64,
                     _ =>
                         oratype,
@@ -283,6 +283,18 @@ impl<'conn> Drop for Statement<'conn> {
 // ColumnInfo
 //
 
+/// Column information in a select statement
+///
+/// ```no_run
+/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// let mut stmt = conn.execute("select * from emp", &()).unwrap();
+/// for info in stmt.column_info() {
+///    println!("{:-30} {:-8} {}",
+///             info.name(),
+///             if info.nullable() {""} else {"NOT NULL"},
+///             info.oracle_type());
+/// }
+/// ```
 #[derive(Clone)]
 pub struct ColumnInfo {
     name: String,
@@ -302,14 +314,18 @@ impl ColumnInfo {
         })
     }
 
+    /// Gets column name
     pub fn name(&self) -> &String {
         &self.name
     }
 
+    /// Gets Oracle type
     pub fn oracle_type(&self) -> &OracleType {
         &self.oracle_type
     }
 
+    /// Gets whether the column may be NULL.
+    /// False when the column is defined as `NOT NULL`.
     pub fn nullable(&self) -> bool {
         self.nullable
     }
