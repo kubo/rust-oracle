@@ -1,4 +1,4 @@
-// Rust Oracle - Rust binding for Oracle database
+// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -140,7 +140,7 @@ lazy_static! {
         } == DPI_SUCCESS as i32 {
             unsafe {
                 let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-                let driver_name = concat!("Rust Oracle : ", env!("CARGO_PKG_VERSION"));
+                let driver_name = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
                 let driver_name_ptr = driver_name.as_ptr() as *const c_char;
                 let driver_name_len = driver_name.len() as u32;
                 dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);

@@ -1,4 +1,4 @@
-// Rust Oracle - Rust binding for Oracle database
+// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //

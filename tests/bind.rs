@@ -48,7 +48,7 @@ macro_rules! test_to_string {
         $stmt.bind(2, $val).expect("bind(2)");
         $stmt.execute(&()).expect(format!("error at {}:{}", file!(), line!()).as_str());
         let v1: String = $stmt.bind_value(1).expect("bind_value(1)"); // convert $val to string in Oracle
-        let v2: String = $stmt.bind_value(2).expect("bind_value(2)"); // convert $val to string in rust oracle
+        let v2: String = $stmt.bind_value(2).expect("bind_value(2)"); // convert $val to string in rust-oracle
         assert_eq!(v1, v2);
     };
     ($stmt:expr, $val:expr, outtype: $type:ty) => {
@@ -56,14 +56,14 @@ macro_rules! test_to_string {
         $stmt.bind(2, $val).unwrap();
         $stmt.execute(&()).expect(format!("error at {}:{}", file!(), line!()).as_str());
         let v1: String = $stmt.bind_value(1).unwrap(); // convert $val to string in Oracle
-        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust oracle
+        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust-oracle
         assert_eq!(v1, v2);
     };
     ($stmt:expr, $val:expr, $expected_str:expr) => {
         $stmt.bind(1, &oracle::bind_value(&None::<&str>, 4000)).unwrap();
         $stmt.bind(2, $val).unwrap();
         $stmt.execute(&()).expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust oracle
+        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust-oracle
         assert_eq!(v2, $expected_str);
     };
 }

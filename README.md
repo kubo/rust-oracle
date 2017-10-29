@@ -1,4 +1,4 @@
-# Rust Oracle - Work in progress
+# Rust-oracle - Work in progress
 
 This is an Oracle driver for [Rust][] based on [ODPI-C][].
 
@@ -15,7 +15,7 @@ It is under development. Public API may be changed for each commit.
 
 ## Usage
 
-Rust Oracle has not been published to [crates.io](https://crates.io/).
+Rust-oracle has not been published to [crates.io](https://crates.io/).
 You need to put this in your Cargo.toml:
 
 ```text
@@ -71,9 +71,9 @@ determined by the rust type.
 
 ## License
 
-Rust Oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
+Rust-oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
 
-ODPI-C bundled in Rust Oracle is under the terms of:
+ODPI-C bundled in rust-oracle is under the terms of:
 
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 

@@ -1,4 +1,4 @@
-// Rust Oracle - Rust binding for Oracle database
+// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -41,7 +41,7 @@ use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
 use Context;
 
-/// Enum listing possible errors from rust oracle.
+/// Enum listing possible errors from rust-oracle.
 pub enum Error {
     /// Error from an underlying Oracle client library.
     OciError(DbError),
