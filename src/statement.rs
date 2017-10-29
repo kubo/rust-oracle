@@ -167,7 +167,7 @@ impl<'conn> Statement<'conn> {
 
     pub fn bind<I, T>(&mut self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(self.conn, &value.oratype(), 1)? {
+        if self.bind_values[pos].init_handle(self.conn, &value.oratype()?, 1)? {
             chkerr!(self.conn.ctxt,
                     bindidx.bind(self.handle, self.bind_values[pos].handle));
         }

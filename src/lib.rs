@@ -83,6 +83,13 @@ use types::oracle_type::NativeType;
 
 pub type Result<T> = result::Result<T, Error>;
 
+pub const AS_LONG: i32 = -5000;
+pub const AS_LONG_RAW: i32 = -5001;
+pub const AS_CLOB: i32 = -5002;
+pub const AS_NCLOB: i32 = -5003;
+pub const AS_BLOB: i32 = -5004;
+pub const AS_BINARY_DOUBLE: i32 = -5005;
+
 /// Returns Oracle client version
 ///
 /// # Examples

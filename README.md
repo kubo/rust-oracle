@@ -15,7 +15,7 @@ It is under development. Public API may be changed for each commit.
 
 ## Usage
 
-Rust Oracle has not been published to [crate.io](https://crates.io/).
+Rust Oracle has not been published to [crates.io](https://crates.io/).
 You need to put this in your Cargo.toml:
 
 ```text
@@ -45,11 +45,15 @@ determined by the rust type.
 | --- | --- |
 | str, String | NVARCHAR2(length of the rust value) |
 | str, String via `bind_value(value, length)` | NVARCHAR2(length passed to `bind_value()`) |
-| i8, i16, i32, i64, u8, u16, u32, u64 | NUMBER |
-| f32, f64 | NUMBER |
-| f32, f64 via `bind_value(&value, 0)` | BINARY_DOUBLE |
+| str, String via `bind_value(value, AS_LONG)` | LONG |
+| str, String via `bind_value(value, AS_CLOB)` | CLOB |
+| str, String via `bind_value(value, AS_NCLOB)` | NCLOB |
+| i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
+| i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 via `bind_value(&value, AS_BINARY_DOUBLE)` | BINARY_DOUBLE |
 | Vec\<u8> | RAW(length of the rust value) |
 | Vec\<u8> via `bind_value(value, length)` | RAW(length passed to `bind_value()`) |
+| Vec\<u8> via `bind_value(value, AS_LONG_RAW)` | LONG RAW |
+| Vec\<u8> via `bind_value(value, AS_BLOB)` | BLOB |
 | chrono::DateTime, Timestamp | TIMESTAMP(9) WITH TIME ZONE |
 | chrono::Date | TIMESTAMP(0) WITH TIME ZONE |
 | chrono::naive::NaiveDateTime | TIMESTAMP(9) |
@@ -60,9 +64,10 @@ determined by the rust type.
 ## TODO
 
 * Connection pooling
-* CLOB, NCLOB, BLOB, BFILE, REF CURSOR, BOOLEAN, OBJECT types
-* Pass strings longer than 4000(Oracle 11g) or 64k(Oracle 12c) as input parameters
+* Read and write LOB as stream
+* REF CURSOR, BOOLEAN, OBJECT types
 * Autocommit mode
+* Scrollable cursors
 
 ## License
 

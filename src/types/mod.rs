@@ -30,6 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::fmt;
 use Error;
 use IntervalDS;
 use IntervalYM;
@@ -38,6 +39,12 @@ use Result;
 use Statement;
 use Timestamp;
 use SqlValue;
+use AS_LONG;
+use AS_LONG_RAW;
+use AS_CLOB;
+use AS_NCLOB;
+use AS_BLOB;
+use AS_BINARY_DOUBLE;
 
 pub mod chrono;
 pub mod interval_ds;
@@ -72,11 +79,15 @@ pub trait FromSql {
 /// | --- | --- |
 /// | str, String | NVARCHAR2(length of the rust value) |
 /// | str, String via `bind_value(value, length)` | NVARCHAR2(length passed to `bind_value()`) |
-/// | i8, i16, i32, i64, u8, u16, u32, u64 | NUMBER |
-/// | f32, f64 | NUMBER |
-/// | f32, f64 via `bind_value(&value, 0)` | BINARY_DOUBLE |
+/// | str, String via `bind_value(value, AS_LONG)` | LONG |
+/// | str, String via `bind_value(value, AS_CLOB)` | CLOB |
+/// | str, String via `bind_value(value, AS_NCLOB)` | NCLOB |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 via `bind_value(&value, AS_BINARY_DOUBLE)` | BINARY_DOUBLE |
 /// | Vec\<u8> | RAW(length of the rust value) |
 /// | Vec\<u8> via `bind_value(value, length)` | RAW(length passed to `bind_value()`) |
+/// | Vec\<u8> via `bind_value(value, AS_LONG_RAW)` | LONG RAW |
+/// | Vec\<u8> via `bind_value(value, AS_BLOB)` | BLOB |
 /// | [chrono::DateTime][], Timestamp | TIMESTAMP(9) WITH TIME ZONE |
 /// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
 /// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
@@ -93,8 +104,8 @@ pub trait FromSql {
 ///
 pub trait ToSql {
     fn oratype_default() -> OracleType;
-    fn oratype(&self) -> OracleType {
-        Self::oratype_default()
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(Self::oratype_default())
     }
     fn to(&self, val: &mut SqlValue) -> Result<()>;
 }
@@ -154,8 +165,8 @@ impl ToSql for String {
     fn oratype_default() -> OracleType {
         OracleType::NVarchar2(0)
     }
-    fn oratype(&self) -> OracleType {
-        OracleType::NVarchar2(self.len() as u32)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::NVarchar2(self.len() as u32))
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_string(self)
@@ -166,8 +177,8 @@ impl ToSql for Vec<u8> {
     fn oratype_default() -> OracleType {
         OracleType::Raw(0)
     }
-    fn oratype(&self) -> OracleType {
-        OracleType::Raw(self.len() as u32)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Raw(self.len() as u32))
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_bytes(self)
@@ -178,8 +189,8 @@ impl<'a> ToSql for &'a str {
     fn oratype_default() -> OracleType {
         OracleType::NVarchar2(0)
     }
-    fn oratype(&self) -> OracleType {
-        OracleType::NVarchar2(self.len() as u32)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::NVarchar2(self.len() as u32))
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
         val.set_string(*self)
@@ -201,10 +212,10 @@ impl<T: ToSql> ToSql for Option<T> {
     fn oratype_default() -> OracleType {
         <T>::oratype_default()
     }
-    fn oratype(&self) -> OracleType {
+    fn oratype(&self) -> Result<OracleType> {
         match *self {
             Some(ref t) => t.oratype(),
-            None => <T>::oratype_default(),
+            None => Ok(<T>::oratype_default()),
         }
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
@@ -219,7 +230,7 @@ impl<'a, T: ToSql> ToSql for &'a T {
     fn oratype_default() -> OracleType {
         <T>::oratype_default()
     }
-    fn oratype(&self) -> OracleType {
+    fn oratype(&self) -> Result<OracleType> {
         (*self).oratype()
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
@@ -231,15 +242,19 @@ impl<'a, T: ToSql> ToSql for &'a T {
 // BindValue
 //
 
+/// Type to customize conversion from rust type to Oracle type.
+/// See [ToSql](trait.ToSql.html).
 pub struct BindValue<'a, T> where T: 'a + ToSql {
     data: &'a T,
-    len: u32,
+    param: i32,
 }
 
-pub fn bind_value<'a, T>(data: &'a T, len: u32) -> BindValue<'a, T> where T: ToSql {
+/// Function to customize conversion from rust type to Oracle type.
+/// See [ToSql](trait.ToSql.html).
+pub fn bind_value<'a, T>(data: &'a T, param: i32) -> BindValue<'a, T> where T: ToSql {
     BindValue {
         data: data,
-        len: len,
+        param: param,
     }
 }
 
@@ -247,20 +262,80 @@ impl<'a, T> ToSql for BindValue<'a, T> where T: ToSql {
     fn oratype_default() -> OracleType {
         <T>::oratype_default()
     }
-    fn oratype(&self) -> OracleType {
-        let oratype = <T>::oratype_default();
-        match oratype {
-            OracleType::Varchar2(_) => OracleType::Varchar2(self.len),
-            OracleType::NVarchar2(_) => OracleType::NVarchar2(self.len),
-            OracleType::Char(_) => OracleType::Char(self.len),
-            OracleType::NChar(_) => OracleType::NChar(self.len),
-            OracleType::Raw(_) => OracleType::Raw(self.len),
-            OracleType::Number(126, -127) => OracleType::BinaryDouble,
-            _ => oratype,
+    fn oratype(&self) -> Result<OracleType> {
+        match <T>::oratype_default() {
+            OracleType::Varchar2(_) => {
+                if self.param > 0 {
+                    return Ok(OracleType::Varchar2(self.param as u32));
+                }
+                match self.param {
+                    AS_LONG =>
+                        return Ok(OracleType::Long),
+                    AS_CLOB =>
+                        return Ok(OracleType::CLOB),
+                    AS_NCLOB =>
+                        return Ok(OracleType::NCLOB),
+                    _ => {},
+                }
+            },
+            OracleType::NVarchar2(_) => {
+                if self.param > 0 {
+                    return Ok(OracleType::NVarchar2(self.param as u32));
+                }
+                match self.param {
+                    AS_LONG =>
+                        return Ok(OracleType::Long),
+                    AS_CLOB =>
+                        return Ok(OracleType::CLOB),
+                    AS_NCLOB =>
+                        return Ok(OracleType::NCLOB),
+                    _ => {},
+                }
+            },
+            OracleType::Raw(_) => {
+                if self.param > 0 {
+                    return Ok(OracleType::Raw(self.param as u32));
+                }
+                match self.param {
+                    AS_LONG_RAW =>
+                        return Ok(OracleType::LongRaw),
+                    AS_BLOB =>
+                        return Ok(OracleType::BLOB),
+                    _ => {},
+                }
+            },
+            OracleType::Number(_,_) => {
+                match self.param {
+                    AS_BINARY_DOUBLE =>
+                        return Ok(OracleType::BinaryDouble),
+                    _ => {},
+                }
+            },
+            _ => {},
         }
+        Err(Error::BindValueParamError)
     }
     fn to(&self, val: &mut SqlValue) -> Result<()> {
         self.data.to(val)
+    }
+}
+
+impl<'a, T> fmt::Debug for BindValue<'a, T> where T: ToSql + fmt::Debug {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let param_name = match self.param {
+            AS_LONG => Some("AS_LONG"),
+            AS_LONG_RAW => Some("AS_LONG_RAW"),
+            AS_CLOB => Some("AS_CLOB"),
+            AS_NCLOB => Some("AS_NCLOB"),
+            AS_BLOB => Some("AS_BLOB"),
+            AS_BINARY_DOUBLE => Some("AS_BINARY_DOUBLE"),
+            _ => None,
+        };
+        if let Some(name) = param_name {
+            write!(f, "BindValue({:?}, {})", self.data, name)
+        } else {
+            write!(f, "BindValue({:?}, {})", self.data, self.param)
+        }
     }
 }
 

@@ -35,6 +35,7 @@ use std::error;
 use std::fmt;
 use std::num;
 use std::slice;
+use std::str;
 use try_from;
 use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
@@ -44,25 +45,39 @@ use Context;
 pub enum Error {
     /// Error from an underlying Oracle client library.
     OciError(DbError),
+
     /// Error from an underlying ODPI-C layer.
     DpiError(DbError),
+
     /// Error when NULL value is got but the target rust type cannot handle NULL.
     /// Use `Option<...>` in this case.
     NullValue,
+
     /// Error when conversion from a string to an Oracle value fails
     ParseError(Box<error::Error>),
+
     /// Error when conversion from a type to another fails due to overflow
     Overflow(String, &'static str),
+
     /// Error when conversion from a type to another is not allowed.
     InvalidTypeConversion(String, String),
+
     /// Error when a bind parameter index is out of range. (one based)
     InvalidBindIndex(usize),
+
     /// Error when a bind parameter name is not in the SQL.
     InvalidBindName(String),
+
     /// Error when a column index is out of range. (zero based)
     InvalidColumnIndex(usize),
+
     /// Error when a column name is not in the SQL.
     InvalidColumnName(String),
+
+    /// Error when [bind_value][] arguments are incompatible.
+    /// [bind_value]: fn.bind_value.html
+    BindValueParamError,
+
     /// Error when an uninitialized bind value is accessed. Bind values
     /// must be initialized by [Statement.bind][], [Statement.execute][]
     /// or [Connection.execute][] in advance.
@@ -71,8 +86,10 @@ pub enum Error {
     /// [Statement.execute]: struct.Statement.html#method.execute
     /// [Connection.execute]: struct.Connection.html#method.execute
     UninitializedBindValue,
+
     /// Error when no more rows exist in the SQL.
     NoMoreData,
+
     /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError(String),
 }
@@ -183,6 +200,8 @@ impl fmt::Display for Error {
                 write!(f, "invalid column index (zero-based): {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "invalid column name: {}", name),
+            Error::BindValueParamError =>
+                write!(f, "incompatbile bind_value parmeters"),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -218,6 +237,8 @@ impl fmt::Debug for Error {
                 write!(f, "InvalidColumnIndex: {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "InvalidColumnName: {}", name),
+            Error::BindValueParamError =>
+                write!(f, "BindValueParamError"),
             Error::UninitializedBindValue |
             Error::NoMoreData |
             Error::InternalError(_) =>
@@ -239,6 +260,7 @@ impl error::Error for Error {
             Error::InvalidBindName(_) => "index bind name",
             Error::InvalidColumnIndex(_) => "index column index",
             Error::InvalidColumnName(_) => "index column name",
+            Error::BindValueParamError => "bind value param error",
             Error::UninitializedBindValue => "uninitialided bind value error",
             Error::NoMoreData => "no more data",
             Error::InternalError(_) => "internal error",
@@ -273,6 +295,12 @@ impl From<num::ParseFloatError> for Error {
 
 impl From<try_from::TryFromIntError> for Error {
     fn from(err: try_from::TryFromIntError) -> Self {
+        Error::ParseError(Box::new(err))
+    }
+}
+
+impl From<str::Utf8Error> for Error {
+    fn from(err: str::Utf8Error) -> Self {
         Error::ParseError(Box::new(err))
     }
 }

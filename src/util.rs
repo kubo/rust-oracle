@@ -156,6 +156,18 @@ pub fn parse_str_into_raw(s: &str) -> result::Result<Vec<u8>, ParseOracleTypeErr
     Ok(vec)
 }
 
+pub fn set_hex_string(s: &mut String, bytes: &[u8]) {
+    let to_hex = |x| if x < 10 {
+        (b'0' + x) as char
+    } else {
+        (b'A' + (x - 10)) as char
+    };
+    for byte in bytes {
+        s.push(to_hex(byte >> 4));
+        s.push(to_hex(byte & 0xF));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

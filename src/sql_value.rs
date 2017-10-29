@@ -33,6 +33,7 @@
 use std::fmt;
 use std::ptr;
 use std::slice;
+use std::str;
 use try_from::TryInto;
 
 use binding::*;
@@ -50,6 +51,7 @@ use to_odpi_str;
 use NativeType;
 use util::check_number_format;
 use util::parse_str_into_raw;
+use util::set_hex_string;
 
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {
@@ -78,8 +80,9 @@ macro_rules! define_fn_as_int {
                 NativeType::Double =>
                     flt_to_int!(self.get_f64_unchecked()?, f64, $type),
                 NativeType::Char |
+                NativeType::CLOB |
                 NativeType::Number =>
-                    Ok(self.get_string_unchecked()?.parse()?),
+                    Ok(self.get_string()?.parse()?),
                 _ =>
                     self.invalid_conversion_to_rust_type(stringify!($type))
             }
@@ -302,6 +305,18 @@ impl SqlValue {
         }
     }
 
+    fn get_string(&self) -> Result<String> {
+        match self.native_type {
+            NativeType::Char |
+            NativeType::Number =>
+                self.get_string_unchecked(),
+            NativeType::CLOB =>
+                self.get_clob_as_string_unchecked(),
+            _ =>
+                self.invalid_conversion_to_rust_type("String")
+        }
+    }
+
     //
     // get_TYPE_unchecked methods
     //
@@ -349,7 +364,7 @@ impl SqlValue {
 
     /// Gets the SQL value as Vec<u8>. The native_type must be
     /// NativeType::Raw. Otherwise, this may cause access violation.
-    fn get_bytes_unchecked(&self) -> Result<Vec<u8>> {
+    fn get_raw_unchecked(&self) -> Result<Vec<u8>> {
         self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data()?);
@@ -361,22 +376,16 @@ impl SqlValue {
         }
     }
 
-    fn get_hex_string_unchecked(&self) -> Result<String> {
+    /// Gets the SQL value as hexadecimal string. The native_type must be
+    /// NativeType::Raw. Otherwise, this may cause access violation.
+    fn get_raw_as_hex_string_unchecked(&self) -> Result<String> {
         self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data()?);
             let ptr = (*bytes).ptr as *mut u8;
             let len = (*bytes).length as usize;
             let mut str = String::with_capacity(len * 2);
-            let to_hex = |x| if x < 10 {
-                (b'0' + x) as char
-            } else {
-                (b'A' + (x - 10)) as char
-            };
-            for byte in slice::from_raw_parts(ptr, len) {
-                str.push(to_hex(byte >> 4));
-                str.push(to_hex(byte & 0xF));
-            }
+            set_hex_string(&mut str, slice::from_raw_parts(ptr, len));
             Ok(str)
         }
     }
@@ -409,6 +418,56 @@ impl SqlValue {
             let it = dpiData_getIntervalYM(self.data()?);
             Ok(IntervalYM::from_dpi_interval_ym(&*it, self.oracle_type()?))
         }
+    }
+
+    fn get_clob_as_string_unchecked(&self) -> Result<String> {
+        self.check_not_null()?;
+        const READ_CHAR_SIZE: u64 = 8192;
+        let lob = unsafe { dpiData_getLOB(self.data()?) };
+        let mut total_char_size = 0;
+        let mut total_byte_size = 0;
+        let mut bufsiz = 0;
+        unsafe {
+            dpiLob_getSize(lob, &mut total_char_size);
+            dpiLob_getBufferSize(lob, total_char_size, &mut total_byte_size);
+            dpiLob_getBufferSize(lob, READ_CHAR_SIZE, &mut bufsiz);
+        }
+        let mut result = String::with_capacity(total_byte_size as usize);
+        let mut buf = vec![0u8; bufsiz as usize];
+        let bufptr = buf.as_mut_ptr() as *mut i8;
+
+        let mut offset = 1;
+        while offset <= total_char_size {
+            let mut read_len = bufsiz;
+            chkerr!(self.ctxt,
+                    dpiLob_readBytes(lob, offset, READ_CHAR_SIZE, bufptr, &mut read_len));
+            result.push_str(str::from_utf8(&buf[..(read_len as usize)])?);
+            offset += READ_CHAR_SIZE;
+        }
+        Ok(result)
+    }
+
+    fn get_blob_as_hex_string_unchecked(&self) -> Result<String> {
+        self.check_not_null()?;
+        const READ_SIZE: u64 = 8192;
+        let lob = unsafe { dpiData_getLOB(self.data()?) };
+        let mut total_size = 0;
+        unsafe {
+            dpiLob_getSize(lob, &mut total_size);
+        }
+        let mut result = String::with_capacity((total_size * 2) as usize);
+        let mut buf = vec![0u8; READ_SIZE as usize];
+        let bufptr = buf.as_mut_ptr() as *mut i8;
+
+        let mut offset = 1;
+        while offset <= total_size {
+            let mut read_len = READ_SIZE;
+            chkerr!(self.ctxt,
+                    dpiLob_readBytes(lob, offset, READ_SIZE, bufptr, &mut read_len));
+            set_hex_string(&mut result, &buf[..(read_len as usize)]);
+            offset += READ_SIZE;
+        }
+        Ok(result)
     }
 
     /// Gets the SQL value as bool. The native_type must be
@@ -462,7 +521,7 @@ impl SqlValue {
 
     /// Sets Vec<u8> to the SQL value. The native_type must be
     /// NativeType::Raw. Otherwise, this may cause access violation.
-    fn set_bytes_unchecked(&self, val: &Vec<u8>) -> Result<()> {
+    fn set_raw_unchecked(&self, val: &Vec<u8>) -> Result<()> {
         chkerr!(self.ctxt,
                 dpiVar_setFromBytes(self.handle, self.buffer_row_index,
                                     val.as_ptr() as *const i8, val.len() as u32));
@@ -492,6 +551,34 @@ impl SqlValue {
     /// NativeType::IntervalYM. Otherwise, this may cause access violation.
     fn set_interval_ym_unchecked(&self, val: &IntervalYM) -> Result<()> {
         unsafe { dpiData_setIntervalYM(self.data()?, val.years, val.months) }
+        Ok(())
+    }
+
+    fn set_string_to_clob_unchecked(&self, val: &str) -> Result<()> {
+        let ptr = val.as_ptr() as *const i8;
+        let len = val.len() as u64;
+        let lob = unsafe { dpiData_getLOB(self.data()?) };
+        chkerr!(self.ctxt,
+                dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt,
+                dpiLob_writeBytes(lob, 1, ptr, len));
+        unsafe {
+            (*self.data()?).isNull = 0;
+        }
+        Ok(())
+    }
+
+    fn set_raw_to_blob_unchecked(&self, val: &Vec<u8>) -> Result<()> {
+        let ptr = val.as_ptr() as *const i8;
+        let len = val.len() as u64;
+        let lob = unsafe { dpiData_getLOB(self.data()?) };
+        chkerr!(self.ctxt,
+                dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt,
+                dpiLob_writeBytes(lob, 1, ptr, len));
+        unsafe {
+            (*self.data()?).isNull = 0;
+        }
         Ok(())
     }
 
@@ -532,8 +619,9 @@ impl SqlValue {
             NativeType::Double =>
                 flt_to_int!(self.get_f64_unchecked()?, f64, i64),
             NativeType::Char |
+            NativeType::CLOB |
             NativeType::Number =>
-                Ok(self.get_string_unchecked()?.parse()?),
+                Ok(self.get_string()?.parse()?),
             _ =>
                 self.invalid_conversion_to_rust_type("i64"),
         }
@@ -565,8 +653,9 @@ impl SqlValue {
             NativeType::Double =>
                 flt_to_int!(self.get_f64_unchecked()?, f64, u64),
             NativeType::Char |
+            NativeType::CLOB |
             NativeType::Number =>
-                Ok(self.get_string_unchecked()?.parse()?),
+                Ok(self.get_string()?.parse()?),
             _ =>
                 self.invalid_conversion_to_rust_type("u64"),
         }
@@ -585,8 +674,9 @@ impl SqlValue {
             NativeType::Double =>
                 Ok(self.get_f64_unchecked()? as f32),
             NativeType::Char |
+            NativeType::CLOB |
             NativeType::Number =>
-                Ok(self.get_string_unchecked()?.parse()?),
+                Ok(self.get_string()?.parse()?),
             _ =>
                 self.invalid_conversion_to_rust_type("f32"),
         }
@@ -605,8 +695,9 @@ impl SqlValue {
             NativeType::Double =>
                 self.get_f64_unchecked(),
             NativeType::Char |
+            NativeType::CLOB |
             NativeType::Number =>
-                Ok(self.get_string_unchecked()?.parse()?),
+                Ok(self.get_string()?.parse()?),
             _ =>
                 self.invalid_conversion_to_rust_type("f64"),
         }
@@ -627,13 +718,17 @@ impl SqlValue {
             NativeType::Number =>
                 self.get_string_unchecked(),
             NativeType::Raw =>
-                self.get_hex_string_unchecked(),
+                self.get_raw_as_hex_string_unchecked(),
             NativeType::Timestamp =>
                 Ok(self.get_timestamp_unchecked()?.to_string()),
             NativeType::IntervalDS =>
                 Ok(self.get_interval_ds_unchecked()?.to_string()),
             NativeType::IntervalYM =>
                 Ok(self.get_interval_ym_unchecked()?.to_string()),
+            NativeType::CLOB =>
+                self.get_clob_as_string_unchecked(),
+            NativeType::BLOB =>
+                self.get_blob_as_hex_string_unchecked(),
             _ =>
                 self.invalid_conversion_to_rust_type("string"),
         }
@@ -643,39 +738,54 @@ impl SqlValue {
     pub fn as_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
             NativeType::Raw =>
-                self.get_bytes_unchecked(),
+                self.get_raw_unchecked(),
+            NativeType::Char |
+            NativeType::CLOB =>
+                Ok(parse_str_into_raw(&self.get_string()?)?),
             _ =>
-                self.invalid_conversion_to_rust_type("bytes"),
+                self.invalid_conversion_to_rust_type("raw"),
         }
     }
 
     /// Gets the SQL value as Timestamp. The Oracle type must be
     /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
     pub fn as_timestamp(&self) -> Result<Timestamp> {
-        if self.native_type == NativeType::Timestamp {
-            self.get_timestamp_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("Timestamp")
+        match self.native_type {
+            NativeType::Timestamp =>
+                self.get_timestamp_unchecked(),
+            NativeType::Char |
+            NativeType::CLOB =>
+                Ok(self.get_string()?.parse()?),
+            _ =>
+                self.invalid_conversion_to_rust_type("Timestamp"),
         }
     }
 
     /// Gets the SQL value as IntervalDS. The Oracle type must be
     /// `INTERVAL DAY TO SECOND`.
     pub fn as_interval_ds(&self) -> Result<IntervalDS> {
-        if self.native_type == NativeType::IntervalDS {
-            self.get_interval_ds_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("IntervalDS")
+        match self.native_type {
+            NativeType::IntervalDS =>
+                self.get_interval_ds_unchecked(),
+            NativeType::Char |
+            NativeType::CLOB =>
+                Ok(self.get_string()?.parse()?),
+            _ =>
+                self.invalid_conversion_to_rust_type("IntervalDS"),
         }
     }
 
     /// Gets the SQL value as IntervalYM. The Oracle type must be
     /// `INTERVAL YEAR TO MONTH`.
     pub fn as_interval_ym(&self) -> Result<IntervalYM> {
-        if self.native_type == NativeType::IntervalYM {
-            self.get_interval_ym_unchecked()
-        } else {
-            self.invalid_conversion_to_rust_type("IntervalYM")
+        match self.native_type {
+            NativeType::IntervalYM =>
+                self.get_interval_ym_unchecked(),
+            NativeType::Char |
+            NativeType::CLOB =>
+                Ok(self.get_string()?.parse()?),
+            _ =>
+                self.invalid_conversion_to_rust_type("IntervalYM"),
         }
     }
 
@@ -684,7 +794,7 @@ impl SqlValue {
     pub fn as_bool(&self) -> Result<bool> {
         match self.native_type {
             NativeType::Boolean =>
-                Ok(self.get_bool_unchecked()?),
+                self.get_bool_unchecked(),
             _ =>
                 self.invalid_conversion_to_rust_type("bool"),
         }
@@ -747,19 +857,23 @@ impl SqlValue {
             NativeType::Double =>
                 self.set_f64_unchecked(val.parse()?),
             NativeType::Char =>
-                Ok(self.set_string_unchecked(val)?),
+                self.set_string_unchecked(val),
             NativeType::Number => {
                 check_number_format(val)?;
-                Ok(self.set_string_unchecked(val)?)
+                self.set_string_unchecked(val)
             },
             NativeType::Raw =>
-                self.set_bytes_unchecked(&parse_str_into_raw(val)?),
+                self.set_raw_unchecked(&parse_str_into_raw(val)?),
             NativeType::Timestamp =>
                 self.set_timestamp_unchecked(&val.parse()?),
             NativeType::IntervalDS =>
                 self.set_interval_ds_unchecked(&val.parse()?),
             NativeType::IntervalYM =>
                 self.set_interval_ym_unchecked(&val.parse()?),
+            NativeType::CLOB =>
+                self.set_string_to_clob_unchecked(val),
+            NativeType::BLOB =>
+                self.set_raw_to_blob_unchecked(&parse_str_into_raw(val)?),
             _ =>
                 self.invalid_conversion_from_rust_type("&str"),
         }
@@ -769,7 +883,9 @@ impl SqlValue {
     pub fn set_bytes(&self, val: &Vec<u8>) -> Result<()> {
         match self.native_type {
             NativeType::Raw =>
-                Ok(self.set_bytes_unchecked(val)?),
+                self.set_raw_unchecked(val),
+            NativeType::BLOB => 
+                self.set_raw_to_blob_unchecked(val),
             _ =>
                 self.invalid_conversion_from_rust_type("Vec<u8>"),
         }
@@ -780,7 +896,7 @@ impl SqlValue {
     pub fn set_timestamp(&self, val: &Timestamp) -> Result<()> {
         match self.native_type {
             NativeType::Timestamp =>
-                Ok(self.set_timestamp_unchecked(val)?),
+                self.set_timestamp_unchecked(val),
             _ =>
                 self.invalid_conversion_from_rust_type("Timestamp"),
         }
@@ -791,7 +907,7 @@ impl SqlValue {
     pub fn set_interval_ds(&self, val: &IntervalDS) -> Result<()> {
         match self.native_type {
             NativeType::IntervalDS =>
-                Ok(self.set_interval_ds_unchecked(val)?),
+                self.set_interval_ds_unchecked(val),
             _ =>
                 self.invalid_conversion_from_rust_type("IntervalDS"),
         }
@@ -802,7 +918,7 @@ impl SqlValue {
     pub fn set_interval_ym(&self, val: &IntervalYM) -> Result<()> {
         match self.native_type {
             NativeType::IntervalYM =>
-                Ok(self.set_interval_ym_unchecked(val)?),
+                self.set_interval_ym_unchecked(val),
             _ =>
                 self.invalid_conversion_from_rust_type("IntervalYM"),
         }
@@ -813,7 +929,7 @@ impl SqlValue {
     pub fn set_bool(&mut self, val: &bool) -> Result<()> {
         match self.native_type {
             NativeType::Boolean =>
-                Ok(self.set_bool_unchecked(*val)?),
+                self.set_bool_unchecked(*val),
             _ =>
                 self.invalid_conversion_from_rust_type("bool"),
         }
