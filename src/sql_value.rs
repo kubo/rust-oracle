@@ -531,26 +531,26 @@ impl SqlValue {
     /// Sets Timestamp to the SQL value. The native_type must be
     /// NativeType::Timestamp. Otherwise, this may cause access violation.
     fn set_timestamp_unchecked(&self, val: &Timestamp) -> Result<()> {
-        unsafe { dpiData_setTimestamp(self.data()?, val.year as i16,
-                                      val.month as u8, val.day as u8,
-                                      val.hour as u8, val.minute as u8, val.second as u8,
-                                      val.nanosecond, val.tz_hour_offset as i8,
-                                      val.tz_minute_offset as i8) }
+        unsafe { dpiData_setTimestamp(self.data()?, val.year() as i16,
+                                      val.month() as u8, val.day() as u8,
+                                      val.hour() as u8, val.minute() as u8, val.second() as u8,
+                                      val.nanosecond(), val.tz_hour_offset() as i8,
+                                      val.tz_minute_offset() as i8) }
         Ok(())
     }
 
     /// Sets IntervalDS to the SQL value. The native_type must be
     /// NativeType::IntervalDS. Otherwise, this may cause access violation.
     fn set_interval_ds_unchecked(&self, val: &IntervalDS) -> Result<()> {
-        unsafe { dpiData_setIntervalDS(self.data()?, val.days, val.hours,
-                                       val.minutes, val.seconds, val.nanoseconds) }
+        unsafe { dpiData_setIntervalDS(self.data()?, val.days(), val.hours(),
+                                       val.minutes(), val.seconds(), val.nanoseconds()) }
         Ok(())
     }
 
     /// Sets IntervalYM to the SQL value. The native_type must be
     /// NativeType::IntervalYM. Otherwise, this may cause access violation.
     fn set_interval_ym_unchecked(&self, val: &IntervalYM) -> Result<()> {
-        unsafe { dpiData_setIntervalYM(self.data()?, val.years, val.months) }
+        unsafe { dpiData_setIntervalYM(self.data()?, val.years(), val.months()) }
         Ok(())
     }
 

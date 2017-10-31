@@ -1,8 +1,13 @@
 [package]
 name = "oracle"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Kubo Takehiro <kubo@jiubao.org>"]
 build = "build.rs"
+repository = "https://github.com/kubo/rust-oracle"
+license = "BSD-2-Clause"
+keywords = ["oracle", "database"]
+readme = "README.md"
+description = "Oracle binding"
 
 [dependencies]
 lazy_static = "0.2"

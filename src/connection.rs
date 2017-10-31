@@ -244,7 +244,7 @@ impl Connector {
     ///
     /// ```no_run
     /// // same with `sqlplus system/manager as sysdba` on command line.
-    /// let connector = oracle::Connector::new("system", "manager", "");
+    /// let mut connector = oracle::Connector::new("system", "manager", "");
     /// connector.auth_mode(oracle::AuthMode::SYSDBA);
     /// let conn = connector.connect().unwrap();
     /// ```

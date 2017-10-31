@@ -39,19 +39,19 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Interval type corresponding to Oracle type: `INTERVAL DAY TO SECOND`.
+/// Interval type corresponding to Oracle type INTERVAL DAY TO SECOND.
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {
-    pub days: i32,
-    pub hours: i32,
-    pub minutes: i32,
-    pub seconds: i32,
-    pub nanoseconds: i32,
-    pub lfprecision: u8,
-    pub fsprecision: u8,
+    days: i32,
+    hours: i32,
+    minutes: i32,
+    seconds: i32,
+    nanoseconds: i32,
+    lfprec: u8,
+    fsprec: u8,
 }
 
 impl IntervalDS {
@@ -66,8 +66,8 @@ impl IntervalDS {
             minutes: it.minutes,
             seconds: it.seconds,
             nanoseconds: it.fseconds,
-            lfprecision: lfprec as u8,
-            fsprecision: fsprec,
+            lfprec: lfprec,
+            fsprec: fsprec,
         }
     }
 
@@ -78,9 +78,45 @@ impl IntervalDS {
             minutes: minutes,
             seconds: seconds,
             nanoseconds: nanoseconds,
-            lfprecision: 9,
-            fsprecision: 9,
+            lfprec: 9,
+            fsprec: 9,
         }
+    }
+
+    pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> IntervalDS {
+        IntervalDS {
+            lfprec: lfprec,
+            fsprec: fsprec,
+            .. *self
+        }
+    }
+
+    pub fn days(&self) -> i32 {
+        self.days
+    }
+
+    pub fn hours(&self) -> i32 {
+        self.hours
+    }
+
+    pub fn minutes(&self) -> i32 {
+        self.minutes
+    }
+
+    pub fn seconds(&self) -> i32 {
+        self.seconds
+    }
+
+    pub fn nanoseconds(&self) -> i32 {
+        self.nanoseconds
+    }
+
+    pub fn lfprec(&self) -> u8 {
+        self.lfprec
+    }
+
+    pub fn fsprec(&self) -> u8 {
+        self.fsprec
     }
 }
 
@@ -102,7 +138,7 @@ impl fmt::Display for IntervalDS {
             write!(f, "+")?;
         };
         let days = self.days.abs();
-        match self.lfprecision {
+        match self.lfprec {
             2 => write!(f, "{:02}", days)?,
             3 => write!(f, "{:03}", days)?,
             4 => write!(f, "{:04}", days)?,
@@ -115,7 +151,7 @@ impl fmt::Display for IntervalDS {
         };
         write!(f, " {:02}:{:02}:{:02}", self.hours.abs(), self.minutes.abs(), self.seconds.abs())?;
         let nsec = self.nanoseconds.abs();
-        match self.fsprecision {
+        match self.fsprec {
             1 => write!(f, ".{:01}", nsec / 100000000),
             2 => write!(f, ".{:02}", nsec / 10000000),
             3 => write!(f, ".{:03}", nsec / 1000000),
@@ -148,7 +184,7 @@ impl str::FromStr for IntervalDS {
             _ => false,
         };
         let days = s.read_digits().ok_or(err())? as i32;
-        let lfprecision = s.ndigits();
+        let lfprec = s.ndigits();
         if let Some(' ') = s.char() {
             s.next();
         } else {
@@ -168,17 +204,17 @@ impl str::FromStr for IntervalDS {
         }
         let seconds = s.read_digits().ok_or(err())? as i32;
         let mut nsecs = 0;
-        let mut fsprecision = 0;
+        let mut fsprec = 0;
         if let Some('.') = s.char() {
             s.next();
             nsecs = s.read_digits().ok_or(err())? as i32;
             let ndigit = s.ndigits();
-            fsprecision = ndigit;
+            fsprec = ndigit;
             if ndigit < 9 {
                 nsecs *= 10i32.pow(9 - ndigit);
             } else if ndigit > 9 {
                 nsecs /= 10i32.pow(ndigit - 9);
-                fsprecision = 9;
+                fsprec = 9;
             }
         }
         if s.char().is_some() {
@@ -190,8 +226,8 @@ impl str::FromStr for IntervalDS {
             minutes: if minus { -minutes } else { minutes },
             seconds: if minus { -seconds } else { seconds },
             nanoseconds: if minus { -nsecs } else { nsecs },
-            lfprecision: lfprecision as u8,
-            fsprecision: fsprecision as u8,
+            lfprec: lfprec as u8,
+            fsprec: fsprec as u8,
         })
     }
 }
@@ -203,116 +239,116 @@ mod tests {
     #[test]
     fn to_string() {
         let mut it = IntervalDS::new(1, 2, 3, 4, 123456789);
-        it.lfprecision = 0; it.fsprecision = 0;
+        it.lfprec = 0; it.fsprec = 0;
         assert_eq!(it.to_string(), "+1 02:03:04");
-        it.fsprecision = 1;
+        it.fsprec = 1;
         assert_eq!(it.to_string(), "+1 02:03:04.1");
-        it.fsprecision = 2;
+        it.fsprec = 2;
         assert_eq!(it.to_string(), "+1 02:03:04.12");
-        it.fsprecision = 3;
+        it.fsprec = 3;
         assert_eq!(it.to_string(), "+1 02:03:04.123");
-        it.fsprecision = 4;
+        it.fsprec = 4;
         assert_eq!(it.to_string(), "+1 02:03:04.1234");
-        it.fsprecision = 5;
+        it.fsprec = 5;
         assert_eq!(it.to_string(), "+1 02:03:04.12345");
-        it.fsprecision = 6;
+        it.fsprec = 6;
         assert_eq!(it.to_string(), "+1 02:03:04.123456");
-        it.fsprecision = 7;
+        it.fsprec = 7;
         assert_eq!(it.to_string(), "+1 02:03:04.1234567");
-        it.fsprecision = 8;
+        it.fsprec = 8;
         assert_eq!(it.to_string(), "+1 02:03:04.12345678");
-        it.fsprecision = 9;
+        it.fsprec = 9;
         assert_eq!(it.to_string(), "+1 02:03:04.123456789");
 
         let mut it = IntervalDS::new(-1, -2, -3, -4, -123456789);
-        it.lfprecision = 0; it.fsprecision = 0;
+        it.lfprec = 0; it.fsprec = 0;
         assert_eq!(it.to_string(), "-1 02:03:04");
-        it.fsprecision = 1;
+        it.fsprec = 1;
         assert_eq!(it.to_string(), "-1 02:03:04.1");
-        it.fsprecision = 2;
+        it.fsprec = 2;
         assert_eq!(it.to_string(), "-1 02:03:04.12");
-        it.fsprecision = 3;
+        it.fsprec = 3;
         assert_eq!(it.to_string(), "-1 02:03:04.123");
-        it.fsprecision = 4;
+        it.fsprec = 4;
         assert_eq!(it.to_string(), "-1 02:03:04.1234");
-        it.fsprecision = 5;
+        it.fsprec = 5;
         assert_eq!(it.to_string(), "-1 02:03:04.12345");
-        it.fsprecision = 6;
+        it.fsprec = 6;
         assert_eq!(it.to_string(), "-1 02:03:04.123456");
-        it.fsprecision = 7;
+        it.fsprec = 7;
         assert_eq!(it.to_string(), "-1 02:03:04.1234567");
-        it.fsprecision = 8;
+        it.fsprec = 8;
         assert_eq!(it.to_string(), "-1 02:03:04.12345678");
-        it.fsprecision = 9;
+        it.fsprec = 9;
         assert_eq!(it.to_string(), "-1 02:03:04.123456789");
 
-        it.lfprecision = 1;
+        it.lfprec = 1;
         assert_eq!(it.to_string(), "-1 02:03:04.123456789");
-        it.lfprecision = 2;
+        it.lfprec = 2;
         assert_eq!(it.to_string(), "-01 02:03:04.123456789");
-        it.lfprecision = 3;
+        it.lfprec = 3;
         assert_eq!(it.to_string(), "-001 02:03:04.123456789");
-        it.lfprecision = 4;
+        it.lfprec = 4;
         assert_eq!(it.to_string(), "-0001 02:03:04.123456789");
-        it.lfprecision = 5;
+        it.lfprec = 5;
         assert_eq!(it.to_string(), "-00001 02:03:04.123456789");
-        it.lfprecision = 6;
+        it.lfprec = 6;
         assert_eq!(it.to_string(), "-000001 02:03:04.123456789");
-        it.lfprecision = 7;
+        it.lfprec = 7;
         assert_eq!(it.to_string(), "-0000001 02:03:04.123456789");
-        it.lfprecision = 8;
+        it.lfprec = 8;
         assert_eq!(it.to_string(), "-00000001 02:03:04.123456789");
-        it.lfprecision = 9;
+        it.lfprec = 9;
         assert_eq!(it.to_string(), "-000000001 02:03:04.123456789");
     }
 
     #[test]
     fn parse() {
         let mut it = IntervalDS::new(1, 2, 3, 4, 0);
-        it.lfprecision = 1; it.fsprecision = 0;
+        it.lfprec = 1; it.fsprec = 0;
         assert_eq!("1 02:03:04".parse(), Ok(it));
         assert_eq!("+1 02:03:04".parse(), Ok(it));
-        it.lfprecision = 2;
+        it.lfprec = 2;
         assert_eq!("01 02:03:04".parse(), Ok(it));
-        it.lfprecision = 3;
+        it.lfprec = 3;
         assert_eq!("001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 4;
+        it.lfprec = 4;
         assert_eq!("0001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 5;
+        it.lfprec = 5;
         assert_eq!("00001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 6;
+        it.lfprec = 6;
         assert_eq!("000001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 7;
+        it.lfprec = 7;
         assert_eq!("0000001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 8;
+        it.lfprec = 8;
         assert_eq!("00000001 02:03:04".parse(), Ok(it));
-        it.lfprecision = 9;
+        it.lfprec = 9;
         assert_eq!("000000001 02:03:04".parse(), Ok(it));
 
-        it.fsprecision = 1; it.nanoseconds = 100000000;
+        it.fsprec = 1; it.nanoseconds = 100000000;
         assert_eq!("000000001 02:03:04.1".parse(), Ok(it));
 
         let mut it = IntervalDS::new(-1, -2, -3, -4, 0);
-        it.lfprecision = 1; it.fsprecision = 0;
+        it.lfprec = 1; it.fsprec = 0;
         assert_eq!("-1 02:03:04".parse(), Ok(it));
 
-        it.fsprecision = 1; it.nanoseconds = -100000000;
+        it.fsprec = 1; it.nanoseconds = -100000000;
         assert_eq!("-1 02:03:04.1".parse(), Ok(it));
-        it.fsprecision = 2; it.nanoseconds = -120000000;
+        it.fsprec = 2; it.nanoseconds = -120000000;
         assert_eq!("-1 02:03:04.12".parse(), Ok(it));
-        it.fsprecision = 3; it.nanoseconds = -123000000;
+        it.fsprec = 3; it.nanoseconds = -123000000;
         assert_eq!("-1 02:03:04.123".parse(), Ok(it));
-        it.fsprecision = 4; it.nanoseconds = -123400000;
+        it.fsprec = 4; it.nanoseconds = -123400000;
         assert_eq!("-1 02:03:04.1234".parse(), Ok(it));
-        it.fsprecision = 5; it.nanoseconds = -123450000;
+        it.fsprec = 5; it.nanoseconds = -123450000;
         assert_eq!("-1 02:03:04.12345".parse(), Ok(it));
-        it.fsprecision = 6; it.nanoseconds = -123456000;
+        it.fsprec = 6; it.nanoseconds = -123456000;
         assert_eq!("-1 02:03:04.123456".parse(), Ok(it));
-        it.fsprecision = 7; it.nanoseconds = -123456700;
+        it.fsprec = 7; it.nanoseconds = -123456700;
         assert_eq!("-1 02:03:04.1234567".parse(), Ok(it));
-        it.fsprecision = 8; it.nanoseconds = -123456780;
+        it.fsprec = 8; it.nanoseconds = -123456780;
         assert_eq!("-1 02:03:04.12345678".parse(), Ok(it));
-        it.fsprecision = 9; it.nanoseconds = -123456789;
+        it.fsprec = 9; it.nanoseconds = -123456789;
         assert_eq!("-1 02:03:04.123456789".parse(), Ok(it));
     }
 }

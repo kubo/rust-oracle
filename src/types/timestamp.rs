@@ -39,24 +39,24 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Timestamp type corresponding to Oracle datetime types: `DATE`, `TIMESTAMP`,
-/// `TIMESTAMP WITH TIME ZONE` and `TIMESTAMP WITH LOCAL TIME ZONE`.
+/// Timestamp type corresponding to Oracle datetime types: DATE, TIMESTAMP,
+/// TIMESTAMP WITH TIME ZONE and TIMESTAMP WITH LOCAL TIME ZONE.
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
 #[derive(Debug, Clone, Copy)]
 pub struct Timestamp {
-    pub year: i32,
-    pub month: u32,
-    pub day: u32,
-    pub hour: u32,
-    pub minute: u32,
-    pub second: u32,
-    pub nanosecond: u32,
-    pub tz_hour_offset: i32,
-    pub tz_minute_offset: i32,
-    pub precision: u8,
-    pub with_tz: bool,
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
+    second: u32,
+    nanosecond: u32,
+    tz_hour_offset: i32,
+    tz_minute_offset: i32,
+    precision: u8,
+    with_tz: bool,
 }
 
 impl Timestamp {
@@ -120,11 +120,55 @@ impl Timestamp {
     }
 
     #[inline]
-    pub fn with_precision(&self, precision: u8) -> Timestamp {
+    pub fn and_prec(&self, precision: u8) -> Timestamp {
         Timestamp {
             precision: precision,
             .. *self
         }
+    }
+
+    pub fn year(&self) -> i32 {
+        self.year
+    }
+
+    pub fn month(&self) -> u32 {
+        self.month
+    }
+
+    pub fn day(&self) -> u32 {
+        self.day
+    }
+
+    pub fn hour(&self) -> u32 {
+        self.hour
+    }
+
+    pub fn minute(&self) -> u32 {
+        self.minute
+    }
+
+    pub fn second(&self) -> u32 {
+        self.second
+    }
+
+    pub fn nanosecond(&self) -> u32 {
+        self.nanosecond
+    }
+
+    pub fn tz_hour_offset(&self) -> i32 {
+        self.tz_hour_offset
+    }
+
+    pub fn tz_minute_offset(&self) -> i32 {
+        self.tz_minute_offset
+    }
+
+    pub fn precision(&self) -> u8 {
+        self.precision
+    }
+
+    pub fn with_tz(&self) ->bool {
+        self.with_tz
     }
 
     pub fn tz_offset(&self) -> i32 {

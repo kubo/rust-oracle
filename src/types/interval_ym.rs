@@ -39,15 +39,15 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Interval type corresponding to Oracle type: `INTERVAL YEAR TO MONTH`.
+/// Interval type corresponding to Oracle type INTERVAL YEAR TO MONTH.
 ///
 /// Don't use this type directly in your applications. This is public
 /// for types implementing `FromSql` and `ToSql` traits.
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {
-    pub years: i32,
-    pub months: i32,
-    pub precision: u8,
+    years: i32,
+    months: i32,
+    precision: u8,
 }
 
 impl IntervalYM {
@@ -69,6 +69,25 @@ impl IntervalYM {
             months: months,
             precision: 9,
         }
+    }
+
+    pub fn and_prec(&self, precision: u8) -> IntervalYM {
+        IntervalYM {
+            precision: precision,
+            .. *self
+        }
+    }
+
+    pub fn years(&self) -> i32 {
+        self.years
+    }
+
+    pub fn months(&self) -> i32 {
+        self.months
+    }
+
+    pub fn precision(&self) -> u8 {
+        self.precision
     }
 }
 

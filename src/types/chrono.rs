@@ -53,7 +53,7 @@ use chrono::naive::NaiveDateTime;
 // TODO: use TimeZone.ymd_opt and Data.and_hms_nano_opt instead of TimeZone.ymd and Data.and_hms_nano.
 
 fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>> where Tz: TimeZone {
-    Ok(tz.ymd(ts.year, ts.month, ts.day).and_hms_nano(ts.hour, ts.minute, ts.second, ts.nanosecond))
+    Ok(tz.ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
 }
 
 impl FromSql for DateTime<Utc> {
@@ -98,7 +98,7 @@ impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
 //
 
 fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>> where Tz: TimeZone {
-    Ok(tz.ymd(ts.year, ts.month, ts.day))
+    Ok(tz.ymd(ts.year(), ts.month(), ts.day()))
 }
 
 impl FromSql for Date<Utc> {
@@ -142,7 +142,7 @@ impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
 impl FromSql for NaiveDateTime {
     fn from_sql(val: &SqlValue) -> Result<NaiveDateTime> {
         let ts = val.as_timestamp()?;
-        Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day).and_hms_nano(ts.hour, ts.minute, ts.second, ts.nanosecond))
+        Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
     }
 }
 
@@ -166,7 +166,7 @@ impl ToSql for NaiveDateTime  {
 impl FromSql for NaiveDate {
     fn from_sql(val: &SqlValue) -> Result<NaiveDate> {
         let ts = val.as_timestamp()?;
-        Ok(NaiveDate::from_ymd(ts.year, ts.month, ts.day))
+        Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()))
     }
 }
 
@@ -191,11 +191,11 @@ impl FromSql for Duration {
         let err = |it: IntervalDS| Error::Overflow(it.to_string(), "Duration");
         let it = val.as_interval_ds()?;
         let d = Duration::milliseconds(0);
-        let d = d.checked_add(&Duration::days(it.days as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::hours(it.hours as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::minutes(it.minutes as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::seconds(it.seconds as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::nanoseconds(it.nanoseconds as i64)).ok_or(err(it))?;
+        let d = d.checked_add(&Duration::days(it.days() as i64)).ok_or(err(it))?;
+        let d = d.checked_add(&Duration::hours(it.hours() as i64)).ok_or(err(it))?;
+        let d = d.checked_add(&Duration::minutes(it.minutes() as i64)).ok_or(err(it))?;
+        let d = d.checked_add(&Duration::seconds(it.seconds() as i64)).ok_or(err(it))?;
+        let d = d.checked_add(&Duration::nanoseconds(it.nanoseconds() as i64)).ok_or(err(it))?;
         Ok(d)
     }
 }

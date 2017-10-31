@@ -1,8 +1,8 @@
 # Rust-oracle - Work in progress
 
-This is an Oracle driver for [Rust][] based on [ODPI-C][].
+This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
-It is under development. Public API may be changed for each commit.
+Don't use this until the version number reaches to 0.1.0.
 
 ## Build-time Requirements
 
@@ -81,3 +81,4 @@ ODPI-C bundled in rust-oracle is under the terms of:
 [Rust]:                 https://www.rust-lang.org/
 [ODPI-C]:               https://oracle.github.io/odpi/
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
+[Oracle database]: https://www.oracle.com/database/index.html
