@@ -52,24 +52,36 @@ use Error;
 /// Statement type returned by [Statement.statement_type()](struct.Statement.html#method.statement_type).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StatementType {
-    /// select statement
+    /// SELECT statement
     Select,
-    /// update statement
-    Update,
-    /// delete statement
-    Delete,
-    /// insert statement
+
+    /// INSERT statement
     Insert,
-    /// create statement
+
+    /// UPDATE statement
+    Update,
+
+    /// DELETE statement
+    Delete,
+
+    /// MERGE statement
+    Merge,
+
+    /// CREATE statement
     Create,
-    /// drop statement
-    Drop,
-    /// alter statement
+
+    /// ALTER statement
     Alter,
+
+    /// DROP statement
+    Drop,
+
     /// PL/SQL statement without declare clause
     Begin,
+
     /// PL/SQL statement with declare clause
     Declare,
+
     /// Undocumented value in [Oracle manual](https://docs.oracle.com/database/122/LNOCI/handle-and-descriptor-attributes.htm#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-8D4D4620-9318-4AD3-8E59-231EB71901B8)
     Other(u32),
 }
@@ -78,12 +90,13 @@ impl fmt::Display for StatementType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             StatementType::Select => write!(f, "select"),
+            StatementType::Insert => write!(f, "insert"),
             StatementType::Update => write!(f, "update"),
             StatementType::Delete => write!(f, "delete"),
-            StatementType::Insert => write!(f, "insert"),
+            StatementType::Merge => write!(f, "merge"),
             StatementType::Create => write!(f, "create"),
-            StatementType::Drop => write!(f, "drop"),
             StatementType::Alter => write!(f, "alter"),
+            StatementType::Drop => write!(f, "drop"),
             StatementType::Begin => write!(f, "PL/SQL(begin)"),
             StatementType::Declare => write!(f, "PL/SQL(declare)"),
             StatementType::Other(ref n) => write!(f, "other({})", n),
@@ -255,12 +268,13 @@ impl<'conn> Statement<'conn> {
     pub fn statement_type(&self) -> StatementType {
         match self.statement_type {
             DPI_STMT_TYPE_SELECT => StatementType::Select,
+            DPI_STMT_TYPE_INSERT => StatementType::Insert,
             DPI_STMT_TYPE_UPDATE => StatementType::Update,
             DPI_STMT_TYPE_DELETE => StatementType::Delete,
-            DPI_STMT_TYPE_INSERT => StatementType::Insert,
+            DPI_STMT_TYPE_MERGE => StatementType::Merge,
             DPI_STMT_TYPE_CREATE => StatementType::Create,
-            DPI_STMT_TYPE_DROP => StatementType::Drop,
             DPI_STMT_TYPE_ALTER => StatementType::Alter,
+            DPI_STMT_TYPE_DROP => StatementType::Drop,
             DPI_STMT_TYPE_BEGIN => StatementType::Begin,
             DPI_STMT_TYPE_DECLARE => StatementType::Declare,
             _ => StatementType::Other(self.statement_type),
