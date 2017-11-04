@@ -1,4 +1,4 @@
-extern crate gcc;
+extern crate cc;
 
 use std::fs;
 use std::path;
@@ -11,7 +11,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let mut build = gcc::Build::new();
+    let mut build = cc::Build::new();
     for entry in fs::read_dir("odpi/src").unwrap() {
         let fname = entry.unwrap().file_name().into_string().unwrap();
         if fname.ends_with(".c") {
