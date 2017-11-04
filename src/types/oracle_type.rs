@@ -31,11 +31,14 @@
 // or implied, of the authors.
 
 use std::fmt;
+use std::ptr;
 
 use Error;
 use Result;
 
 use binding::*;
+use Context;
+use ObjectType;
 
 // NativeType corresponds to dpiNativeTypeNum in ODPI
 // except Char, Number, Raw, CLOB and BLOB.
@@ -53,8 +56,7 @@ pub enum NativeType {
     IntervalYM, // oracle::IntervalYM in rust
     CLOB,
     BLOB,
-    #[allow(dead_code)]
-    Object,
+    Object(ObjectType),
     #[allow(dead_code)]
     Stmt,
     #[allow(dead_code)]
@@ -77,10 +79,17 @@ impl NativeType {
             NativeType::IntervalYM => DPI_NATIVE_TYPE_INTERVAL_YM,
             NativeType::CLOB => DPI_NATIVE_TYPE_LOB,
             NativeType::BLOB => DPI_NATIVE_TYPE_LOB,
-            NativeType::Object => DPI_NATIVE_TYPE_OBJECT,
+            NativeType::Object(_) => DPI_NATIVE_TYPE_OBJECT,
             NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
             NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
             NativeType::Rowid => DPI_NATIVE_TYPE_ROWID,
+        }
+    }
+
+    pub fn to_object_type_handle(&self) -> *mut dpiObjectType {
+        match *self {
+            NativeType::Object(ref objtype) => objtype.handle(),
+            _ => ptr::null_mut(),
         }
     }
 }
@@ -196,8 +205,8 @@ pub enum OracleType {
     /// BOOLEAN (not supported)
     Boolean,
 
-    /// Object (not supported)
-    Object,
+    /// Object
+    Object(ObjectType),
 
     /// LONG
     Long,
@@ -214,7 +223,7 @@ pub enum OracleType {
 
 impl OracleType {
 
-    pub(crate) fn from_type_info(info: &dpiDataTypeInfo) -> Result<OracleType> {
+    pub(crate) fn from_type_info(ctxt: &'static Context, info: &dpiDataTypeInfo) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::NVarchar2(info.sizeInChars)),
@@ -243,7 +252,7 @@ impl OracleType {
             DPI_ORACLE_TYPE_BFILE => Ok(OracleType::BFILE),
             DPI_ORACLE_TYPE_STMT => Ok(OracleType::RefCursor),
             DPI_ORACLE_TYPE_BOOLEAN => Ok(OracleType::Boolean),
-            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object),
+            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpiObjectType(ctxt, info.objectType)?)),
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
             _ => Err(Error::InternalError(format!("Unknown oracle type number: {}", info.oracleTypeNum))),
@@ -301,8 +310,8 @@ impl OracleType {
 //                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
 //            OracleType::Boolean =>
 //                Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
-//            OracleType::Object =>
-//                Ok((DPI_ORACLE_TYPE_OBJECT, NativeType::Object, 0, 0)),
+            OracleType::Object(ref objtype) =>
+                Ok((DPI_ORACLE_TYPE_OBJECT, NativeType::Object(objtype.clone()), 0, 0)),
             OracleType::Long =>
                 Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, 0, 0)),
             OracleType::LongRaw =>
@@ -379,7 +388,7 @@ impl fmt::Display for OracleType {
             OracleType::BFILE => write!(f, "BFILE"),
             OracleType::RefCursor => write!(f, "REF CURSOR"),
             OracleType::Boolean => write!(f, "BOOLEAN"),
-            OracleType::Object => write!(f, "OBJECT"),
+            OracleType::Object(ref ty) => write!(f, "{}.{}", ty.schema(), ty.name()),
             OracleType::Long => write!(f, "LONG"),
             OracleType::LongRaw => write!(f, "LONG RAW"),
             OracleType::Int64 => write!(f, "INT64 used internally"),

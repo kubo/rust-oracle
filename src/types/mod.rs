@@ -49,6 +49,7 @@ use AS_BINARY_DOUBLE;
 pub mod chrono;
 pub mod interval_ds;
 pub mod interval_ym;
+pub mod object;
 pub mod oracle_type;
 pub mod timestamp;
 pub mod version;

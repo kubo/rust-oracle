@@ -323,7 +323,7 @@ impl ColumnInfo {
                 dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info));
         Ok(ColumnInfo {
             name: OdpiStr::new(info.name, info.nameLength).to_string(),
-            oracle_type: OracleType::from_type_info(&info.typeInfo)?,
+            oracle_type: OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)?,
             nullable: info.nullOk != 0,
         })
     }

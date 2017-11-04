@@ -196,8 +196,8 @@ impl SqlValue {
             Some(ref oratype) => oratype,
             None => return Ok(false),
         };
-        let (current_oratype_num, _, current_size, _) = current_oratype.var_create_param()?;
-        let (new_oratype_num, _, new_size, _) = oratype.var_create_param()?;
+        let (current_oratype_num, current_native_type, current_size, _) = current_oratype.var_create_param()?;
+        let (new_oratype_num, new_native_type, new_size, _) = oratype.var_create_param()?;
         if current_oratype_num != new_oratype_num  {
             return Ok(false);
         }
@@ -207,6 +207,7 @@ impl SqlValue {
             DPI_ORACLE_TYPE_CHAR |
             DPI_ORACLE_TYPE_NCHAR |
             DPI_ORACLE_TYPE_RAW => Ok(current_size >= new_size),
+            DPI_ORACLE_TYPE_OBJECT => Ok(current_native_type == new_native_type),
             _ => Ok(true),
         }
     }
@@ -223,9 +224,10 @@ impl SqlValue {
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
+        let object_type_handle = native_type.to_object_type_handle();
         chkerr!(conn.ctxt,
                 dpiConn_newVar(conn.handle, oratype_num, native_type_num, array_size, size, size_is_byte,
-                               0, ptr::null_mut(), &mut handle, &mut data));
+                               0, object_type_handle, &mut handle, &mut data));
         self.handle = handle;
         self.native_type = native_type;
         self.oratype = Some(oratype.clone());

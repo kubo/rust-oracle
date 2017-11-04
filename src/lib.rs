@@ -72,6 +72,8 @@ pub use types::FromSql;
 pub use types::ToSql;
 pub use types::BindValue;
 pub use types::bind_value;
+pub use types::object::ObjectType;
+pub use types::object::ObjectTypeAttr;
 pub use types::oracle_type::OracleType;
 pub use types::timestamp::Timestamp;
 pub use types::interval_ds::IntervalDS;
@@ -280,6 +282,30 @@ impl Default for dpiDataTypeInfo {
             scale: 0,
             fsPrecision: 0,
             objectType: ptr::null_mut(),
+        }
+    }
+}
+
+impl Default for dpiObjectAttrInfo {
+    fn default() -> dpiObjectAttrInfo {
+        dpiObjectAttrInfo {
+            name: ptr::null(),
+            nameLength: 0,
+            typeInfo: Default::default(),
+        }
+    }
+}
+
+impl Default for dpiObjectTypeInfo {
+    fn default() -> dpiObjectTypeInfo {
+        dpiObjectTypeInfo {
+            schema: ptr::null(),
+            schemaLength: 0,
+            name: ptr::null(),
+            nameLength: 0,
+            isCollection: 0,
+            elementTypeInfo: Default::default(),
+            numAttributes: 0,
         }
     }
 }

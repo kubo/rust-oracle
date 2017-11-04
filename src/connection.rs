@@ -38,6 +38,7 @@ use Statement;
 use binding::*;
 use types::ToSqlInTuple;
 use Context;
+use ObjectType;
 use Result;
 
 use OdpiStr;
@@ -640,6 +641,22 @@ impl Connection {
         chkerr!(self.ctxt,
                 dpiConn_setDbOp(self.handle, s.ptr, s.len));
         Ok(())
+    }
+
+    /// Gets an object type information from name
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
+    /// ```
+    pub fn object_type(&self, name: &str) -> Result<ObjectType> {
+        let name = to_odpi_str(name);
+        let mut handle = ptr::null_mut();
+        chkerr!(self.ctxt,
+                dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle));
+        let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
+        unsafe { dpiObjectType_release(handle); }
+        res
     }
 
     /// Starts up a database
