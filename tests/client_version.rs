@@ -41,7 +41,7 @@ fn client_version() {
     };
     let conn = common::connect().unwrap();
     let mut stmt = conn.prepare("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')").unwrap();
-    stmt.execute(&()).unwrap();
+    stmt.execute(&[]).unwrap();
     let row = stmt.fetch().unwrap();
     let ver_from_query: String = row.get(0).unwrap();
     assert_eq!(ver.to_string(), ver_from_query);

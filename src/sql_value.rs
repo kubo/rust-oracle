@@ -37,18 +37,19 @@ use std::str;
 use try_from::TryInto;
 
 use binding::*;
-use types::FromSql;
-use types::ToSql;
 use Connection;
 use Context;
 use Error;
-use Result;
-use OracleType;
-use Timestamp;
+use FromSql;
 use IntervalDS;
 use IntervalYM;
-use to_odpi_str;
 use NativeType;
+use OracleType;
+use Result;
+use Timestamp;
+use ToSql;
+
+use to_odpi_str;
 use util::check_number_format;
 use util::parse_str_into_raw;
 use util::set_hex_string;
@@ -254,7 +255,7 @@ impl SqlValue {
         <T>::from_sql(self)
     }
 
-    pub(crate) fn set<T>(&mut self, val: T) -> Result<()> where T: ToSql {
+    pub(crate) fn set<T>(&mut self, val: &T) -> Result<()> where T: ToSql + ?Sized {
         val.to_sql(self)
     }
 

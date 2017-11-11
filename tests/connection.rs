@@ -38,7 +38,7 @@ fn app_context() {
     let mut connector = oracle::Connector::new(&common::main_user(), &common::main_password(), &common::connect_string());
     connector.app_context("CLIENTCONTEXT", "foo", "bar");
     let conn = connector.connect().unwrap();
-    let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'foo') from dual", &()).unwrap();
+    let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[]).unwrap();
     let row = stmt.fetch().unwrap();
     let val: String = row.get(0).unwrap();
     assert_eq!(val, "bar");

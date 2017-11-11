@@ -32,14 +32,15 @@
 
 use chrono::prelude::*;
 
-use FromSql;
-use Result;
-use Timestamp;
-use OracleType;
-use IntervalDS;
-use ToSql;
-use SqlValue;
 use Error;
+use FromSql;
+use IntervalDS;
+use OracleType;
+use Result;
+use SqlValue;
+use Timestamp;
+use ToSqlNull;
+use ToSql;
 use chrono::Duration;
 use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
@@ -77,9 +78,15 @@ impl FromSql for DateTime<FixedOffset> {
     }
 }
 
+impl<Tz> ToSqlNull for DateTime<Tz> where Tz: TimeZone {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::TimestampTZ(9))
+    }
+}
+
 impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
-    fn oratype_default() -> OracleType {
-        OracleType::TimestampTZ(9)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::TimestampTZ(9))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -122,9 +129,15 @@ impl FromSql for Date<FixedOffset> {
     }
 }
 
+impl<Tz> ToSqlNull for Date<Tz> where Tz: TimeZone {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::TimestampTZ(0))
+    }
+}
+
 impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
-    fn oratype_default() -> OracleType {
-        OracleType::TimestampTZ(0)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::TimestampTZ(0))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -146,9 +159,15 @@ impl FromSql for NaiveDateTime {
     }
 }
 
+impl ToSqlNull for NaiveDateTime  {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::Timestamp(9))
+    }
+}
+
 impl ToSql for NaiveDateTime  {
-    fn oratype_default() -> OracleType {
-        OracleType::Timestamp(9)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Timestamp(9))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -170,9 +189,15 @@ impl FromSql for NaiveDate {
     }
 }
 
+impl ToSqlNull for NaiveDate {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::Timestamp(0))
+    }
+}
+
 impl ToSql for NaiveDate {
-    fn oratype_default() -> OracleType {
-        OracleType::Timestamp(0)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Timestamp(0))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -200,9 +225,15 @@ impl FromSql for Duration {
     }
 }
 
+impl ToSqlNull for Duration {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::IntervalDS(9, 9))
+    }
+}
+
 impl ToSql for Duration {
-    fn oratype_default() -> OracleType {
-        OracleType::IntervalDS(9, 9)
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::IntervalDS(9, 9))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {

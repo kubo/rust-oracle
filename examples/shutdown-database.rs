@@ -47,11 +47,11 @@ fn main() {
     conn.shutdown_database(shutdown_mode).unwrap();
 
     // close the database
-    conn.execute("alter database close normal", &()).unwrap();
+    conn.execute("alter database close normal", &[]).unwrap();
     println!("Database closed.");
 
     // dismount the database
-    conn.execute("alter database dismount", &()).unwrap();
+    conn.execute("alter database dismount", &[]).unwrap();
     println!("Database dismounted.");
 
     // finish 'shutdown'

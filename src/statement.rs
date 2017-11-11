@@ -35,16 +35,17 @@ use std::fmt;
 use std::ascii::AsciiExt;
 
 use binding::*;
+
+use Connection;
+use Error;
+use FromSql;
+use OracleType;
+use Result;
+use SqlValue;
+use ToSql;
+
 use OdpiStr;
 use to_odpi_str;
-use OracleType;
-use Connection;
-use types::FromSql;
-use types::ToSql;
-use types::ToSqlInTuple;
-use sql_value::SqlValue;
-use Result;
-use Error;
 
 //
 // StatementType
@@ -179,7 +180,7 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    pub fn bind<I, T>(&mut self, bindidx: I, value: T) -> Result<()> where I: BindIndex, T: ToSql {
+    pub fn bind<I, T>(&mut self, bindidx: I, value: &T) -> Result<()> where I: BindIndex, T: ToSql + ?Sized {
         let pos = bindidx.idx(&self)?;
         if self.bind_values[pos].init_handle(self.conn, &value.oratype()?, 1)? {
             chkerr!(self.conn.ctxt,
@@ -193,8 +194,21 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].get()
     }
 
-    pub fn execute<T, U>(&mut self, params: &T) -> Result<()> where T: ToSqlInTuple<U> {
-        params.bind(self)?;
+    pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
+        for i in 0..params.len() {
+            self.bind(i + 1, params[i])?;
+        }
+        self.execute_internal()
+    }
+
+    pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
+        for i in 0..params.len() {
+            self.bind(params[i].0, params[i].1)?;
+        }
+        self.execute_internal()
+    }
+
+    fn execute_internal(&mut self) -> Result<()> {
         let mut num_query_columns = 0;
         chkerr!(self.conn.ctxt,
                 dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));
@@ -302,7 +316,7 @@ impl<'conn> Drop for Statement<'conn> {
 ///
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-/// let mut stmt = conn.execute("select * from emp", &()).unwrap();
+/// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
 /// for info in stmt.column_info() {
 ///    println!("{:-30} {:-8} {}",
 ///             info.name(),

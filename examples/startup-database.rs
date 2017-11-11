@@ -53,9 +53,9 @@ fn main() {
     let conn = connector.connect().unwrap();
 
     // mount and open the database
-    conn.execute("alter database mount", &()).unwrap();
+    conn.execute("alter database mount", &[]).unwrap();
     println!("Database mounted.");
-    conn.execute("alter database open", &()).unwrap();
+    conn.execute("alter database open", &[]).unwrap();
     println!("Database opened.");
     conn.close().unwrap();
 }

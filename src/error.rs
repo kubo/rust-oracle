@@ -74,10 +74,6 @@ pub enum Error {
     /// Error when a column name is not in the SQL.
     InvalidColumnName(String),
 
-    /// Error when [bind_value][] arguments are incompatible.
-    /// [bind_value]: fn.bind_value.html
-    BindValueParamError,
-
     /// Error when an uninitialized bind value is accessed. Bind values
     /// must be initialized by [Statement.bind][], [Statement.execute][]
     /// or [Connection.execute][] in advance.
@@ -200,8 +196,6 @@ impl fmt::Display for Error {
                 write!(f, "invalid column index (zero-based): {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "invalid column name: {}", name),
-            Error::BindValueParamError =>
-                write!(f, "incompatbile bind_value parmeters"),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -237,8 +231,6 @@ impl fmt::Debug for Error {
                 write!(f, "InvalidColumnIndex: {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "InvalidColumnName: {}", name),
-            Error::BindValueParamError =>
-                write!(f, "BindValueParamError"),
             Error::UninitializedBindValue |
             Error::NoMoreData |
             Error::InternalError(_) =>
@@ -260,7 +252,6 @@ impl error::Error for Error {
             Error::InvalidBindName(_) => "index bind name",
             Error::InvalidColumnIndex(_) => "index column index",
             Error::InvalidColumnName(_) => "index column name",
-            Error::BindValueParamError => "bind value param error",
             Error::UninitializedBindValue => "uninitialided bind value error",
             Error::NoMoreData => "no more data",
             Error::InternalError(_) => "internal error",

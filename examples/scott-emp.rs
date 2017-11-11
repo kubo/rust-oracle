@@ -35,7 +35,7 @@ extern crate oracle;
 fn main() {
     let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
-    stmt.execute(&()).unwrap();
+    stmt.execute(&[]).unwrap();
 
     // stmt.define("HIREDATE", oracle::OracleType::Varchar2(60)).unwrap();
 
@@ -72,22 +72,22 @@ fn main() {
 
     // Set/Get bind values
     let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
-    stmt.bind(1, oracle::bind_value(&None::<&str>, 5)).unwrap();
-    stmt.bind(2, 123).unwrap();
-    stmt.execute(&()).unwrap();
+    stmt.bind(1, &oracle::OracleType::Varchar2(5)).unwrap();
+    stmt.bind(2, &123).unwrap();
+    stmt.execute(&[]).unwrap();
     let retval: String = stmt.bind_value(1).unwrap();
     println!(":1 (as String) => {}", retval);
     let retval: i32 = stmt.bind_value(1).unwrap();
     println!(":1 (as i32) => {}", retval);
     //    stmt.bind(2, oracle::null_bind_value::<i32>()).unwrap();
     stmt.bind(2, &None::<i32>).unwrap();
-    stmt.execute(&()).unwrap();
+    stmt.execute(&[]).unwrap();
     let retval: Option<i32> = stmt.bind_value(1).unwrap();
     println!(":1 is null? => {}", retval.is_none());
 
     if false {
         let mut stmt = conn.prepare("select 100000 from dual").unwrap();
-        stmt.execute(&()).unwrap();
+        stmt.execute(&[]).unwrap();
         let row = stmt.fetch().unwrap();
         // This cause panic because 10000 is out of the range of `i8`.
         let _val: i8 = row.get(0).unwrap();

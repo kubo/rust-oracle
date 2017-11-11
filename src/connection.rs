@@ -36,10 +36,10 @@ use Version;
 use Statement;
 
 use binding::*;
-use types::ToSqlInTuple;
 use Context;
 use ObjectType;
 use Result;
+use ToSql;
 
 use OdpiStr;
 use new_odpi_str;
@@ -52,16 +52,22 @@ use to_odpi_str;
 pub enum AuthMode {
     /// connect without system privileges
     Default,
+
     /// connect as [SYSDBA](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
     SYSDBA,
+
     /// connect as [SYSOPER](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
     SYSOPER,
+
     /// connect as [SYSASM](https://docs.oracle.com/database/122/OSTMG/authenticate-access-asm-instance.htm#OSTMG02600) (Oracle 12c or later)
     SYSASM,
+
     /// connect as [SYSBACKUP](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG785) (Oracle 12c or later)
     SYSBACKUP,
+
     /// connect as [SYSDG](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
     SYSDG,
+
     /// connect as [SYSKM](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
     SYSKM,
 }
@@ -72,6 +78,7 @@ pub enum StartupMode {
     /// Shuts down a running instance (if there is any) using ABORT before
     /// starting a new one. This mode should be used only in unusual circumstances.
     Force,
+
     /// Allows database access only to users with both the CREATE SESSION
     /// and RESTRICTED SESSION privileges (normally, the DBA).
     Restrict,
@@ -83,16 +90,20 @@ pub enum ShutdownMode {
     /// Further connects are prohibited. Waits for users to disconnect from
     /// the database.
     Default,
+
     /// Further connects are prohibited and no new transactions are allowed.
     /// Waits for active transactions to complete.
     Transactional,
+
     /// Further connects are prohibited and no new transactions are allowed.
     /// Waits only for local transactions to complete.
     TransactionalLocal,
+
     /// Does not wait for current calls to complete or users to disconnect
     /// from the database. All uncommitted transactions are terminated and
     /// rolled back.
     Immediate,
+
     /// Does not wait for current calls to complete or users to disconnect
     /// from the database. All uncommitted transactions are terminated and
     /// are not rolled back. This is the fastest possible way to shut down
@@ -100,6 +111,7 @@ pub enum ShutdownMode {
     /// recovery. Therefore, this option should be used only in unusual
     /// circumstances; for example, if a background process terminates abnormally.
     Abort,
+
     /// Shuts down the database. Should be used only in the second call
     /// to [shutdown_database](struct.Connection.html#method.shutdown_database) after the database is closed and dismounted.
     Final,
@@ -292,7 +304,7 @@ impl Connector {
     /// connector.app_context("CLIENTCONTEXT", "foo", "bar");
     /// connector.app_context("CLIENTCONTEXT", "baz", "qux");
     /// let conn = connector.connect().unwrap();
-    /// let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'baz') from dual", &()).unwrap();
+    /// let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[]).unwrap();
     /// let row = stmt.fetch().unwrap();
     /// let val: String = row.get(0).unwrap(); // -> "qux"
     /// ```
@@ -386,16 +398,16 @@ impl Connection {
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
     ///
     /// // insert one row.
-    /// stmt.execute(&(113, "John")).unwrap();
+    /// stmt.execute(&[&113, &"John"]).unwrap();
     ///
     /// // insert another row.
-    /// stmt.execute(&(114, "Smith")).unwrap();
+    /// stmt.execute(&[&114, &"Smith"]).unwrap();
     /// ```
     pub fn prepare(&self, sql: &str) -> Result<Statement> {
         Statement::new(self, false, sql, "")
     }
 
-    /// Prepares a statement, binds values and executes it in one call.
+    /// Prepares a statement, binds values by position and executes it in one call.
     ///
     /// # Examples
     ///
@@ -403,15 +415,34 @@ impl Connection {
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     ///
     /// // execute a statement without bind parameters
-    /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &()).unwrap();
+    /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &[]).unwrap();
     ///
-    /// // execute a statement with bind parameters
-    /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &(114, "Smith")).unwrap();
+    /// // execute a statement with binding parameters by position
+    /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &[&114, &"Smith"]).unwrap();
     ///
     /// ```
-    pub fn execute<T, U>(&self, sql: &str, params: &T)-> Result<Statement> where T: ToSqlInTuple<U> {
+    pub fn execute(&self, sql: &str, params: &[&ToSql])-> Result<Statement> {
         let mut stmt = self.prepare(sql)?;
         stmt.execute(params)?;
+        Ok(stmt)
+    }
+
+    /// Prepares a statement, binds values by name and executes it in one call.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // execute a statement with binding parameters by name
+    /// conn.execute_named("insert into emp(empno, ename) values (:id, :name)",
+    ///                    &[("id", &114),
+    ///                      ("name", &"Smith")]).unwrap();
+    ///
+    /// ```
+    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)])-> Result<Statement> {
+        let mut stmt = self.prepare(sql)?;
+        stmt.execute_named(params)?;
         Ok(stmt)
     }
 
@@ -690,8 +721,8 @@ impl Connection {
     ///              .connect().unwrap();
     ///
     /// // mount and open a database
-    /// conn.execute("alter database mount", &()).unwrap();
-    /// conn.execute("alter database open", &()).unwrap();
+    /// conn.execute("alter database mount", &[]).unwrap();
+    /// conn.execute("alter database open", &[]).unwrap();
     /// ```
     ///
     /// Start up a database in restricted mode
@@ -756,8 +787,8 @@ impl Connection {
     /// conn.shutdown_database(ShutdownMode::Immediate).unwrap();
     ///
     /// // close and dismount the database
-    /// conn.execute("alter database close normal", &()).unwrap();
-    /// conn.execute("alter database dismount", &()).unwrap();
+    /// conn.execute("alter database close normal", &[]).unwrap();
+    /// conn.execute("alter database dismount", &[]).unwrap();
     ///
     /// // finish shutdown
     /// conn.shutdown_database(oracle::ShutdownMode::Final).unwrap();

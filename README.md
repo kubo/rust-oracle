@@ -44,16 +44,8 @@ determined by the rust type.
 | Rust Type | Oracle Type |
 | --- | --- |
 | str, String | NVARCHAR2(length of the rust value) |
-| str, String via `bind_value(value, length)` | NVARCHAR2(length passed to `bind_value()`) |
-| str, String via `bind_value(value, AS_LONG)` | LONG |
-| str, String via `bind_value(value, AS_CLOB)` | CLOB |
-| str, String via `bind_value(value, AS_NCLOB)` | NCLOB |
 | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
-| i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 via `bind_value(&value, AS_BINARY_DOUBLE)` | BINARY_DOUBLE |
 | Vec\<u8> | RAW(length of the rust value) |
-| Vec\<u8> via `bind_value(value, length)` | RAW(length passed to `bind_value()`) |
-| Vec\<u8> via `bind_value(value, AS_LONG_RAW)` | LONG RAW |
-| Vec\<u8> via `bind_value(value, AS_BLOB)` | BLOB |
 | chrono::DateTime, Timestamp | TIMESTAMP(9) WITH TIME ZONE |
 | chrono::Date | TIMESTAMP(0) WITH TIME ZONE |
 | chrono::naive::NaiveDateTime | TIMESTAMP(9) |
