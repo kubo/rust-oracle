@@ -62,17 +62,20 @@ pub enum Error {
     /// Error when conversion from a type to another is not allowed.
     InvalidTypeConversion(String, String),
 
-    /// Error when a bind parameter index is out of range. (one based)
+    /// Error when the bind parameter index is out of range. (one based)
     InvalidBindIndex(usize),
 
-    /// Error when a bind parameter name is not in the SQL.
+    /// Error when the bind parameter name is not in the SQL.
     InvalidBindName(String),
 
-    /// Error when a column index is out of range. (zero based)
+    /// Error when the column index is out of range. (zero based)
     InvalidColumnIndex(usize),
 
-    /// Error when a column name is not in the SQL.
+    /// Error when the column name is not in the SQL.
     InvalidColumnName(String),
+
+    /// Error when the specified attribute name is not found.
+    InvalidAttributeName(String),
 
     /// Error when an uninitialized bind value is accessed. Bind values
     /// must be initialized by [Statement.bind][], [Statement.execute][]
@@ -196,6 +199,8 @@ impl fmt::Display for Error {
                 write!(f, "invalid column index (zero-based): {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "invalid column name: {}", name),
+            Error::InvalidAttributeName(ref name) =>
+                write!(f, "invalid attribute name: {}", name),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -231,8 +236,12 @@ impl fmt::Debug for Error {
                 write!(f, "InvalidColumnIndex: {}", idx),
             Error::InvalidColumnName(ref name) =>
                 write!(f, "InvalidColumnName: {}", name),
-            Error::UninitializedBindValue |
-            Error::NoMoreData |
+            Error::InvalidAttributeName(ref name) =>
+                write!(f, "InvalidAttributeName: {}", name),
+            Error::UninitializedBindValue =>
+                write!(f, "UninitializedBindValue"),
+            Error::NoMoreData =>
+                write!(f, "NoMoreData"),
             Error::InternalError(_) =>
                 write!(f, "{}", *self),
         }
@@ -252,6 +261,7 @@ impl error::Error for Error {
             Error::InvalidBindName(_) => "index bind name",
             Error::InvalidColumnIndex(_) => "index column index",
             Error::InvalidColumnName(_) => "index column name",
+            Error::InvalidAttributeName(_) => "index attribute name",
             Error::UninitializedBindValue => "uninitialided bind value error",
             Error::NoMoreData => "no more data",
             Error::InternalError(_) => "internal error",

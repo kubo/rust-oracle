@@ -160,8 +160,15 @@ fn bind_named() {
     assert_eq!(outval, "12345");
 
     let mut stmt = conn.prepare("begin :out := :in; end;").unwrap();
+    let inval: Option<&str> = Some("12345");
     stmt.execute_named(&[("out", &oracle::OracleType::Varchar2(10)),
-                         ("in", &"12345")]).unwrap();
-    let outval: String = stmt.bind_value("out").unwrap();
-    assert_eq!(outval, "12345");
+                         ("in", &inval)]).unwrap();
+    let outval: Option<String> = stmt.bind_value("out").unwrap();
+    assert_eq!(outval, Some("12345".to_string()));
+
+    let inval: Option<&str> = None;
+    stmt.execute_named(&[("out", &oracle::OracleType::Varchar2(10)),
+                         ("in", &inval)]).unwrap();
+    let outval: Option<String> = stmt.bind_value("out").unwrap();
+    assert_eq!(outval, None);
 }

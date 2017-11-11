@@ -30,9 +30,13 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::fmt;
 use std::str;
 use std::result;
+use Error;
+use OracleType;
 use ParseOracleTypeError;
+use Result;
 
 pub struct Scanner<'a> {
     chars: str::Chars<'a>,
@@ -165,6 +169,39 @@ pub fn set_hex_string(s: &mut String, bytes: &[u8]) {
     for byte in bytes {
         s.push(to_hex(byte >> 4));
         s.push(to_hex(byte & 0xF));
+    }
+}
+
+pub fn write_literal(f: &mut fmt::Formatter, s: &Result<String>, oratype: &OracleType) -> fmt::Result {
+    match *s {
+        Ok(ref s) => {
+            match *oratype {
+                OracleType::Varchar2(_) |
+                OracleType::NVarchar2(_) |
+                OracleType::Char(_) |
+                OracleType::NChar(_) |
+                OracleType::Rowid |
+                OracleType::Raw(_) |
+                OracleType::CLOB |
+                OracleType::NCLOB |
+                OracleType::BLOB |
+                OracleType::BFILE |
+                OracleType::Long |
+                OracleType::LongRaw => {
+                    write!(f, "\"")?;
+                    for c in s.chars() {
+                        if c == '"' {
+                            write!(f, "\"")?;
+                        }
+                        write!(f, "{}", c)?;
+                    }
+                    write!(f, "\"")
+                },
+                _ => write!(f, "{}", s),
+            }
+        },
+        Err(Error::NullValue) => write!(f, "NULL"),
+        Err(ref err) => write!(f, "ERR({})", err),
     }
 }
 

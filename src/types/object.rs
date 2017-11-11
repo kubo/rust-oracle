@@ -37,10 +37,340 @@ use std::rc::Rc;
 
 use binding::*;
 use Context;
+use Error;
+use FromSql;
 use OracleType;
 use Result;
+use SqlValue;
+use ToSql;
 
 use OdpiStr;
+use util::write_literal;
+
+//
+// Collection
+//
+
+pub struct Collection {
+    ctxt: &'static Context,
+    pub(crate) handle: *mut dpiObject,
+    objtype: ObjectType,
+}
+
+impl Collection {
+    pub(crate) fn new(ctxt: &'static Context, handle: *mut dpiObject, objtype: ObjectType) -> Collection {
+        Collection {
+            ctxt: ctxt,
+            handle: handle,
+            objtype: objtype,
+        }
+    }
+
+    pub fn object_type(&self) -> &ObjectType {
+        &self.objtype
+    }
+
+    pub fn size(&self) -> Result<i32> {
+        let mut size = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getSize(self.handle, &mut size));
+        Ok(size)
+    }
+
+    pub fn first_index(&self) -> Result<i32> {
+        let mut index = 0;
+        let mut exists = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getFirstIndex(self.handle, &mut index, &mut exists));
+        if exists != 0 {
+            Ok(index)
+        } else {
+            Err(Error::NoMoreData)
+        }
+    }
+
+    pub fn last_index(&self) -> Result<i32> {
+        let mut index = 0;
+        let mut exists = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getLastIndex(self.handle, &mut index, &mut exists));
+        if exists != 0 {
+            Ok(index)
+        } else {
+            Err(Error::NoMoreData)
+        }
+    }
+
+    pub fn next_index(&self, index: i32) -> Result<i32> {
+        let mut next = 0;
+        let mut exists = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getNextIndex(self.handle, index, &mut next, &mut exists));
+        if exists != 0 {
+            Ok(next)
+        } else {
+            Err(Error::NoMoreData)
+        }
+    }
+
+    pub fn prev_index(&self, index: i32) -> Result<i32> {
+        let mut prev = 0;
+        let mut exists = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getPrevIndex(self.handle, index, &mut prev, &mut exists));
+        if exists != 0 {
+            Ok(prev)
+        } else {
+            Err(Error::NoMoreData)
+        }
+    }
+
+    pub fn exist(&self, index: i32) -> Result<bool> {
+        let mut exists = 0;
+        chkerr!(self.ctxt,
+                dpiObject_getElementExistsByIndex(self.handle, index, &mut exists));
+        Ok(exists != 0)
+    }
+
+    pub fn get<T>(&self, index: i32) -> Result<T> where T: FromSql {
+        let oratype = self.objtype.element_oracle_type().unwrap();
+        let mut data = Default::default();
+        let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
+        if let OracleType::Number(_, _) = *oratype {
+            unsafe {
+                dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
+            }
+        }
+        let sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        chkerr!(self.ctxt,
+                dpiObject_getElementValueByIndex(self.handle, index, sql_value.native_type_num(), &mut data));
+        sql_value.get()
+    }
+
+    pub fn set<T>(&mut self, index: i32, value: &T) -> Result<()> where T: ToSql {
+        let oratype = self.objtype.element_oracle_type().unwrap();
+        let mut data = Default::default();
+        let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        sql_value.set(value)?;
+        chkerr!(self.ctxt,
+                dpiObject_setElementValueByIndex(self.handle, index, sql_value.native_type_num(), &mut data));
+        Ok(())
+    }
+
+    pub fn push<T>(&mut self, value: &T) -> Result<()> where T: ToSql {
+        let oratype = self.objtype.element_oracle_type().unwrap();
+        let mut data = Default::default();
+        let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        sql_value.set(value)?;
+        chkerr!(self.ctxt,
+                dpiObject_appendElement(self.handle, sql_value.native_type_num(), &mut data));
+        Ok(())
+    }
+
+    pub fn remove(&mut self, index: i32) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiObject_deleteElementByIndex(self.handle, index));
+        Ok(())
+    }
+
+    pub fn trim(&mut self, len: usize) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiObject_trim(self.handle, len as u32));
+        Ok(())
+    }
+}
+
+impl Clone for Collection {
+    fn clone(&self) -> Collection {
+        unsafe { dpiObject_addRef(self.handle) };
+        Collection::new(self.ctxt, self.handle, self.objtype.clone())
+    }
+}
+
+impl Drop for Collection {
+    fn drop(&mut self) {
+        let _ = unsafe { dpiObject_release(self.handle) };
+    }
+}
+
+impl FromSql for Collection {
+    fn from_sql(val: &SqlValue) -> Result<Collection> {
+        val.as_collection()
+    }
+}
+
+impl ToSql for Collection {
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Object(self.object_type().clone()))
+    }
+    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+        val.set_collection(self)
+    }
+}
+
+impl fmt::Display for Collection {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}(", self.objtype)?;
+        if let Ok(index) = self.first_index() {
+            let mut idx = index;
+            let oratype = self.objtype.element_oracle_type().unwrap();
+            loop {
+                write_literal(f, &self.get(idx), oratype)?;
+                if let Ok(index) = self.next_index(idx) {
+                    idx = index;
+                    write!(f, ", ")?;
+                } else {
+                    break;
+                }
+            }
+        }
+        write!(f, ")")
+    }
+}
+
+impl fmt::Debug for Collection {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let oratype = self.objtype.element_oracle_type().unwrap();
+        write!(f, "Collection({} collection of {}: ", self.objtype, oratype)?;
+        if let Ok(index) = self.first_index() {
+            let mut idx = index;
+            loop {
+                write_literal(f, &self.get(idx), oratype)?;
+                if let Ok(index) = self.next_index(idx) {
+                    idx = index;
+                    write!(f, ", ")?;
+                } else {
+                    break;
+                }
+            }
+        }
+        write!(f, ")")
+    }
+}
+
+//
+// Object
+//
+
+pub struct Object {
+    ctxt: &'static Context,
+    pub(crate) handle: *mut dpiObject,
+    objtype: ObjectType,
+}
+
+impl Object {
+    pub(crate) fn new(ctxt: &'static Context, handle: *mut dpiObject, objtype: ObjectType) -> Object {
+        Object {
+            ctxt: ctxt,
+            handle: handle,
+            objtype: objtype,
+        }
+    }
+
+    pub fn object_type(&self) -> &ObjectType {
+        &self.objtype
+    }
+
+    fn type_attr(&self, name: &str) -> Result<&ObjectTypeAttr> {
+        for attr in self.objtype.attributes() {
+            if attr.name() == name {
+                return Ok(attr);
+            }
+        }
+        Err(Error::InvalidAttributeName(name.to_string()))
+    }
+
+    pub fn get_by_attr<T>(&self, attr: &ObjectTypeAttr) -> Result<T> where T: FromSql {
+        let mut data = Default::default();
+        let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
+        if let OracleType::Number(_, _) = attr.oratype {
+            unsafe {
+                dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
+            }
+        }
+        let sql_value = SqlValue::from_oratype(self.ctxt, &attr.oratype, &mut data)?;
+        chkerr!(self.ctxt,
+                dpiObject_getAttributeValue(self.handle, attr.handle,
+                                            sql_value.native_type_num(), &mut data));
+        sql_value.get()
+    }
+
+    pub fn get<T>(&self, name: &str) -> Result<T> where T: FromSql {
+        self.get_by_attr(self.type_attr(name)?)
+    }
+
+    pub fn set<T>(&mut self, name: &str, value: &T) -> Result<()> where T: ToSql {
+        let attrtype = self.type_attr(name)?;
+        let mut data = Default::default();
+        let mut sql_value = SqlValue::from_oratype(self.ctxt, &attrtype.oratype, &mut data)?;
+        sql_value.set(value)?;
+        chkerr!(self.ctxt,
+                dpiObject_setAttributeValue(self.handle, attrtype.handle,
+                                            sql_value.native_type_num(), &mut data));
+        Ok(())
+    }
+}
+
+impl Clone for Object {
+    fn clone(&self) -> Object {
+        unsafe { dpiObject_addRef(self.handle) };
+        Object::new(self.ctxt, self.handle, self.objtype.clone())
+    }
+}
+
+impl Drop for Object {
+    fn drop(&mut self) {
+        let _ = unsafe { dpiObject_release(self.handle) };
+    }
+}
+
+impl FromSql for Object {
+    fn from_sql(val: &SqlValue) -> Result<Object> {
+        val.as_object()
+    }
+}
+
+impl ToSql for Object {
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Object(self.object_type().clone()))
+    }
+    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+        val.set_object(self)
+    }
+}
+
+impl fmt::Display for Object {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}(", self.objtype)?;
+        let mut first = true;
+        for attr in self.objtype.attributes() {
+            if first {
+                first = false;
+            } else {
+                write!(f, ", ")?;
+            }
+            write_literal(f, &self.get_by_attr(attr), &attr.oratype)?;
+        }
+        write!(f, ")")
+    }
+}
+
+impl fmt::Debug for Object {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Object({}(", self.objtype)?;
+        let mut first = true;
+        for attr in self.objtype.attributes() {
+            if first {
+                first = false;
+            } else {
+                write!(f, ", ")?;
+            }
+            write!(f, "{}({}): ", attr.name(), attr.oracle_type())?;
+            write_literal(f, &self.get_by_attr(attr), &attr.oratype)?;
+        }
+        write!(f, "))")
+    }
+}
 
 //
 // ObjectType
@@ -134,11 +464,41 @@ impl ObjectType {
     pub fn attributes(&self) -> &Vec<ObjectTypeAttr> {
         &self.internal.attrs
     }
+
+    pub fn new_object(&self) -> Option<Object> {
+        if self.is_collection() {
+            return None
+        }
+        let ctxt = self.internal.ctxt;
+        let mut handle = ptr::null_mut();
+        if unsafe {dpiObjectType_createObject(self.internal.handle, &mut handle)} != DPI_SUCCESS as i32 {
+            return None;
+        }
+        Some(Object::new(ctxt, handle, self.clone()))
+    }
+
+    pub fn new_collection(&self) -> Option<Collection> {
+        if !self.is_collection() {
+            return None
+        }
+        let ctxt = self.internal.ctxt;
+        let mut handle = ptr::null_mut();
+        if unsafe {dpiObjectType_createObject(self.internal.handle, &mut handle)} != DPI_SUCCESS as i32 {
+            return None;
+        }
+        Some(Collection::new(ctxt, handle, self.clone()))
+    }
 }
 
 impl cmp::PartialEq for ObjectType {
     fn eq(&self, other: &Self) -> bool {
         self.internal == other.internal
+    }
+}
+
+impl fmt::Display for ObjectType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.internal)
     }
 }
 
@@ -209,6 +569,7 @@ impl Drop for ObjectTypeAttr {
 //
 
 struct ObjectTypeInternal {
+    ctxt: &'static Context,
     handle: *mut dpiObjectType,
     schema: String,
     name: String,
@@ -249,6 +610,7 @@ impl ObjectTypeInternal {
         };
         unsafe { dpiObjectType_addRef(handle); }
         Ok(ObjectTypeInternal {
+            ctxt: ctxt,
             handle: handle,
             schema: OdpiStr::new(info.schema, info.schemaLength).to_string(),
             name: OdpiStr::new(info.name, info.nameLength).to_string(),
@@ -272,17 +634,29 @@ impl cmp::PartialEq for ObjectTypeInternal {
     }
 }
 
+impl fmt::Display for ObjectTypeInternal {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.schema, self.name)
+    }
+}
+
 impl fmt::Debug for ObjectTypeInternal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.elem_oratype.is_some() {
-            write!(f, "ObjectType({}.{} collection of {:?})", self.schema, self.name,
+            write!(f, "ObjectType({}.{} collection of {})", self.schema, self.name,
                    self.elem_oratype.as_ref().unwrap())
         } else {
-            write!(f, "ObjectType({}.{} {{", self.schema, self.name)?;
+            write!(f, "ObjectType({}.{}(", self.schema, self.name)?;
+            let mut first = true;
             for attr in &self.attrs {
-                write!(f, "{}: {:?}, ", attr.name(), attr.oracle_type())?;
+                if first {
+                    first = false;
+                } else {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{} {}", attr.name(), attr.oracle_type())?;
             }
-            write!(f, "}})")
+            write!(f, "))")
         }
     }
 }

@@ -11,7 +11,7 @@ Don't use this until the version number reaches to 0.1.0.
 
 ## Run-time Requirements
 
-* Oracle Client 11.2 or later. See [ODPI-C installation document][].
+* Oracle client 11.2 or later. See [ODPI-C installation document][].
 
 ## Usage
 
@@ -57,7 +57,7 @@ determined by the rust type.
 
 * Connection pooling
 * Read and write LOB as stream
-* REF CURSOR, BOOLEAN, OBJECT types
+* REF CURSOR, BOOLEAN
 * Autocommit mode
 * Scrollable cursors
 

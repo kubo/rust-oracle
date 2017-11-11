@@ -71,6 +71,8 @@ pub use sql_value::SqlValue;
 pub use types::FromSql;
 pub use types::ToSql;
 pub use types::ToSqlNull;
+pub use types::object::Collection;
+pub use types::object::Object;
 pub use types::object::ObjectType;
 pub use types::object::ObjectTypeAttr;
 pub use types::oracle_type::OracleType;
@@ -205,6 +207,30 @@ impl Default for dpiConnCreateParams {
             numShardingKeyColumns: 0,
             superShardingKeyColumns: ptr::null_mut(),
             numSuperShardingKeyColumns: 0,
+        }
+    }
+}
+
+impl Default for dpiData {
+    fn default() -> dpiData {
+        dpiData {
+            isNull: 0,
+            value: dpiDataBuffer {
+                asBoolean: Default::default(),
+                asInt64: Default::default(),
+                asUint64: Default::default(),
+                asFloat: Default::default(),
+                asDouble: Default::default(),
+                asBytes: Default::default(),
+                asTimestamp: Default::default(),
+                asIntervalDS: Default::default(),
+                asIntervalYM: Default::default(),
+                asLOB: Default::default(),
+                asObject: Default::default(),
+                asStmt: Default::default(),
+                asRowid: Default::default(),
+                bindgen_union_field: [0; 3],
+            },
         }
     }
 }
