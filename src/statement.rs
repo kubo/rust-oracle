@@ -32,6 +32,7 @@
 
 use std::ptr;
 use std::fmt;
+use std::ascii::AsciiExt;
 
 use binding::*;
 use OdpiStr;
@@ -401,7 +402,7 @@ impl BindIndex for usize {
 
 impl<'a> BindIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
-        stmt.bind_names().iter().position(|&name| name == *self)
+        stmt.bind_names().iter().position(|&name| name.eq_ignore_ascii_case(*self))
             .ok_or_else(|| Error::InvalidBindName((*self).to_string()))
     }
 
@@ -433,7 +434,7 @@ impl ColumnIndex for usize {
 impl<'a> ColumnIndex for &'a str {
     fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize> {
         for (idx, info) in column_info.iter().enumerate() {
-            if info.name().as_str() == *self {
+            if info.name().as_str().eq_ignore_ascii_case(*self) {
                 return Ok(idx);
             }
         }
