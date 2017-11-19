@@ -47,10 +47,22 @@ use ToSql;
 use OdpiStr;
 use util::write_literal;
 
-//
-// Collection
-//
-
+/// Collection data type of Oracle database
+///
+/// This type corresponds to varray and nested table data types.
+/// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm)
+///
+/// ```no_run
+/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
+/// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY").unwrap();
+/// // Create a new collection
+/// let mut obj = objtype.new_collection().unwrap();
+/// obj.push(&1);
+/// obj.push(&1003);
+/// obj.push(&3);
+/// assert_eq!(obj.to_string(), "MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)");
+/// ```
 pub struct Collection {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiObject,
@@ -147,7 +159,7 @@ impl Collection {
         sql_value.get()
     }
 
-    pub fn set<T>(&mut self, index: i32, value: &T) -> Result<()> where T: ToSql {
+    pub fn set(&mut self, index: i32, value: &ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
@@ -157,7 +169,7 @@ impl Collection {
         Ok(())
     }
 
-    pub fn push<T>(&mut self, value: &T) -> Result<()> where T: ToSql {
+    pub fn push(&mut self, value: &ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
@@ -299,7 +311,7 @@ impl Object {
         self.get_by_attr(self.type_attr(name)?)
     }
 
-    pub fn set<T>(&mut self, name: &str, value: &T) -> Result<()> where T: ToSql {
+    pub fn set(&mut self, name: &str, value: &ToSql) -> Result<()> {
         let attrtype = self.type_attr(name)?;
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, &attrtype.oratype, &mut data)?;

@@ -124,7 +124,7 @@ pub struct Statement<'conn> {
 
 impl<'conn> Statement<'conn> {
 
-    pub fn new(conn: &'conn Connection, scrollable: bool, sql: &str, tag: &str) -> Result<Statement<'conn>> {
+    pub(crate) fn new(conn: &'conn Connection, scrollable: bool, sql: &str, tag: &str) -> Result<Statement<'conn>> {
         let scrollable = if scrollable { 1 } else { 0 };
         let sql = to_odpi_str(sql);
         let tag = to_odpi_str(tag);
@@ -167,6 +167,7 @@ impl<'conn> Statement<'conn> {
         })
     }
 
+    /// Closes the statement before the end of lifetime.
     pub fn close(&mut self) -> Result<()> {
         self.close_internal("")
     }
@@ -180,7 +181,29 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    pub fn bind<I, T>(&mut self, bindidx: I, value: &T) -> Result<()> where I: BindIndex, T: ToSql + ?Sized {
+    /// Set a bind value in the statement.
+    ///
+    /// The position starts from one when the bind index type is `usize`.
+    /// The variable name is compared case-insensitively when the bind index
+    /// type is `&str`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
+    ///
+    /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
+    /// stmt.bind(1, &oracle::OracleType::Varchar2(60)).unwrap();
+    ///
+    /// // Sets "to be upper-case" to the second by its name.
+    /// stmt.bind("inval", &"to be upper-case").unwrap();
+    ///
+    /// stmt.execute(&[]).unwrap();
+    /// let outval: String = stmt.bind_value(1).unwrap();
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    /// ```
+    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()> where I: BindIndex {
         let pos = bindidx.idx(&self)?;
         if self.bind_values[pos].init_handle(self.conn, &value.oratype()?, 1)? {
             chkerr!(self.conn.ctxt,
@@ -189,11 +212,38 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].set(value)
     }
 
+    /// Gets a bind value in the statement.
+    ///
+    /// The position starts from one when the bind index type is `usize`.
+    /// The variable name is compared case-insensitively when the bind index
+    /// type is `&str`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // Prepares "begin :outval := upper(:inval); end;",
+    /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
+    /// // sets "to be upper-case" to the second and then executes it.
+    /// let stmt = conn.execute("begin :outval := upper(:inval); end;",
+    ///                         &[&oracle::OracleType::Varchar2(60),
+    ///                           &"to be upper-case"]).unwrap();
+    ///
+    /// // Get the first bind value by position.
+    /// let outval: String = stmt.bind_value(1).unwrap();
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    ///
+    /// // Get the first bind value by name.
+    /// let outval: String = stmt.bind_value("outval").unwrap();
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    /// ```
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
         let pos = bindidx.idx(&self)?;
         self.bind_values[pos].get()
     }
 
+    /// Binds values by position and executes the statement.
     pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
         for i in 0..params.len() {
             self.bind(i + 1, params[i])?;
@@ -201,6 +251,7 @@ impl<'conn> Statement<'conn> {
         self.execute_internal()
     }
 
+    /// Binds values by name and executes the statement.
     pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
@@ -244,26 +295,66 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
+    /// Returns the number of bind variables in the statement.
+    ///
+    /// In SQL statements this is the total number of bind variables whereas in
+    /// PL/SQL statements this is the count of the **unique** bind variables.
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // SQL statements
+    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual").unwrap();
+    /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
+    ///
+    /// // PL/SQL statements
+    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;").unwrap();
+    /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
+    /// ```
     pub fn bind_count(&self) -> usize {
         self.bind_count
     }
 
+    /// Returns the names of the unique bind variables in the statement.
+    ///
+    /// The bind variable names in statements are converted to upper-case.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").unwrap();
+    /// assert_eq!(stmt.bind_count(), 3);
+    /// let bind_names = stmt.bind_names();
+    /// assert_eq!(bind_names.len(), 3);
+    /// assert_eq!(bind_names[0], "VAL1");
+    /// assert_eq!(bind_names[1], "VAL2");
+    /// assert_eq!(bind_names[2], "AÀÁÂÃÄÅ");
+    /// ```
     pub fn bind_names(&self) -> Vec<&str> {
         self.bind_names.iter().map(|name| name.as_str()).collect()
     }
 
+    /// Returns the number of columns.
+    /// This returns zero for non-query statements.
     pub fn column_count(&self) -> usize {
         self.row.column_info.len()
     }
 
+    /// Returns the column names.
+    /// This returns an empty vector for non-query statements.
     pub fn column_names(&self) -> Vec<&str> {
         self.row.column_info.iter().map(|info| info.name().as_str()).collect()
     }
 
+    /// Returns column information.
     pub fn column_info(&self) -> &Vec<ColumnInfo> {
         &self.row.column_info
     }
 
+    /// Fetchs one row from the statement. This returns `Err(Error::NoMoreData)`
+    /// when all rows are fetched.
     pub fn fetch(&mut self) -> Result<&Row> {
         let mut found = 0;
         let mut buffer_row_index = 0;
@@ -416,7 +507,8 @@ impl BindIndex for usize {
 
 impl<'a> BindIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
-        stmt.bind_names().iter().position(|&name| name.eq_ignore_ascii_case(*self))
+        let bindname = self.to_uppercase();
+        stmt.bind_names().iter().position(|&name| name == bindname)
             .ok_or_else(|| Error::InvalidBindName((*self).to_string()))
     }
 

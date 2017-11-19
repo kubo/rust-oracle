@@ -274,7 +274,7 @@ impl SqlValue {
         <T>::from_sql(self)
     }
 
-    pub(crate) fn set<T>(&mut self, val: &T) -> Result<()> where T: ToSql + ?Sized {
+    pub(crate) fn set(&mut self, val: &ToSql) -> Result<()> {
         val.to_sql(self)
     }
 

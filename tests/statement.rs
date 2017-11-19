@@ -77,3 +77,24 @@ fn statement_type() {
     assert_eq!(stmt_type, oracle::StatementType::Declare);
     assert_eq!(stmt_type.to_string(), "PL/SQL(declare)");
 }
+
+#[test]
+fn bind_names() {
+    let conn = common::connect().unwrap();
+
+    let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").unwrap();
+    assert_eq!(stmt.bind_count(), 3);
+    let bind_names = stmt.bind_names();
+    assert_eq!(bind_names.len(), 3);
+    assert_eq!(bind_names[0], "VAL1");
+    assert_eq!(bind_names[1], "VAL2");
+    assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
+
+    let stmt = conn.prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual").unwrap();
+    assert_eq!(stmt.bind_count(), 4);
+    let bind_names = stmt.bind_names();
+    assert_eq!(bind_names.len(), 3);
+    assert_eq!(bind_names[0], "VAL1");
+    assert_eq!(bind_names[1], "VAL2");
+    assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
+}

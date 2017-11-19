@@ -73,6 +73,8 @@ pub enum AuthMode {
 }
 
 /// Database startup mode
+///
+/// See [Connection.startup_database](struct.Connection.html#method.startup_database).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StartupMode {
     /// Shuts down a running instance (if there is any) using ABORT before
@@ -85,6 +87,8 @@ pub enum StartupMode {
 }
 
 /// Database shutdown mode
+///
+/// See [Connection.shutdown_database](struct.Connection.html#method.shutdown_database).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ShutdownMode {
     /// Further connects are prohibited. Waits for users to disconnect from
@@ -395,13 +399,14 @@ impl Connection {
     ///
     /// ```no_run
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
     ///
-    /// // insert one row.
+    /// // insert one row. (set parameters by position)
     /// stmt.execute(&[&113, &"John"]).unwrap();
     ///
-    /// // insert another row.
-    /// stmt.execute(&[&114, &"Smith"]).unwrap();
+    /// // insert another row. (set parameters by name)
+    /// stmt.execute_named(&[("id", &114),
+    ///                      ("name", &"Smith")]).unwrap();
     /// ```
     pub fn prepare(&self, sql: &str) -> Result<Statement> {
         Statement::new(self, false, sql, "")
@@ -428,6 +433,8 @@ impl Connection {
     }
 
     /// Prepares a statement, binds values by name and executes it in one call.
+    ///
+    /// The bind variable names are compared case-insensitively.
     ///
     /// # Examples
     ///
