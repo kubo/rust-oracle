@@ -94,6 +94,9 @@ pub enum Error {
 }
 
 /// An error when parsing a string into an Oracle type fails.
+/// This appears only in boxed data associated with [Error::ParseError][].
+///
+/// [Error::ParseError]: enum.Error.html#variant.ParseError
 #[derive(Eq, PartialEq, Clone)]
 pub struct ParseOracleTypeError {
     typename: &'static str,

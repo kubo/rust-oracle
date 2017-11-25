@@ -405,15 +405,36 @@ impl<'conn> Drop for Statement<'conn> {
 
 /// Column information in a select statement
 ///
+/// # Examples
+///
+/// Print column information of `emp` table.
+///
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
 /// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
+/// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
+/// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
 /// for info in stmt.column_info() {
 ///    println!("{:-30} {:-8} {}",
 ///             info.name(),
 ///             if info.nullable() {""} else {"NOT NULL"},
 ///             info.oracle_type());
 /// }
+/// ```
+///
+/// The output is:
+///
+/// ```text
+///  Name                           Null?    Type
+///  ------------------------------ -------- ----------------------------
+///  EMPNO                          NOT NULL NUMBER(4)
+///  ENAME                                   VARCHAR2(10)
+///  JOB                                     VARCHAR2(9)
+///  MGR                                     NUMBER(4)
+///  HIREDATE                                DATE
+///  SAL                                     NUMBER(7,2)
+///  COMM                                    NUMBER(7,2)
+///  DEPTNO                                  NUMBER(2)
 /// ```
 #[derive(Clone)]
 pub struct ColumnInfo {

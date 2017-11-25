@@ -39,10 +39,74 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Interval type corresponding to Oracle type INTERVAL DAY TO SECOND.
+/// [INTERVAL DAY TO SECOND][INTVL_DS] data type.
 ///
-/// Don't use this type directly in your applications. This is public
-/// for types implementing `FromSql` and `ToSql` traits.
+/// [INTVL_DS]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
+///
+/// This struct doesn't have arithmetic methods and they won't be added to avoid
+/// reinventing the wheel. If you need methods such as adding an interval to a
+/// timestamp, use [chrono::Duration][] instead.
+///
+/// [chrono::Duration]: https://docs.rs/chrono/0.4.0/chrono/struct.Duration.html
+///
+/// # Examples
+///
+/// ```
+/// use oracle::IntervalDS;
+///
+/// // Create an interval by new().
+/// let intvl1 = IntervalDS::new(1, 2, 3, 4, 500000000);
+///
+/// // All arguments must be zero or negative to create a negative interval.
+/// let intvl2 = IntervalDS::new(-1, -2, -3, -4, -500000000);
+///
+/// // Convert to string.
+/// assert_eq!(intvl1.to_string(), "+000000001 02:03:04.500000000");
+/// assert_eq!(intvl2.to_string(), "-000000001 02:03:04.500000000");
+///
+/// // Create an interval with leading field and fractional second precisions.
+/// let intvl3 = IntervalDS::new(1, 2, 3, 4, 500000000).and_prec(2, 3);
+///
+/// // The string representation depends on the precisions.
+/// assert_eq!(intvl3.to_string(), "+01 02:03:04.500");
+///
+/// // Precisions are ignored when intervals are compared.
+/// assert!(intvl1 == intvl3);
+///
+/// // Create an interval from string.
+/// let intvl4: IntervalDS = "+1 02:03:04.50".parse().unwrap();
+///
+/// // The precisions are determined by number of decimal digits in the string.
+/// assert_eq!(intvl4.lfprec(), 1);
+/// assert_eq!(intvl4.fsprec(), 2);
+/// ```
+///
+/// Fetch and bind interval values.
+///
+/// ```
+/// use oracle::{Connection, IntervalDS, OracleType, Timestamp};
+///
+/// let conn = Connection::new("scott", "tiger", "").unwrap();
+///
+/// // Fetch IntervalDS
+/// let sql = "select interval '+01 02:03:04.500' day to second(3) from dual";
+/// let mut stmt = conn.execute(sql, &[]).unwrap();
+/// let row = stmt.fetch().unwrap();
+/// let intvl: IntervalDS = row.get(0).unwrap();
+/// assert_eq!(intvl.to_string(), "+01 02:03:04.500");
+///
+/// // Bind IntervalDS
+/// let sql = concat!("begin ",
+///                   "  :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval;",
+///                   "end;");
+/// let stmt = conn.execute(sql,
+///                         &[&OracleType::Timestamp(3), // bind null as timestamp(3)
+///                           &intvl, // bind the intvl variable
+///                          ]).unwrap();
+/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+/// // 2017-08-09 + (1 day, 2 hours, 3 minutes and 4.5 seconds)
+/// assert_eq!(outval.to_string(), "2017-08-10 02:03:04.500");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {
     days: i32,
@@ -71,6 +135,20 @@ impl IntervalDS {
         }
     }
 
+    /// Creates a new IntervalDS.
+    ///
+    /// Valid values are:
+    ///
+    /// | argument | valid values |
+    /// |---|---|
+    /// | `days` | -999999999 to 999999999 |
+    /// | `hours` | -23 to 23 |
+    /// | `minutes` | -59 to 59 |
+    /// | `seconds` | -59 to 59 |
+    /// | `nanoseconds` | -999999999 to 999999999 |
+    ///
+    /// All arguments must be zero or positive to create a positive interval.
+    /// All arguments must be zero or negative to create a negative interval.
     pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
         IntervalDS {
             days: days,
@@ -83,6 +161,12 @@ impl IntervalDS {
         }
     }
 
+    /// Creates a new IntervalDS with precisions.
+    ///
+    /// `lfprec` and `fsprec` are leading field precision and fractional second
+    /// precision respectively.
+    /// The precisions affect text representation of IntervalDS.
+    /// They don't affect comparison.
     pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> IntervalDS {
         IntervalDS {
             lfprec: lfprec,
@@ -91,30 +175,37 @@ impl IntervalDS {
         }
     }
 
+    /// Returns days component.
     pub fn days(&self) -> i32 {
         self.days
     }
 
+    /// Returns hours component.
     pub fn hours(&self) -> i32 {
         self.hours
     }
 
+    /// Returns minutes component.
     pub fn minutes(&self) -> i32 {
         self.minutes
     }
 
+    /// Returns seconds component.
     pub fn seconds(&self) -> i32 {
         self.seconds
     }
 
+    /// Returns nanoseconds component.
     pub fn nanoseconds(&self) -> i32 {
         self.nanoseconds
     }
 
+    /// Returns leading field precision.
     pub fn lfprec(&self) -> u8 {
         self.lfprec
     }
 
+    /// Returns fractional second precision.
     pub fn fsprec(&self) -> u8 {
         self.fsprec
     }

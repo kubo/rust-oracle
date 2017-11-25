@@ -134,6 +134,15 @@ pub enum Purity {
 //
 
 /// Connection Builder
+///
+/// A connection is created by two methods. One is [Connection::new][].
+/// The other is [connect method][]. Use the former to connect to a database
+/// with username, password and connect_string. Use the latter when
+/// additional parameters such as `SYSDBA` are required.
+/// See examples below.
+///
+/// [Connection::new]: struct.Connection.html#method.new
+/// [connect method]: #method.connect
 pub struct Connector {
     username: String,
     password: String,
@@ -290,6 +299,29 @@ impl Connector {
         self
     }
 
+    /// Sets new password during establishing a connection.
+    ///
+    /// When a password is expired, you cannot connect to the user.
+    /// A new password must be set by other user or set during establishing
+    /// a connection.
+    ///
+    /// # Examples
+    ///
+    /// Connect to user `scott` with password `tiger`. If the password
+    /// is expired, set a new password `jaguar`.
+    ///
+    /// ```no_run
+    /// let conn = match oracle::Connection::new("scott", "tiger", "") {
+    ///     Ok(conn) => conn,
+    ///     Err(oracle::Error::OciError(ref dberr)) if dberr.code() == 28001 => {
+    ///         // ORA-28001: the password has expired
+    ///         let mut connector = oracle::Connector::new("scott", "tiger", "");
+    ///         connector.new_password("jaguar");
+    ///         connector.connect().unwrap()
+    ///     },
+    ///     Err(err) => panic!(err.to_string()),
+    /// };
+    /// ```
     pub fn new_password<'a>(&'a mut self, password: &str) -> &'a mut Connector {
         self.new_password = Some(password.to_string());
         self
@@ -310,7 +342,8 @@ impl Connector {
     /// let conn = connector.connect().unwrap();
     /// let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[]).unwrap();
     /// let row = stmt.fetch().unwrap();
-    /// let val: String = row.get(0).unwrap(); // -> "qux"
+    /// let val: String = row.get(0).unwrap();
+    /// assert_eq!(val, "qux");
     /// ```
     pub fn app_context<'a>(&'a mut self, namespace: &str, name: &str, value: &str) -> &'a mut Connector {
         self.app_context.reserve(3);
@@ -364,6 +397,14 @@ impl Connector {
 //
 
 /// Connection to an Oracle database
+///
+/// A connection is created by two methods. One is [Connection::new][].
+/// The other is [Connector.connect][]. Use the former to connect to a database
+/// with username, password and connect_string. Use the latter when
+/// additional parameters such as `SYSDBA` are required.
+///
+/// [Connection::new]: #method.new
+/// [Connector.connect]: struct.Connector.html#method.connect
 pub struct Connection {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: *mut dpiConn,

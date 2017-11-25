@@ -39,11 +39,79 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Timestamp type corresponding to Oracle datetime types: DATE, TIMESTAMP,
-/// TIMESTAMP WITH TIME ZONE and TIMESTAMP WITH LOCAL TIME ZONE.
+/// [Datetime][] data type
 ///
-/// Don't use this type directly in your applications. This is public
-/// for types implementing `FromSql` and `ToSql` traits.
+/// [Datetime]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#NLSPG-GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
+///
+/// This struct doesn't have arithmetic methods and they won't be added to avoid
+/// reinventing the wheel. If you need methods such as adding an interval to a
+/// timestamp, use [chrono::Date][], [chrono::DateTime][],
+/// [chrono::naive::NaiveDate][] or [chrono::naive::NaiveDateTime][] instead.
+///
+/// [chrono::Date]: https://docs.rs/chrono/0.4.0/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4.0/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDateTime.html
+///
+/// # Examples
+///
+/// ```
+/// use oracle::Timestamp;
+///
+/// // Create a timestamp.
+/// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
+///
+/// // Convert to string.
+/// assert_eq!(ts1.to_string(), "2017-08-09 11:22:33.500000000");
+///
+/// // Create a timestamp with time zone (-8:00).
+/// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_tz_hm_offset(-8, 0);
+///
+/// // Convert to string.
+/// assert_eq!(ts2.to_string(), "2017-08-09 11:22:33.500000000 -08:00");
+///
+/// // Create a timestamp with precision
+/// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_prec(3);
+///
+/// // The string representation depends on the precision.
+/// assert_eq!(ts3.to_string(), "2017-08-09 11:22:33.500");
+///
+/// // Precisions are ignored when intervals are compared.
+/// assert_eq!(ts1, ts3);
+///
+/// // Create a timestamp from string.
+/// let ts4: Timestamp = "2017-08-09 11:22:33.500 -08:00".parse().unwrap();
+///
+/// // The precision is determined by number of decimal digits in the string.
+/// assert_eq!(ts4.precision(), 3);
+/// ```
+///
+/// Fetch and bind interval values.
+///
+/// ```
+/// use oracle::{Connection, OracleType, Timestamp};
+///
+/// let conn = Connection::new("scott", "tiger", "").unwrap();
+///
+/// // Fetch Timestamp
+/// let sql = "select TIMESTAMP '2017-08-09 11:22:33.500' from dual";
+/// let mut stmt = conn.execute(sql, &[]).unwrap();
+/// let row = stmt.fetch().unwrap();
+/// let ts: Timestamp = row.get(0).unwrap();
+/// assert_eq!(ts.to_string(), "2017-08-09 11:22:33.500000000");
+///
+/// // Bind Timestamp
+/// let sql = concat!("begin ",
+///                   "  :outval := :inval + interval '+1 02:03:04.5' day to second;",
+///                   "end;");
+/// let stmt = conn.execute(sql,
+///                         &[&OracleType::Timestamp(3), // bind null as timestamp(3)
+///                           &ts, // bind the ts variable
+///                          ]).unwrap();
+/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+/// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
+/// assert_eq!(outval.to_string(), "2017-08-10 13:25:38.000");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct Timestamp {
     year: i32,
@@ -82,6 +150,20 @@ impl Timestamp {
         }
     }
 
+    /// Creates a timestamp.
+    ///
+    /// Valid values are:
+    ///
+    /// | argument | valid values |
+    /// |---|---|
+    /// | `year` | -4713 to 9999 |
+    /// | `month` | 1 to 12 |
+    /// | `day` | 1 to 31 |
+    /// | `hour` | 0 to 23 |
+    /// | `minute` | 0 to 59 |
+    /// | `second` | 0 to 59 |
+    /// | `nanosecond` | 0 to 999999999 |
+    ///
     pub fn new(year: i32, month: u32, day: u32,
                hour: u32, minute: u32, second: u32, nanosecond: u32) -> Timestamp {
         Timestamp {
@@ -99,6 +181,9 @@ impl Timestamp {
         }
     }
 
+    /// Creates a timestamp with time zone.
+    ///
+    /// `offset` is time zone offset seconds from UTC.
     #[inline]
     pub fn and_tz_offset(&self, offset: i32) -> Timestamp {
         Timestamp {
@@ -109,6 +194,11 @@ impl Timestamp {
         }
     }
 
+    /// Creates a timestamp with time zone.
+    ///
+    /// `hour_offset` and `minute_offset` are time zone offset in hours and minutes from UTC.
+    /// All arguments must be zero or positive in the eastern hemisphere. They must be
+    /// zero or negative in the western hemisphere.
     #[inline]
     pub fn and_tz_hm_offset(&self, hour_offset: i32, minute_offset: i32) -> Timestamp {
         Timestamp {
@@ -119,6 +209,10 @@ impl Timestamp {
         }
     }
 
+    /// Creates a timestamp with precision.
+    ///
+    /// The precision affects text representation of Timestamp.
+    /// It doesn't affect comparison.
     #[inline]
     pub fn and_prec(&self, precision: u8) -> Timestamp {
         Timestamp {
@@ -127,50 +221,63 @@ impl Timestamp {
         }
     }
 
+    /// Returns year.
     pub fn year(&self) -> i32 {
         self.year
     }
 
+    /// Returns month.
     pub fn month(&self) -> u32 {
         self.month
     }
 
+    /// Returns day.
     pub fn day(&self) -> u32 {
         self.day
     }
 
+    /// Returns hour.
     pub fn hour(&self) -> u32 {
         self.hour
     }
 
+    /// Returns minute.
     pub fn minute(&self) -> u32 {
         self.minute
     }
 
+    /// Returns second.
     pub fn second(&self) -> u32 {
         self.second
     }
 
+    /// Returns nanosecond.
     pub fn nanosecond(&self) -> u32 {
         self.nanosecond
     }
 
+    /// Returns hour component of time zone.
     pub fn tz_hour_offset(&self) -> i32 {
         self.tz_hour_offset
     }
 
+    /// Returns minute component of time zone.
     pub fn tz_minute_offset(&self) -> i32 {
         self.tz_minute_offset
     }
 
+    /// Returns precision
     pub fn precision(&self) -> u8 {
         self.precision
     }
 
+    /// Returns true when the timestamp's text representation includes time zone information.
+    /// Otherwise, false.
     pub fn with_tz(&self) ->bool {
         self.with_tz
     }
 
+    /// Returns total time zone offset from UTC in seconds.
     pub fn tz_offset(&self) -> i32 {
         self.tz_hour_offset * 3600 + self.tz_minute_offset * 60
     }

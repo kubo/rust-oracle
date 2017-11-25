@@ -39,10 +39,71 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// Interval type corresponding to Oracle type INTERVAL YEAR TO MONTH.
+/// [INTERVAL YEAR TO MONTH][INTVL_YM] data type.
 ///
-/// Don't use this type directly in your applications. This is public
-/// for types implementing `FromSql` and `ToSql` traits.
+/// [INTVL_YM]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
+///
+/// This struct doesn't have arithmetic methods and they won't be added to avoid
+/// reinventing the wheel. However there are no corresponding structs in chrono
+/// now.
+///
+/// # Examples
+///
+/// ```
+/// use oracle::IntervalYM;
+///
+/// // Create an interval by new().
+/// let intvl1 = IntervalYM::new(2, 3);
+///
+/// // All arguments must be zero or negative to create a negative interval.
+/// let intvl2 = IntervalYM::new(-2, -3);
+///
+/// // Convert to string.
+/// assert_eq!(intvl1.to_string(), "+000000002-03");
+/// assert_eq!(intvl2.to_string(), "-000000002-03");
+///
+/// // Create an interval with precision.
+/// let intvl3 = IntervalYM::new(2, 3).and_prec(3);
+///
+/// // The string representation depends on the precisions.
+/// assert_eq!(intvl3.to_string(), "+002-03");
+///
+/// // Precisions are ignored when intervals are compared.
+/// assert!(intvl1 == intvl3);
+///
+/// // Create an interval from string.
+/// let intvl4: IntervalYM = "+002-3".parse().unwrap();
+///
+/// // The precision is determined by number of decimal digits in the string.
+/// assert_eq!(intvl4.precision(), 3);
+/// ```
+///
+/// Fetch and bind interval values.
+///
+/// ```
+/// use oracle::{Connection, IntervalYM, OracleType, Timestamp};
+///
+/// let conn = Connection::new("scott", "tiger", "").unwrap();
+///
+/// // Fetch IntervalYM
+/// let sql = "select interval '+02-03' year to month from dual";
+/// let mut stmt = conn.execute(sql, &[]).unwrap();
+/// let row = stmt.fetch().unwrap();
+/// let intvl: IntervalYM = row.get(0).unwrap();
+/// assert_eq!(intvl.to_string(), "+02-03");
+///
+/// // Bind IntervalYM
+/// let sql = concat!("begin ",
+///                   "  :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval;",
+///                   "end;");
+/// let stmt = conn.execute(sql,
+///                         &[&OracleType::Date, // bind null as date
+///                           &intvl, // bind the intvl variable
+///                          ]).unwrap();
+/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+/// // 2017-08-09 + (2 years and 3 months)
+/// assert_eq!(outval.to_string(), "2019-11-09 00:00:00");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {
     years: i32,
@@ -63,6 +124,17 @@ impl IntervalYM {
         }
     }
 
+    /// Creates a new IntervalYM.
+    ///
+    /// Valid values are:
+    ///
+    /// | argument | valid values |
+    /// |---|---|
+    /// | `years` | -999999999 to 999999999 |
+    /// | `months` | -11 to 11 |
+    ///
+    /// All arguments must be zero or positive to create a positive interval.
+    /// All arguments must be zero or negative to create a negative interval.
     pub fn new(years: i32, months: i32) -> IntervalYM {
         IntervalYM {
             years: years,
@@ -71,6 +143,10 @@ impl IntervalYM {
         }
     }
 
+    /// Creates a new IntervalYM with precision.
+    ///
+    /// The precision affects text representation of IntervalYM.
+    /// It doesn't affect comparison.
     pub fn and_prec(&self, precision: u8) -> IntervalYM {
         IntervalYM {
             precision: precision,
@@ -78,14 +154,17 @@ impl IntervalYM {
         }
     }
 
+    /// Returns years component.
     pub fn years(&self) -> i32 {
         self.years
     }
 
+    /// Returns months component.
     pub fn months(&self) -> i32 {
         self.months
     }
 
+    /// Returns precision.
     pub fn precision(&self) -> u8 {
         self.precision
     }
