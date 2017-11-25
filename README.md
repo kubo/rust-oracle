@@ -30,7 +30,7 @@ charset. However the charset component is ignored and UTF-8(AL32UTF8) is used
 as charset because rust characters are UTF-8.
 
 The territory component specifies numeric format, date format and so on.
-However it affects only conversion in Oralce. See the following example:
+However it affects only conversion in Oracle. See the following example:
 
 ```rust
 // The territory is France.
