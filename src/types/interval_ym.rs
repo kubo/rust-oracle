@@ -44,8 +44,8 @@ use ParseOracleTypeError;
 /// [INTVL_YM]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
 ///
 /// This struct doesn't have arithmetic methods and they won't be added to avoid
-/// reinventing the wheel. However there are no corresponding structs in chrono
-/// now.
+/// reinventing the wheel. However there are no available corresponding structs currently.
+/// The author is looking at progress of [this issue](https://github.com/chronotope/chrono/issues/184).
 ///
 /// # Examples
 ///
@@ -93,9 +93,9 @@ use ParseOracleTypeError;
 /// assert_eq!(intvl.to_string(), "+02-03");
 ///
 /// // Bind IntervalYM
-/// let sql = concat!("begin ",
-///                   "  :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval;",
-///                   "end;");
+/// let sql = "begin \
+///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
+///            end;";
 /// let stmt = conn.execute(sql,
 ///                         &[&OracleType::Date, // bind null as date
 ///                           &intvl, // bind the intvl variable

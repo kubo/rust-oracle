@@ -45,13 +45,13 @@ use ParseOracleTypeError;
 ///
 /// This struct doesn't have arithmetic methods and they won't be added to avoid
 /// reinventing the wheel. If you need methods such as adding an interval to a
-/// timestamp, use [chrono::Date][], [chrono::DateTime][],
+/// timestamp, enable `chrono` feature and use [chrono::Date][], [chrono::DateTime][],
 /// [chrono::naive::NaiveDate][] or [chrono::naive::NaiveDateTime][] instead.
 ///
-/// [chrono::Date]: https://docs.rs/chrono/0.4.0/chrono/struct.Date.html
-/// [chrono::DateTime]: https://docs.rs/chrono/0.4.0/chrono/struct.DateTime.html
-/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDate.html
-/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDateTime.html
+/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
 ///
 /// # Examples
 ///
@@ -101,9 +101,9 @@ use ParseOracleTypeError;
 /// assert_eq!(ts.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Bind Timestamp
-/// let sql = concat!("begin ",
-///                   "  :outval := :inval + interval '+1 02:03:04.5' day to second;",
-///                   "end;");
+/// let sql = "begin \
+///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
+///            end;";
 /// let stmt = conn.execute(sql,
 ///                         &[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                           &ts, // bind the ts variable

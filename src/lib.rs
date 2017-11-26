@@ -30,7 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
-extern crate core;
+#[cfg(feature = "chrono")]
 extern crate chrono;
 #[macro_use]
 extern crate lazy_static;

@@ -15,12 +15,20 @@ Don't use this until the version number reaches to 0.1.0.
 
 ## Usage
 
-Rust-oracle has not been published to [crates.io](https://crates.io/).
-You need to put this in your Cargo.toml:
+Rust-oracle was published to [crates.io](https://crates.io/crates/oracle).
+However it is old. Use rust-oracle in the github.
 
 ```text
 [dependencies]
 oracle = { git = "https://github.com/kubo/rust-oracle.git" }
+```
+
+When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
+data types, enable `chrono` feature:
+
+```text
+[dependencies]
+oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["chrono"] }
 ```
 
 ## NLS_LANG parameter
@@ -76,12 +84,25 @@ determined by the rust type.
 | str, String | NVARCHAR2(length of the rust value) |
 | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
 | Vec\<u8> | RAW(length of the rust value) |
-| chrono::DateTime, Timestamp | TIMESTAMP(9) WITH TIME ZONE |
-| chrono::Date | TIMESTAMP(0) WITH TIME ZONE |
-| chrono::naive::NaiveDateTime | TIMESTAMP(9) |
-| chrono::naive::NaiveDate | TIMESTAMP(0) |
-| chrono::Duration, IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
-| IntervalYM | INTERVAL YEAR(9) TO MONTH |
+| oracle::Timestamp | TIMESTAMP(9) WITH TIME ZONE |
+| oracle::IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
+| oracle::IntervalYM | INTERVAL YEAR(9) TO MONTH |
+
+When `chrono` feature is enabled, the following conversions are added.
+
+| Rust Type | Oracle Type |
+| --- | --- |
+| [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
+| [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
+| [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
+| [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
+| [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
+
+[chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+[chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+[chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+[chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+[chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 
 ## TODO
 

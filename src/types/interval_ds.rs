@@ -45,9 +45,9 @@ use ParseOracleTypeError;
 ///
 /// This struct doesn't have arithmetic methods and they won't be added to avoid
 /// reinventing the wheel. If you need methods such as adding an interval to a
-/// timestamp, use [chrono::Duration][] instead.
+/// timestamp, enable `chrono` feature and use [chrono::Duration][] instead.
 ///
-/// [chrono::Duration]: https://docs.rs/chrono/0.4.0/chrono/struct.Duration.html
+/// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 ///
 /// # Examples
 ///
@@ -96,9 +96,9 @@ use ParseOracleTypeError;
 /// assert_eq!(intvl.to_string(), "+01 02:03:04.500");
 ///
 /// // Bind IntervalDS
-/// let sql = concat!("begin ",
-///                   "  :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval;",
-///                   "end;");
+/// let sql = "begin \
+///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
+///            end;";
 /// let stmt = conn.execute(sql,
 ///                         &[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                           &intvl, // bind the intvl variable

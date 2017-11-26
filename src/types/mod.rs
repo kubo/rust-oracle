@@ -38,6 +38,7 @@ use Result;
 use SqlValue;
 use Timestamp;
 
+#[cfg(feature = "chrono")]
 pub mod chrono;
 pub mod interval_ds;
 pub mod interval_ym;
@@ -76,18 +77,28 @@ pub trait ToSqlNull {
 /// | str, String | NVARCHAR2(length of the rust value) |
 /// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
 /// | Vec\<u8> | RAW(length of the rust value) |
-/// | [chrono::DateTime][], Timestamp | TIMESTAMP(9) WITH TIME ZONE |
-/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
-/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
-/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
-/// | [chrono::Duration][], IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
-/// | IntervalYM | INTERVAL YEAR(9) TO MONTH |
+/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE |
+/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) |
+/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH |
 ///
-/// [chrono::DateTime]: https://docs.rs/chrono/0.4.0/chrono/struct.DateTime.html
-/// [chrono::Date]: https://docs.rs/chrono/0.4.0/chrono/struct.Date.html
-/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDateTime.html
-/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4.0/chrono/naive/struct.NaiveDate.html
-/// [chrono::Duration]: https://docs.rs/chrono/0.4.0/chrono/struct.Duration.html
+/// When `chrono` feature is enabled, the following conversions are added.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
+/// | [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
+/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
+/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
+/// | [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
+///
+/// [Timestamp]: struct.Timestamp.html
+/// [IntervalDS]: struct.IntervalDS.html
+/// [IntervalYM]: struct.IntervalYM.html
+/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 ///
 pub trait ToSql {
     fn oratype(&self) -> Result<OracleType>;

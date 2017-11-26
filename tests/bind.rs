@@ -1,5 +1,4 @@
 extern crate oracle;
-extern crate chrono;
 #[macro_use]
 mod common;
 

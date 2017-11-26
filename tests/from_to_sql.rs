@@ -31,13 +31,8 @@
 // or implied, of the authors.
 
 extern crate oracle;
-extern crate chrono;
 #[macro_use]
 mod common;
-
-use chrono::prelude::*;
-use chrono::Duration;
-use chrono::naive::NaiveDate;
 use oracle::*;
 
 //
@@ -288,336 +283,345 @@ fn interval_ym_to_sql() {
                  "-123456789-02");
 }
 
-//
-// chrono::DateTime<Utc>
-// chrono::DateTime<Local>
-// chrono::DateTime<FixedOffset>
-//
+#[cfg(feature = "chrono")]
+mod chrono {
+    extern crate chrono;
+    use self::chrono::prelude::*;
+    use self::chrono::Duration;
+    use self::chrono::naive::NaiveDate;
+    use common;
+    use oracle::*;
 
-#[test]
-fn chrono_datetime_from_sql() {
-    let conn = common::connect().unwrap();
-    let fixed_utc = FixedOffset::east(0);
-    let fixed_cet = FixedOffset::east(3600);
+    //
+    // chrono::DateTime<Utc>
+    // chrono::DateTime<Local>
+    // chrono::DateTime<FixedOffset>
+    //
 
-    // DATE -> DateTime<Utc>
-    let dttm = Utc.ymd(2012, 3, 4).and_hms(5, 6, 7);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+    #[test]
+    fn datetime_from_sql() {
+        let conn = common::connect().unwrap();
+        let fixed_utc = FixedOffset::east(0);
+        let fixed_cet = FixedOffset::east(3600);
 
-    // DATE -> DateTime<Local>
-    let dttm = Local.ymd(2012, 3, 4).and_hms(5, 6, 7);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+        // DATE -> DateTime<Utc>
+        let dttm = Utc.ymd(2012, 3, 4).and_hms(5, 6, 7);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // DATE -> DateTime<FixedOffset>  TZ is '+00:00'.
-    let dttm = fixed_utc.ymd(2012, 3, 4).and_hms(5, 6, 7);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+        // DATE -> DateTime<Local>
+        let dttm = Local.ymd(2012, 3, 4).and_hms(5, 6, 7);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP -> DateTime<Utc>
-    let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // DATE -> DateTime<FixedOffset>  TZ is '+00:00'.
+        let dttm = fixed_utc.ymd(2012, 3, 4).and_hms(5, 6, 7);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP -> DateTime<Local>
-    let dttm = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // TIMESTAMP -> DateTime<Utc>
+        let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP -> DateTime<Fixed_Utc>  TZ is '+00:00'.
-    let dttm = fixed_utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // TIMESTAMP -> DateTime<Local>
+        let dttm = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> DateTime<Utc>  TZ is ignored.
-    let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
+        // TIMESTAMP -> DateTime<Fixed_Utc>  TZ is '+00:00'.
+        let dttm = fixed_utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> DateTime<Local>  TZ is ignored.
-    let dttm = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
+        // TIMESTAMP WITH TIME ZONE -> DateTime<Utc>  TZ is ignored.
+        let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> DateTime<Fixed_Utc> TZ is set.
-    let dttm = fixed_cet.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
-}
+        // TIMESTAMP WITH TIME ZONE -> DateTime<Local>  TZ is ignored.
+        let dttm = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
 
-#[test]
-fn chrono_datetime_to_sql() {
-    let conn = common::connect().unwrap();
-    let dttm_utc = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    let dttm_local = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        // TIMESTAMP WITH TIME ZONE -> DateTime<Fixed_Utc> TZ is set.
+        let dttm = fixed_cet.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
+    }
 
-    // DateTime<Utc> -> TIMESTAMP WITH TIME ZONE
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 "2012-03-04 05:06:07.123456789 +00:00");
+    #[test]
+    fn datetime_to_sql() {
+        let conn = common::connect().unwrap();
+        let dttm_utc = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        let dttm_local = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
 
-    // DateTime<Local> -> TIMESTAMP WITH TIME ZONE
-    let tz_offset = dttm_local.offset().fix().local_minus_utc();
-    let tz_sign = if tz_offset >= 0 { '+' } else { '-' };
-    let tz_hour = tz_offset.abs() / 3600;
-    let tz_min = tz_offset.abs() % 3600 / 60;
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &format!("2012-03-04 05:06:07.123456789 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
+        // DateTime<Utc> -> TIMESTAMP WITH TIME ZONE
+        test_to_sql!(&conn, &dttm_utc,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     "2012-03-04 05:06:07.123456789 +00:00");
 
-    // DateTime<FixedOffset> -> TIMESTAMP WITH TIME ZONE
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 "2012-03-04 05:06:07.123456789 +01:00");
-}
+        // DateTime<Local> -> TIMESTAMP WITH TIME ZONE
+        let tz_offset = dttm_local.offset().fix().local_minus_utc();
+        let tz_sign = if tz_offset >= 0 { '+' } else { '-' };
+        let tz_hour = tz_offset.abs() / 3600;
+        let tz_min = tz_offset.abs() % 3600 / 60;
+        test_to_sql!(&conn, &dttm_local,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     &format!("2012-03-04 05:06:07.123456789 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
 
-//
-// chrono::Date<Utc>
-// chrono::Date<Local>
-// chrono::Date<FixedOffset>
-//
+        // DateTime<FixedOffset> -> TIMESTAMP WITH TIME ZONE
+        test_to_sql!(&conn, &dttm_fixed_cet,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     "2012-03-04 05:06:07.123456789 +01:00");
+    }
 
-#[test]
-fn chrono_date_from_sql() {
-    let conn = common::connect().unwrap();
-    let fixed_utc = FixedOffset::east(0);
-    let fixed_cet = FixedOffset::east(3600);
+    //
+    // chrono::Date<Utc>
+    // chrono::Date<Local>
+    // chrono::Date<FixedOffset>
+    //
 
-    // DATE -> Date<Utc>
-    let dttm = Utc.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+    #[test]
+    fn date_from_sql() {
+        let conn = common::connect().unwrap();
+        let fixed_utc = FixedOffset::east(0);
+        let fixed_cet = FixedOffset::east(3600);
 
-    // DATE -> Date<Local>
-    let dttm = Local.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+        // DATE -> Date<Utc>
+        let dttm = Utc.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // DATE -> Date<FixedOffset>  TZ is '+00:00'.
-    let dttm = fixed_utc.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+        // DATE -> Date<Local>
+        let dttm = Local.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP -> Date<Utc>
-    let dttm = Utc.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // DATE -> Date<FixedOffset>  TZ is '+00:00'.
+        let dttm = fixed_utc.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP -> Date<Local>
-    let dttm = Local.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // TIMESTAMP -> Date<Utc>
+        let dttm = Utc.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP -> Date<Fixed_Utc>  TZ is '+00:00'.
-    let dttm = fixed_utc.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // TIMESTAMP -> Date<Local>
+        let dttm = Local.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> Date<Utc>  TZ is ignored.
-    let dttm = Utc.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
+        // TIMESTAMP -> Date<Fixed_Utc>  TZ is '+00:00'.
+        let dttm = fixed_utc.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> Date<Local>  TZ is ignored.
-    let dttm = Local.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
+        // TIMESTAMP WITH TIME ZONE -> Date<Utc>  TZ is ignored.
+        let dttm = Utc.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> Date<Fixed_Utc> TZ is set.
-    let dttm = fixed_cet.ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
-}
+        // TIMESTAMP WITH TIME ZONE -> Date<Local>  TZ is ignored.
+        let dttm = Local.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
 
-#[test]
-fn chrono_date_to_sql() {
-    let conn = common::connect().unwrap();
-    let dttm_utc = Utc.ymd(2012, 3, 4);
-    let dttm_local = Local.ymd(2012, 3, 4);
-    let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4);
+        // TIMESTAMP WITH TIME ZONE -> Date<Fixed_Utc> TZ is set.
+        let dttm = fixed_cet.ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
+    }
 
-    // Date<Utc> -> TIMESTAMP WITH TIME ZONE
-    test_to_sql!(&conn, &dttm_utc,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 "2012-03-04 00:00:00.000000000 +00:00");
+    #[test]
+    fn date_to_sql() {
+        let conn = common::connect().unwrap();
+        let dttm_utc = Utc.ymd(2012, 3, 4);
+        let dttm_local = Local.ymd(2012, 3, 4);
+        let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4);
 
-    // Date<Local> -> TIMESTAMP WITH TIME ZONE
-    let tz_offset = dttm_local.offset().fix().local_minus_utc();
-    let tz_sign = if tz_offset >= 0 { '+' } else { '-' };
-    let tz_hour = tz_offset.abs() / 3600;
-    let tz_min = tz_offset.abs() % 3600 / 60;
-    test_to_sql!(&conn, &dttm_local,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 &format!("2012-03-04 00:00:00.000000000 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
+        // Date<Utc> -> TIMESTAMP WITH TIME ZONE
+        test_to_sql!(&conn, &dttm_utc,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     "2012-03-04 00:00:00.000000000 +00:00");
 
-    // Date<FixedOffset> -> TIMESTAMP WITH TIME ZONE
-    test_to_sql!(&conn, &dttm_fixed_cet,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                 "2012-03-04 00:00:00.000000000 +01:00");
-}
+        // Date<Local> -> TIMESTAMP WITH TIME ZONE
+        let tz_offset = dttm_local.offset().fix().local_minus_utc();
+        let tz_sign = if tz_offset >= 0 { '+' } else { '-' };
+        let tz_hour = tz_offset.abs() / 3600;
+        let tz_min = tz_offset.abs() % 3600 / 60;
+        test_to_sql!(&conn, &dttm_local,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     &format!("2012-03-04 00:00:00.000000000 {}{:02}:{:02}", tz_sign, tz_hour, tz_min));
 
-//
-// chrono::naive::NaiveDateTime
-//
+        // Date<FixedOffset> -> TIMESTAMP WITH TIME ZONE
+        test_to_sql!(&conn, &dttm_fixed_cet,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                     "2012-03-04 00:00:00.000000000 +01:00");
+    }
 
-#[test]
-fn chrono_naive_datetime_from_sql() {
-    let conn = common::connect().unwrap();
+    //
+    // chrono::naive::NaiveDateTime
+    //
 
-    // DATE -> NaiveDateTime
-    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms(5, 6, 7);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+    #[test]
+    fn naive_datetime_from_sql() {
+        let conn = common::connect().unwrap();
 
-    // TIMESTAMP -> NaiveDateTime
-    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // DATE -> NaiveDateTime
+        let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms(5, 6, 7);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> NaiveDateTime (TZ is ignored.)
-    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
-}
+        // TIMESTAMP -> NaiveDateTime
+        let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-#[test]
-fn chrono_naive_datetime_to_sql() {
-    let conn = common::connect().unwrap();
+        // TIMESTAMP WITH TIME ZONE -> NaiveDateTime (TZ is ignored.)
+        let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
+    }
 
-    // NaiveDateTime -> TIMESTAMP
-    let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-    test_to_sql!(&conn, &dttm,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 05:06:07.123456789");
-}
+    #[test]
+    fn naive_datetime_to_sql() {
+        let conn = common::connect().unwrap();
 
-//
-// chrono::NaiveDate
-//
+        // NaiveDateTime -> TIMESTAMP
+        let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        test_to_sql!(&conn, &dttm,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                     "2012-03-04 05:06:07.123456789");
+    }
 
-#[test]
-fn chrono_naive_date_from_sql() {
-    let conn = common::connect().unwrap();
+    //
+    // chrono::NaiveDate
+    //
 
-    // DATE -> NaiveDate
-    let dttm = NaiveDate::from_ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
-                   &OracleType::Date, &dttm);
+    #[test]
+    fn naive_date_from_sql() {
+        let conn = common::connect().unwrap();
 
-    // TIMESTAMP -> NaiveDate
-    let dttm = NaiveDate::from_ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                   &OracleType::Timestamp(9), &dttm);
+        // DATE -> NaiveDate
+        let dttm = NaiveDate::from_ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_DATE('2012-03-04 05:06:07', 'YYYY-MM-DD HH24:MI:SS')",
+                       &OracleType::Date, &dttm);
 
-    // TIMESTAMP WITH TIME ZONE -> NaiveDate (TZ is ignored.)
-    let dttm = NaiveDate::from_ymd(2012, 3, 4);
-    test_from_sql!(&conn,
-                   "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                   &OracleType::TimestampTZ(9), &dttm);
-}
+        // TIMESTAMP -> NaiveDate
+        let dttm = NaiveDate::from_ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP('2012-03-04 05:06:07.123456789', 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                       &OracleType::Timestamp(9), &dttm);
 
-#[test]
-fn chrono_naive_date_to_sql() {
-    let conn = common::connect().unwrap();
+        // TIMESTAMP WITH TIME ZONE -> NaiveDate (TZ is ignored.)
+        let dttm = NaiveDate::from_ymd(2012, 3, 4);
+        test_from_sql!(&conn,
+                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                       &OracleType::TimestampTZ(9), &dttm);
+    }
 
-    // NaiveDate -> TIMESTAMP
-    let dttm = NaiveDate::from_ymd(2012, 3, 4);
-    test_to_sql!(&conn, &dttm,
-                 "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
-                 "2012-03-04 00:00:00.000000000");
-}
+    #[test]
+    fn naive_date_to_sql() {
+        let conn = common::connect().unwrap();
 
-//
-// chrono::Duration
-//
+        // NaiveDate -> TIMESTAMP
+        let dttm = NaiveDate::from_ymd(2012, 3, 4);
+        test_to_sql!(&conn, &dttm,
+                     "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
+                     "2012-03-04 00:00:00.000000000");
+    }
 
-#[test]
-fn chrono_duration_from_sql() {
-    let conn = common::connect().unwrap();
+    //
+    // chrono::Duration
+    //
 
-    // INTERVAL DAY TO SECOND -> Duration
-    let d = Duration::days(1) + Duration::hours(2) + Duration::minutes(3)
-        + Duration::seconds(4) + Duration::nanoseconds(123456789);
-    test_from_sql!(&conn,
-                   "INTERVAL '+1 02:03:04.123456789' DAY TO SECOND(9)",
-                   &OracleType::IntervalDS(2, 9), &d);
-    let d = -d;
-    test_from_sql!(&conn,
-                   "INTERVAL '-1 02:03:04.123456789' DAY TO SECOND(9)",
-                   &OracleType::IntervalDS(2, 9), &d);
+    #[test]
+    fn duration_from_sql() {
+        let conn = common::connect().unwrap();
 
-    let d = Duration::days(999999999) + Duration::hours(23) + Duration::minutes(59)
-        + Duration::seconds(59) + Duration::nanoseconds(999999999);
-    test_from_sql!(&conn,
-                   "INTERVAL '+999999999 23:59:59.999999999' DAY(9) TO SECOND(9)",
-                   &OracleType::IntervalDS(9, 9), &d);
+        // INTERVAL DAY TO SECOND -> Duration
+        let d = Duration::days(1) + Duration::hours(2) + Duration::minutes(3)
+            + Duration::seconds(4) + Duration::nanoseconds(123456789);
+        test_from_sql!(&conn,
+                       "INTERVAL '+1 02:03:04.123456789' DAY TO SECOND(9)",
+                       &OracleType::IntervalDS(2, 9), &d);
+        let d = -d;
+        test_from_sql!(&conn,
+                       "INTERVAL '-1 02:03:04.123456789' DAY TO SECOND(9)",
+                       &OracleType::IntervalDS(2, 9), &d);
 
-    let d = -d;
-    test_from_sql!(&conn,
-                   "INTERVAL '-999999999 23:59:59.999999999' DAY(9) TO SECOND(9)",
-                   &OracleType::IntervalDS(9, 9), &d);
-}
+        let d = Duration::days(999999999) + Duration::hours(23) + Duration::minutes(59)
+            + Duration::seconds(59) + Duration::nanoseconds(999999999);
+        test_from_sql!(&conn,
+                       "INTERVAL '+999999999 23:59:59.999999999' DAY(9) TO SECOND(9)",
+                       &OracleType::IntervalDS(9, 9), &d);
 
-#[test]
-fn chrono_duration_to_sql() {
-    let conn = common::connect().unwrap();
+        let d = -d;
+        test_from_sql!(&conn,
+                       "INTERVAL '-999999999 23:59:59.999999999' DAY(9) TO SECOND(9)",
+                       &OracleType::IntervalDS(9, 9), &d);
+    }
 
-    // Duration -> INTERVAL DAY TO SECOND
-    let d = Duration::days(1) + Duration::hours(2) + Duration::minutes(3)
-        + Duration::seconds(4) + Duration::nanoseconds(123456789);
-    test_to_sql!(&conn, &d,
-                 "TO_CHAR(:1)",
-                 "+000000001 02:03:04.123456789");
+    #[test]
+    fn duration_to_sql() {
+        let conn = common::connect().unwrap();
 
-    let d = -d;
-    test_to_sql!(&conn, &d,
-                 "TO_CHAR(:1)",
-                 "-000000001 02:03:04.123456789");
+        // Duration -> INTERVAL DAY TO SECOND
+        let d = Duration::days(1) + Duration::hours(2) + Duration::minutes(3)
+            + Duration::seconds(4) + Duration::nanoseconds(123456789);
+        test_to_sql!(&conn, &d,
+                     "TO_CHAR(:1)",
+                     "+000000001 02:03:04.123456789");
 
-    let d = Duration::days(999999999) + Duration::hours(23) + Duration::minutes(59)
-        + Duration::seconds(59) + Duration::nanoseconds(999999999);
-    test_to_sql!(&conn, &d,
-                 "TO_CHAR(:1)",
-                 "+999999999 23:59:59.999999999");
+        let d = -d;
+        test_to_sql!(&conn, &d,
+                     "TO_CHAR(:1)",
+                     "-000000001 02:03:04.123456789");
 
-    let d = -d;
-    test_to_sql!(&conn, &d,
-                 "TO_CHAR(:1)",
-                 "-999999999 23:59:59.999999999");
+        let d = Duration::days(999999999) + Duration::hours(23) + Duration::minutes(59)
+            + Duration::seconds(59) + Duration::nanoseconds(999999999);
+        test_to_sql!(&conn, &d,
+                     "TO_CHAR(:1)",
+                     "+999999999 23:59:59.999999999");
 
-    // Overflow
-    let d = Duration::days(1000000000);
-    let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;").unwrap();
-    let bind_result = stmt.bind(2, &d);
-    if let Err(Error::Overflow(_, _)) = bind_result {
-        ; /* OK */
-    } else {
-        panic!("Duration 1000000000 days should not be converted to interval day to second!");
+        let d = -d;
+        test_to_sql!(&conn, &d,
+                     "TO_CHAR(:1)",
+                     "-999999999 23:59:59.999999999");
+
+        // Overflow
+        let d = Duration::days(1000000000);
+        let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;").unwrap();
+        let bind_result = stmt.bind(2, &d);
+        if let Err(Error::Overflow(_, _)) = bind_result {
+            ; /* OK */
+        } else {
+            panic!("Duration 1000000000 days should not be converted to interval day to second!");
+        }
     }
 }
-
