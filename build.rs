@@ -20,5 +20,6 @@ fn main() {
     }
     build.include("odpi/include")
         .include("odpi/src")
+        .flag("-Wno-unused-parameter")
         .compile("libodpic.a");
 }
