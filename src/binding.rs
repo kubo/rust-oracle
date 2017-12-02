@@ -46,6 +46,10 @@ pub const DPI_MODE_AUTH_SYSDBA: dpiAuthMode = 2;
 pub const DPI_MODE_AUTH_SYSOPER: dpiAuthMode = 4;
 pub const DPI_MODE_AUTH_PRELIM: dpiAuthMode = 8;
 pub const DPI_MODE_AUTH_SYSASM: dpiAuthMode = 32768;
+pub const DPI_MODE_AUTH_SYSBKP: dpiAuthMode = 131072;
+pub const DPI_MODE_AUTH_SYSDGD: dpiAuthMode = 262144;
+pub const DPI_MODE_AUTH_SYSKMT: dpiAuthMode = 524288;
+pub const DPI_MODE_AUTH_SYSRAC: dpiAuthMode = 1048576;
 pub type dpiAuthMode = ::std::os::raw::c_uint;
 pub const DPI_MODE_CONN_CLOSE_DEFAULT: dpiConnCloseMode = 0;
 pub const DPI_MODE_CONN_CLOSE_DROP: dpiConnCloseMode = 1;
@@ -1395,10 +1399,12 @@ pub struct dpiSubscrMessage {
     pub queries: *mut dpiSubscrMessageQuery,
     pub numQueries: u32,
     pub errorInfo: *mut dpiErrorInfo,
+    pub txId: *const ::std::os::raw::c_void,
+    pub txIdLength: u32,
 }
 #[test]
 fn bindgen_test_layout_dpiSubscrMessage() {
-    assert_eq!(::std::mem::size_of::<dpiSubscrMessage>() , 64usize , concat !
+    assert_eq!(::std::mem::size_of::<dpiSubscrMessage>() , 80usize , concat !
                ( "Size of: " , stringify ! ( dpiSubscrMessage ) ));
     assert_eq! (::std::mem::align_of::<dpiSubscrMessage>() , 8usize , concat !
                 ( "Alignment of " , stringify ! ( dpiSubscrMessage ) ));
@@ -1442,6 +1448,16 @@ fn bindgen_test_layout_dpiSubscrMessage() {
                 const _ as usize } , 56usize , concat ! (
                 "Alignment of field: " , stringify ! ( dpiSubscrMessage ) ,
                 "::" , stringify ! ( errorInfo ) ));
+    assert_eq! (unsafe {
+                & ( * ( 0 as * const dpiSubscrMessage ) ) . txId as * const _
+                as usize } , 64usize , concat ! (
+                "Alignment of field: " , stringify ! ( dpiSubscrMessage ) ,
+                "::" , stringify ! ( txId ) ));
+    assert_eq! (unsafe {
+                & ( * ( 0 as * const dpiSubscrMessage ) ) . txIdLength as *
+                const _ as usize } , 72usize , concat ! (
+                "Alignment of field: " , stringify ! ( dpiSubscrMessage ) ,
+                "::" , stringify ! ( txIdLength ) ));
 }
 impl Clone for dpiSubscrMessage {
     fn clone(&self) -> Self { *self }

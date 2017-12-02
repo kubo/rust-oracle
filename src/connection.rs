@@ -70,6 +70,9 @@ pub enum AuthMode {
 
     /// connect as [SYSKM](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
     SYSKM,
+
+    /// connect as [SYSRAC](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG-GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
+    SYSRAC,
 }
 
 /// Database startup mode
@@ -205,9 +208,10 @@ impl Connector {
             AuthMode::SYSDBA    => DPI_MODE_AUTH_SYSDBA,
             AuthMode::SYSOPER   => DPI_MODE_AUTH_SYSOPER,
             AuthMode::SYSASM    => DPI_MODE_AUTH_SYSASM,
-            AuthMode::SYSBACKUP => 0x00020000, // OCI_SYSBKP in oci.h
-            AuthMode::SYSDG     => 0x00040000, // OCI_SYSDGD in oci.h
-            AuthMode::SYSKM     => 0x00080000, // OCI_SYSKMT in oci.h
+            AuthMode::SYSBACKUP => DPI_MODE_AUTH_SYSBKP,
+            AuthMode::SYSDG     => DPI_MODE_AUTH_SYSDGD,
+            AuthMode::SYSKM     => DPI_MODE_AUTH_SYSKMT,
+            AuthMode::SYSRAC    => DPI_MODE_AUTH_SYSRAC,
         };
         if self.prelim_auth {
             conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
