@@ -216,20 +216,7 @@ impl Default for dpiData {
         dpiData {
             isNull: 0,
             value: dpiDataBuffer {
-                asBoolean: Default::default(),
-                asInt64: Default::default(),
-                asUint64: Default::default(),
-                asFloat: Default::default(),
-                asDouble: Default::default(),
-                asBytes: Default::default(),
-                asTimestamp: Default::default(),
-                asIntervalDS: Default::default(),
-                asIntervalYM: Default::default(),
-                asLOB: Default::default(),
-                asObject: Default::default(),
-                asStmt: Default::default(),
-                asRowid: Default::default(),
-                bindgen_union_field: [0; 3],
+                asInt64: 0,
             },
         }
     }

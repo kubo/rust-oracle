@@ -6,7 +6,7 @@ Don't use this until the version number reaches to 0.1.0.
 
 ## Build-time Requirements
 
-* Rust 1.18 or later
+* Rust 1.19 or later
 * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
 
 ## Run-time Requirements
