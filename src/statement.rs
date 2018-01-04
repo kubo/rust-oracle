@@ -276,7 +276,7 @@ impl<'conn> Statement<'conn> {
                 let ci = ColumnInfo::new(self, i)?;
                 self.row.column_info.push(ci);
                 // setup column value
-                let mut val = unsafe { self.row.column_values.get_unchecked_mut(i) };
+                let val = unsafe { self.row.column_values.get_unchecked_mut(i) };
                 let oratype = self.row.column_info[i].oracle_type();
                 let oratype_i64 = OracleType::Int64;
                 let oratype = match *oratype {
