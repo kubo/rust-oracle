@@ -44,7 +44,7 @@ use Result;
 use SqlValue;
 use ToSql;
 
-use OdpiStr;
+use to_rust_str;
 use util::write_literal;
 
 /// Collection data type of Oracle database
@@ -542,7 +542,7 @@ impl ObjectTypeAttr {
         Ok(ObjectTypeAttr {
             ctxt: ctxt,
             handle: handle,
-            name: OdpiStr::new(info.name, info.nameLength).to_string(),
+            name: to_rust_str(info.name, info.nameLength),
             oratype: OracleType::from_type_info(ctxt, &info.typeInfo)?,
         })
     }
@@ -624,8 +624,8 @@ impl ObjectTypeInternal {
         Ok(ObjectTypeInternal {
             ctxt: ctxt,
             handle: handle,
-            schema: OdpiStr::new(info.schema, info.schemaLength).to_string(),
-            name: OdpiStr::new(info.name, info.nameLength).to_string(),
+            schema: to_rust_str(info.schema, info.schemaLength),
+            name: to_rust_str(info.name, info.nameLength),
             elem_oratype: elem_oratype,
             attrs: attrs,
         })

@@ -376,14 +376,24 @@ fn to_odpi_str(s: &str) -> OdpiStr {
 }
 
 impl OdpiStr {
-    pub fn new(ptr: *const c_char, len: u32) -> OdpiStr {
-        OdpiStr {
-            ptr: ptr,
-            len: len,
-        }
-    }
     pub fn to_string(&self) -> String {
-        let vec = unsafe { slice::from_raw_parts(self.ptr as *mut u8, self.len as usize) };
-        String::from_utf8_lossy(vec).into_owned()
+        to_rust_str(self.ptr, self.len)
+    }
+}
+
+fn to_rust_str(ptr: *const c_char, len: u32) -> String {
+    if ptr.is_null() {
+        "".to_string()
+    } else {
+        let s = unsafe { slice::from_raw_parts(ptr as *mut u8, len as usize) };
+        String::from_utf8_lossy(s).into_owned()
+    }
+}
+
+fn to_rust_slice<'a>(ptr: *const c_char, len: u32) -> &'a [u8] {
+    if ptr.is_null() {
+        &[]
+    } else {
+        unsafe { slice::from_raw_parts(ptr as *mut u8, len as usize) }
     }
 }

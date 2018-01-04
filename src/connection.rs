@@ -41,9 +41,9 @@ use ObjectType;
 use Result;
 use ToSql;
 
-use OdpiStr;
 use new_odpi_str;
 use to_odpi_str;
+use to_rust_str;
 
 /// Authorization mode
 ///
@@ -898,7 +898,7 @@ impl Connection {
         Ok(Connection{
             ctxt: ctxt,
             handle: handle,
-            tag: OdpiStr::new(conn_param.outTag, conn_param.outTagLength).to_string(),
+            tag: to_rust_str(conn_param.outTag, conn_param.outTagLength),
             tag_found: conn_param.outTagFound != 0,
         })
     }

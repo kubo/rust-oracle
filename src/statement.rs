@@ -44,8 +44,8 @@ use Result;
 use SqlValue;
 use ToSql;
 
-use OdpiStr;
 use to_odpi_str;
+use to_rust_str;
 
 //
 // StatementType
@@ -151,7 +151,7 @@ impl<'conn> Statement<'conn> {
                     unsafe { dpiStmt_release(handle); });
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
-                bind_names.push(OdpiStr::new(names[i], lengths[i]).to_string());
+                bind_names.push(to_rust_str(names[i], lengths[i]));
             }
         };
         Ok(Statement {
@@ -449,7 +449,7 @@ impl ColumnInfo {
         chkerr!(stmt.conn.ctxt,
                 dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info));
         Ok(ColumnInfo {
-            name: OdpiStr::new(info.name, info.nameLength).to_string(),
+            name: to_rust_str(info.name, info.nameLength),
             oracle_type: OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)?,
             nullable: info.nullOk != 0,
         })

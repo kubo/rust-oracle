@@ -32,7 +32,6 @@
 
 use std::fmt;
 use std::ptr;
-use std::slice;
 use std::str;
 use try_from::TryInto;
 
@@ -52,6 +51,8 @@ use Result;
 use Timestamp;
 use ToSql;
 
+use to_rust_str;
+use to_rust_slice;
 use util::check_number_format;
 use util::parse_str_into_raw;
 use util::set_hex_string;
@@ -378,9 +379,7 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data());
-            let ptr = (*bytes).ptr as *mut u8;
-            let len = (*bytes).length as usize;
-            Ok(String::from_utf8_lossy(slice::from_raw_parts(ptr, len)).into_owned())
+            Ok(to_rust_str((*bytes).ptr, (*bytes).length))
         }
     }
 
@@ -390,10 +389,8 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data());
-            let ptr = (*bytes).ptr as *mut u8;
-            let len = (*bytes).length as usize;
-            let mut vec = Vec::with_capacity(len);
-            vec.extend_from_slice(slice::from_raw_parts(ptr, len));
+            let mut vec = Vec::with_capacity((*bytes).length as usize);
+            vec.extend_from_slice(to_rust_slice((*bytes).ptr, (*bytes).length));
             Ok(vec)
         }
     }
@@ -404,10 +401,8 @@ impl SqlValue {
         self.check_not_null()?;
         unsafe {
             let bytes = dpiData_getBytes(self.data());
-            let ptr = (*bytes).ptr as *mut u8;
-            let len = (*bytes).length as usize;
-            let mut str = String::with_capacity(len * 2);
-            set_hex_string(&mut str, slice::from_raw_parts(ptr, len));
+            let mut str = String::with_capacity(((*bytes).length * 2) as usize);
+            set_hex_string(&mut str, to_rust_slice((*bytes).ptr, (*bytes).length));
             Ok(str)
         }
     }

@@ -34,12 +34,13 @@ use std::ffi::CStr;
 use std::error;
 use std::fmt;
 use std::num;
-use std::slice;
 use std::str;
 use try_from;
 use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
 use Context;
+
+use to_rust_str;
 
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {
@@ -315,9 +316,7 @@ impl From<str::Utf8Error> for Error {
 
 pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
     let err = DbError::new(err.code, err.offset,
-                           String::from_utf8_lossy(unsafe {
-                               slice::from_raw_parts(err.message as *mut u8, err.messageLength as usize)
-                           }).into_owned(),
+                           to_rust_str(err.message, err.messageLength),
                            unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy().into_owned(),
                            unsafe { CStr::from_ptr(err.action) }.to_string_lossy().into_owned());
     if err.message().starts_with("DPI") {
