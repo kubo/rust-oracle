@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -47,22 +47,25 @@ use ToSql;
 use to_rust_str;
 use util::write_literal;
 
-/// Collection data type of Oracle database
+/// Oracle-specific collection data type
 ///
 /// This type corresponds to varray and nested table data types.
-/// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm)
+/// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm).
 ///
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
 /// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY").unwrap();
+///
 /// // Create a new collection
 /// let mut obj = objtype.new_collection().unwrap();
 /// obj.push(&1);
-/// obj.push(&1003);
 /// obj.push(&3);
 /// assert_eq!(obj.to_string(), "MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)");
 /// ```
+///
+/// Note: Methods in the type may be changed in future.
 pub struct Collection {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiObject,
@@ -78,10 +81,16 @@ impl Collection {
         }
     }
 
+    /// Returns type information.
     pub fn object_type(&self) -> &ObjectType {
         &self.objtype
     }
 
+    /// Returns the number of elements.
+    ///
+    /// This counts also deleted elements. See "Comments" about [OCICollSize()][].
+    ///
+    /// [OCICollSize()]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/lnoci/oci-collection-and-iterator-functions.html#GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
     pub fn size(&self) -> Result<i32> {
         let mut size = 0;
         chkerr!(self.ctxt,
@@ -89,6 +98,9 @@ impl Collection {
         Ok(size)
     }
 
+    /// Returns the first index.
+    ///
+    /// Use this method if indexes of the collection isn't continuous.
     pub fn first_index(&self) -> Result<i32> {
         let mut index = 0;
         let mut exists = 0;
@@ -101,6 +113,9 @@ impl Collection {
         }
     }
 
+    /// Returns the last index.
+    ///
+    /// Use this method if indexes of the collection isn't continuous.
     pub fn last_index(&self) -> Result<i32> {
         let mut index = 0;
         let mut exists = 0;
@@ -113,6 +128,9 @@ impl Collection {
         }
     }
 
+    /// Returns the next index following the specified index.
+    ///
+    /// Use this method if indexes of the collection isn't continuous.
     pub fn next_index(&self, index: i32) -> Result<i32> {
         let mut next = 0;
         let mut exists = 0;
@@ -125,6 +143,9 @@ impl Collection {
         }
     }
 
+    /// Returns the previous index following the specified index.
+    ///
+    /// Use this method if indexes of the collection isn't continuous.
     pub fn prev_index(&self, index: i32) -> Result<i32> {
         let mut prev = 0;
         let mut exists = 0;
@@ -137,6 +158,7 @@ impl Collection {
         }
     }
 
+    /// Returns whether an element exists at the specified index.
     pub fn exist(&self, index: i32) -> Result<bool> {
         let mut exists = 0;
         chkerr!(self.ctxt,
@@ -144,6 +166,7 @@ impl Collection {
         Ok(exists != 0)
     }
 
+    /// Returns the value of the element at the specified index.
     pub fn get<T>(&self, index: i32) -> Result<T> where T: FromSql {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
@@ -159,6 +182,7 @@ impl Collection {
         sql_value.get()
     }
 
+    /// Sets the value to the element at the specified index.
     pub fn set(&mut self, index: i32, value: &ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
@@ -169,6 +193,7 @@ impl Collection {
         Ok(())
     }
 
+    /// Appends an element to the end of the collection.
     pub fn push(&mut self, value: &ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
@@ -179,12 +204,19 @@ impl Collection {
         Ok(())
     }
 
+    /// Remove the element at the specified index.
+    /// Note that the position ordinals of the remaining elements are not changed.
+    /// The operation creates **holes** in the collection.
     pub fn remove(&mut self, index: i32) -> Result<()> {
         chkerr!(self.ctxt,
                 dpiObject_deleteElementByIndex(self.handle, index));
         Ok(())
     }
 
+    /// Trims a number of elements from the end of a collection.
+    ///
+    /// If the number of of elements to trim exceeds the current size
+    /// of the collection an error is returned.
     pub fn trim(&mut self, len: usize) -> Result<()> {
         chkerr!(self.ctxt,
                 dpiObject_trim(self.handle, len as u32));
@@ -260,10 +292,31 @@ impl fmt::Debug for Collection {
     }
 }
 
-//
-// Object
-//
-
+/// Oracle-specific object data type
+///
+/// ```no_run
+/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+///
+/// // MDSYS.SDO_GEOMETRY
+/// // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/spatl/spatial-datatypes-metadata.html#GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
+/// let geom_type = conn.object_type("MDSYS.SDO_GEOMETRY").unwrap();
+/// let point_type = conn.object_type("MDSYS.SDO_POINT_TYPE").unwrap();
+///
+/// // Create a new object
+/// let mut obj = geom_type.new_object().unwrap();
+/// let mut point = point_type.new_object().unwrap();
+/// point.set("X", &-79).unwrap();
+/// point.set("Y", &37).unwrap();
+/// obj.set("SDO_GTYPE", &2001).unwrap();
+/// obj.set("SDO_POINT", &point).unwrap();
+/// assert_eq!(obj.to_string(), "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(-79, 37, NULL), NULL, NULL)");
+///
+/// // Gets an attribute value.
+/// let gtype: i32 = obj.get("SDO_GTYPE").unwrap();
+/// assert_eq!(gtype, 2001);
+/// ```
+///
+/// Note: Methods in the type may be changed in future.
 pub struct Object {
     ctxt: &'static Context,
     pub(crate) handle: *mut dpiObject,
@@ -279,6 +332,7 @@ impl Object {
         }
     }
 
+    /// Returns type information.
     pub fn object_type(&self) -> &ObjectType {
         &self.objtype
     }
@@ -292,7 +346,7 @@ impl Object {
         Err(Error::InvalidAttributeName(name.to_string()))
     }
 
-    pub fn get_by_attr<T>(&self, attr: &ObjectTypeAttr) -> Result<T> where T: FromSql {
+    pub(crate) fn get_by_attr<T>(&self, attr: &ObjectTypeAttr) -> Result<T> where T: FromSql {
         let mut data = Default::default();
         let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
         if let OracleType::Number(_, _) = attr.oratype {
@@ -307,10 +361,12 @@ impl Object {
         sql_value.get()
     }
 
+    /// Gets an value at the specified attribute.
     pub fn get<T>(&self, name: &str) -> Result<T> where T: FromSql {
         self.get_by_attr(self.type_attr(name)?)
     }
 
+    /// Sets the value to the specified attribute.
     pub fn set(&mut self, name: &str, value: &ToSql) -> Result<()> {
         let attrtype = self.type_attr(name)?;
         let mut data = Default::default();
@@ -384,11 +440,10 @@ impl fmt::Debug for Object {
     }
 }
 
-//
-// ObjectType
-//
-
-/// Object type information
+/// Type information about Object or Collection data type
+///
+/// This is for not only Object type information but also
+/// collection type information.
 ///
 /// # Examples
 ///
@@ -477,6 +532,7 @@ impl ObjectType {
         &self.internal.attrs
     }
 
+    /// Create a new Oracle object.
     pub fn new_object(&self) -> Option<Object> {
         if self.is_collection() {
             return None
@@ -489,6 +545,7 @@ impl ObjectType {
         Some(Object::new(ctxt, handle, self.clone()))
     }
 
+    /// Create a new collection.
     pub fn new_collection(&self) -> Option<Collection> {
         if !self.is_collection() {
             return None
@@ -519,10 +576,6 @@ impl fmt::Debug for ObjectType {
         write!(f, "{:?}", self.internal)
     }
 }
-
-//
-// ObjectTypeAttr
-//
 
 /// Object type attribute information
 ///

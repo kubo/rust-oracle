@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// [INTERVAL DAY TO SECOND][INTVL_DS] data type.
+/// Oracle-specific [Interval Day to Second][INTVL_DS] data type.
 ///
 /// [INTVL_DS]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
 ///

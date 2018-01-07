@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -133,6 +133,7 @@ impl error::Error for ParseOracleTypeError {
     }
 }
 
+/// Oracle database error or ODPI-C error
 #[derive(Eq, PartialEq, Clone)]
 pub struct DbError {
     code: i32,
@@ -142,7 +143,6 @@ pub struct DbError {
     action: String,
 }
 
-/// Oracle database or ODPI-C error
 impl DbError {
     pub fn new(code: i32, offset: u16, message: String, fn_name: String, action: String) -> DbError {
         DbError {

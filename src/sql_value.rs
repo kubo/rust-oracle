@@ -1072,6 +1072,14 @@ impl fmt::Debug for SqlValue {
 }
 
 impl Clone for SqlValue {
+    /// Returns a shallow copy of the value.
+    ///
+    /// When it is a column value in a select statement,
+    /// the internal data in the copy are changed after 100 fetches.
+    ///
+    /// When it is a bind value in a SQL statement, the internal
+    /// data in the copy are changed by the next execution of the
+    /// statement.
     fn clone(&self) -> SqlValue {
         if !self.handle.is_null() {
             unsafe { dpiVar_addRef(self.handle); }

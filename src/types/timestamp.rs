@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// [Datetime][] data type
+/// Oracle-specific [Datetime][] data type
 ///
 /// [Datetime]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#NLSPG-GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
 ///
@@ -162,7 +162,7 @@ impl Timestamp {
     /// | `hour` | 0 to 23 |
     /// | `minute` | 0 to 59 |
     /// | `second` | 0 to 59 |
-    /// | `nanosecond` | 0 to 999999999 |
+    /// | `nanosecond` | 0 to 999,999,999 |
     ///
     pub fn new(year: i32, month: u32, day: u32,
                hour: u32, minute: u32, second: u32, nanosecond: u32) -> Timestamp {
@@ -221,37 +221,37 @@ impl Timestamp {
         }
     }
 
-    /// Returns year.
+    /// Returns the year number from -4713 to 9999.
     pub fn year(&self) -> i32 {
         self.year
     }
 
-    /// Returns month.
+    /// Returns the month number from 1 to 12.
     pub fn month(&self) -> u32 {
         self.month
     }
 
-    /// Returns day.
+    /// Returns the day number from 1 to 31.
     pub fn day(&self) -> u32 {
         self.day
     }
 
-    /// Returns hour.
+    /// Returns the hour number from 0 to 23.
     pub fn hour(&self) -> u32 {
         self.hour
     }
 
-    /// Returns minute.
+    /// Returns the minute number from 0 to 59.
     pub fn minute(&self) -> u32 {
         self.minute
     }
 
-    /// Returns second.
+    /// Returns the second number from 0 to 59.
     pub fn second(&self) -> u32 {
         self.second
     }
 
-    /// Returns nanosecond.
+    /// Returns the nanosecond number from 0 to 999,999,999.
     pub fn nanosecond(&self) -> u32 {
         self.nanosecond
     }

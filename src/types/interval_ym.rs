@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ use util::Scanner;
 use OracleType;
 use ParseOracleTypeError;
 
-/// [INTERVAL YEAR TO MONTH][INTVL_YM] data type.
+/// Oracle-specific [Interval Year to Month][INTVL_YM] data type.
 ///
 /// [INTVL_YM]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
 ///
