@@ -1,4 +1,4 @@
-# Rust-oracle - Work in progress
+# Rust-oracle
 
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
@@ -31,6 +31,49 @@ data types, enable `chrono` feature:
 oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["chrono"] }
 ```
 
+## Examples
+
+Select a table:
+
+```rust
+extern crate oracle;
+
+fn main() {
+    // Connect to a database.
+    let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+    // Select a table with a bind variable.
+    let mut stmt = conn.execute("select ename, sal, comm from emp where deptno = :1", &[&30]).unwrap();
+
+    // Print column names
+    for info in stmt.column_info() {
+        print!(" {:14}|", info.name());
+    }
+    println!("");
+
+    // Print column types
+    for info in stmt.column_info() {
+        print!(" {:14}|", info.oracle_type().to_string());
+    }
+    println!("");
+
+    // Print column values
+    println!("---------------|---------------|---------------|");
+    while let Ok(row) = stmt.fetch() {
+        // get a column value by position (0-based)
+        let ename: String = row.get(0).unwrap();
+        // get a column by name (case-insensitive)
+        let sal: i32 = row.get("sal").unwrap();
+        // get a nullable column
+        let comm: Option<i32> = row.get(2).unwrap();
+
+        println!(" {:14}| {:>10}    | {:>10}    |",
+                 ename,
+                 sal,
+                 comm.map_or("".to_string(), |v| v.to_string()));
+    }
+}
+```
+
 ## NLS_LANG parameter
 
 [NLS_LANG][] consists of three components: [language][], [territory][] and
@@ -60,49 +103,6 @@ assert_eq!(result, "10.1"); // The decimal mark is always period(.).
 
 Note that NLS_LANG must be set before first rust-oracle function execution if
 required.
-
-## Conversion from Oracle types to Rust types
-
-Values in Oracle are converted to Rust type as possible as it can.
-The following table indicates supported conversion.
-
-| Oracle Type | Rust Type |
-| --- | --- |
-| CHAR, NCHAR, VARCHAR2, NVARCHAR2 | String |
-| ″ | i8, i16, i32, i64, u8, u16, u32, u64 via `parse()` |
-| ... | ... |
-
-This conversion is used also to get values from output parameters.
-
-## Conversion from Rust types to Oracle types
-
-When a rust value is set to an input parameter, its Oracle type is
-determined by the rust type.
-
-| Rust Type | Oracle Type |
-| --- | --- |
-| str, String | NVARCHAR2(length of the rust value) |
-| i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
-| Vec\<u8> | RAW(length of the rust value) |
-| oracle::Timestamp | TIMESTAMP(9) WITH TIME ZONE |
-| oracle::IntervalDS | INTERVAL DAY(9) TO SECOND(9) |
-| oracle::IntervalYM | INTERVAL YEAR(9) TO MONTH |
-
-When `chrono` feature is enabled, the following conversions are added.
-
-| Rust Type | Oracle Type |
-| --- | --- |
-| [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
-| [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
-| [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
-| [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
-| [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
-
-[chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
-[chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
-[chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
-[chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
-[chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 
 ## TODO
 
