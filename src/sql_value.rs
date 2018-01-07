@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -119,10 +119,7 @@ macro_rules! define_fn_set_int {
     }
 }
 
-/// A type containing an Oracle value.
-///
-/// General users cannot use this directly. They access this via [FromSql][] and
-/// [ToSql][].
+/// A type containing an Oracle value
 ///
 /// When this is a column value in a select statement, the Oracle type is
 /// determined by the column type.
@@ -158,6 +155,9 @@ macro_rules! define_fn_set_int {
 /// The setter methods change the SQL value `not null`. You need to call
 /// [set_null][] to make it `null`.
 ///
+/// The `to_string()` method converts any SQL value to string. It also converts
+/// a null value to `"NULL"`. If you need to distinguish null values from
+/// non-null values, use [`as_string()`](#method.as_string) instead.
 ///
 /// [FromSql]: trait.FromSql.html
 /// [ToSql]: trait.ToSql.html
@@ -1049,8 +1049,23 @@ impl SqlValue {
 
 impl fmt::Display for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(_) = self.oratype {
+            match self.as_string() {
+                Ok(s) => write!(f, "{}", s),
+                Err(Error::NullValue) => write!(f, "NULL"),
+                Err(err) => write!(f, "{}", err),
+            }
+        } else {
+            write!(f, "uninitialized SQL value")
+        }
+    }
+}
+
+impl fmt::Debug for SqlValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.oratype {
-            Some(ref oratype) => write!(f, "SqlValue({})", oratype),
+            Some(ref oratype) => write!(f, "SqlValue(data=\"{}\", type={}, idx/size={}/{})",
+                                        self, oratype, self.buffer_row_index, self.array_size),
             None => write!(f, "SqlValue(uninitialized)"),
         }
     }
