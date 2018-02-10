@@ -43,10 +43,6 @@ use ParseOracleTypeError;
 ///
 /// [INTVL_YM]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
 ///
-/// This struct doesn't have arithmetic methods and they won't be added to avoid
-/// reinventing the wheel. However there are no available corresponding structs currently.
-/// The author is looking at progress of [this issue](https://github.com/chronotope/chrono/issues/184).
-///
 /// # Examples
 ///
 /// ```

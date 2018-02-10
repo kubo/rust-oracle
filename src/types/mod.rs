@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@ pub mod oracle_type;
 pub mod timestamp;
 pub mod version;
 
-/// A trait to convert Oracle values to rust values.
+/// Conversion from Oracle values to rust values.
 ///
 /// Values in Oracle are converted to Rust type as possible as it can.
 /// The following table indicates supported conversion.
@@ -64,22 +64,55 @@ pub trait FromSql {
     fn from_sql(val: &SqlValue) -> Result<Self> where Self: Sized;
 }
 
+/// A trait specifying Oracle type to bind a null value.
+///
+/// This trait is used only when binding a `None` value of `Option<T>`.
+/// The type of the null value is determined by the rust type.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | str, String | NVARCHAR2(0) |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
+/// | Vec\<u8> | RAW(0) |
+/// | bool | Boolean (PL/SQL only) |
+/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE |
+/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) |
+/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH |
+///
+/// When `chrono` feature is enabled, the followings are added.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
+/// | [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
+/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
+/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
+/// | [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
 pub trait ToSqlNull {
     fn oratype_for_null() -> Result<OracleType>;
 }
 
-/// A trait to convert rust values to Oracle values.
+/// Conversion from rust values to Oracle values.
 ///
-/// The type of converted Oracle value is determined by the rust type.
+/// The type of the Oracle value is determined by the rust type.
 ///
-/// | Rust Type | Oracle Type |
-/// | --- | --- |
-/// | str, String | NVARCHAR2(length of the rust value) |
-/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
-/// | Vec\<u8> | RAW(length of the rust value) |
-/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE |
-/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) |
-/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH |
+/// | Rust Type | Oracle Type | Oracle Value |
+/// | --- | --- | --- |
+/// | str, String | NVARCHAR2(length of the rust value) | The specified value |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER | The specified value |
+/// | Vec\<u8> | RAW(length of the rust value) | The specified value |
+/// | bool | Boolean (PL/SQL only) | The specified value |
+/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE | The specified value |
+/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) | The specified value |
+/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH | The specified value |
+/// | [Collection][] | Type returned by [Collection.oracle_type][] | The specified value |
+/// | [Object][] | Type returned by [Object.oracle_type] | The specified value |
+/// | Option\<T> where T: ToSql + [ToSqlNull][] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
+/// | [OracleType][] | Type represented by the OracleType. | a null value |
+/// | (&ToSql, &[OracleType[]) | Type represented by the second element. | The value of the first element |
+///
+/// When you need to bind output parameters such as varchar2, use `OracleType`
+/// or `(&ToSql, &OracleType)` to specify the maximum length of data types.
 ///
 /// When `chrono` feature is enabled, the following conversions are added.
 ///
@@ -94,6 +127,12 @@ pub trait ToSqlNull {
 /// [Timestamp]: struct.Timestamp.html
 /// [IntervalDS]: struct.IntervalDS.html
 /// [IntervalYM]: struct.IntervalYM.html
+/// [Collection]: struct.Collection.html
+/// [Collection.oracle_type]: struct.Collection.html#method.oracle_type
+/// [Object]: struct.Object.html
+/// [Object.oracle_type]: struct.Object.html#method.oracle_type
+/// [OracleType]: enum.OracleType.html
+/// [ToSqlNull]: trait.ToSqlNull.html
 /// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
 /// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
 /// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html

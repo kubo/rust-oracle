@@ -198,6 +198,8 @@ pub use statement::StatementType;
 pub use statement::Statement;
 pub use statement::ColumnInfo;
 pub use statement::Row;
+pub use statement::BindIndex;
+pub use statement::ColumnIndex;
 pub use sql_value::SqlValue;
 pub use types::FromSql;
 pub use types::ToSql;

@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -46,10 +46,6 @@ use ToSql;
 
 use to_odpi_str;
 use to_rust_str;
-
-//
-// StatementType
-//
 
 /// Statement type returned by [Statement.statement_type()](struct.Statement.html#method.statement_type).
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -106,10 +102,7 @@ impl fmt::Display for StatementType {
     }
 }
 
-//
-// Statement
-//
-
+/// Statement
 pub struct Statement<'conn> {
     conn: &'conn Connection,
     handle: *mut dpiStmt,
@@ -244,6 +237,24 @@ impl<'conn> Statement<'conn> {
     }
 
     /// Binds values by position and executes the statement.
+    ///
+    /// See also [Connection.execute](struct.Connection.html#method.execute).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // execute a statement without bind parameters
+    /// let stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')").unwrap();
+    /// stmt.execute(, &[]).unwrap();
+    ///
+    /// // execute a statement with binding parameters by position
+    /// let stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
+    /// stmt.execute(&[&114, &"Smith"]).unwrap();
+    /// stmt.execute(&[&115, &"Paul"]).unwrap();  // execute with other values.
+    ///
+    /// ```
     pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
         for i in 0..params.len() {
             self.bind(i + 1, params[i])?;
@@ -252,6 +263,21 @@ impl<'conn> Statement<'conn> {
     }
 
     /// Binds values by name and executes the statement.
+    ///
+    /// See also [Connection.execute_named](struct.Connection.html#method.execute_named).
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // execute a statement with binding parameters by name
+    /// let stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
+    /// stmt.execute_named(&[("id", &114),
+    ///                      ("name", &"Smith")]).unwrap();
+    /// stmt.execute_named(&[("id", &115),
+    ///                      ("name", &"Paul")]).unwrap(); // execute with other values.
+    /// ```
     pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
@@ -399,10 +425,6 @@ impl<'conn> Drop for Statement<'conn> {
     }
 }
 
-//
-// ColumnInfo
-//
-
 /// Column information in a select statement
 ///
 /// # Examples
@@ -482,32 +504,32 @@ impl fmt::Display for ColumnInfo {
     }
 }
 
-//
-// Row
-//
-
+/// Row in a result set of a select statement
 pub struct Row {
     column_info: Vec<ColumnInfo>,
     column_values: Vec<SqlValue>,
 }
 
 impl Row {
+    /// Gets the column value at the specified index.
     pub fn get<I, T>(&self, colidx: I) -> Result<T> where I: ColumnIndex, T: FromSql {
         let pos = colidx.idx(&self.column_info)?;
         self.column_values[pos].get()
     }
 
+    /// Returns column values.
     pub fn columns(&self) -> &Vec<SqlValue> {
         &self.column_values
     }
 }
 
-//
-// BindIndex
-//
-
+/// A trait implemented by types that can index into bind values of a statement.
 pub trait BindIndex {
+    /// Returns the index of the bind value specified by `self`.
     fn idx(&self, stmt: &Statement) -> Result<usize>;
+    /// Binds the specified value by using a private method.
+    ///
+    /// TODO: hide this method.
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32;
 }
 
@@ -539,11 +561,9 @@ impl<'a> BindIndex for &'a str {
     }
 }
 
-//
-// ColumnIndex
-//
-
+/// A trait implemented by types that can index into columns of a row.
 pub trait ColumnIndex {
+    /// Returns the index of the column specified by `self`.
     fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize>;
 }
 
