@@ -54,12 +54,52 @@ pub mod version;
 ///
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
-/// | CHAR, NCHAR, VARCHAR2, NVARCHAR2 | String |
-/// | ″ | i8, i16, i32, i64, u8, u16, u32, u64 by `String.parse()` |
-/// | ... | ... |
+/// | character data types | String |
+/// | " | i8, i16, i32, i64, u8, u16, u32, u64, f64, f32 by using `String.parse()` |
+/// | " | Vec\<u8> (The Oracle value must be in hexadecimal.) |
+/// | " | [Timestamp][] by `String.parse()` |
+/// | " | [IntervalDS][] by `String.parse()` |
+/// | " | [IntervalYM][] by `String.parse()` |
+/// | numeric data types | i8, i16, i32, i64, u8, u16, u32, u64, f64, f32 |
+/// | " | String |
+/// | raw | Vec\<u8> |
+/// | " | String (The Oracle value is converted to characters in hexadecimal.) |
+/// | timestamp data types | [Timestamp][] |
+/// | " | String |
+/// | interval day to month | [IntervalDS][] |
+/// | " | String |
+/// | interval year to month | [IntervalYM][] |
+/// | " | String |
+/// | [Oracle object] except [Oracle collection] | [Object][] |
+/// | " | String |
+/// | [Oracle collection] | [Collection][] |
+/// | " | String |
+/// | boolean (PL/SQL only) | bool |
+///
+/// When `chrono` feature is enabled, the followings are added.
+///
+/// | Oracle Type | Rust Type |
+/// | --- | --- |
+/// | timestamp data types | [chrono::DateTime][] |
+/// | " | [chrono::Date] |
+/// | " | [chrono::naive::NaiveDateTime][] |
+/// | " | [chrono::naive::NaiveDate][] |
+/// | interval day to second | [chrono::Duration][] |
 ///
 /// This conversion is used also to get values from output parameters.
 ///
+/// [Oracle object]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adobj/about-oracle-objects.html
+/// [Oracle collection]: https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm
+/// [Timestamp]: struct.Timestamp.html
+/// [IntervalDS]: struct.IntervalDS.html
+/// [IntervalYM]: struct.IntervalYM.html
+/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+/// [Collection]: struct.Collection.html
+/// [Object]: struct.Object.html
 pub trait FromSql {
     fn from_sql(val: &SqlValue) -> Result<Self> where Self: Sized;
 }
@@ -71,23 +111,32 @@ pub trait FromSql {
 ///
 /// | Rust Type | Oracle Type |
 /// | --- | --- |
-/// | str, String | NVARCHAR2(0) |
-/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER |
-/// | Vec\<u8> | RAW(0) |
-/// | bool | Boolean (PL/SQL only) |
-/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE |
-/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) |
-/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH |
+/// | str, String | nvarchar2(0) |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | number |
+/// | Vec\<u8> | raw(0) |
+/// | bool | boolean (PL/SQL only) |
+/// | [Timestamp][] | timestamp(9) with time zone |
+/// | [IntervalDS][] | interval day(9) to second(9) |
+/// | [IntervalYM][] | interval year(9) to month |
 ///
 /// When `chrono` feature is enabled, the followings are added.
 ///
 /// | Rust Type | Oracle Type |
 /// | --- | --- |
-/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
-/// | [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
-/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
-/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
-/// | [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
+/// | [chrono::Date][] | timestamp(0) with time zone |
+/// | [chrono::DateTime][] | timestamp(9) with time zone |
+/// | [chrono::naive::NaiveDate][] | timestamp(0) |
+/// | [chrono::naive::NaiveDateTime][] | timestamp(9) |
+/// | [chrono::Duration][] | interval day(9) to second(9) |
+///
+/// [Timestamp]: struct.Timestamp.html
+/// [IntervalDS]: struct.IntervalDS.html
+/// [IntervalYM]: struct.IntervalYM.html
+/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 pub trait ToSqlNull {
     fn oratype_for_null() -> Result<OracleType>;
 }
@@ -98,18 +147,18 @@ pub trait ToSqlNull {
 ///
 /// | Rust Type | Oracle Type | Oracle Value |
 /// | --- | --- | --- |
-/// | str, String | NVARCHAR2(length of the rust value) | The specified value |
-/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | NUMBER | The specified value |
-/// | Vec\<u8> | RAW(length of the rust value) | The specified value |
-/// | bool | Boolean (PL/SQL only) | The specified value |
-/// | [Timestamp][] | TIMESTAMP(9) WITH TIME ZONE | The specified value |
-/// | [IntervalDS][] | INTERVAL DAY(9) TO SECOND(9) | The specified value |
-/// | [IntervalYM][] | INTERVAL YEAR(9) TO MONTH | The specified value |
-/// | [Collection][] | Type returned by [Collection.oracle_type][] | The specified value |
-/// | [Object][] | Type returned by [Object.oracle_type] | The specified value |
+/// | str, String | nvarchar2(length of the rust value) | The specified value |
+/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | number | The specified value |
+/// | Vec\<u8> | raw(length of the rust value) | The specified value |
+/// | bool | boolean (PL/SQL only) | The specified value |
+/// | [Timestamp][] | timestamp(9) with time zone | The specified value |
+/// | [IntervalDS][] | interval day(9) to second(9) | The specified value |
+/// | [IntervalYM][] | interval year(9) to month | The specified value |
+/// | [Collection][] | type returned by [Collection.oracle_type][] | The specified value |
+/// | [Object][] | type returned by [Object.oracle_type] | The specified value |
 /// | Option\<T> where T: ToSql + [ToSqlNull][] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
-/// | [OracleType][] | Type represented by the OracleType. | a null value |
-/// | (&ToSql, &[OracleType[]) | Type represented by the second element. | The value of the first element |
+/// | [OracleType][] | type represented by the OracleType. | a null value |
+/// | (&ToSql, &[OracleType[]) | type represented by the second element. | The value of the first element |
 ///
 /// When you need to bind output parameters such as varchar2, use `OracleType`
 /// or `(&ToSql, &OracleType)` to specify the maximum length of data types.
@@ -118,11 +167,11 @@ pub trait ToSqlNull {
 ///
 /// | Rust Type | Oracle Type |
 /// | --- | --- |
-/// | [chrono::Date][] | TIMESTAMP(0) WITH TIME ZONE |
-/// | [chrono::DateTime][] | TIMESTAMP(9) WITH TIME ZONE |
-/// | [chrono::naive::NaiveDate][] | TIMESTAMP(0) |
-/// | [chrono::naive::NaiveDateTime][] | TIMESTAMP(9) |
-/// | [chrono::Duration][] | INTERVAL DAY(9) TO SECOND(9) |
+/// | [chrono::Date][] | timestamp(0) with time zone |
+/// | [chrono::DateTime][] | timestamp(9) with time zone |
+/// | [chrono::naive::NaiveDate][] | timestamp(0) |
+/// | [chrono::naive::NaiveDateTime][] | timestamp(9) |
+/// | [chrono::Duration][] | interval day(9) to second(9) |
 ///
 /// [Timestamp]: struct.Timestamp.html
 /// [IntervalDS]: struct.IntervalDS.html
