@@ -246,11 +246,11 @@ impl<'conn> Statement<'conn> {
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     ///
     /// // execute a statement without bind parameters
-    /// let stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')").unwrap();
-    /// stmt.execute(, &[]).unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')").unwrap();
+    /// stmt.execute(&[]).unwrap();
     ///
     /// // execute a statement with binding parameters by position
-    /// let stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
     /// stmt.execute(&[&114, &"Smith"]).unwrap();
     /// stmt.execute(&[&115, &"Paul"]).unwrap();  // execute with other values.
     ///
@@ -272,7 +272,7 @@ impl<'conn> Statement<'conn> {
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     ///
     /// // execute a statement with binding parameters by name
-    /// let stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
     /// stmt.execute_named(&[("id", &114),
     ///                      ("name", &"Smith")]).unwrap();
     /// stmt.execute_named(&[("id", &115),
