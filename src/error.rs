@@ -60,6 +60,9 @@ pub enum Error {
     /// Error when conversion from a type to another fails due to overflow
     Overflow(String, &'static str),
 
+    /// Error when conversion from a type to another fails due to out-of-range
+    OutOfRange(String),
+
     /// Error when conversion from a type to another is not allowed.
     InvalidTypeConversion(String, String),
 
@@ -193,6 +196,8 @@ impl fmt::Display for Error {
                 write!(f, "{}", err),
             Error::Overflow(ref src, dst) =>
                 write!(f, "number too large to convert {} to {}", src, dst),
+            Error::OutOfRange(ref msg) =>
+                write!(f, "out of range: {}", msg),
             Error::InvalidTypeConversion(ref from, ref to) =>
                 write!(f, "invalid type conversion from {} to {}", from, to),
             Error::InvalidBindIndex(ref idx) =>
@@ -230,6 +235,8 @@ impl fmt::Debug for Error {
                 write!(f, "ParseError: {:?}", err),
             Error::Overflow(ref src, dst) =>
                 write!(f, "Overflow {{ src: {}, dest: {} }}", src, dst),
+            Error::OutOfRange(ref msg) =>
+                write!(f, "OutOfRange {{ msg: {} }}", msg),
             Error::InvalidTypeConversion(ref from, ref to) =>
                 write!(f, "InvalidTypeConversion {{ from: {}, to: {} }}", from, to),
             Error::InvalidBindIndex(ref idx) =>
@@ -260,6 +267,7 @@ impl error::Error for Error {
             Error::NullValue => "NULL value",
             Error::ParseError(_) => "parse error",
             Error::Overflow(_, _) => "overflow",
+            Error::OutOfRange(_) => "out of range",
             Error::InvalidTypeConversion(_, _) => "invalid type conversion",
             Error::InvalidBindIndex(_) => "index bind index",
             Error::InvalidBindName(_) => "index bind name",

@@ -44,6 +44,7 @@ use ToSql;
 use chrono::Duration;
 use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
+use chrono::offset::LocalResult;
 
 //
 // chrono::DateTime<Utc>
@@ -51,10 +52,8 @@ use chrono::naive::NaiveDateTime;
 // chrono::DateTime<FixedOffset>
 //
 
-// TODO: use TimeZone.ymd_opt and Data.and_hms_nano_opt instead of TimeZone.ymd and Data.and_hms_nano.
-
 fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>> where Tz: TimeZone {
-    Ok(tz.ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
+    Ok(date_from_sql(tz, ts)?.and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
 }
 
 impl FromSql for DateTime<Utc> {
@@ -105,7 +104,10 @@ impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
 //
 
 fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>> where Tz: TimeZone {
-    Ok(tz.ymd(ts.year(), ts.month(), ts.day()))
+    match tz.ymd_opt(ts.year(), ts.month(), ts.day()) {
+        LocalResult::Single(date) => Ok(date),
+        _ => Err(Error::OutOfRange(format!("invalid month and/or day: {}-{}-{}", ts.year(), ts.month(), ts.day()))),
+    }
 }
 
 impl FromSql for Date<Utc> {
