@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -97,4 +97,56 @@ fn bind_names() {
     assert_eq!(bind_names[0], "VAL1");
     assert_eq!(bind_names[1], "VAL2");
     assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
+}
+
+#[test]
+fn fetch_as_tuple() {
+    let conn = common::connect().unwrap();
+
+    let mut stmt = conn.execute("select '0', 1, '2' from dual", &[]).unwrap();
+    let result = stmt.fetch().unwrap().values::<(String, i32, String)>().unwrap();
+    assert_eq!(result.0, "0");
+    assert_eq!(result.1, 1);
+    assert_eq!(result.2, "2");
+}
+
+struct TestString {
+    int_col: i32,
+    string_col: String,
+    raw_col: Vec<u8>,
+    fixed_char_col: String,
+    nullable_col: Option<String>,
+}
+
+impl oracle::ColumnValues for TestString {
+    type Item = TestString;
+    fn get(row: &oracle::Row) -> oracle::Result<TestString> {
+        Ok(TestString {
+            int_col: row.get(0)?,
+            string_col: row.get(1)?,
+            raw_col: row.get(2)?,
+            fixed_char_col: row.get(3)?,
+            nullable_col: row.get(4)?,
+        })
+    }
+}
+
+#[test]
+#[allow(non_snake_case)]
+fn fetch_as_type_implementing_ColumnValues_trait() {
+    let conn = common::connect().unwrap();
+
+    let result = conn.select_one::<TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
+    assert_eq!(result.int_col, 1);
+    assert_eq!(result.string_col, "String 1");
+    assert_eq!(result.raw_col, b"Raw 1");
+    assert_eq!(result.fixed_char_col, "Fixed Char 1                            ");
+    assert_eq!(result.nullable_col, Some("Nullable 1".to_string()));
+
+    let result = conn.select_one_named::<TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
+    assert_eq!(result.int_col, 2);
+    assert_eq!(result.string_col, "String 2");
+    assert_eq!(result.raw_col, b"Raw 2");
+    assert_eq!(result.fixed_char_col, "Fixed Char 2                            ");
+    assert_eq!(result.nullable_col, None);
 }

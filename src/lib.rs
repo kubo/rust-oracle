@@ -200,6 +200,7 @@ pub use statement::ColumnInfo;
 pub use statement::Row;
 pub use statement::BindIndex;
 pub use statement::ColumnIndex;
+pub use statement::ColumnValues;
 pub use sql_value::SqlValue;
 pub use types::FromSql;
 pub use types::ToSql;

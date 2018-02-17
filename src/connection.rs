@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@ use Version;
 use Statement;
 
 use binding::*;
+use ColumnValues;
 use Context;
 use ObjectType;
 use Result;
@@ -497,6 +498,61 @@ impl Connection {
         stmt.execute_named(params)?;
         Ok(stmt)
     }
+
+    /// Gets one row from a select statement in one call.
+    ///
+    /// Type inference for the return type doesn't work. You need to specify
+    /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
+    /// See [ColumnValues][] for available return types.
+    ///
+    /// [ColumnValues][]: trait.ColumnValues.html
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // fetch as a tuple whose type is `(i32, String)`.
+    /// let sql = "select empno, ename from emp where empno = 7369";
+    /// let tuple = conn.select_one::<(i32, String)>(sql, &[]).unwrap();
+    /// assert_eq!(tuple.0, 7369);
+    /// assert_eq!(tuple.1, "SMITH");
+    ///
+    /// // fetch same values using a destructuring let and a bind parameter.
+    /// let sql = "select empno, ename from emp where empno = :1";
+    /// let (empno, ename) = conn.select_one::<(i32, String)>(sql, &[&7369]).unwrap();
+    /// assert_eq!(empno, 7369);
+    /// assert_eq!(ename, "SMITH");
+    ///
+    /// ```
+    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: ColumnValues {
+        self.execute(sql, params)?.fetch()?.values::<T>()
+    }
+
+    /// Gets one row from a select statement with named bind parameters in one call.
+    ///
+    /// Type inference for the return type doesn't work. You need to specify
+    /// it explicitly as `conn.select_one_named::<...>(sql_stmt, bind_parameters)`.
+    /// See [ColumnValues][] for available return types.
+    ///
+    /// [ColumnValues][]: trait.ColumnValues.html
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    ///
+    /// // fetch as a tuple whose type is `(i32, String)` with a named bind parameter "empno".
+    /// let sql = "select empno, ename from emp where empno = :empno";
+    /// let (empno, ename) = conn.select_one_named::<(i32, String)>(sql, &[("empno", &7369)]).unwrap();
+    /// assert_eq!(empno, 7369);
+    /// assert_eq!(ename, "SMITH");
+    ///
+    /// ```
+    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: ColumnValues {
+        self.execute_named(sql, params)?.fetch()?.values::<T>()
+    }
+
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {
