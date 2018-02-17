@@ -516,8 +516,8 @@ impl Row {
         self.column_values[pos].get()
     }
 
-    /// Returns column values.
-    pub fn columns(&self) -> &Vec<SqlValue> {
+    /// Returns column values as a vector of SqlValue
+    pub fn sql_values(&self) -> &Vec<SqlValue> {
         &self.column_values
     }
 

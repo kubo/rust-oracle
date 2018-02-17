@@ -55,7 +55,7 @@ fn main() {
 
     while let Ok(row) = stmt.fetch() {
         // print column values
-        for (idx, val) in row.columns().iter().enumerate() {
+        for (idx, val) in row.sql_values().iter().enumerate() {
             if idx != 0 {
                 print!(",");
             }
