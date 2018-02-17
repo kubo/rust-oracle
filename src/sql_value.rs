@@ -64,7 +64,7 @@ macro_rules! flt_to_int {
             if $dest_type::min_value() as $src_type <= src_val && src_val <= $dest_type::max_value() as $src_type {
                 Ok(src_val as $dest_type)
             } else {
-                Err(Error::Overflow(src_val.to_string(), stringify!($dest_type)))
+                Err(Error::OutOfRange(format!("{} overflow: {}", stringify!($dest_type), src_val.to_string(), )))
             }
         }
     }

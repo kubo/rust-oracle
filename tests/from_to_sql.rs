@@ -618,7 +618,7 @@ mod chrono {
         let d = Duration::days(1000000000);
         let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;").unwrap();
         let bind_result = stmt.bind(2, &d);
-        if let Err(Error::Overflow(_, _)) = bind_result {
+        if let Err(Error::OutOfRange(_)) = bind_result {
             ; /* OK */
         } else {
             panic!("Duration 1000000000 days should not be converted to interval day to second!");

@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -215,7 +215,7 @@ impl ToSql for NaiveDate {
 
 impl FromSql for Duration {
     fn from_sql(val: &SqlValue) -> Result<Duration> {
-        let err = |it: IntervalDS| Error::Overflow(it.to_string(), "Duration");
+        let err = |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it.to_string()));
         let it = val.as_interval_ds()?;
         let d = Duration::milliseconds(0);
         let d = d.checked_add(&Duration::days(it.days() as i64)).ok_or(err(it))?;
@@ -248,7 +248,7 @@ impl ToSql for Duration {
         let minutes = secs / 60;
         let secs = secs % 60;
         if days.abs() >= 1000000000 {
-            return Err(Error::Overflow(self.to_string(), "INTERVAL DAY TO SECOND"));
+            return Err(Error::OutOfRange(format!("too large days: {}", self.to_string())));
         }
         let it = IntervalDS::new(days as i32, hours as i32, minutes as i32, secs as i32, nsecs as i32);
         val.set_interval_ds(&it)

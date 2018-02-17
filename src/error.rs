@@ -57,9 +57,6 @@ pub enum Error {
     /// Error when conversion from a string to an Oracle value fails
     ParseError(Box<error::Error>),
 
-    /// Error when conversion from a type to another fails due to overflow
-    Overflow(String, &'static str),
-
     /// Error when conversion from a type to another fails due to out-of-range
     OutOfRange(String),
 
@@ -194,8 +191,6 @@ impl fmt::Display for Error {
                 write!(f, "NULL value found"),
             Error::ParseError(ref err) =>
                 write!(f, "{}", err),
-            Error::Overflow(ref src, dst) =>
-                write!(f, "number too large to convert {} to {}", src, dst),
             Error::OutOfRange(ref msg) =>
                 write!(f, "out of range: {}", msg),
             Error::InvalidTypeConversion(ref from, ref to) =>
@@ -233,8 +228,6 @@ impl fmt::Debug for Error {
                 write!(f, "NULLValue"),
             Error::ParseError(ref err) =>
                 write!(f, "ParseError: {:?}", err),
-            Error::Overflow(ref src, dst) =>
-                write!(f, "Overflow {{ src: {}, dest: {} }}", src, dst),
             Error::OutOfRange(ref msg) =>
                 write!(f, "OutOfRange {{ msg: {} }}", msg),
             Error::InvalidTypeConversion(ref from, ref to) =>
@@ -266,7 +259,6 @@ impl error::Error for Error {
             Error::DpiError(_) => "ODPI-C error",
             Error::NullValue => "NULL value",
             Error::ParseError(_) => "parse error",
-            Error::Overflow(_, _) => "overflow",
             Error::OutOfRange(_) => "out of range",
             Error::InvalidTypeConversion(_, _) => "invalid type conversion",
             Error::InvalidBindIndex(_) => "index bind index",
