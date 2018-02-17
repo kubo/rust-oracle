@@ -501,10 +501,19 @@ impl Connection {
 
     /// Gets one row from a select statement in one call.
     ///
+    /// This is same with the combination of [execute][], [fetch][] and [values].
+    /// However the former is a bit optimized about memory usage.
+    /// The former prepares memory for one row. On the other hand the latter
+    /// internally prepares memory for 100 rows in order to reduce the number
+    /// of network roundtrips when many rows are fetched.
+    ///
     /// Type inference for the return type doesn't work. You need to specify
     /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
     /// See [ColumnValues][] for available return types.
     ///
+    /// [execute][]: #method.execute
+    /// [fetch][]: struct.Statement.html#method.fetch
+    /// [values][]: struct.Row.html#method.values
     /// [ColumnValues][]: trait.ColumnValues.html
     ///
     /// # Examples
@@ -526,16 +535,19 @@ impl Connection {
     ///
     /// ```
     pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: ColumnValues {
-        self.execute(sql, params)?.fetch()?.values::<T>()
+        let mut stmt = self.prepare(sql)?;
+        for i in 0..params.len() {
+            stmt.bind(i + 1, params[i])?;
+        }
+        stmt.execute_internal(1)?;
+        stmt.fetch()?.values::<T>()
     }
 
     /// Gets one row from a select statement with named bind parameters in one call.
     ///
-    /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly as `conn.select_one_named::<...>(sql_stmt, bind_parameters)`.
-    /// See [ColumnValues][] for available return types.
+    /// See [select_one][] for more detail.
     ///
-    /// [ColumnValues][]: trait.ColumnValues.html
+    /// [select_one][]: #method.select_one
     ///
     /// # Examples
     ///
@@ -550,9 +562,13 @@ impl Connection {
     ///
     /// ```
     pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: ColumnValues {
-        self.execute_named(sql, params)?.fetch()?.values::<T>()
+        let mut stmt = self.prepare(sql)?;
+        for i in 0..params.len() {
+            stmt.bind(params[i].0, params[i].1)?;
+        }
+        stmt.execute_internal(1)?;
+        stmt.fetch()?.values::<T>()
     }
-
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {

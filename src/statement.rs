@@ -106,7 +106,6 @@ pub struct Statement<'conn> {
     conn: &'conn Connection,
     handle: *mut dpiStmt,
     row: Row,
-    fetch_array_size: u32,
     statement_type: dpiStatementType,
     is_returning: bool,
     bind_count: usize,
@@ -150,7 +149,6 @@ impl<'conn> Statement<'conn> {
             conn: conn,
             handle: handle,
             row: Row { column_info: Vec::new(), column_values: Vec::new(), },
-            fetch_array_size: 0,
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
@@ -258,7 +256,7 @@ impl<'conn> Statement<'conn> {
         for i in 0..params.len() {
             self.bind(i + 1, params[i])?;
         }
-        self.execute_internal()
+        self.execute_internal(DPI_DEFAULT_FETCH_ARRAY_SIZE)
     }
 
     /// Binds values by name and executes the statement.
@@ -281,15 +279,15 @@ impl<'conn> Statement<'conn> {
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
         }
-        self.execute_internal()
+        self.execute_internal(DPI_DEFAULT_FETCH_ARRAY_SIZE)
     }
 
-    fn execute_internal(&mut self) -> Result<()> {
+    pub(crate) fn execute_internal(&mut self, fetch_array_size: u32) -> Result<()> {
         let mut num_query_columns = 0;
         chkerr!(self.conn.ctxt,
-                dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));
+                dpiStmt_setFetchArraySize(self.handle, fetch_array_size));
         chkerr!(self.conn.ctxt,
-                dpiStmt_getFetchArraySize(self.handle, &mut self.fetch_array_size));
+                dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));
         if self.statement_type == DPI_STMT_TYPE_SELECT {
             let num_cols = num_query_columns as usize;
 
@@ -312,7 +310,7 @@ impl<'conn> Statement<'conn> {
                     _ =>
                         oratype,
                 };
-                val.init_handle(self.conn, oratype, DPI_DEFAULT_FETCH_ARRAY_SIZE)?;
+                val.init_handle(self.conn, oratype, fetch_array_size)?;
                 chkerr!(self.conn.ctxt,
                         dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
             }
