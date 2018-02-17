@@ -32,7 +32,6 @@
 
 use std::ptr;
 use std::fmt;
-use std::ascii::AsciiExt;
 
 use binding::*;
 
