@@ -511,10 +511,10 @@ impl Connection {
     /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
     /// See [ColumnValues][] for available return types.
     ///
-    /// [execute][]: #method.execute
-    /// [fetch][]: struct.Statement.html#method.fetch
-    /// [get_as][]: struct.Row.html#method.get_as
-    /// [ColumnValues][]: trait.ColumnValues.html
+    /// [execute]: #method.execute
+    /// [fetch]: struct.Statement.html#method.fetch
+    /// [get_as]: struct.Row.html#method.get_as
+    /// [ColumnValues]: trait.ColumnValues.html
     ///
     /// # Examples
     ///
@@ -547,7 +547,7 @@ impl Connection {
     ///
     /// See [select_one][] for more detail.
     ///
-    /// [select_one][]: #method.select_one
+    /// [select_one]: #method.select_one
     ///
     /// # Examples
     ///

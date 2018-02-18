@@ -525,7 +525,7 @@ impl Row {
     /// it explicitly such as `row.get_as::<(i32, String>()`.
     /// See [ColumnValues][] for available return types.
     ///
-    /// [ColumnValues][]: trait.ColumnValues.html
+    /// [ColumnValues]: trait.ColumnValues.html
     ///
     /// ```no_run
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
