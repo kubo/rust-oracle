@@ -501,7 +501,7 @@ impl Connection {
 
     /// Gets one row from a select statement in one call.
     ///
-    /// This is same with the combination of [execute][], [fetch][] and [values].
+    /// This is same with the combination of [execute][], [fetch][] and [get_as][].
     /// However the former is a bit optimized about memory usage.
     /// The former prepares memory for one row. On the other hand the latter
     /// internally prepares memory for 100 rows in order to reduce the number
@@ -513,7 +513,7 @@ impl Connection {
     ///
     /// [execute][]: #method.execute
     /// [fetch][]: struct.Statement.html#method.fetch
-    /// [values][]: struct.Row.html#method.values
+    /// [get_as][]: struct.Row.html#method.get_as
     /// [ColumnValues][]: trait.ColumnValues.html
     ///
     /// # Examples
@@ -521,13 +521,13 @@ impl Connection {
     /// ```no_run
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     ///
-    /// // fetch as a tuple whose type is `(i32, String)`.
+    /// // get a row as `(i32, String)`.
     /// let sql = "select empno, ename from emp where empno = 7369";
     /// let tuple = conn.select_one::<(i32, String)>(sql, &[]).unwrap();
     /// assert_eq!(tuple.0, 7369);
     /// assert_eq!(tuple.1, "SMITH");
     ///
-    /// // fetch same values using a destructuring let and a bind parameter.
+    /// // get it as same type using a destructuring let and a bind parameter.
     /// let sql = "select empno, ename from emp where empno = :1";
     /// let (empno, ename) = conn.select_one::<(i32, String)>(sql, &[&7369]).unwrap();
     /// assert_eq!(empno, 7369);
@@ -540,7 +540,7 @@ impl Connection {
             stmt.bind(i + 1, params[i])?;
         }
         stmt.execute_internal(1)?;
-        stmt.fetch()?.values::<T>()
+        stmt.fetch()?.get_as::<T>()
     }
 
     /// Gets one row from a select statement with named bind parameters in one call.
@@ -567,7 +567,7 @@ impl Connection {
             stmt.bind(params[i].0, params[i].1)?;
         }
         stmt.execute_internal(1)?;
-        stmt.fetch()?.values::<T>()
+        stmt.fetch()?.get_as::<T>()
     }
 
     /// Cancels execution of running statements in the connection

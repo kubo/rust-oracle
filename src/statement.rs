@@ -519,10 +519,10 @@ impl Row {
         &self.column_values
     }
 
-    /// Gets more than one column value in one call.
+    /// Gets column values as specified type.
     ///
     /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly as `row.values::<...>()`.
+    /// it explicitly such as `row.get_as::<(i32, String>()`.
     /// See [ColumnValues][] for available return types.
     ///
     /// [ColumnValues][]: trait.ColumnValues.html
@@ -532,12 +532,12 @@ impl Row {
     /// let mut stmt = conn.execute("select empno, ename from emp", &[]).unwrap();
     ///
     /// while let Ok(row) = stmt.fetch() {
-    ///     // fetch as a tuple whose type is `(i32, String)`.
-    ///     let (empno, ename) = row.values::<(i32, String)>().unwrap();
+    ///     // Gets a row as `(i32, String)`.
+    ///     let (empno, ename) = row.get_as::<(i32, String)>().unwrap();
     ///     println!("{},{}", empno, ename);
     /// }
     /// ```
-    pub fn values<T>(&self) -> Result<<T>::Item> where T: ColumnValues {
+    pub fn get_as<T>(&self) -> Result<<T>::Item> where T: ColumnValues {
         <T>::get(self)
     }
 }
@@ -612,27 +612,27 @@ impl<'a> ColumnIndex for &'a str {
 /// A trait to get more than one column value in one call.
 ///
 /// This is the return type of [Connection.select_one][],
-/// [Connection.select_one_named][] and [Row.values()][].
+/// [Connection.select_one_named][] and [Row.get_as][].
 ///
 /// The trait was added to fetch column values as a tuple.
-/// The oracle crate provides implementations for tuples of types
-/// implementing [FromSql][]. The number of elements in a
-/// tuple should be 1 through 50.
+/// The oracle crate provides implementations for FromSql
+/// and tuples of types implementing [FromSql][]. The
+/// number of elements in a tuple should be 1 through 50.
 ///
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+///
+/// // Gets a column value in a row.
+/// let val = conn.select_one::<u32>("select sequence_type.nextval from dual", &[]).unwrap();
+///
 /// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
 ///
-/// // fetch the first two column values in a row.
-/// let row = stmt.fetch().unwrap().values::<(i32, String)>().unwrap();
+/// // Gets the first two column values in the first row.
+/// // Values after the third column are ignored.
+/// let row = stmt.fetch().unwrap().get_as::<(i32, String)>().unwrap();
 ///
-/// // fetch the first three column values in a row.
-/// let row = stmt.fetch().unwrap().values::<(i32, String, String)>().unwrap();
-///
-/// // fetch the first four column values in a row.
-/// let row = stmt.fetch().unwrap().values::<(i32, String, String, Option<i32>)>().unwrap();
-///
-/// // ...
+/// // Gets the first three column values in the second row.
+/// let row = stmt.fetch().unwrap().get_as::<(i32, String, String)>().unwrap();
 /// ```
 ///
 /// You can implement the trait for your own types. For example
@@ -660,8 +660,8 @@ impl<'a> ColumnIndex for &'a str {
 /// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
 ///
 /// while let Ok(row) = stmt.fetch() {
-///     // fetch as Emp
-///     let emp = row.values::<Emp>().unwrap();
+///     // Gets a row as Emp
+///     let emp = row.get_as::<Emp>().unwrap();
 ///     println!("{},{}", emp.empno, emp.ename);
 /// }
 /// ```
@@ -669,10 +669,17 @@ impl<'a> ColumnIndex for &'a str {
 /// [FromSql]: trait.FromSql.html
 /// [Connection.select_one]: struct.Connection.html#method.select_one
 /// [Connection.select_one_named]: struct.Connection.html#method.select_one_named
-/// [Row.values()]: struct.Row.html#method.values
+/// [Row.get_as]: struct.Row.html#method.get_as
 pub trait ColumnValues {
     type Item;
     fn get(row: &Row) -> Result<Self::Item>;
+}
+
+impl<T: FromSql> ColumnValues for T {
+    type Item = T;
+    fn get(row: &Row) -> Result<T> {
+        Ok(row.get::<usize, T>(0)?)
+    }
 }
 
 macro_rules! column_values_as_tuple_impl {

@@ -104,7 +104,7 @@ fn fetch_as_tuple() {
     let conn = common::connect().unwrap();
 
     let mut stmt = conn.execute("select '0', 1, '2' from dual", &[]).unwrap();
-    let result = stmt.fetch().unwrap().values::<(String, i32, String)>().unwrap();
+    let result = stmt.fetch().unwrap().get_as::<(String, i32, String)>().unwrap();
     assert_eq!(result.0, "0");
     assert_eq!(result.1, 1);
     assert_eq!(result.2, "2");
