@@ -415,6 +415,7 @@ pub struct Connection {
     pub(crate) handle: *mut dpiConn,
     tag: String,
     tag_found: bool,
+    pub(crate) autocommit: bool,
 }
 
 impl Connection {
@@ -765,6 +766,18 @@ impl Connection {
         Ok(())
     }
 
+    /// Gets autocommit mode.
+    /// It is false by default.
+    pub fn autocommit(&self) -> bool {
+        self.autocommit
+    }
+
+    /// Enables or disables autocommit mode.
+    /// It is disabled by default.
+    pub fn set_autocommit(&mut self, autocommit: bool) {
+        self.autocommit = autocommit;
+    }
+
     /// Sets client identifier associated with the connection
     ///
     /// This is same with calling [DBMS_SESSION.SET_IDENTIFIER][] but
@@ -972,6 +985,7 @@ impl Connection {
             handle: handle,
             tag: to_rust_str(conn_param.outTag, conn_param.outTagLength),
             tag_found: conn_param.outTagFound != 0,
+            autocommit: false,
         })
     }
 

@@ -284,10 +284,14 @@ impl<'conn> Statement<'conn> {
 
     pub(crate) fn execute_internal(&mut self, fetch_array_size: u32) -> Result<()> {
         let mut num_query_columns = 0;
+        let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
+        if self.conn.autocommit {
+            exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
+        }
         chkerr!(self.conn.ctxt,
                 dpiStmt_setFetchArraySize(self.handle, fetch_array_size));
         chkerr!(self.conn.ctxt,
-                dpiStmt_execute(self.handle, DPI_MODE_EXEC_DEFAULT, &mut num_query_columns));
+                dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
         if self.statement_type == DPI_STMT_TYPE_SELECT {
             let num_cols = num_query_columns as usize;
 

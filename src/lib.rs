@@ -141,7 +141,6 @@
 //! * Connection pooling
 //! * Read and write LOB as stream
 //! * REF CURSOR, BOOLEAN
-//! * Autocommit mode
 //! * Scrollable cursors
 //!
 //! ## License

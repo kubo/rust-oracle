@@ -43,3 +43,34 @@ fn app_context() {
     let val: String = row.get(0).unwrap();
     assert_eq!(val, "bar");
 }
+
+#[test]
+fn test_autocommit() {
+    let mut conn = common::connect().unwrap();
+
+    conn.execute("truncate table TestTempTable", &[]).unwrap();
+
+    // Autocommit is disabled by default.
+    assert_eq!(conn.autocommit(), false);
+    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.rollback().unwrap();
+    let (row_count,) = conn.select_one::<(u32,)>("select count(*) from TestTempTable", &[]).unwrap();
+    assert_eq!(row_count, 0);
+
+    // Enable autocommit
+    conn.set_autocommit(true);
+    assert_eq!(conn.autocommit(), true);
+    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.rollback().unwrap();
+    let row_count = conn.select_one::<(u32)>("select count(*) from TestTempTable", &[]).unwrap();
+    assert_eq!(row_count, 1);
+    conn.execute("delete TestTempTable where IntCol = 1", &[]).unwrap();
+
+    // Disable autocommit
+    conn.set_autocommit(false);
+    assert_eq!(conn.autocommit(), false);
+    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.rollback().unwrap();
+    let row_count = conn.select_one::<u32>("select count(*) from TestTempTable", &[]).unwrap();
+    assert_eq!(row_count, 0);
+}
