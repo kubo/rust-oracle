@@ -659,6 +659,10 @@ impl SqlValue {
         /// Gets the SQL value as i32. The Oracle type must be
         /// numeric or string (excluding LOB) types.
         : as_i32, i32);
+    define_fn_as_int!(
+        /// Gets the SQL value as isize. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_isize, isize);
 
     /// Gets the SQL value as i64. The Oracle type must be
     /// numeric or string (excluding LOB) types.
@@ -693,6 +697,10 @@ impl SqlValue {
         /// Gets the SQL value as u32. The Oracle type must be
         /// numeric or string (excluding LOB) types.
         : as_u32, u32);
+    define_fn_as_int!(
+        /// Gets the SQL value as usize. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : as_usize, usize);
 
     /// Gets the SQL value as u64. The Oracle type must be
     /// numeric or string (excluding LOB) types.
@@ -907,6 +915,10 @@ impl SqlValue {
         /// numeric or string (excluding LOB) types.
         : set_i64, i64);
     define_fn_set_int!(
+        /// Sets isize to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_isize, isize);
+    define_fn_set_int!(
         /// Sets u8 to the SQL value. The Oracle type must be
         /// numeric or string (excluding LOB) types.
         : set_u8, u8);
@@ -922,6 +934,10 @@ impl SqlValue {
         /// Sets u64 to the SQL value. The Oracle type must be
         /// numeric or string (excluding LOB) types.
         : set_u64, u64);
+    define_fn_set_int!(
+        /// Sets usize to the SQL value. The Oracle type must be
+        /// numeric or string (excluding LOB) types.
+        : set_usize, usize);
     define_fn_set_int!(
         /// Sets f32 to the SQL value. The Oracle type must be
         /// numeric or string (excluding LOB) types.

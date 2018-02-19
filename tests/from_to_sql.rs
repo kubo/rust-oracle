@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -34,6 +34,123 @@ extern crate oracle;
 #[macro_use]
 mod common;
 use oracle::*;
+
+macro_rules! chk_num_from {
+    ($conn:ident, $val_from:expr, $val_to:expr, $(($T:ident, $success:tt)),+) => {
+        let mut stmt = $conn.execute(&format!("select {} from dual", $val_from), &[]).unwrap();
+        let row = stmt.fetch().unwrap();
+        $(
+            chk_num_from!(row, $val_from, $T, $success);
+        )+;
+
+        let mut stmt = $conn.execute(&format!("select {} from dual", $val_to), &[]).unwrap();
+        let row = stmt.fetch().unwrap();
+        $(
+            chk_num_from!(row, $val_to, $T, $success);
+        )+;
+    };
+    ($row:ident, $val:expr, $T:ident, true) => {
+        assert_eq!($val as $T, $row.get_as::<$T>().unwrap());
+    };
+    ($row:ident, $val:expr, $T:ident, false) => {
+        let err = $row.get_as::<$T>().unwrap_err();
+        match err {
+            Error::ParseError(_) => (),
+            _ => panic!("Unexpected error: {}", err),
+        }
+    };
+}
+
+#[test]
+fn numeric_from_sql() {
+    let conn = common::connect().unwrap();
+
+    chk_num_from!(conn, 0, 0x7f,
+                  (i8, true), (i16, true), (i32, true), (i64, true), (isize, true),
+                  (u8, true), (u16, true), (u32, true), (u64, true), (usize, true));
+    chk_num_from!(conn, 0x80, 0xff,
+                  (i8, false), (i16, true), (i32, true), (i64, true), (isize, true),
+                  (u8, true), (u16, true), (u32, true), (u64, true), (usize, true));
+    chk_num_from!(conn, 0x100, 0x7fff,
+                  (i8, false), (i16, true), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, true), (u32, true), (u64, true), (usize, true));
+    chk_num_from!(conn, 0x8000, 0xffff,
+                  (i8, false), (i16, false), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, true), (u32, true), (u64, true), (usize, true));
+    chk_num_from!(conn, 0x10000, 0x7fffffff,
+                  (i8, false), (i16, false), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, false), (u32, true), (u64, true), (usize, true));
+    if cfg!(target_pointer_width = "64") {
+        chk_num_from!(conn, 0x80000000u32, 0xffffffffu32,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, true),
+                      (u8, false), (u16, false), (u32, true), (u64, true), (usize, true));
+        chk_num_from!(conn, 0x100000000u64, 0x7fffffffffffffffu64,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, true),
+                      (u8, false), (u16, false), (u32, false), (u64, true), (usize, true));
+        chk_num_from!(conn, 0x8000000000000000u64, 0xffffffffffffffffu64,
+                      (i8, false), (i16, false), (i32, false), (i64, false), (isize, false),
+                      (u8, false), (u16, false), (u32, false), (u64, true), (usize, true));
+    } else {
+        chk_num_from!(conn, 0x80000000u32, 0xffffffffu32,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, false),
+                      (u8, false), (u16, false), (u32, true), (u64, true), (usize, true));
+        chk_num_from!(conn, 0x100000000u64, 0x7fffffffffffffffu64,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, false),
+                      (u8, false), (u16, false), (u32, false), (u64, true), (usize, false));
+        chk_num_from!(conn, 0x8000000000000000u64, 0xffffffffffffffffu64,
+                      (i8, false), (i16, false), (i32, false), (i64, false), (isize, false),
+                      (u8, false), (u16, false), (u32, false), (u64, true), (usize, false));
+    }
+
+    chk_num_from!(conn, -1, -0x80,
+                  (i8, true), (i16, true), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, false), (u32, false), (u64, false), (usize, false));
+    chk_num_from!(conn, -0x81, -0x8000,
+                  (i8, false), (i16, true), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, false), (u32, false), (u64, false), (usize, false));
+    chk_num_from!(conn, -0x8001, -0x80000000,
+                  (i8, false), (i16, false), (i32, true), (i64, true), (isize, true),
+                  (u8, false), (u16, false), (u32, false), (u64, false), (usize, false));
+    if cfg!(target_pointer_width = "64") {
+        chk_num_from!(conn, -0x80000001i64, -0x8000000000000000i64,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, true),
+                      (u8, false), (u16, false), (u32, false), (u64, false), (usize, false));
+    } else {
+        chk_num_from!(conn, -0x80000001i64, -0x8000000000000000i64,
+                      (i8, false), (i16, false), (i32, false), (i64, true), (isize, false),
+                      (u8, false), (u16, false), (u32, false), (u64, false), (usize, false));
+    }
+}
+
+macro_rules! chk_num_to {
+    ($stmt:expr, $typ:ident) => {
+        let min_val = $typ::min_value();
+        $stmt.execute(&[&OracleType::Varchar2(20), &min_val]).unwrap();
+        let v: String = $stmt.bind_value(1).unwrap();
+        assert_eq!(v, min_val.to_string());
+
+        let max_val = $typ::min_value();
+        $stmt.execute(&[&OracleType::Varchar2(20), &max_val]).unwrap();
+        let v: String = $stmt.bind_value(1).unwrap();
+        assert_eq!(v, max_val.to_string());
+    }
+}
+
+#[test]
+fn numeric_to_sql() {
+    let conn = common::connect().unwrap();
+    let mut stmt = conn.prepare("begin :out := to_char(:in); end;").unwrap();
+    chk_num_to!(stmt, i8);
+    chk_num_to!(stmt, i16);
+    chk_num_to!(stmt, i32);
+    chk_num_to!(stmt, i64);
+    chk_num_to!(stmt, isize);
+    chk_num_to!(stmt, u8);
+    chk_num_to!(stmt, u16);
+    chk_num_to!(stmt, u32);
+    chk_num_to!(stmt, u64);
+    chk_num_to!(stmt, usize);
+}
 
 //
 // Timestamp

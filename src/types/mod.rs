@@ -55,12 +55,12 @@ pub mod version;
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
 /// | character data types | String |
-/// | " | i8, i16, i32, i64, u8, u16, u32, u64, f64, f32 by using `String.parse()` |
+/// | " | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f64, f32 by using `String.parse()` |
 /// | " | Vec\<u8> (The Oracle value must be in hexadecimal.) |
 /// | " | [Timestamp][] by `String.parse()` |
 /// | " | [IntervalDS][] by `String.parse()` |
 /// | " | [IntervalYM][] by `String.parse()` |
-/// | numeric data types | i8, i16, i32, i64, u8, u16, u32, u64, f64, f32 |
+/// | numeric data types | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f64, f32 |
 /// | " | String |
 /// | raw | Vec\<u8> |
 /// | " | String (The Oracle value is converted to characters in hexadecimal.) |
@@ -148,7 +148,7 @@ pub trait ToSqlNull {
 /// | Rust Type | Oracle Type | Oracle Value |
 /// | --- | --- | --- |
 /// | str, String | nvarchar2(length of the rust value) | The specified value |
-/// | i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 | number | The specified value |
+/// | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f32, f64 | number | The specified value |
 /// | Vec\<u8> | raw(length of the rust value) | The specified value |
 /// | bool | boolean (PL/SQL only) | The specified value |
 /// | [Timestamp][] | timestamp(9) with time zone | The specified value |
@@ -236,10 +236,12 @@ impl_from_and_to_sql!(i8, as_i8, set_i8, OracleType::Number(0,0));
 impl_from_and_to_sql!(i16, as_i16, set_i16, OracleType::Number(0,0));
 impl_from_and_to_sql!(i32, as_i32, set_i32, OracleType::Number(0,0));
 impl_from_and_to_sql!(i64, as_i64, set_i64, OracleType::Number(0,0));
+impl_from_and_to_sql!(isize, as_isize, set_isize, OracleType::Number(0,0));
 impl_from_and_to_sql!(u8, as_u8, set_u8, OracleType::Number(0,0));
 impl_from_and_to_sql!(u16, as_u16, set_u16, OracleType::Number(0,0));
 impl_from_and_to_sql!(u32, as_u32, set_u32, OracleType::Number(0,0));
 impl_from_and_to_sql!(u64, as_u64, set_u64, OracleType::Number(0,0));
+impl_from_and_to_sql!(usize, as_usize, set_usize, OracleType::Number(0,0));
 impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::Number(0,0));
 impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::Number(0,0));
 impl_from_and_to_sql!(bool, as_bool, set_bool, OracleType::Boolean);
