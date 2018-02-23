@@ -657,6 +657,20 @@ impl SqlValue {
         Ok(())
     }
 
+    /// Returns a duplicated value of self.
+    ///
+    /// See also [clone]{#method.clone}.
+    pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
+        let mut val = SqlValue::new(self.ctxt);
+        if let Some(ref oratype) = self.oratype {
+            val.init_handle(conn, oratype, 1)?;
+            chkerr!(self.ctxt,
+                    dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
+                    unsafe { dpiVar_release(val.handle); });
+        }
+        Ok(val)
+    }
+
     //
     // as_TYPE methods
     //
@@ -1108,6 +1122,8 @@ impl Clone for SqlValue {
     /// When it is a bind value in a SQL statement, the internal
     /// data in the copy are changed by the next execution of the
     /// statement.
+    ///
+    /// Use [dup]{#method.dup} to return a deep copy.
     fn clone(&self) -> SqlValue {
         if !self.handle.is_null() {
             unsafe { dpiVar_addRef(self.handle); }

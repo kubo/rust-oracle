@@ -42,6 +42,8 @@ use Error;
 use FromSql;
 use OracleType;
 use Result;
+use Row;
+use Rows;
 use SqlValue;
 use ToSql;
 
@@ -106,8 +108,9 @@ impl fmt::Display for StatementType {
 
 /// Statement
 pub struct Statement<'conn> {
-    conn: &'conn Connection,
+    pub(crate) conn: &'conn Connection,
     handle: *mut dpiStmt,
+    column_info: Vec<ColumnInfo>,
     row: Row,
     shared_buffer_row_index: Rc<RefCell<u32>>,
     statement_type: dpiStatementType,
@@ -153,7 +156,8 @@ impl<'conn> Statement<'conn> {
         Ok(Statement {
             conn: conn,
             handle: handle,
-            row: Row { column_info: Vec::new(), column_values: Vec::new(), },
+            column_info: Vec::new(),
+            row: Row { column_names: Rc::new(Vec::new()), column_values: Vec::new() },
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
@@ -240,6 +244,17 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].get()
     }
 
+    /// Executes the prepared statement and returns an Iterator over rows.
+    pub fn query(&mut self, params: &[&ToSql]) -> Result<Rows> {
+        self.exec(params)?;
+        Ok(Rows::new(self))
+    }
+
+    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Rows> {
+        self.exec_named(params)?;
+        Ok(Rows::new(self))
+    }
+
     /// Binds values by position and executes the statement.
     ///
     /// See also [Connection.execute](struct.Connection.html#method.execute).
@@ -309,18 +324,22 @@ impl<'conn> Statement<'conn> {
                 dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
         if self.statement_type == DPI_STMT_TYPE_SELECT {
             let num_cols = num_query_columns as usize;
+            let mut column_names = Vec::with_capacity(num_cols);
 
-            self.row.column_info = Vec::with_capacity(num_cols);
-            self.row.column_values = vec![SqlValue::new(self.conn.ctxt); num_cols];
+            self.column_info.clear();
+            self.column_info.reserve_exact(num_cols);
+            self.row.column_values.clear();
+            self.row.column_values.reserve_exact(num_cols);
 
             for i in 0..num_cols {
                 // set column info
                 let ci = ColumnInfo::new(self, i)?;
-                self.row.column_info.push(ci);
+                column_names.push(ci.name.clone());
+                self.column_info.push(ci);
                 // setup column value
-                let val = unsafe { self.row.column_values.get_unchecked_mut(i) };
+                let mut val = SqlValue::new(self.conn.ctxt);
                 val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
-                let oratype = self.row.column_info[i].oracle_type();
+                let oratype = self.column_info[i].oracle_type();
                 let oratype_i64 = OracleType::Int64;
                 let oratype = match *oratype {
                     // When the column type is number whose prec is less than 18
@@ -333,7 +352,9 @@ impl<'conn> Statement<'conn> {
                 val.init_handle(self.conn, oratype, self.fetch_array_size)?;
                 chkerr!(self.conn.ctxt,
                         dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
+                self.row.column_values.push(val);
             }
+            self.row.column_names = Rc::new(column_names);
         }
         Ok(())
     }
@@ -382,18 +403,18 @@ impl<'conn> Statement<'conn> {
     /// Returns the number of columns.
     /// This returns zero for non-query statements.
     pub fn column_count(&self) -> usize {
-        self.row.column_info.len()
+        self.column_info.len()
     }
 
     /// Returns the column names.
     /// This returns an empty vector for non-query statements.
     pub fn column_names(&self) -> Vec<&str> {
-        self.row.column_info.iter().map(|info| info.name().as_str()).collect()
+        self.column_info.iter().map(|info| info.name().as_str()).collect()
     }
 
     /// Returns column information.
     pub fn column_info(&self) -> &Vec<ColumnInfo> {
-        &self.row.column_info
+        &self.column_info
     }
 
     /// Fetchs one row from the statement. This returns `Err(Error::NoMoreData)`
@@ -452,7 +473,7 @@ impl<'conn> Statement<'conn> {
 
 impl<'conn> Drop for Statement<'conn> {
     fn drop(&mut self) {
-        let _ = unsafe { dpiStmt_release(self.handle) };
+        unsafe { dpiStmt_release(self.handle) };
     }
 }
 
@@ -535,47 +556,6 @@ impl fmt::Display for ColumnInfo {
     }
 }
 
-/// Row in a result set of a select statement
-pub struct Row {
-    column_info: Vec<ColumnInfo>,
-    column_values: Vec<SqlValue>,
-}
-
-impl Row {
-    /// Gets the column value at the specified index.
-    pub fn get<I, T>(&self, colidx: I) -> Result<T> where I: ColumnIndex, T: FromSql {
-        let pos = colidx.idx(&self.column_info)?;
-        self.column_values[pos].get()
-    }
-
-    /// Returns column values as a vector of SqlValue
-    pub fn sql_values(&self) -> &Vec<SqlValue> {
-        &self.column_values
-    }
-
-    /// Gets column values as specified type.
-    ///
-    /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly such as `row.get_as::<(i32, String>()`.
-    /// See [ColumnValues][] for available return types.
-    ///
-    /// [ColumnValues]: trait.ColumnValues.html
-    ///
-    /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-    /// let mut stmt = conn.execute("select empno, ename from emp", &[]).unwrap();
-    ///
-    /// while let Ok(row) = stmt.fetch() {
-    ///     // Gets a row as `(i32, String)`.
-    ///     let (empno, ename) = row.get_as::<(i32, String)>().unwrap();
-    ///     println!("{},{}", empno, ename);
-    /// }
-    /// ```
-    pub fn get_as<T>(&self) -> Result<<T>::Item> where T: ColumnValues {
-        <T>::get(self)
-    }
-}
-
 /// A trait implemented by types that can index into bind values of a statement.
 pub trait BindIndex {
     /// Returns the index of the bind value specified by `self`.
@@ -617,12 +597,12 @@ impl<'a> BindIndex for &'a str {
 /// A trait implemented by types that can index into columns of a row.
 pub trait ColumnIndex {
     /// Returns the index of the column specified by `self`.
-    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize>;
+    fn idx(&self, column_names: &Vec<String>) -> Result<usize>;
 }
 
 impl ColumnIndex for usize {
-    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize> {
-        let ncols = column_info.len();
+    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+        let ncols = column_names.len();
         if *self < ncols {
             Ok(*self)
         } else {
@@ -632,9 +612,9 @@ impl ColumnIndex for usize {
 }
 
 impl<'a> ColumnIndex for &'a str {
-    fn idx(&self, column_info: &Vec<ColumnInfo>) -> Result<usize> {
-        for (idx, info) in column_info.iter().enumerate() {
-            if info.name().as_str().eq_ignore_ascii_case(*self) {
+    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+        for (idx, colname) in column_names.iter().enumerate() {
+            if colname.as_str().eq_ignore_ascii_case(*self) {
                 return Ok(idx);
             }
         }

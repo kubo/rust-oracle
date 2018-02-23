@@ -150,3 +150,31 @@ fn fetch_as_type_implementing_ColumnValues_trait() {
     assert_eq!(result.fixed_char_col, "Fixed Char 2                            ");
     assert_eq!(result.nullable_col, None);
 }
+
+#[test]
+fn query() {
+    let conn = common::connect().unwrap();
+    let sql_stmt = "select IntCol from TestStrings where IntCol >= :lower order by IntCol";
+
+    let mut stmt = conn.prepare(sql_stmt).unwrap();
+    stmt.set_fetch_array_size(3);
+
+    for (idx, row_result) in stmt.query(&[&2]).unwrap().enumerate() {
+        let row = row_result.unwrap();
+        let int_col: usize = row.get(0).unwrap();
+        assert_eq!(int_col, idx + 2);
+    }
+
+    for (idx, row_result) in stmt.query_named(&[("lower", &3)]).unwrap().enumerate() {
+        let row = row_result.unwrap();
+        let int_col: usize = row.get(0).unwrap();
+        assert_eq!(int_col, idx + 3);
+    }
+
+    let res_vec: Vec<_> = stmt.query(&[&2]).unwrap().collect();
+    for (idx, row_result) in res_vec.into_iter().enumerate() {
+        let row = row_result.unwrap();
+        let int_col: usize = row.get(0).unwrap();
+        assert_eq!(int_col, idx + 2);
+    }
+}
