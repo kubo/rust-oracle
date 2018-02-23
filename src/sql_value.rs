@@ -658,8 +658,6 @@ impl SqlValue {
     }
 
     /// Returns a duplicated value of self.
-    ///
-    /// See also [clone]{#method.clone}.
     pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
         let mut val = SqlValue::new(self.ctxt);
         if let Some(ref oratype) = self.oratype {
@@ -1109,35 +1107,6 @@ impl fmt::Debug for SqlValue {
             Some(ref oratype) => write!(f, "SqlValue(data=\"{}\", type={}, idx/size={}/{})",
                                         self, oratype, self.buffer_row_index(), self.array_size),
             None => write!(f, "SqlValue(uninitialized)"),
-        }
-    }
-}
-
-impl Clone for SqlValue {
-    /// Returns a shallow copy of the value.
-    ///
-    /// When it is a column value in a select statement,
-    /// the internal data in the copy are changed after 100 fetches.
-    ///
-    /// When it is a bind value in a SQL statement, the internal
-    /// data in the copy are changed by the next execution of the
-    /// statement.
-    ///
-    /// Use [dup]{#method.dup} to return a deep copy.
-    fn clone(&self) -> SqlValue {
-        if !self.handle.is_null() {
-            unsafe { dpiVar_addRef(self.handle); }
-        }
-        SqlValue {
-            ctxt: self.ctxt,
-            handle: self.handle,
-            data: self.data,
-            native_type: self.native_type.clone(),
-            oratype: self.oratype.clone(),
-            array_size: self.array_size,
-            buffer_row_index: BufferRowIndex::Owned(self.buffer_row_index()),
-            keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
         }
     }
 }

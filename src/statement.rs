@@ -140,7 +140,8 @@ impl<'conn> Statement<'conn> {
                 dpiStmt_getBindCount(handle, &mut num),
                 unsafe { dpiStmt_release(handle); });
         let bind_count = num as usize;
-        let mut bind_names = Vec::new();
+        let mut bind_names = Vec::with_capacity(bind_count);
+        let mut bind_values = Vec::with_capacity(bind_count);
         if bind_count > 0 {
             let mut names: Vec<*const i8> = vec![ptr::null_mut(); bind_count];
             let mut lengths = vec![0; bind_count];
@@ -151,6 +152,7 @@ impl<'conn> Statement<'conn> {
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
                 bind_names.push(to_rust_str(names[i], lengths[i]));
+                bind_values.push(SqlValue::new(conn.ctxt));
             }
         };
         Ok(Statement {
@@ -163,7 +165,7 @@ impl<'conn> Statement<'conn> {
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
             bind_names: bind_names,
-            bind_values: vec![SqlValue::new(conn.ctxt); bind_count],
+            bind_values: bind_values,
             fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
         })
     }
