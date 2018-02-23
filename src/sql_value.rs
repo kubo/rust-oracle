@@ -30,8 +30,10 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::cell::RefCell;
 use std::fmt;
 use std::ptr;
+use std::rc::Rc;
 use std::str;
 use try_from::TryInto;
 
@@ -119,6 +121,11 @@ macro_rules! define_fn_set_int {
     }
 }
 
+pub enum BufferRowIndex {
+    Shared(Rc<RefCell<u32>>),
+    Owned(u32),
+}
+
 /// A type containing an Oracle value
 ///
 /// When this is a column value in a select statement, the Oracle type is
@@ -146,7 +153,7 @@ pub struct SqlValue {
     native_type: NativeType,
     oratype: Option<OracleType>,
     array_size: u32,
-    pub(crate) buffer_row_index: u32,
+    pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
     keep_dpiobj: *mut dpiObject,
 }
@@ -162,7 +169,7 @@ impl SqlValue {
             native_type: NativeType::Int64,
             oratype: None,
             array_size: 0,
-            buffer_row_index: 0,
+            buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
         }
@@ -178,7 +185,7 @@ impl SqlValue {
             native_type: native_type,
             oratype: Some(oratype.clone()),
             array_size: 0,
-            buffer_row_index: 0,
+            buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
         })
@@ -235,8 +242,15 @@ impl SqlValue {
         Ok(true)
     }
 
+    fn buffer_row_index(&self) -> u32 {
+        match self.buffer_row_index {
+            BufferRowIndex::Shared(ref idx) => *idx.borrow(),
+            BufferRowIndex::Owned(idx) => idx,
+        }
+    }
+
     fn data(&self) -> *mut dpiData {
-        unsafe { self.data.offset(self.buffer_row_index as isize) }
+        unsafe { self.data.offset(self.buffer_row_index() as isize) }
     }
 
     pub(crate) fn native_type_num(&self) -> dpiNativeTypeNum {
@@ -544,7 +558,7 @@ impl SqlValue {
             }
         } else {
             chkerr!(self.ctxt,
-                    dpiVar_setFromBytes(self.handle, self.buffer_row_index,
+                    dpiVar_setFromBytes(self.handle, self.buffer_row_index(),
                                         val.as_ptr() as *const i8,
                                         val.len() as u32));
         }
@@ -631,7 +645,7 @@ impl SqlValue {
             self.keep_dpiobj = obj;
         } else {
             chkerr!(self.ctxt,
-                    dpiVar_setFromObject(self.handle, self.buffer_row_index, obj));
+                    dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj));
         }
         Ok(())
     }
@@ -1079,7 +1093,7 @@ impl fmt::Debug for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.oratype {
             Some(ref oratype) => write!(f, "SqlValue(data=\"{}\", type={}, idx/size={}/{})",
-                                        self, oratype, self.buffer_row_index, self.array_size),
+                                        self, oratype, self.buffer_row_index(), self.array_size),
             None => write!(f, "SqlValue(uninitialized)"),
         }
     }
@@ -1105,7 +1119,7 @@ impl Clone for SqlValue {
             native_type: self.native_type.clone(),
             oratype: self.oratype.clone(),
             array_size: self.array_size,
-            buffer_row_index: self.buffer_row_index,
+            buffer_row_index: BufferRowIndex::Owned(self.buffer_row_index()),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
         }

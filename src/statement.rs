@@ -30,8 +30,10 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::cell::RefCell;
 use std::ptr;
 use std::fmt;
+use std::rc::Rc;
 
 use binding::*;
 
@@ -43,6 +45,7 @@ use Result;
 use SqlValue;
 use ToSql;
 
+use sql_value::BufferRowIndex;
 use to_odpi_str;
 use to_rust_str;
 
@@ -106,6 +109,7 @@ pub struct Statement<'conn> {
     conn: &'conn Connection,
     handle: *mut dpiStmt,
     row: Row,
+    shared_buffer_row_index: Rc<RefCell<u32>>,
     statement_type: dpiStatementType,
     is_returning: bool,
     bind_count: usize,
@@ -149,6 +153,7 @@ impl<'conn> Statement<'conn> {
             conn: conn,
             handle: handle,
             row: Row { column_info: Vec::new(), column_values: Vec::new(), },
+            shared_buffer_row_index: Rc::new(RefCell::new(0)),
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
@@ -304,6 +309,7 @@ impl<'conn> Statement<'conn> {
                 self.row.column_info.push(ci);
                 // setup column value
                 let val = unsafe { self.row.column_values.get_unchecked_mut(i) };
+                val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
                 let oratype = self.row.column_info[i].oracle_type();
                 let oratype_i64 = OracleType::Int64;
                 let oratype = match *oratype {
@@ -383,17 +389,21 @@ impl<'conn> Statement<'conn> {
     /// Fetchs one row from the statement. This returns `Err(Error::NoMoreData)`
     /// when all rows are fetched.
     pub fn fetch(&mut self) -> Result<&Row> {
+        self.next().unwrap_or(Err(Error::NoMoreData))
+    }
+
+    pub(crate) fn next(&self) -> Option<Result<&Row>> {
         let mut found = 0;
         let mut buffer_row_index = 0;
-        chkerr!(self.conn.ctxt,
-                dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index));
-        if found != 0 {
-            for val in self.row.column_values.iter_mut() {
-                val.buffer_row_index = buffer_row_index;
+        if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
+            if found != 0 {
+                *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
+                Some(Ok(&self.row))
+            } else {
+                None
             }
-            Ok(&self.row)
         } else {
-            Err(Error::NoMoreData)
+            Some(Err(::error::error_from_context(self.conn.ctxt)))
         }
     }
 
