@@ -505,8 +505,8 @@ impl Connection {
     /// This is same with the combination of [execute][], [fetch][] and [get_as][].
     /// However the former is a bit optimized about memory usage.
     /// The former prepares memory for one row. On the other hand the latter
-    /// internally prepares memory for 100 rows in order to reduce the number
-    /// of network roundtrips when many rows are fetched.
+    /// internally prepares memory for 100 rows by default in order to reduce
+    /// the number of network roundtrips when many rows are fetched.
     ///
     /// Type inference for the return type doesn't work. You need to specify
     /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
@@ -537,10 +537,8 @@ impl Connection {
     /// ```
     pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: ColumnValues {
         let mut stmt = self.prepare(sql)?;
-        for i in 0..params.len() {
-            stmt.bind(i + 1, params[i])?;
-        }
-        stmt.execute_internal(1)?;
+        stmt.set_fetch_array_size(1);
+        stmt.exec(params)?;
         stmt.fetch()?.get_as::<T>()
     }
 
@@ -564,10 +562,8 @@ impl Connection {
     /// ```
     pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: ColumnValues {
         let mut stmt = self.prepare(sql)?;
-        for i in 0..params.len() {
-            stmt.bind(params[i].0, params[i].1)?;
-        }
-        stmt.execute_internal(1)?;
+        stmt.set_fetch_array_size(1);
+        stmt.exec_named(params)?;
         stmt.fetch()?.get_as::<T>()
     }
 

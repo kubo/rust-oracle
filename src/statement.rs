@@ -115,6 +115,7 @@ pub struct Statement<'conn> {
     bind_count: usize,
     bind_names: Vec<String>,
     bind_values: Vec<SqlValue>,
+    fetch_array_size: u32,
 }
 
 impl<'conn> Statement<'conn> {
@@ -159,6 +160,7 @@ impl<'conn> Statement<'conn> {
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: vec![SqlValue::new(conn.ctxt); bind_count],
+            fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
         })
     }
 
@@ -258,10 +260,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```
     pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
-        for i in 0..params.len() {
-            self.bind(i + 1, params[i])?;
-        }
-        self.execute_internal(DPI_DEFAULT_FETCH_ARRAY_SIZE)
+        self.exec(params)
     }
 
     /// Binds values by name and executes the statement.
@@ -281,20 +280,31 @@ impl<'conn> Statement<'conn> {
     ///                      ("name", &"Paul")]).unwrap(); // execute with other values.
     /// ```
     pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
+        self.exec_named(params)
+    }
+
+    pub(crate) fn exec(&mut self, params: &[&ToSql]) -> Result<()> {
+        for i in 0..params.len() {
+            self.bind(i + 1, params[i])?;
+        }
+        self.exec_common()
+    }
+
+    pub(crate) fn exec_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
         }
-        self.execute_internal(DPI_DEFAULT_FETCH_ARRAY_SIZE)
+        self.exec_common()
     }
 
-    pub(crate) fn execute_internal(&mut self, fetch_array_size: u32) -> Result<()> {
+    fn exec_common(&mut self) -> Result<()> {
         let mut num_query_columns = 0;
         let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
         if self.conn.autocommit {
             exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
         }
         chkerr!(self.conn.ctxt,
-                dpiStmt_setFetchArraySize(self.handle, fetch_array_size));
+                dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size));
         chkerr!(self.conn.ctxt,
                 dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
         if self.statement_type == DPI_STMT_TYPE_SELECT {
@@ -320,7 +330,7 @@ impl<'conn> Statement<'conn> {
                     _ =>
                         oratype,
                 };
-                val.init_handle(self.conn, oratype, fetch_array_size)?;
+                val.init_handle(self.conn, oratype, self.fetch_array_size)?;
                 chkerr!(self.conn.ctxt,
                         dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
             }
@@ -422,6 +432,16 @@ impl<'conn> Statement<'conn> {
             DPI_STMT_TYPE_DECLARE => StatementType::Declare,
             _ => StatementType::Other(self.statement_type),
         }
+    }
+
+    /// Sets the array size used for performing fetches.
+    ///
+    /// This specifies the number of rows allocated before performing
+    /// fetches. The higher this value is the less network round trips are
+    /// required to fetch rows from the database but more memory is also
+    /// required.
+    pub fn set_fetch_array_size(&mut self, fetch_array_size: u32) {
+        self.fetch_array_size = fetch_array_size;
     }
 
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
