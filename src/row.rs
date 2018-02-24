@@ -118,8 +118,8 @@ impl<'stmt> Iterator for Rows<'stmt> {
 
 /// A trait to get a row as specified type
 ///
-/// This is the return type of [Connection.select_one][],
-/// [Connection.select_one_named][] and [Row.get_as][].
+/// This is the return type of [Connection.query_row_as][],
+/// [Connection.query_row_as_named][] and [Row.get_as][].
 ///
 /// The trait was added to fetch column values as a tuple.
 /// The oracle crate provides implementations for a type
@@ -131,7 +131,7 @@ impl<'stmt> Iterator for Rows<'stmt> {
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
 ///
 /// // Gets the first column value in a row.
-/// let val = conn.select_one::<u32>("select sequence_type.nextval from dual", &[]).unwrap();
+/// let val = conn.query_row_as::<u32>("select sequence_type.nextval from dual", &[]).unwrap();
 ///
 /// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
 ///
@@ -175,8 +175,8 @@ impl<'stmt> Iterator for Rows<'stmt> {
 /// ```
 ///
 /// [FromSql]: trait.FromSql.html
-/// [Connection.select_one]: struct.Connection.html#method.select_one
-/// [Connection.select_one_named]: struct.Connection.html#method.select_one_named
+/// [Connection.query_row_as]: struct.Connection.html#method.query_row_as
+/// [Connection.query_row_as_named]: struct.Connection.html#method.query_row_as_named
 /// [Row.get_as]: struct.Row.html#method.get_as
 pub trait RowValue {
     type Item;

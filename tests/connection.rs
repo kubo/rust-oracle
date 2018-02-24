@@ -54,7 +54,7 @@ fn test_autocommit() {
     assert_eq!(conn.autocommit(), false);
     conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
     conn.rollback().unwrap();
-    let (row_count,) = conn.select_one::<(u32,)>("select count(*) from TestTempTable", &[]).unwrap();
+    let (row_count,) = conn.query_row_as::<(u32,)>("select count(*) from TestTempTable", &[]).unwrap();
     assert_eq!(row_count, 0);
 
     // Enable autocommit
@@ -62,7 +62,7 @@ fn test_autocommit() {
     assert_eq!(conn.autocommit(), true);
     conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
     conn.rollback().unwrap();
-    let row_count = conn.select_one::<(u32)>("select count(*) from TestTempTable", &[]).unwrap();
+    let row_count = conn.query_row_as::<(u32)>("select count(*) from TestTempTable", &[]).unwrap();
     assert_eq!(row_count, 1);
     conn.execute("delete TestTempTable where IntCol = 1", &[]).unwrap();
 
@@ -71,6 +71,6 @@ fn test_autocommit() {
     assert_eq!(conn.autocommit(), false);
     conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
     conn.rollback().unwrap();
-    let row_count = conn.select_one::<u32>("select count(*) from TestTempTable", &[]).unwrap();
+    let row_count = conn.query_row_as::<u32>("select count(*) from TestTempTable", &[]).unwrap();
     assert_eq!(row_count, 0);
 }

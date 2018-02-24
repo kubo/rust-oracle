@@ -136,14 +136,14 @@ impl oracle::RowValue for TestString {
 fn fetch_as_type_implementing_ColumnValues_trait() {
     let conn = common::connect().unwrap();
 
-    let result = conn.select_one::<TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
+    let result = conn.query_row_as::<TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
     assert_eq!(result.int_col, 1);
     assert_eq!(result.string_col, "String 1");
     assert_eq!(result.raw_col, b"Raw 1");
     assert_eq!(result.fixed_char_col, "Fixed Char 1                            ");
     assert_eq!(result.nullable_col, Some("Nullable 1".to_string()));
 
-    let result = conn.select_one_named::<TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
+    let result = conn.query_row_as_named::<TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
     assert_eq!(result.int_col, 2);
     assert_eq!(result.string_col, "String 2");
     assert_eq!(result.raw_col, b"Raw 2");

@@ -500,7 +500,7 @@ impl Connection {
         Ok(stmt)
     }
 
-    /// Gets one row from a select statement in one call.
+    /// Gets one row from a query as specified type in one call.
     ///
     /// This is same with the combination of [execute][], [fetch][] and [get_as][].
     /// However the former is a bit optimized about memory usage.
@@ -509,7 +509,7 @@ impl Connection {
     /// the number of network roundtrips when many rows are fetched.
     ///
     /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
+    /// it explicitly as `conn.query_row_as::<...>(sql_stmt, bind_parameters)`.
     /// See [RowValue][] for available return types.
     ///
     /// [execute]: #method.execute
@@ -524,29 +524,29 @@ impl Connection {
     ///
     /// // get a row as `(i32, String)`.
     /// let sql = "select empno, ename from emp where empno = 7369";
-    /// let tuple = conn.select_one::<(i32, String)>(sql, &[]).unwrap();
+    /// let tuple = conn.query_row_as::<(i32, String)>(sql, &[]).unwrap();
     /// assert_eq!(tuple.0, 7369);
     /// assert_eq!(tuple.1, "SMITH");
     ///
     /// // get it as same type using a destructuring let and a bind parameter.
     /// let sql = "select empno, ename from emp where empno = :1";
-    /// let (empno, ename) = conn.select_one::<(i32, String)>(sql, &[&7369]).unwrap();
+    /// let (empno, ename) = conn.query_row_as::<(i32, String)>(sql, &[&7369]).unwrap();
     /// assert_eq!(empno, 7369);
     /// assert_eq!(ename, "SMITH");
     ///
     /// ```
-    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
         stmt.exec(params)?;
         stmt.fetch()?.get_as::<T>()
     }
 
-    /// Gets one row from a select statement with named bind parameters in one call.
+    /// Gets one row from a query with named bind parameters as specified type in one call.
     ///
-    /// See [select_one][] for more detail.
+    /// See [query_row_as][] for more detail.
     ///
-    /// [select_one]: #method.select_one
+    /// [query_row_as]: #method.query_row_as
     ///
     /// # Examples
     ///
@@ -555,12 +555,12 @@ impl Connection {
     ///
     /// // fetch as a tuple whose type is `(i32, String)` with a named bind parameter "empno".
     /// let sql = "select empno, ename from emp where empno = :empno";
-    /// let (empno, ename) = conn.select_one_named::<(i32, String)>(sql, &[("empno", &7369)]).unwrap();
+    /// let (empno, ename) = conn.query_row_as_named::<(i32, String)>(sql, &[("empno", &7369)]).unwrap();
     /// assert_eq!(empno, 7369);
     /// assert_eq!(ename, "SMITH");
     ///
     /// ```
-    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
         stmt.exec_named(params)?;
