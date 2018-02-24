@@ -36,7 +36,7 @@ use Version;
 use Statement;
 
 use binding::*;
-use ColumnValues;
+use RowValue;
 use Context;
 use ObjectType;
 use Result;
@@ -510,12 +510,12 @@ impl Connection {
     ///
     /// Type inference for the return type doesn't work. You need to specify
     /// it explicitly as `conn.select_one::<...>(sql_stmt, bind_parameters)`.
-    /// See [ColumnValues][] for available return types.
+    /// See [RowValue][] for available return types.
     ///
     /// [execute]: #method.execute
     /// [fetch]: struct.Statement.html#method.fetch
     /// [get_as]: struct.Row.html#method.get_as
-    /// [ColumnValues]: trait.ColumnValues.html
+    /// [RowValue]: trait.RowValue.html
     ///
     /// # Examples
     ///
@@ -535,7 +535,7 @@ impl Connection {
     /// assert_eq!(ename, "SMITH");
     ///
     /// ```
-    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: ColumnValues {
+    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
         stmt.exec(params)?;
@@ -560,7 +560,7 @@ impl Connection {
     /// assert_eq!(ename, "SMITH");
     ///
     /// ```
-    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: ColumnValues {
+    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
         stmt.exec_named(params)?;

@@ -118,7 +118,7 @@ struct TestString {
     nullable_col: Option<String>,
 }
 
-impl oracle::ColumnValues for TestString {
+impl oracle::RowValue for TestString {
     type Item = TestString;
     fn get(row: &oracle::Row) -> oracle::Result<TestString> {
         Ok(TestString {
