@@ -30,6 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::marker::PhantomData;
 use std::rc::Rc;
 
 use ColumnIndex;
@@ -113,6 +114,30 @@ impl<'stmt> Iterator for Rows<'stmt> {
             Some(Err(err)) => Some(Err(err)),
             None => None,
         }
+    }
+}
+
+pub struct RowValueRows<'stmt, T> {
+    stmt: &'stmt Statement<'stmt>,
+    phantom: PhantomData<T>,
+}
+
+impl<'stmt, T> RowValueRows<'stmt, T> {
+    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowValueRows<'stmt, T> {
+        RowValueRows {
+            stmt: stmt,
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl<'stmt, T> Iterator for RowValueRows<'stmt, T> where T: RowValue {
+    type Item = Result<<T>::Item>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.stmt
+            .next()
+            .map(|row_result| row_result.and_then(|row| row.get_as::<T>()))
     }
 }
 

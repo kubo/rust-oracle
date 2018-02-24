@@ -196,6 +196,7 @@ pub use error::ParseOracleTypeError;
 pub use error::DbError;
 pub use row::Row;
 pub use row::Rows;
+pub use row::RowValueRows;
 pub use row::RowValue;
 pub use statement::StatementType;
 pub use statement::Statement;

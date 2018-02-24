@@ -178,3 +178,20 @@ fn query() {
         assert_eq!(int_col, idx + 2);
     }
 }
+
+#[test]
+fn query_as() {
+    let conn = common::connect().unwrap();
+    let sql_stmt = "select IntCol from TestStrings where IntCol >= :lower order by IntCol";
+
+    let mut stmt = conn.prepare(sql_stmt).unwrap();
+    stmt.set_fetch_array_size(3);
+
+    for (idx, int_col) in stmt.query_as::<usize>(&[&2]).unwrap().enumerate() {
+        assert_eq!(int_col.unwrap(), idx + 2);
+    }
+
+    for (idx, int_col) in stmt.query_as_named::<usize>(&[("lower", &3)]).unwrap().enumerate() {
+        assert_eq!(int_col.unwrap(), idx + 3);
+    }
+}

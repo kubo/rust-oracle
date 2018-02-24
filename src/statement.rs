@@ -44,6 +44,8 @@ use OracleType;
 use Result;
 use Row;
 use Rows;
+use RowValue;
+use RowValueRows;
 use SqlValue;
 use ToSql;
 
@@ -255,6 +257,20 @@ impl<'conn> Statement<'conn> {
     pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Rows> {
         self.exec_named(params)?;
         Ok(Rows::new(self))
+    }
+
+    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueRows<'a, T>>
+        where T: RowValue
+    {
+        self.exec(params)?;
+        Ok(RowValueRows::new(self))
+    }
+
+    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueRows<'a, T>>
+        where T: RowValue
+    {
+        self.exec_named(params)?;
+        Ok(RowValueRows::new(self))
     }
 
     /// Binds values by position and executes the statement.

@@ -36,10 +36,12 @@ use Version;
 use Statement;
 
 use binding::*;
-use RowValue;
 use Context;
+use Error;
 use ObjectType;
 use Result;
+use Row;
+use RowValue;
 use ToSql;
 
 use new_odpi_str;
@@ -500,6 +502,18 @@ impl Connection {
         Ok(stmt)
     }
 
+    pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
+        let mut stmt = self.prepare(sql)?;
+        stmt.set_fetch_array_size(1);
+        stmt.query(params)?.next().unwrap_or(Err(Error::NoMoreData))
+    }
+
+    pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
+        let mut stmt = self.prepare(sql)?;
+        stmt.set_fetch_array_size(1);
+        stmt.query_named(params)?.next().unwrap_or(Err(Error::NoMoreData))
+    }
+
     /// Gets one row from a query as specified type in one call.
     ///
     /// This is same with the combination of [execute][], [fetch][] and [get_as][].
@@ -538,8 +552,7 @@ impl Connection {
     pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.exec(params)?;
-        stmt.fetch()?.get_as::<T>()
+        stmt.query_as::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
     }
 
     /// Gets one row from a query with named bind parameters as specified type in one call.
@@ -563,8 +576,7 @@ impl Connection {
     pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.exec_named(params)?;
-        stmt.fetch()?.get_as::<T>()
+        stmt.query_as_named::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
     }
 
     /// Cancels execution of running statements in the connection

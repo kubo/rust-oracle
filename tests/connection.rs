@@ -74,3 +74,17 @@ fn test_autocommit() {
     let row_count = conn.query_row_as::<u32>("select count(*) from TestTempTable", &[]).unwrap();
     assert_eq!(row_count, 0);
 }
+
+#[test]
+fn query_row() {
+    let conn = common::connect().unwrap();
+    let sql_stmt = "select IntCol from TestStrings where IntCol = :val";
+
+    let row = conn.query_row(sql_stmt, &[&2]).unwrap();
+    let int_col: i32 = row.get(0).unwrap();
+    assert_eq!(int_col, 2);
+
+    let row = conn.query_row_named(sql_stmt, &[("val", &3)]).unwrap();
+    let int_col: i32 = row.get(0).unwrap();
+    assert_eq!(int_col, 3);
+}
