@@ -50,12 +50,9 @@
 //!
 //! ## Usage
 //!
-//! Rust-oracle was published to [crates.io](https://crates.io/crates/oracle).
-//! However it is old. Use rust-oracle in the github.
-//!
 //! ```text
 //! [dependencies]
-//! oracle = { git = "https://github.com/kubo/rust-oracle.git" }
+//! oracle = "0.0.4"
 //! ```
 //!
 //! When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -63,16 +60,16 @@
 //!
 //! ```text
 //! [dependencies]
-//! oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["chrono"] }
+//! oracle = { version = "0.0.4", features = ["chrono"] }
 //! ```
 //!
 //! If you had written programs using rust-oracle before 0.0.4, enable
-//! the `restore-deleted` feature in `Cargo.toml`. It restores deleted
-//! methods and disables statement-type checking in execute methods.
+//! the `restore-deleted` feature. It restores deleted methods and
+//! disables statement-type checking in execute methods.
 //!
 //! ```text
 //! [dependencies]
-//! oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["restore-deleted"] }
+//! oracle = { version = "0.0.4", features = ["restore-deleted"] }
 //! ```
 //!
 //! ## Examples
