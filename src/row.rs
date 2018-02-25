@@ -34,6 +34,7 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 
 use ColumnIndex;
+use ColumnInfo;
 use FromSql;
 use Result;
 use SqlValue;
@@ -90,6 +91,10 @@ impl<'stmt> Rows<'stmt> {
             stmt: stmt,
         }
     }
+
+    pub fn column_info(&self) -> &Vec<ColumnInfo> {
+        &self.stmt.column_info
+    }
 }
 
 impl<'stmt> Iterator for Rows<'stmt> {
@@ -128,6 +133,10 @@ impl<'stmt, T> RowValueRows<'stmt, T> {
             stmt: stmt,
             phantom: PhantomData,
         }
+    }
+
+    pub fn column_info(&self) -> &Vec<ColumnInfo> {
+        &self.stmt.column_info
     }
 }
 

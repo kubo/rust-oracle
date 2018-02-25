@@ -112,7 +112,7 @@ impl fmt::Display for StatementType {
 pub struct Statement<'conn> {
     pub(crate) conn: &'conn Connection,
     handle: *mut dpiStmt,
-    column_info: Vec<ColumnInfo>,
+    pub(crate) column_info: Vec<ColumnInfo>,
     row: Row,
     shared_buffer_row_index: Rc<RefCell<u32>>,
     statement_type: dpiStatementType,
