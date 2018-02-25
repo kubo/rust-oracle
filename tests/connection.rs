@@ -88,3 +88,28 @@ fn query_row() {
     let int_col: i32 = row.get(0).unwrap();
     assert_eq!(int_col, 3);
 }
+
+#[test]
+fn query_row_as() {
+    let conn = common::connect().unwrap();
+
+    let result = conn.query_row_as::<(String, i32, String)>("select '0', 1, '2' from dual", &[]).unwrap();
+    assert_eq!(result.0, "0");
+    assert_eq!(result.1, 1);
+    assert_eq!(result.2, "2");
+
+    let result = conn.query_row_as::<common::TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
+    assert_eq!(result.int_col, 1);
+    assert_eq!(result.string_col, "String 1");
+    assert_eq!(result.raw_col, b"Raw 1");
+    assert_eq!(result.fixed_char_col, "Fixed Char 1                            ");
+    assert_eq!(result.nullable_col, Some("Nullable 1".to_string()));
+
+    let result = conn.query_row_as_named::<common::TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
+    assert_eq!(result.int_col, 2);
+    assert_eq!(result.string_col, "String 2");
+    assert_eq!(result.raw_col, b"Raw 2");
+    assert_eq!(result.fixed_char_col, "Fixed Char 2                            ");
+    assert_eq!(result.nullable_col, None);
+}
+

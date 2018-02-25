@@ -100,58 +100,6 @@ fn bind_names() {
 }
 
 #[test]
-fn fetch_as_tuple() {
-    let conn = common::connect().unwrap();
-
-    let mut stmt = conn.execute("select '0', 1, '2' from dual", &[]).unwrap();
-    let result = stmt.fetch().unwrap().get_as::<(String, i32, String)>().unwrap();
-    assert_eq!(result.0, "0");
-    assert_eq!(result.1, 1);
-    assert_eq!(result.2, "2");
-}
-
-struct TestString {
-    int_col: i32,
-    string_col: String,
-    raw_col: Vec<u8>,
-    fixed_char_col: String,
-    nullable_col: Option<String>,
-}
-
-impl oracle::RowValue for TestString {
-    type Item = TestString;
-    fn get(row: &oracle::Row) -> oracle::Result<TestString> {
-        Ok(TestString {
-            int_col: row.get(0)?,
-            string_col: row.get(1)?,
-            raw_col: row.get(2)?,
-            fixed_char_col: row.get(3)?,
-            nullable_col: row.get(4)?,
-        })
-    }
-}
-
-#[test]
-#[allow(non_snake_case)]
-fn fetch_as_type_implementing_ColumnValues_trait() {
-    let conn = common::connect().unwrap();
-
-    let result = conn.query_row_as::<TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
-    assert_eq!(result.int_col, 1);
-    assert_eq!(result.string_col, "String 1");
-    assert_eq!(result.raw_col, b"Raw 1");
-    assert_eq!(result.fixed_char_col, "Fixed Char 1                            ");
-    assert_eq!(result.nullable_col, Some("Nullable 1".to_string()));
-
-    let result = conn.query_row_as_named::<TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
-    assert_eq!(result.int_col, 2);
-    assert_eq!(result.string_col, "String 2");
-    assert_eq!(result.raw_col, b"Raw 2");
-    assert_eq!(result.fixed_char_col, "Fixed Char 2                            ");
-    assert_eq!(result.nullable_col, None);
-}
-
-#[test]
 fn query() {
     let conn = common::connect().unwrap();
     let sql_stmt = "select IntCol from TestStrings where IntCol >= :lower order by IntCol";
@@ -182,16 +130,33 @@ fn query() {
 #[test]
 fn query_as() {
     let conn = common::connect().unwrap();
-    let sql_stmt = "select IntCol from TestStrings where IntCol >= :lower order by IntCol";
+    let sql_stmt = "select * from TestStrings where IntCol >= :lower order by IntCol";
 
     let mut stmt = conn.prepare(sql_stmt).unwrap();
     stmt.set_fetch_array_size(3);
 
-    for (idx, int_col) in stmt.query_as::<usize>(&[&2]).unwrap().enumerate() {
-        assert_eq!(int_col.unwrap(), idx + 2);
+    for (idx, row_result) in stmt.query_as::<usize>(&[&2]).unwrap().enumerate() {
+        let int_col = row_result.unwrap();
+        assert_eq!(int_col, idx + 2);
     }
 
-    for (idx, int_col) in stmt.query_as_named::<usize>(&[("lower", &3)]).unwrap().enumerate() {
-        assert_eq!(int_col.unwrap(), idx + 3);
+    for (idx, row_result) in stmt.query_as_named::<(usize, String)>(&[("lower", &3)]).unwrap().enumerate() {
+        let (int_col, string_col) = row_result.unwrap();
+        assert_eq!(int_col, idx + 3);
+        assert_eq!(string_col, format!("String {}", idx + 3));
+    }
+
+    for (idx, row_result) in stmt.query_as_named::<common::TestString>(&[("lower", &3)]).unwrap().enumerate() {
+        let test_string = row_result.unwrap();
+        let int_col = (idx + 3) as i32;
+        assert_eq!(test_string.int_col, int_col);
+        assert_eq!(test_string.string_col, format!("String {}", int_col));
+        assert_eq!(test_string.raw_col, format!("Raw {}", int_col).as_bytes());
+        assert_eq!(test_string.fixed_char_col, format!("Fixed Char {:<29}", int_col));
+        if int_col % 2 == 0 {
+            assert_eq!(test_string.nullable_col, None);
+        } else {
+            assert_eq!(test_string.nullable_col, Some(format!("Nullable {}", int_col).to_string()));
+        }
     }
 }

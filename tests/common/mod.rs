@@ -105,3 +105,25 @@ pub fn test_to_sql<T>(conn: &oracle::Connection, input_data: &T, input_literal: 
     let result: String = stmt.bind_value(1).unwrap();
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
 }
+
+#[allow(dead_code)]
+pub struct TestString {
+    pub int_col: i32,
+    pub string_col: String,
+    pub raw_col: Vec<u8>,
+    pub fixed_char_col: String,
+    pub nullable_col: Option<String>,
+}
+
+impl oracle::RowValue for TestString {
+    type Item = TestString;
+    fn get(row: &oracle::Row) -> oracle::Result<TestString> {
+        Ok(TestString {
+            int_col: row.get(0)?,
+            string_col: row.get(1)?,
+            raw_col: row.get(2)?,
+            fixed_char_col: row.get(3)?,
+            nullable_col: row.get(4)?,
+        })
+    }
+}
