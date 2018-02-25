@@ -44,7 +44,7 @@ oracle = { version = "0.0.4", features = ["restore-deleted"] }
 
 ## Examples
 
-Select a table:
+Query rows from a table
 
 ```rust
 extern crate oracle;
@@ -52,8 +52,10 @@ extern crate oracle;
 fn main() {
     // Connect to a database.
     let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
     // Select a table with a bind variable.
-    let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1").unwrap();
+    let sql = "select ename, sal, comm from emp where deptno = :1";
+    let mut stmt = conn.prepare(sql).unwrap();
     let rows = stmt.query(&[&30]).unwrap();
 
     // Print column names
@@ -84,6 +86,40 @@ fn main() {
                  sal,
                  comm.map_or("".to_string(), |v| v.to_string()));
     }
+
+    // Another way to fetch rows.
+    // The rows iterator returns Result<(String, i32, Option<i32>)>.
+    let mut stmt = conn.prepare(sql).unwrap();
+    let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
+
+    println!("---------------|---------------|---------------|");
+    for row_result in rows {
+        let (ename, sal, comm) = row_result.unwrap();
+        println!(" {:14}| {:>10}    | {:>10}    |",
+                 ename,
+                 sal,
+                 comm.map_or("".to_string(), |v| v.to_string()));
+    }
+
+    // Return one row without creating stmt.
+    let sql = "select ename, sal, comm from emp where empno = :1";
+    let row = conn.query_row(sql, &[&7369]).unwrap();
+    println!("---------------|---------------|---------------|");
+    let ename: String = row.get("empno").unwrap();
+    let sal: i32 = row.get("sal").unwrap();
+    let comm: Option<i32> = row.get("comm").unwrap();
+    println!(" {:14}| {:>10}    | {:>10}    |",
+             ename,
+             sal,
+             comm.map_or("".to_string(), |v| v.to_string()));
+
+    // Return one row as a tupple without creating stmt.
+    let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
+    println!("---------------|---------------|---------------|");
+    println!(" {:14}| {:>10}    | {:>10}    |",
+             row.0,
+             row.1,
+             row.2.map_or("".to_string(), |v| v.to_string()));
 }
 ```
 
