@@ -78,6 +78,9 @@ pub enum Error {
     /// Error when the specified attribute name is not found.
     InvalidAttributeName(String),
 
+    /// Error when invalid method is called such as calling execute for select statements.
+    InvalidOperation(String),
+
     /// Error when an uninitialized bind value is accessed. Bind values
     /// must be initialized by [Statement.bind][], [Statement.execute][]
     /// or [Connection.execute][] in advance.
@@ -205,6 +208,8 @@ impl fmt::Display for Error {
                 write!(f, "invalid column name: {}", name),
             Error::InvalidAttributeName(ref name) =>
                 write!(f, "invalid attribute name: {}", name),
+            Error::InvalidOperation(ref msg) =>
+                write!(f, "invalid operation: {}", msg),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
             Error::NoMoreData =>
@@ -242,6 +247,8 @@ impl fmt::Debug for Error {
                 write!(f, "InvalidColumnName: {}", name),
             Error::InvalidAttributeName(ref name) =>
                 write!(f, "InvalidAttributeName: {}", name),
+            Error::InvalidOperation(ref msg) =>
+                write!(f, "InvalidOperation: {}", msg),
             Error::UninitializedBindValue =>
                 write!(f, "UninitializedBindValue"),
             Error::NoMoreData =>
@@ -261,11 +268,12 @@ impl error::Error for Error {
             Error::ParseError(_) => "parse error",
             Error::OutOfRange(_) => "out of range",
             Error::InvalidTypeConversion(_, _) => "invalid type conversion",
-            Error::InvalidBindIndex(_) => "index bind index",
-            Error::InvalidBindName(_) => "index bind name",
-            Error::InvalidColumnIndex(_) => "index column index",
-            Error::InvalidColumnName(_) => "index column name",
-            Error::InvalidAttributeName(_) => "index attribute name",
+            Error::InvalidBindIndex(_) => "invalid bind index",
+            Error::InvalidBindName(_) => "invalid bind name",
+            Error::InvalidColumnIndex(_) => "invalid column index",
+            Error::InvalidColumnName(_) => "invalid column name",
+            Error::InvalidAttributeName(_) => "invalid attribute name",
+            Error::InvalidOperation(_) => "invalid operation",
             Error::UninitializedBindValue => "uninitialided bind value error",
             Error::NoMoreData => "no more data",
             Error::InternalError(_) => "internal error",

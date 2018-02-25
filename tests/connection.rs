@@ -74,6 +74,20 @@ fn test_autocommit() {
 }
 
 #[test]
+fn execute() {
+    let conn = common::connect().unwrap();
+
+    conn.execute("delete from TestTempTable", &[]).unwrap();
+    if cfg!(feature = "restore-deleted") {
+        conn.execute("select * from TestTempTable", &[]).expect("error for select statements");
+    } else {
+        if conn.execute("select * from TestTempTable", &[]).is_ok() {
+            panic!("No error for select statements");
+        }
+    }
+}
+
+#[test]
 fn query_row() {
     let conn = common::connect().unwrap();
     let sql_stmt = "select IntCol from TestStrings where IntCol = :val";

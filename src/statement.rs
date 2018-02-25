@@ -274,6 +274,7 @@ impl<'conn> Statement<'conn> {
     }
 
     /// Binds values by position and executes the statement.
+    /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// See also [Connection.execute](struct.Connection.html#method.execute).
     ///
@@ -293,10 +294,12 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```
     pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
+        self.ensure_non_query("execute")?;
         self.exec(params)
     }
 
     /// Binds values by name and executes the statement.
+    /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// See also [Connection.execute_named](struct.Connection.html#method.execute_named).
     ///
@@ -313,7 +316,16 @@ impl<'conn> Statement<'conn> {
     ///                      ("name", &"Paul")]).unwrap(); // execute with other values.
     /// ```
     pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
+        self.ensure_non_query("execute_named")?;
         self.exec_named(params)
+    }
+
+    fn ensure_non_query(&self, method_name: &str) -> Result<()> {
+        if cfg!(feature = "restore-deleted") || self.statement_type != DPI_STMT_TYPE_SELECT {
+            Ok(())
+        } else {
+            Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
+        }
     }
 
     pub(crate) fn exec(&mut self, params: &[&ToSql]) -> Result<()> {

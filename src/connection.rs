@@ -460,6 +460,7 @@ impl Connection {
     }
 
     /// Prepares a statement, binds values by position and executes it in one call.
+    /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// # Examples
     ///
@@ -480,6 +481,7 @@ impl Connection {
     }
 
     /// Prepares a statement, binds values by name and executes it in one call.
+    /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// The bind variable names are compared case-insensitively.
     ///
