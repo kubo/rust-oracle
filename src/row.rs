@@ -58,6 +58,13 @@ impl Row {
         &self.column_values
     }
 
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `sql_value` instead")]
+    #[doc(hidden)]
+    pub fn columns(&self) -> &Vec<SqlValue> {
+        self.sql_values()
+    }
+
     /// Gets column values as specified type.
     ///
     /// Type inference for the return type doesn't work. You need to specify
@@ -68,9 +75,10 @@ impl Row {
     ///
     /// ```no_run
     /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-    /// let mut stmt = conn.execute("select empno, ename from emp", &[]).unwrap();
+    /// let mut stmt = conn.prepare("select empno, ename from emp").unwrap();
     ///
-    /// while let Ok(row) = stmt.fetch() {
+    /// for result in stmt.query(&[]).unwrap() {
+    ///     let row = result.unwrap();
     ///     // Gets a row as `(i32, String)`.
     ///     let (empno, ename) = row.get_as::<(i32, String)>().unwrap();
     ///     println!("{},{}", empno, ename);
@@ -164,17 +172,15 @@ impl<'stmt, T> Iterator for RowValueRows<'stmt, T> where T: RowValue {
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
 ///
+/// let sql = "select * from emp where empno = :1";
+///
 /// // Gets the first column value in a row.
-/// let val = conn.query_row_as::<u32>("select sequence_type.nextval from dual", &[]).unwrap();
+/// // Values after the second column are ignored.
+/// let empno = conn.query_row_as::<u32>(sql, &[&7369]).unwrap();
 ///
-/// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
-///
-/// // Gets the first two column values in the first row.
+/// // Gets the first two column values in a row.
 /// // Values after the third column are ignored.
-/// let row = stmt.fetch().unwrap().get_as::<(i32, String)>().unwrap();
-///
-/// // Gets the first three column values in the second row.
-/// let row = stmt.fetch().unwrap().get_as::<(i32, String, String)>().unwrap();
+/// let tuple_of_empno_and_ename = conn.query_row_as::<(i32, String)>(sql, &[&7499]).unwrap();
 /// ```
 ///
 /// You can implement the trait for your own types. For example
@@ -199,11 +205,11 @@ impl<'stmt, T> Iterator for RowValueRows<'stmt, T> where T: RowValue {
 /// }
 ///
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-/// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
+/// let mut stmt = conn.prepare("select * from emp").unwrap();
 ///
-/// while let Ok(row) = stmt.fetch() {
-///     // Gets a row as Emp
-///     let emp = row.get_as::<Emp>().unwrap();
+/// // Gets rows as Emp
+/// for result in stmt.query_as::<Emp>(&[]).unwrap() {
+///     let emp = result.unwrap();
 ///     println!("{},{}", emp.empno, emp.ename);
 /// }
 /// ```

@@ -82,10 +82,9 @@ macro_rules! test_from_sql {
 #[allow(dead_code)]
 pub fn test_from_sql<T>(conn: &oracle::Connection, column_literal: &str, column_type: &oracle::OracleType, expected_result: &T, file: &str, line: u32) where T: oracle::FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq {
     let mut stmt = conn.prepare(&format!("select {} from dual", column_literal)).unwrap();
-    stmt.execute(&[]).expect(format!("error at {}:{}", file, line).as_str());
-    assert_eq!(stmt.column_info()[0].oracle_type(), column_type, "called by {}:{}", file, line);
-    let row = stmt.fetch().unwrap();
-    let result: T = row.get(0).unwrap();
+    let mut rows = stmt.query_as::<T>(&[]).expect(format!("error at {}:{}", file, line).as_str());
+    assert_eq!(rows.column_info()[0].oracle_type(), column_type, "called by {}:{}", file, line);
+    let result = rows.next().unwrap().unwrap();
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
 }
 

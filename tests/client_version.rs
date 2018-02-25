@@ -40,9 +40,6 @@ fn client_version() {
         Err(err) => panic!("Failed to get client version: {}", err),
     };
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')").unwrap();
-    stmt.execute(&[]).unwrap();
-    let row = stmt.fetch().unwrap();
-    let ver_from_query: String = row.get(0).unwrap();
+    let ver_from_query = conn.query_row_as::<String>("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')", &[]).unwrap();
     assert_eq!(ver.to_string(), ver_from_query);
 }

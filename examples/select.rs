@@ -42,10 +42,11 @@ fn main() {
     let sql = "select * from emp";
 
     let conn = oracle::Connection::new(username, password, database).unwrap();
-    let mut stmt = conn.execute(sql, &[]).unwrap();
+    let mut stmt = conn.prepare(sql).unwrap();
+    let rows = stmt.query(&[]).unwrap();
 
     // print column types
-    for (idx, info) in stmt.column_info().iter().enumerate() {
+    for (idx, info) in rows.column_info().iter().enumerate() {
         if idx != 0 {
             print!(",");
         }
@@ -53,9 +54,9 @@ fn main() {
     }
     println!("");
 
-    while let Ok(row) = stmt.fetch() {
+    for row_result in rows {
         // print column values
-        for (idx, val) in row.sql_values().iter().enumerate() {
+        for (idx, val) in row_result.unwrap().sql_values().iter().enumerate() {
             if idx != 0 {
                 print!(",");
             }

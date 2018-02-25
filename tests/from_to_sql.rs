@@ -37,14 +37,12 @@ use oracle::*;
 
 macro_rules! chk_num_from {
     ($conn:ident, $val_from:expr, $val_to:expr, $(($T:ident, $success:tt)),+) => {
-        let mut stmt = $conn.execute(&format!("select {} from dual", $val_from), &[]).unwrap();
-        let row = stmt.fetch().unwrap();
+        let row = $conn.query_row(&format!("select {} from dual", $val_from), &[]).unwrap();
         $(
             chk_num_from!(row, $val_from, $T, $success);
         )+;
 
-        let mut stmt = $conn.execute(&format!("select {} from dual", $val_to), &[]).unwrap();
-        let row = stmt.fetch().unwrap();
+        let row = $conn.query_row(&format!("select {} from dual", $val_to), &[]).unwrap();
         $(
             chk_num_from!(row, $val_to, $T, $success);
         )+;

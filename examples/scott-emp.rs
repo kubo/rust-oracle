@@ -35,13 +35,13 @@ extern crate oracle;
 fn main() {
     let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
-    stmt.execute(&[]).unwrap();
+    let rows = stmt.query(&[]).unwrap();
 
     // stmt.define("HIREDATE", oracle::OracleType::Varchar2(60)).unwrap();
 
     println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
     println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
-    for info in stmt.column_info() {
+    for info in rows.column_info() {
         println!(" {:-30} {:-8} {}",
                  info.name(),
                  if info.nullable() {""} else {"NOT NULL"},
@@ -49,7 +49,8 @@ fn main() {
     }
     println!("");
 
-    while let Ok(row) = stmt.fetch() {
+    for row_result in rows {
+        let row = row_result.unwrap();
         let empno: i32 = row.get(0).unwrap();  // index by 0-based position
         let ename: String = row.get("ENAME").unwrap(); // index by case-sensitive string
         let job: String = row.get(2).unwrap();
@@ -86,11 +87,8 @@ fn main() {
     println!(":1 is null? => {}", retval.is_none());
 
     if false {
-        let mut stmt = conn.prepare("select 100000 from dual").unwrap();
-        stmt.execute(&[]).unwrap();
-        let row = stmt.fetch().unwrap();
         // This cause panic because 10000 is out of the range of `i8`.
-        let _val: i8 = row.get(0).unwrap();
+        let _val = conn.query_row_as::<i8>("select 100000 from dual", &[]).unwrap();
         println!("never reach here!");
     }
 }

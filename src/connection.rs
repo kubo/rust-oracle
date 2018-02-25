@@ -347,9 +347,7 @@ impl Connector {
     /// connector.app_context("CLIENTCONTEXT", "foo", "bar");
     /// connector.app_context("CLIENTCONTEXT", "baz", "qux");
     /// let conn = connector.connect().unwrap();
-    /// let mut stmt = conn.execute("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[]).unwrap();
-    /// let row = stmt.fetch().unwrap();
-    /// let val: String = row.get(0).unwrap();
+    /// let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[]).unwrap();
     /// assert_eq!(val, "qux");
     /// ```
     pub fn app_context<'a>(&'a mut self, namespace: &str, name: &str, value: &str) -> &'a mut Connector {
@@ -516,7 +514,7 @@ impl Connection {
 
     /// Gets one row from a query as specified type in one call.
     ///
-    /// This is same with the combination of [execute][], [fetch][] and [get_as][].
+    /// This is same with the combination of [prepare][], [query_as][] and [next][].
     /// However the former is a bit optimized about memory usage.
     /// The former prepares memory for one row. On the other hand the latter
     /// internally prepares memory for 100 rows by default in order to reduce
@@ -526,9 +524,9 @@ impl Connection {
     /// it explicitly as `conn.query_row_as::<...>(sql_stmt, bind_parameters)`.
     /// See [RowValue][] for available return types.
     ///
-    /// [execute]: #method.execute
-    /// [fetch]: struct.Statement.html#method.fetch
-    /// [get_as]: struct.Row.html#method.get_as
+    /// [prepare]: #method.prepare
+    /// [query_as]: struct.Statement.html#method.query_as
+    /// [next]: struct.RowValueRows.html#method.next
     /// [RowValue]: trait.RowValue.html
     ///
     /// # Examples
@@ -555,6 +553,13 @@ impl Connection {
         stmt.query_as::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
     }
 
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `query_row_as` instead")]
+    #[doc(hidden)]
+    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
+        self.query_row_as::<T>(sql, params)
+    }
+
     /// Gets one row from a query with named bind parameters as specified type in one call.
     ///
     /// See [query_row_as][] for more detail.
@@ -578,6 +583,14 @@ impl Connection {
         stmt.set_fetch_array_size(1);
         stmt.query_as_named::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
     }
+
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `query_row_as_named` instead")]
+    #[doc(hidden)]
+    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
+        self.query_row_as_named::<T>(sql, params)
+    }
+
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {

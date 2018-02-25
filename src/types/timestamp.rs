@@ -95,19 +95,17 @@ use ParseOracleTypeError;
 ///
 /// // Fetch Timestamp
 /// let sql = "select TIMESTAMP '2017-08-09 11:22:33.500' from dual";
-/// let mut stmt = conn.execute(sql, &[]).unwrap();
-/// let row = stmt.fetch().unwrap();
-/// let ts: Timestamp = row.get(0).unwrap();
+/// let ts = conn.query_row_as::<Timestamp>(sql, &[]).unwrap();
 /// assert_eq!(ts.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Bind Timestamp
 /// let sql = "begin \
 ///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
 ///            end;";
-/// let stmt = conn.execute(sql,
-///                         &[&OracleType::Timestamp(3), // bind null as timestamp(3)
-///                           &ts, // bind the ts variable
-///                          ]).unwrap();
+/// let mut stmt = conn.prepare(sql).unwrap();
+/// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
+///                &ts, // bind the ts variable
+///               ]).unwrap();
 /// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
 /// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
 /// assert_eq!(outval.to_string(), "2017-08-10 13:25:38.000");

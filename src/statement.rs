@@ -231,9 +231,9 @@ impl<'conn> Statement<'conn> {
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
     /// // sets "to be upper-case" to the second and then executes it.
-    /// let stmt = conn.execute("begin :outval := upper(:inval); end;",
-    ///                         &[&oracle::OracleType::Varchar2(60),
-    ///                           &"to be upper-case"]).unwrap();
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
+    /// stmt.execute(&[&oracle::OracleType::Varchar2(60),
+    ///              &"to be upper-case"]).unwrap();
     ///
     /// // Get the first bind value by position.
     /// let outval: String = stmt.bind_value(1).unwrap();
@@ -420,23 +420,35 @@ impl<'conn> Statement<'conn> {
 
     /// Returns the number of columns.
     /// This returns zero for non-query statements.
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
+    #[doc(hidden)]
     pub fn column_count(&self) -> usize {
         self.column_info.len()
     }
 
     /// Returns the column names.
     /// This returns an empty vector for non-query statements.
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
+    #[doc(hidden)]
     pub fn column_names(&self) -> Vec<&str> {
         self.column_info.iter().map(|info| info.name().as_str()).collect()
     }
 
     /// Returns column information.
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
+    #[doc(hidden)]
     pub fn column_info(&self) -> &Vec<ColumnInfo> {
         &self.column_info
     }
 
     /// Fetchs one row from the statement. This returns `Err(Error::NoMoreData)`
     /// when all rows are fetched.
+    #[cfg(feature = "restore-deleted")]
+    #[deprecated(since="0.0.4", note="use `query`, `query_named`, `query_as` or `query_as_named` instead of `execute` and `fetch`")]
+    #[doc(hidden)]
     pub fn fetch(&mut self) -> Result<&Row> {
         self.next().unwrap_or(Err(Error::NoMoreData))
     }
@@ -503,10 +515,11 @@ impl<'conn> Drop for Statement<'conn> {
 ///
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-/// let mut stmt = conn.execute("select * from emp", &[]).unwrap();
+/// let mut stmt = conn.prepare("select * from emp").unwrap();
+/// let rows = stmt.query(&[]).unwrap();
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
 /// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
-/// for info in stmt.column_info() {
+/// for info in rows.column_info() {
 ///    println!("{:-30} {:-8} {}",
 ///             info.name(),
 ///             if info.nullable() {""} else {"NOT NULL"},

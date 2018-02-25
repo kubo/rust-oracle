@@ -459,8 +459,9 @@ impl fmt::Debug for Object {
 /// ```no_run
 /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
-/// let mut stmt = conn.execute("select loc from location where name = '...'", &[]).unwrap();
-/// let objtype = if let oracle::OracleType::Object(ref objtype) = *stmt.column_info()[0].oracle_type() {
+/// let mut stmt = conn.prepare("select loc from location where name = '...'").unwrap();
+/// let rows = stmt.query(&[]).unwrap();
+/// let objtype = if let oracle::OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {
 ///     objtype
 /// } else {
 ///     panic!("Not an object type")

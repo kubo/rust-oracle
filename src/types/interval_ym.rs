@@ -83,19 +83,17 @@ use ParseOracleTypeError;
 ///
 /// // Fetch IntervalYM
 /// let sql = "select interval '+02-03' year to month from dual";
-/// let mut stmt = conn.execute(sql, &[]).unwrap();
-/// let row = stmt.fetch().unwrap();
-/// let intvl: IntervalYM = row.get(0).unwrap();
+/// let intvl = conn.query_row_as::<IntervalYM>(sql, &[]).unwrap();
 /// assert_eq!(intvl.to_string(), "+02-03");
 ///
 /// // Bind IntervalYM
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let stmt = conn.execute(sql,
-///                         &[&OracleType::Date, // bind null as date
-///                           &intvl, // bind the intvl variable
-///                          ]).unwrap();
+/// let mut stmt = conn.prepare(sql).unwrap();
+/// stmt.execute(&[&OracleType::Date, // bind null as date
+///                &intvl, // bind the intvl variable
+///               ]).unwrap();
 /// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
 /// // 2017-08-09 + (2 years and 3 months)
 /// assert_eq!(outval.to_string(), "2019-11-09 00:00:00");

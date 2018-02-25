@@ -72,23 +72,25 @@
 //!     // Connect to a database.
 //!     let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
 //!     // Select a table with a bind variable.
-//!     let mut stmt = conn.execute("select ename, sal, comm from emp where deptno = :1", &[&30]).unwrap();
+//!     let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1").unwrap();
+//!     let rows = stmt.query(&[&30]).unwrap();
 //!
 //!     // Print column names
-//!     for info in stmt.column_info() {
+//!     for info in rows.column_info() {
 //!         print!(" {:14}|", info.name());
 //!     }
 //!     println!("");
 //!
 //!     // Print column types
-//!     for info in stmt.column_info() {
+//!     for info in rows.column_info() {
 //!         print!(" {:14}|", info.oracle_type().to_string());
 //!     }
 //!     println!("");
 //!
 //!     // Print column values
 //!     println!("---------------|---------------|---------------|");
-//!     while let Ok(row) = stmt.fetch() {
+//!     for row_result in rows {
+//!         let row = row_result.unwrap();
 //!         // get a column value by position (0-based)
 //!         let ename: String = row.get(0).unwrap();
 //!         // get a column by name (case-insensitive)
@@ -121,15 +123,11 @@
 //! let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
 //!
 //! // 10.1 is converted to a string in Oracle and fetched as a string.
-//! let mut stmt = conn.execute("select to_char(10.1) from dual", &[]).unwrap();
-//! let row = stmt.fetch().unwrap();
-//! let result: String = row.get(0).unwrap();
+//! let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[]).unwrap();
 //! assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
 //!
 //! // 10.1 is fetched as a number and converted to a string in rust-oracle
-//! let mut stmt = conn.execute("select 10.1 from dual", &[]).unwrap();
-//! let row = stmt.fetch().unwrap();
-//! let result: String = row.get(0).unwrap();
+//! let result = conn.query_row_as::<String>("select 10.1 from dual", &[]).unwrap();
 //! assert_eq!(result, "10.1"); // The decimal mark is always period(.).
 //! ```
 //!
