@@ -4,6 +4,11 @@ This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 Don't use this until the version number reaches to 0.1.0.
 
+**Methods for querying rows were changed in 0.0.4.** If you had written
+programs using rust-oracle before 0.0.4, enable the `restore-deleted`
+feature in `Cargo.toml`. It restores deleted methods and disables
+statement-type checking in execute methods.
+
 ## Build-time Requirements
 
 * Rust 1.19 or later
@@ -29,6 +34,15 @@ data types, enable `chrono` feature:
 ```text
 [dependencies]
 oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["chrono"] }
+```
+
+If you had written programs using rust-oracle before 0.0.4, enable
+the `restore-deleted` feature in `Cargo.toml`. It restores deleted
+methods and disables statement-type checking in execute methods.
+
+```text
+[dependencies]
+oracle = { git = "https://github.com/kubo/rust-oracle.git", features = ["restore-deleted"] }
 ```
 
 ## Examples
@@ -108,6 +122,7 @@ required.
 * Read and write LOB as stream
 * REF CURSOR, BOOLEAN
 * Scrollable cursors
+* Batch DML
 
 ## License
 

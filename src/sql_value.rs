@@ -132,15 +132,11 @@ pub enum BufferRowIndex {
 /// determined by the column type.
 ///
 /// When this is a bind value in a SQL statement, the Oracle type is determined
-/// by [ToSql.oratype][] which is internally called within [Statement.bind][],
-/// [Statement.execute][] and [Connection.execute][].
+/// by [ToSql.oratype][].
 ///
 /// [FromSql]: trait.FromSql.html
 /// [ToSql]: trait.ToSql.html
 /// [ToSql.oratype]: trait.ToSql.html#method.oratype
-/// [Statement.bind]: struct.Statement.html#method.bind
-/// [Statement.execute]: struct.Statement.html#method.execute
-/// [Connection.execute]: struct.Connection.html#method.execute
 /// [parse]: https://doc.rust-lang.org/std/primitive.str.html#method.parse
 /// [get]: #method.get
 /// [set]: #method.set

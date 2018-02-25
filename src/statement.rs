@@ -254,11 +254,31 @@ impl<'conn> Statement<'conn> {
         Ok(Rows::new(self))
     }
 
+    /// Executes the prepared statement and returns an Iterator over rows.
     pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Rows> {
         self.exec_named(params)?;
         Ok(Rows::new(self))
     }
 
+    /// Executes the prepared statement and returns an Iterator over rows.
+    /// The iterator returns `Result<T>` where T is the specified type.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1").unwrap();
+    /// let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
+    ///
+    /// println!("---------------|---------------|---------------|");
+    /// for row_result in rows {
+    ///     let (ename, sal, comm) = row_result.unwrap();
+    ///     println!(" {:14}| {:>10}    | {:>10}    |",
+    ///              ename,
+    ///              sal,
+    ///              comm.map_or("".to_string(), |v| v.to_string()));
+    /// }
+    /// ```
     pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueRows<'a, T>>
         where T: RowValue
     {
@@ -266,6 +286,26 @@ impl<'conn> Statement<'conn> {
         Ok(RowValueRows::new(self))
     }
 
+    /// Executes the prepared statement and returns an Iterator over rows.
+    /// The iterator returns `Result<T>` where T is the specified type.
+    /// Bind parameters are bound by their names.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :deptno").unwrap();
+    /// let rows = stmt.query_as_named::<(String, i32, Option<i32>)>(&[("deptno", &10)]).unwrap();
+    ///
+    /// println!("---------------|---------------|---------------|");
+    /// for row_result in rows {
+    ///     let (ename, sal, comm) = row_result.unwrap();
+    ///     println!(" {:14}| {:>10}    | {:>10}    |",
+    ///              ename,
+    ///              sal,
+    ///              comm.map_or("".to_string(), |v| v.to_string()));
+    /// }
+    /// ```
     pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueRows<'a, T>>
         where T: RowValue
     {

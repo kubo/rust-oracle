@@ -502,12 +502,14 @@ impl Connection {
         Ok(stmt)
     }
 
+    /// Gets one row from a query in one call.
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
         stmt.query(params)?.next().unwrap_or(Err(Error::NoMoreData))
     }
 
+    /// Gets one row from a query using named bind parameters in one call.
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
