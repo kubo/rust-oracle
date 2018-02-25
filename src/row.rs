@@ -89,13 +89,14 @@ impl Row {
     }
 }
 
-pub struct Rows<'stmt> {
+/// Result set returned by Statement.query and Statement.query_named.
+pub struct RowResultSet<'stmt> {
     stmt: &'stmt Statement<'stmt>,
 }
 
-impl<'stmt> Rows<'stmt> {
-    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> Rows<'stmt> {
-        Rows {
+impl<'stmt> RowResultSet<'stmt> {
+    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowResultSet<'stmt> {
+        RowResultSet {
             stmt: stmt,
         }
     }
@@ -105,7 +106,7 @@ impl<'stmt> Rows<'stmt> {
     }
 }
 
-impl<'stmt> Iterator for Rows<'stmt> {
+impl<'stmt> Iterator for RowResultSet<'stmt> {
     type Item = Result<Row>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -130,14 +131,15 @@ impl<'stmt> Iterator for Rows<'stmt> {
     }
 }
 
-pub struct RowValueRows<'stmt, T> {
+/// Result set returned by Statement.query_as and Statement.query_as_named.
+pub struct RowValueResultSet<'stmt, T> {
     stmt: &'stmt Statement<'stmt>,
     phantom: PhantomData<T>,
 }
 
-impl<'stmt, T> RowValueRows<'stmt, T> {
-    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowValueRows<'stmt, T> {
-        RowValueRows {
+impl<'stmt, T> RowValueResultSet<'stmt, T> {
+    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowValueResultSet<'stmt, T> {
+        RowValueResultSet {
             stmt: stmt,
             phantom: PhantomData,
         }
@@ -148,7 +150,7 @@ impl<'stmt, T> RowValueRows<'stmt, T> {
     }
 }
 
-impl<'stmt, T> Iterator for RowValueRows<'stmt, T> where T: RowValue {
+impl<'stmt, T> Iterator for RowValueResultSet<'stmt, T> where T: RowValue {
     type Item = Result<<T>::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {

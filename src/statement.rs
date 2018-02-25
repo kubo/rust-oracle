@@ -43,9 +43,9 @@ use FromSql;
 use OracleType;
 use Result;
 use Row;
-use Rows;
+use RowResultSet;
 use RowValue;
-use RowValueRows;
+use RowValueResultSet;
 use SqlValue;
 use ToSql;
 
@@ -249,15 +249,15 @@ impl<'conn> Statement<'conn> {
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
-    pub fn query(&mut self, params: &[&ToSql]) -> Result<Rows> {
+    pub fn query(&mut self, params: &[&ToSql]) -> Result<RowResultSet> {
         self.exec(params)?;
-        Ok(Rows::new(self))
+        Ok(RowResultSet::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
-    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Rows> {
+    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<RowResultSet> {
         self.exec_named(params)?;
-        Ok(Rows::new(self))
+        Ok(RowResultSet::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
@@ -279,11 +279,11 @@ impl<'conn> Statement<'conn> {
     ///              comm.map_or("".to_string(), |v| v.to_string()));
     /// }
     /// ```
-    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueRows<'a, T>>
+    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueResultSet<'a, T>>
         where T: RowValue
     {
         self.exec(params)?;
-        Ok(RowValueRows::new(self))
+        Ok(RowValueResultSet::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
@@ -306,11 +306,11 @@ impl<'conn> Statement<'conn> {
     ///              comm.map_or("".to_string(), |v| v.to_string()));
     /// }
     /// ```
-    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueRows<'a, T>>
+    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueResultSet<'a, T>>
         where T: RowValue
     {
         self.exec_named(params)?;
-        Ok(RowValueRows::new(self))
+        Ok(RowValueResultSet::new(self))
     }
 
     /// Binds values by position and executes the statement.

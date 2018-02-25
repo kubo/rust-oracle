@@ -530,7 +530,7 @@ impl Connection {
     ///
     /// [prepare]: #method.prepare
     /// [query_as]: struct.Statement.html#method.query_as
-    /// [next]: struct.RowValueRows.html#method.next
+    /// [next]: struct.RowValueResultSet.html#method.next
     /// [RowValue]: trait.RowValue.html
     ///
     /// # Examples
