@@ -113,7 +113,7 @@ pub struct Statement<'conn> {
     pub(crate) conn: &'conn Connection,
     handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
-    row: Row,
+    row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
     statement_type: dpiStatementType,
     is_returning: bool,
@@ -161,7 +161,7 @@ impl<'conn> Statement<'conn> {
             conn: conn,
             handle: handle,
             column_info: Vec::new(),
-            row: Row { column_names: Rc::new(Vec::new()), column_values: Vec::new() },
+            row: None,
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
             statement_type: info.statementType,
             is_returning: info.isReturning != 0,
@@ -393,38 +393,40 @@ impl<'conn> Statement<'conn> {
         chkerr!(self.conn.ctxt,
                 dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
         if self.statement_type == DPI_STMT_TYPE_SELECT {
-            let num_cols = num_query_columns as usize;
-            let mut column_names = Vec::with_capacity(num_cols);
+            if self.row.is_none() {
+                let num_cols = num_query_columns as usize;
+                let mut column_names = Vec::with_capacity(num_cols);
+                let mut column_values = Vec::with_capacity(num_cols);
+                self.column_info = Vec::with_capacity(num_cols);
 
-            self.column_info.clear();
-            self.column_info.reserve_exact(num_cols);
-            self.row.column_values.clear();
-            self.row.column_values.reserve_exact(num_cols);
-
-            for i in 0..num_cols {
-                // set column info
-                let ci = ColumnInfo::new(self, i)?;
-                column_names.push(ci.name.clone());
-                self.column_info.push(ci);
-                // setup column value
-                let mut val = SqlValue::new(self.conn.ctxt);
-                val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
-                let oratype = self.column_info[i].oracle_type();
-                let oratype_i64 = OracleType::Int64;
-                let oratype = match *oratype {
-                    // When the column type is number whose prec is less than 18
-                    // and the scale is zero, define it as int64.
-                    OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
-                        &oratype_i64,
-                    _ =>
-                        oratype,
-                };
-                val.init_handle(self.conn, oratype, self.fetch_array_size)?;
-                chkerr!(self.conn.ctxt,
-                        dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
-                self.row.column_values.push(val);
+                for i in 0..num_cols {
+                    // set column info
+                    let ci = ColumnInfo::new(self, i)?;
+                    column_names.push(ci.name.clone());
+                    self.column_info.push(ci);
+                    // setup column value
+                    let mut val = SqlValue::new(self.conn.ctxt);
+                    val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
+                    let oratype = self.column_info[i].oracle_type();
+                    let oratype_i64 = OracleType::Int64;
+                    let oratype = match *oratype {
+                        // When the column type is number whose prec is less than 18
+                        // and the scale is zero, define it as int64.
+                        OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
+                            &oratype_i64,
+                        _ =>
+                            oratype,
+                    };
+                    val.init_handle(self.conn, oratype, self.fetch_array_size)?;
+                    chkerr!(self.conn.ctxt,
+                            dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
+                    column_values.push(val);
+                }
+                self.row = Some(Row {
+                    column_names: Rc::new(column_names),
+                    column_values: column_values,
+                });
             }
-            self.row.column_names = Rc::new(column_names);
         }
         Ok(())
     }
@@ -511,7 +513,8 @@ impl<'conn> Statement<'conn> {
         if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
             if found != 0 {
                 *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
-                Some(Ok(&self.row))
+                // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
+                Some(Ok(self.row.as_ref().unwrap()))
             } else {
                 None
             }
