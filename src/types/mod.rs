@@ -158,7 +158,7 @@ pub trait ToSqlNull {
 /// | [Object][] | type returned by [Object.oracle_type] | The specified value |
 /// | Option\<T> where T: ToSql + [ToSqlNull][] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
 /// | [OracleType][] | type represented by the OracleType. | a null value |
-/// | (&ToSql, &[OracleType[]) | type represented by the second element. | The value of the first element |
+/// | (&ToSql, &[OracleType][]) | type represented by the second element. | The value of the first element |
 ///
 /// When you need to bind output parameters such as varchar2, use `OracleType`
 /// or `(&ToSql, &OracleType)` to specify the maximum length of data types.
