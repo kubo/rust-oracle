@@ -250,13 +250,13 @@ impl<'conn> Statement<'conn> {
 
     /// Executes the prepared statement and returns an Iterator over rows.
     pub fn query(&mut self, params: &[&ToSql]) -> Result<RowResultSet> {
-        self.exec(params)?;
+        self.exec(params, true, "query")?;
         Ok(RowResultSet::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
     pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<RowResultSet> {
-        self.exec_named(params)?;
+        self.exec_named(params, true, "query_named")?;
         Ok(RowResultSet::new(self))
     }
 
@@ -282,7 +282,7 @@ impl<'conn> Statement<'conn> {
     pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueResultSet<'a, T>>
         where T: RowValue
     {
-        self.exec(params)?;
+        self.exec(params, true, "query_as")?;
         Ok(RowValueResultSet::new(self))
     }
 
@@ -309,7 +309,7 @@ impl<'conn> Statement<'conn> {
     pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueResultSet<'a, T>>
         where T: RowValue
     {
-        self.exec_named(params)?;
+        self.exec_named(params, true, "query_as_named")?;
         Ok(RowValueResultSet::new(self))
     }
 
@@ -334,8 +334,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```
     pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
-        self.ensure_non_query("execute")?;
-        self.exec(params)
+        self.exec(params, false, "execute")
     }
 
     /// Binds values by name and executes the statement.
@@ -356,26 +355,35 @@ impl<'conn> Statement<'conn> {
     ///                      ("name", &"Paul")]).unwrap(); // execute with other values.
     /// ```
     pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
-        self.ensure_non_query("execute_named")?;
-        self.exec_named(params)
+        self.exec_named(params, false, "execute_named")
     }
 
-    fn ensure_non_query(&self, method_name: &str) -> Result<()> {
-        if cfg!(feature = "restore-deleted") || self.statement_type != DPI_STMT_TYPE_SELECT {
-            Ok(())
+    fn check_stmt_type(&self, must_be_query: bool, method_name: &str) -> Result<()> {
+        if must_be_query {
+            if self.statement_type == DPI_STMT_TYPE_SELECT {
+                Ok(())
+            } else {
+                Err(Error::InvalidOperation(format!("Could not use the `{}` method for non-select statements", method_name)))
+            }
         } else {
-            Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
+            if cfg!(feature = "restore-deleted") || self.statement_type != DPI_STMT_TYPE_SELECT {
+                Ok(())
+            } else {
+                Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
+            }
         }
     }
 
-    pub(crate) fn exec(&mut self, params: &[&ToSql]) -> Result<()> {
+    pub(crate) fn exec(&mut self, params: &[&ToSql], must_be_query: bool, method_name: &str) -> Result<()> {
+        self.check_stmt_type(must_be_query, method_name)?;
         for i in 0..params.len() {
             self.bind(i + 1, params[i])?;
         }
         self.exec_common()
     }
 
-    pub(crate) fn exec_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
+    pub(crate) fn exec_named(&mut self, params: &[(&str, &ToSql)], must_be_query: bool, method_name: &str) -> Result<()> {
+        self.check_stmt_type(must_be_query, method_name)?;
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
         }
