@@ -35,6 +35,9 @@ use std::ptr;
 use std::fmt;
 use std::rc::Rc;
 
+#[allow(unused_imports)]  // Suppress warning when rust verion >= 1.23.
+use std::ascii::AsciiExt; // Required when rust verion < 1.23.
+
 use binding::*;
 
 use Connection;
