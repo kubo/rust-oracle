@@ -30,181 +30,183 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
-//! This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
-//!
-//! Don't use this until the version number reaches to 0.1.0.
-//!
-//! **Methods for querying rows were changed in 0.0.4.** If you had written
-//! programs using rust-oracle before 0.0.4, enable the `restore-deleted`
-//! feature in `Cargo.toml`. It restores deleted methods and disables
-//! statement-type checking in execute methods.
-//!
-//! ## Build-time Requirements
-//!
-//! * Rust 1.19 or later
-//! * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
-//!
-//! ## Run-time Requirements
-//!
-//! * Oracle client 11.2 or later. See [ODPI-C installation document][].
-//!
-//! ## Usage
-//!
-//! ```text
-//! [dependencies]
-//! oracle = "0.0.4"
-//! ```
-//!
-//! When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
-//! data types, enable `chrono` feature:
-//!
-//! ```text
-//! [dependencies]
-//! oracle = { version = "0.0.4", features = ["chrono"] }
-//! ```
-//!
-//! If you had written programs using rust-oracle before 0.0.4, enable
-//! the `restore-deleted` feature. It restores deleted methods and
-//! disables statement-type checking in execute methods.
-//!
-//! ```text
-//! [dependencies]
-//! oracle = { version = "0.0.4", features = ["restore-deleted"] }
-//! ```
-//!
-//! ## Examples
-//!
-//! Query rows from a table
-//!
-//! ```no_run
-//! extern crate oracle;
-//!
-//! fn main() {
-//!     // Connect to a database.
-//!     let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
-//!
-//!     // Select a table with a bind variable.
-//!     let sql = "select ename, sal, comm from emp where deptno = :1";
-//!     let mut stmt = conn.prepare(sql).unwrap();
-//!     let rows = stmt.query(&[&30]).unwrap();
-//!
-//!     // Print column names
-//!     for info in rows.column_info() {
-//!         print!(" {:14}|", info.name());
-//!     }
-//!     println!("");
-//!
-//!     // Print column types
-//!     for info in rows.column_info() {
-//!         print!(" {:14}|", info.oracle_type().to_string());
-//!     }
-//!     println!("");
-//!
-//!     // Print column values
-//!     println!("---------------|---------------|---------------|");
-//!     for row_result in rows {
-//!         let row = row_result.unwrap();
-//!         // get a column value by position (0-based)
-//!         let ename: String = row.get(0).unwrap();
-//!         // get a column by name (case-insensitive)
-//!         let sal: i32 = row.get("sal").unwrap();
-//!         // get a nullable column
-//!         let comm: Option<i32> = row.get(2).unwrap();
-//!
-//!         println!(" {:14}| {:>10}    | {:>10}    |",
-//!                  ename,
-//!                  sal,
-//!                  comm.map_or("".to_string(), |v| v.to_string()));
-//!     }
-//!
-//!     // Another way to fetch rows.
-//!     // The rows iterator returns Result<(String, i32, Option<i32>)>.
-//!     let mut stmt = conn.prepare(sql).unwrap();
-//!     let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
-//!
-//!     println!("---------------|---------------|---------------|");
-//!     for row_result in rows {
-//!         let (ename, sal, comm) = row_result.unwrap();
-//!         println!(" {:14}| {:>10}    | {:>10}    |",
-//!                  ename,
-//!                  sal,
-//!                  comm.map_or("".to_string(), |v| v.to_string()));
-//!     }
-//!
-//!     // Return one row without creating stmt.
-//!     let sql = "select ename, sal, comm from emp where empno = :1";
-//!     let row = conn.query_row(sql, &[&7369]).unwrap();
-//!     println!("---------------|---------------|---------------|");
-//!     let ename: String = row.get("empno").unwrap();
-//!     let sal: i32 = row.get("sal").unwrap();
-//!     let comm: Option<i32> = row.get("comm").unwrap();
-//!     println!(" {:14}| {:>10}    | {:>10}    |",
-//!              ename,
-//!              sal,
-//!              comm.map_or("".to_string(), |v| v.to_string()));
-//!
-//!     // Return one row as a tupple without creating stmt.
-//!     let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
-//!     println!("---------------|---------------|---------------|");
-//!     println!(" {:14}| {:>10}    | {:>10}    |",
-//!              row.0,
-//!              row.1,
-//!              row.2.map_or("".to_string(), |v| v.to_string()));
-//! }
-//! ```
-//!
-//! ## NLS_LANG parameter
-//!
-//! [NLS_LANG][] consists of three components: [language][], [territory][] and
-//! charset. However the charset component is ignored and UTF-8(AL32UTF8) is used
-//! as charset because rust characters are UTF-8.
-//!
-//! The territory component specifies numeric format, date format and so on.
-//! However it affects only conversion in Oracle. See the following example:
-//!
-//! ```no_run
-//! extern crate oracle;
-//!
-//! // The territory is France.
-//! std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
-//! let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-//!
-//! // 10.1 is converted to a string in Oracle and fetched as a string.
-//! let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[]).unwrap();
-//! assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
-//!
-//! // 10.1 is fetched as a number and converted to a string in rust-oracle
-//! let result = conn.query_row_as::<String>("select 10.1 from dual", &[]).unwrap();
-//! assert_eq!(result, "10.1"); // The decimal mark is always period(.).
-//! ```
-//!
-//! Note that NLS_LANG must be set before first rust-oracle function execution if
-//! required.
-//!
-//! ## TODO
-//!
-//! * Connection pooling
-//! * Read and write LOB as stream
-//! * REF CURSOR, BOOLEAN
-//! * Scrollable cursors
-//! * Batch DML
-//!
-//! ## License
-//!
-//! Rust-oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
-//!
-//! ODPI-C bundled in rust-oracle is under the terms of:
-//!
-//! 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
-//! 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
-//!
-//! [Rust]:                 https://www.rust-lang.org/
-//! [ODPI-C]:               https://oracle.github.io/odpi/
-//! [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
-//! [Oracle database]: https://www.oracle.com/database/index.html
-//! [NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
-//! [language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
-//! [territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
+/*!
+This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
+
+Don't use this until the version number reaches to 0.1.0.
+
+**Methods for querying rows were changed in 0.0.4.** If you had written
+programs using rust-oracle before 0.0.4, enable the `restore-deleted`
+feature in `Cargo.toml`. It restores deleted methods and disables
+statement-type checking in execute methods.
+
+## Build-time Requirements
+
+* Rust 1.19 or later
+* C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
+
+## Run-time Requirements
+
+* Oracle client 11.2 or later. See [ODPI-C installation document][].
+
+## Usage
+
+```text
+[dependencies]
+oracle = "0.0.4"
+```
+
+When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
+data types, enable `chrono` feature:
+
+```text
+[dependencies]
+oracle = { version = "0.0.4", features = ["chrono"] }
+```
+
+If you had written programs using rust-oracle before 0.0.4, enable
+the `restore-deleted` feature. It restores deleted methods and
+disables statement-type checking in execute methods.
+
+```text
+[dependencies]
+oracle = { version = "0.0.4", features = ["restore-deleted"] }
+```
+
+## Examples
+
+Query rows from a table
+
+```no_run
+extern crate oracle;
+
+fn main() {
+    // Connect to a database.
+    let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
+    // Select a table with a bind variable.
+    let sql = "select ename, sal, comm from emp where deptno = :1";
+    let mut stmt = conn.prepare(sql).unwrap();
+    let rows = stmt.query(&[&30]).unwrap();
+
+    // Print column names
+    for info in rows.column_info() {
+        print!(" {:14}|", info.name());
+    }
+    println!("");
+
+    // Print column types
+    for info in rows.column_info() {
+        print!(" {:14}|", info.oracle_type().to_string());
+    }
+    println!("");
+
+    // Print column values
+    println!("---------------|---------------|---------------|");
+    for row_result in rows {
+        let row = row_result.unwrap();
+        // get a column value by position (0-based)
+        let ename: String = row.get(0).unwrap();
+        // get a column by name (case-insensitive)
+        let sal: i32 = row.get("sal").unwrap();
+        // get a nullable column
+        let comm: Option<i32> = row.get(2).unwrap();
+
+        println!(" {:14}| {:>10}    | {:>10}    |",
+                 ename,
+                 sal,
+                 comm.map_or("".to_string(), |v| v.to_string()));
+    }
+
+    // Another way to fetch rows.
+    // The rows iterator returns Result<(String, i32, Option<i32>)>.
+    let mut stmt = conn.prepare(sql).unwrap();
+    let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
+
+    println!("---------------|---------------|---------------|");
+    for row_result in rows {
+        let (ename, sal, comm) = row_result.unwrap();
+        println!(" {:14}| {:>10}    | {:>10}    |",
+                 ename,
+                 sal,
+                 comm.map_or("".to_string(), |v| v.to_string()));
+    }
+
+    // Return one row without creating stmt.
+    let sql = "select ename, sal, comm from emp where empno = :1";
+    let row = conn.query_row(sql, &[&7369]).unwrap();
+    println!("---------------|---------------|---------------|");
+    let ename: String = row.get("empno").unwrap();
+    let sal: i32 = row.get("sal").unwrap();
+    let comm: Option<i32> = row.get("comm").unwrap();
+    println!(" {:14}| {:>10}    | {:>10}    |",
+             ename,
+             sal,
+             comm.map_or("".to_string(), |v| v.to_string()));
+
+    // Return one row as a tupple without creating stmt.
+    let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
+    println!("---------------|---------------|---------------|");
+    println!(" {:14}| {:>10}    | {:>10}    |",
+             row.0,
+             row.1,
+             row.2.map_or("".to_string(), |v| v.to_string()));
+}
+```
+
+## NLS_LANG parameter
+
+[NLS_LANG][] consists of three components: [language][], [territory][] and
+charset. However the charset component is ignored and UTF-8(AL32UTF8) is used
+as charset because rust characters are UTF-8.
+
+The territory component specifies numeric format, date format and so on.
+However it affects only conversion in Oracle. See the following example:
+
+```no_run
+extern crate oracle;
+
+// The territory is France.
+std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
+let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+
+// 10.1 is converted to a string in Oracle and fetched as a string.
+let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[]).unwrap();
+assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
+
+// 10.1 is fetched as a number and converted to a string in rust-oracle
+let result = conn.query_row_as::<String>("select 10.1 from dual", &[]).unwrap();
+assert_eq!(result, "10.1"); // The decimal mark is always period(.).
+```
+
+Note that NLS_LANG must be set before first rust-oracle function execution if
+required.
+
+## TODO
+
+* Connection pooling
+* Read and write LOB as stream
+* REF CURSOR, BOOLEAN
+* Scrollable cursors
+* Batch DML
+
+## License
+
+Rust-oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
+
+ODPI-C bundled in rust-oracle is under the terms of:
+
+1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
+2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
+
+[Rust]:                 https://www.rust-lang.org/
+[ODPI-C]:               https://oracle.github.io/odpi/
+[ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
+[Oracle database]: https://www.oracle.com/database/index.html
+[NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
+[language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
+[territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
+*/
 
 #[cfg(feature = "chrono")]
 extern crate chrono;
