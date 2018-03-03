@@ -550,9 +550,16 @@ fn new_odpi_str() -> OdpiStr {
 }
 
 fn to_odpi_str(s: &str) -> OdpiStr {
-    OdpiStr {
-        ptr: s.as_ptr() as *const c_char,
-        len: s.len() as u32,
+    if s.len() == 0 {
+        OdpiStr {
+            ptr: ptr::null(),
+            len: 0,
+        }
+    } else {
+        OdpiStr {
+            ptr: s.as_ptr() as *const c_char,
+            len: s.len() as u32,
+        }
     }
 }
 
