@@ -315,6 +315,42 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(self))
     }
 
+    /// Gets the first row from the prepared statement.
+    ///
+    /// If the query returns more than one row, all rows except the first are ignored.
+    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
+        let row = self.query(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
+    }
+
+    /// Gets one row from the prepared statement using named bind parameters.
+    ///
+    /// If the query returns more than one row, all rows except the first are ignored.
+    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
+        let row = self.query_named(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
+    }
+
+    /// Gets one row from the prepared statement as specified type.
+    ///
+    /// If the query returns more than one row, all rows except the first are ignored.
+    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
+        let row = self.query_as::<T>(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
+    }
+
+    /// Gets one row from the prepared statement as specified type using named bind parameters.
+    ///
+    /// If the query returns more than one row, all rows except the first are ignored.
+    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
+        let row = self.query_as_named::<T>(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
+    }
+
     /// Binds values by position and executes the statement.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///

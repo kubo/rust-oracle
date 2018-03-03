@@ -37,7 +37,6 @@ use Statement;
 
 use binding::*;
 use Context;
-use Error;
 use ObjectType;
 use Result;
 use ResultSet;
@@ -543,16 +542,14 @@ impl Connection {
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        let row = stmt.query(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        stmt.query_row(params)
     }
 
     /// Gets one row from a query using named bind parameters in one call.
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        let row = stmt.query_named(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        stmt.query_row_named(params)
     }
 
     /// Gets one row from a query as specified type in one call.
@@ -593,8 +590,7 @@ impl Connection {
     pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        let row = stmt.query_as::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        stmt.query_row_as::<T>(params)
     }
 
     #[cfg(feature = "restore-deleted")]
@@ -625,8 +621,7 @@ impl Connection {
     pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        let row = stmt.query_as_named::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        stmt.query_row_as_named::<T>(params)
     }
 
     #[cfg(feature = "restore-deleted")]

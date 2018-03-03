@@ -146,3 +146,24 @@ fn query() {
         common::assert_test_string_tuple(idx + 3, &row);
     }
 }
+
+#[test]
+fn query_row() {
+    let conn = common::connect().unwrap();
+    let sql = "select * from TestStrings where IntCol = :icol";
+
+    let mut stmt = conn.prepare(sql).unwrap();
+    stmt.set_fetch_array_size(1);
+
+    let row = stmt.query_row(&[&2]).unwrap();
+    common::assert_test_string_row(2, &row);
+
+    let row = stmt.query_row_named(&[("icol", &3)]).unwrap();
+    common::assert_test_string_row(3, &row);
+
+    let row = stmt.query_row_as::<common::TestStringTuple>(&[&4]).unwrap();
+    common::assert_test_string_tuple(4, &row);
+
+    let row = stmt.query_row_as_named::<common::TestString>(&[("icol", &5)]).unwrap();
+    common::assert_test_string_type(5, &row);
+}
