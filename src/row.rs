@@ -30,6 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::boxed::Box;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -119,21 +120,41 @@ impl Row {
 }
 
 /// Result set
-pub struct ResultSet<'stmt, T> where T: RowValue {
-    stmt: &'stmt Statement<'stmt>,
+pub struct ResultSet<'a, T> where T: RowValue {
+    stmt: Option<&'a Statement<'a>>,
+    pub(crate) stmt_boxed: Option<Box<Statement<'a>>>,
     phantom: PhantomData<T>,
 }
 
-impl<'stmt, T> ResultSet<'stmt, T> where T: RowValue {
-    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> ResultSet<'stmt, T> {
+impl<'a, T> ResultSet<'a, T> where T: RowValue {
+    pub(crate) fn new(stmt: &'a Statement<'a>) -> ResultSet<'a, T> {
         ResultSet {
-            stmt: stmt,
+            stmt: Some(stmt),
+            stmt_boxed: None,
             phantom: PhantomData,
         }
     }
 
+    pub(crate) fn from_conn(conn: &'a Connection, sql: &str) -> Result<ResultSet<'a, T>> {
+        Ok(ResultSet {
+            stmt: None,
+            stmt_boxed: Some(Box::new(conn.prepare(sql)?)),
+            phantom: PhantomData,
+        })
+    }
+
+    fn stmt(&self) -> &Statement {
+        if self.stmt.is_some() {
+            self.stmt.as_ref().unwrap()
+        } else if self.stmt_boxed.is_some() {
+            self.stmt_boxed.as_ref().unwrap().as_ref()
+        } else {
+            panic!("Both stmt and stmt_boxed are none!");
+        }
+    }
+
     pub fn column_info(&self) -> &Vec<ColumnInfo> {
-        &self.stmt.column_info
+        &self.stmt().column_info
     }
 }
 
@@ -141,7 +162,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
     type Item = Result<<T>::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.stmt
+        self.stmt()
             .next()
             .map(|row_result| row_result.and_then(|row| row.get_as::<T>()))
     }

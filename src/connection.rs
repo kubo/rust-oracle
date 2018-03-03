@@ -40,6 +40,7 @@ use Context;
 use Error;
 use ObjectType;
 use Result;
+use ResultSet;
 use Row;
 use RowValue;
 use ToSql;
@@ -502,18 +503,56 @@ impl Connection {
         Ok(stmt)
     }
 
+    /// Executes a select statement and returns a result set containing [Row][]s.
+    ///
+    /// [Row]: struct.Row.html
+    pub fn query(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<Row>> {
+        let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
+        rs.stmt_boxed.as_mut().unwrap().exec(params, true, "query")?;
+        Ok(rs)
+    }
+
+    /// Executes a select statement using named parameters and returns a result set containing [Row][]s.
+    ///
+    /// [Row]: struct.Row.html
+    pub fn query_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
+        let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
+        rs.stmt_boxed.as_mut().unwrap().exec_named(params, true, "query_named")?;
+        Ok(rs)
+    }
+
+    /// Executes a select statement and returns a result set containing [RowValue][]s.
+    ///
+    /// [RowValue]: struct.RowValue.html
+    pub fn query_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<T>> where T: RowValue {
+        let mut rs = ResultSet::from_conn(self, sql)?;
+        rs.stmt_boxed.as_mut().unwrap().exec(params, true, "query_as")?;
+        Ok(rs)
+    }
+
+    /// Executes a select statement using named parameters and returns a result set containing [RowValue][]s.
+    ///
+    /// [RowValue]: struct.RowValue.html
+    pub fn query_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<T>> where T: RowValue {
+        let mut rs = ResultSet::from_conn(self, sql)?;
+        rs.stmt_boxed.as_mut().unwrap().exec_named(params, true, "query_as_named")?;
+        Ok(rs)
+    }
+
     /// Gets one row from a query in one call.
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.query(params)?.next().unwrap_or(Err(Error::NoMoreData))
+        let row = stmt.query(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
     }
 
     /// Gets one row from a query using named bind parameters in one call.
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.query_named(params)?.next().unwrap_or(Err(Error::NoMoreData))
+        let row = stmt.query_named(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
     }
 
     /// Gets one row from a query as specified type in one call.
@@ -554,7 +593,8 @@ impl Connection {
     pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.query_as::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
+        let row = stmt.query_as::<T>(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
     }
 
     #[cfg(feature = "restore-deleted")]
@@ -585,7 +625,8 @@ impl Connection {
     pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let mut stmt = self.prepare(sql)?;
         stmt.set_fetch_array_size(1);
-        stmt.query_as_named::<T>(params)?.next().unwrap_or(Err(Error::NoMoreData))
+        let row = stmt.query_as_named::<T>(params)?.next();
+        row.unwrap_or(Err(Error::NoMoreData))
     }
 
     #[cfg(feature = "restore-deleted")]

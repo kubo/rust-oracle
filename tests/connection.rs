@@ -88,40 +88,50 @@ fn execute() {
 }
 
 #[test]
-fn query_row() {
+fn query() {
     let conn = common::connect().unwrap();
-    let sql_stmt = "select IntCol from TestStrings where IntCol = :val";
+    let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
 
-    let row = conn.query_row(sql_stmt, &[&2]).unwrap();
-    let int_col: i32 = row.get(0).unwrap();
-    assert_eq!(int_col, 2);
+    let rows = conn.query(sql, &[&2]).unwrap();
+    for (idx, row_result) in rows.enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_row(idx + 2, &row);
+    }
 
-    let row = conn.query_row_named(sql_stmt, &[("val", &3)]).unwrap();
-    let int_col: i32 = row.get(0).unwrap();
-    assert_eq!(int_col, 3);
+    let rows = conn.query_named(sql, &[("icol", &3)]).unwrap();
+    for (idx, row_result) in rows.enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_row(idx + 3, &row);
+    }
+
+    let rows = conn.query_as::<common::TestString>(sql, &[&4]).unwrap();
+    for (idx, row_result) in rows.enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_type(idx + 4, &row);
+    }
+
+    let rows = conn.query_as_named::<common::TestStringTuple>(sql, &[("icol", &5)]).unwrap();
+    for (idx, row_result) in rows.enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_tuple(idx + 5, &row);
+    }
 }
 
 #[test]
-fn query_row_as() {
+fn query_row() {
     let conn = common::connect().unwrap();
+    let sql = "select * from TestStrings where IntCol = :icol";
 
-    let result = conn.query_row_as::<(String, i32, String)>("select '0', 1, '2' from dual", &[]).unwrap();
-    assert_eq!(result.0, "0");
-    assert_eq!(result.1, 1);
-    assert_eq!(result.2, "2");
+    let row = conn.query_row(sql, &[&2]).unwrap();
+    common::assert_test_string_row(2, &row);
 
-    let result = conn.query_row_as::<common::TestString>("select * from TestStrings where IntCol = 1", &[]).unwrap();
-    assert_eq!(result.int_col, 1);
-    assert_eq!(result.string_col, "String 1");
-    assert_eq!(result.raw_col, b"Raw 1");
-    assert_eq!(result.fixed_char_col, "Fixed Char 1                            ");
-    assert_eq!(result.nullable_col, Some("Nullable 1".to_string()));
+    let row = conn.query_row_named(sql, &[("icol", &3)]).unwrap();
+    common::assert_test_string_row(3, &row);
 
-    let result = conn.query_row_as_named::<common::TestString>("select * from TestStrings where IntCol = :intcol", &[("intcol", &2)]).unwrap();
-    assert_eq!(result.int_col, 2);
-    assert_eq!(result.string_col, "String 2");
-    assert_eq!(result.raw_col, b"Raw 2");
-    assert_eq!(result.fixed_char_col, "Fixed Char 2                            ");
-    assert_eq!(result.nullable_col, None);
+    let row = conn.query_row_as::<common::TestStringTuple>(sql, &[&4]).unwrap();
+    common::assert_test_string_tuple(4, &row);
+
+    let row = conn.query_row_as_named::<common::TestString>(sql, &[("icol", &5)]).unwrap();
+    common::assert_test_string_type(5, &row);
 }
 
