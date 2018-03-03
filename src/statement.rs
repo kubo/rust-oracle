@@ -213,7 +213,7 @@ impl<'conn> Statement<'conn> {
     /// ```
     pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()> where I: BindIndex {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(self.conn, &value.oratype()?, 1)? {
+        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
             chkerr!(self.conn.ctxt,
                     bindidx.bind(self.handle, self.bind_values[pos].handle));
         }
@@ -428,15 +428,12 @@ impl<'conn> Statement<'conn> {
                         _ =>
                             oratype,
                     };
-                    val.init_handle(self.conn, oratype, self.fetch_array_size)?;
+                    val.init_handle(self.conn.handle, oratype, self.fetch_array_size)?;
                     chkerr!(self.conn.ctxt,
                             dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
                     column_values.push(val);
                 }
-                self.row = Some(Row {
-                    column_names: Rc::new(column_names),
-                    column_values: column_values,
-                });
+                self.row = Some(Row::new(self.conn, column_names, column_values)?);
             }
         }
         Ok(())

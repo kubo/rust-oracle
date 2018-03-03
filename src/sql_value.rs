@@ -214,7 +214,7 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn init_handle(&mut self, conn: &Connection, oratype: &OracleType, array_size: u32) -> Result<bool> {
+    pub(crate) fn init_handle(&mut self, conn_handle: *mut dpiConn, oratype: &OracleType, array_size: u32) -> Result<bool> {
         if self.handle_is_reusable(oratype, array_size)? {
             return Ok(false)
         }
@@ -227,8 +227,8 @@ impl SqlValue {
         let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
         let object_type_handle = native_type.to_object_type_handle();
-        chkerr!(conn.ctxt,
-                dpiConn_newVar(conn.handle, oratype_num, native_type_num, array_size, size, size_is_byte,
+        chkerr!(self.ctxt,
+                dpiConn_newVar(conn_handle, oratype_num, native_type_num, array_size, size, size_is_byte,
                                0, object_type_handle, &mut handle, &mut data));
         self.handle = handle;
         self.data = data;
@@ -655,9 +655,13 @@ impl SqlValue {
 
     /// Returns a duplicated value of self.
     pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
+        self.dup_by_handle(conn.handle)
+    }
+
+    pub(crate) fn dup_by_handle(&self, conn_handle: *mut dpiConn) -> Result<SqlValue> {
         let mut val = SqlValue::new(self.ctxt);
         if let Some(ref oratype) = self.oratype {
-            val.init_handle(conn, oratype, 1)?;
+            val.init_handle(conn_handle, oratype, 1)?;
             chkerr!(self.ctxt,
                     dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
                     unsafe { dpiVar_release(val.handle); });

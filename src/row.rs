@@ -33,23 +33,52 @@
 use std::marker::PhantomData;
 use std::rc::Rc;
 
+use binding::*;
+
 use ColumnIndex;
 use ColumnInfo;
+use Connection;
 use FromSql;
 use Result;
 use SqlValue;
 use Statement;
 
+pub struct RowSharedData {
+    column_names: Vec<String>,
+    conn_handle: *mut dpiConn,
+}
+
+impl Drop for RowSharedData {
+    fn drop(&mut self) {
+        if !self.conn_handle.is_null() {
+            unsafe { dpiConn_release(self.conn_handle) };
+        }
+    }
+}
+
 /// Row in a result set of a select statement
 pub struct Row {
-    pub(crate) column_names: Rc<Vec<String>>,
+    pub(crate) shared: Rc<RowSharedData>,
     pub(crate) column_values: Vec<SqlValue>,
 }
 
 impl Row {
+    pub(crate) fn new(conn: &Connection, column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
+        chkerr!(conn.ctxt,
+                dpiConn_addRef(conn.handle));
+        let shared = RowSharedData {
+            column_names: column_names,
+            conn_handle: conn.handle,
+        };
+        Ok(Row {
+            shared: Rc::new(shared),
+            column_values: column_values,
+        })
+    }
+
     /// Gets the column value at the specified index.
     pub fn get<I, T>(&self, colidx: I) -> Result<T> where I: ColumnIndex, T: FromSql {
-        let pos = colidx.idx(&self.column_names)?;
+        let pos = colidx.idx(&self.shared.column_names)?;
         self.column_values[pos].get()
     }
 
@@ -121,7 +150,7 @@ impl<'stmt> Iterator for RowResultSet<'stmt> {
                     }
                 }
                 Some(Ok(Row {
-                    column_names: row.column_names.clone(),
+                    shared: row.shared.clone(),
                     column_values: column_values,
                 }))
             },
@@ -223,6 +252,21 @@ impl<'stmt, T> Iterator for RowValueResultSet<'stmt, T> where T: RowValue {
 pub trait RowValue {
     type Item;
     fn get(row: &Row) -> Result<Self::Item>;
+}
+
+impl RowValue for Row {
+    type Item = Row;
+    fn get(row: &Row) -> Result<Row> {
+        let num_cols = row.column_values.len();
+        let mut column_values = Vec::with_capacity(num_cols);
+        for val in &row.column_values {
+            column_values.push(val.dup_by_handle(row.shared.conn_handle)?);
+        }
+        Ok(Row {
+            shared: row.shared.clone(),
+            column_values: column_values,
+        })
+    }
 }
 
 impl<T: FromSql> RowValue for T {
