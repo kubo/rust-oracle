@@ -45,10 +45,9 @@ use Error;
 use FromSql;
 use OracleType;
 use Result;
+use ResultSet;
 use Row;
-use RowResultSet;
 use RowValue;
-use RowValueResultSet;
 use SqlValue;
 use ToSql;
 
@@ -252,15 +251,15 @@ impl<'conn> Statement<'conn> {
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
-    pub fn query(&mut self, params: &[&ToSql]) -> Result<RowResultSet> {
+    pub fn query(&mut self, params: &[&ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
-        Ok(RowResultSet::new(self))
+        Ok(ResultSet::<Row>::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
-    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<RowResultSet> {
+    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
-        Ok(RowResultSet::new(self))
+        Ok(ResultSet::<Row>::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
@@ -282,11 +281,11 @@ impl<'conn> Statement<'conn> {
     ///              comm.map_or("".to_string(), |v| v.to_string()));
     /// }
     /// ```
-    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<RowValueResultSet<'a, T>>
+    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<ResultSet<'a, T>>
         where T: RowValue
     {
         self.exec(params, true, "query_as")?;
-        Ok(RowValueResultSet::new(self))
+        Ok(ResultSet::new(self))
     }
 
     /// Executes the prepared statement and returns an Iterator over rows.
@@ -309,11 +308,11 @@ impl<'conn> Statement<'conn> {
     ///              comm.map_or("".to_string(), |v| v.to_string()));
     /// }
     /// ```
-    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<RowValueResultSet<'a, T>>
+    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<'a, T>>
         where T: RowValue
     {
         self.exec_named(params, true, "query_as_named")?;
-        Ok(RowValueResultSet::new(self))
+        Ok(ResultSet::new(self))
     }
 
     /// Binds values by position and executes the statement.

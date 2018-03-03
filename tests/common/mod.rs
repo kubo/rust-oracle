@@ -126,3 +126,43 @@ impl oracle::RowValue for TestString {
         })
     }
 }
+
+#[allow(dead_code)]
+const VALUES_IN_TEST_STRINGS: [(i32, &str, &[u8], &str, Option<&str>); 11] = [
+    (0, "", b"", "", None),
+    (1, "String 1", b"Raw 1", "Fixed Char 1                            ", Some("Nullable 1")),
+    (2, "String 2", b"Raw 2", "Fixed Char 2                            ", None),
+    (3, "String 3", b"Raw 3", "Fixed Char 3                            ", Some("Nullable 3")),
+    (4, "String 4", b"Raw 4", "Fixed Char 4                            ", None),
+    (5, "String 5", b"Raw 5", "Fixed Char 5                            ", Some("Nullable 5")),
+    (6, "String 6", b"Raw 6", "Fixed Char 6                            ", None),
+    (7, "String 7", b"Raw 7", "Fixed Char 7                            ", Some("Nullable 7")),
+    (8, "String 8", b"Raw 8", "Fixed Char 8                            ", None),
+    (9, "String 9", b"Raw 9", "Fixed Char 9                            ", Some("Nullable 9")),
+    (10, "String 10", b"Raw 10", "Fixed Char 10                           ", None),
+];
+
+#[allow(dead_code)]
+pub type TestStringTuple = (i32, String, Vec<u8>, String, Option<String>);
+
+#[allow(dead_code)]
+pub fn assert_test_string_type(idx: usize, row: &TestString) {
+    let row = (row.int_col, row.string_col.clone(), row.raw_col.clone(),
+               row.fixed_char_col.clone(), row.nullable_col.clone());
+    assert_test_string_tuple(idx, &row);
+}
+
+#[allow(dead_code)]
+pub fn assert_test_string_row(idx: usize, row: &oracle::Row) {
+    let row = row.get_as::<TestStringTuple>().unwrap();
+    assert_test_string_tuple(idx, &row);
+}
+
+#[allow(dead_code)]
+pub fn assert_test_string_tuple(idx: usize, row: &TestStringTuple) {
+    assert_eq!(row.0, VALUES_IN_TEST_STRINGS[idx].0);
+    assert_eq!(row.1, VALUES_IN_TEST_STRINGS[idx].1);
+    assert_eq!(row.2, VALUES_IN_TEST_STRINGS[idx].2);
+    assert_eq!(row.3, VALUES_IN_TEST_STRINGS[idx].3);
+    assert_eq!(row.4, VALUES_IN_TEST_STRINGS[idx].4.map(|s| s.to_string()));
+}

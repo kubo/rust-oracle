@@ -118,57 +118,15 @@ impl Row {
     }
 }
 
-/// Result set returned by Statement.query and Statement.query_named.
-pub struct RowResultSet<'stmt> {
-    stmt: &'stmt Statement<'stmt>,
-}
-
-impl<'stmt> RowResultSet<'stmt> {
-    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowResultSet<'stmt> {
-        RowResultSet {
-            stmt: stmt,
-        }
-    }
-
-    pub fn column_info(&self) -> &Vec<ColumnInfo> {
-        &self.stmt.column_info
-    }
-}
-
-impl<'stmt> Iterator for RowResultSet<'stmt> {
-    type Item = Result<Row>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.stmt.next() {
-            Some(Ok(row)) => {
-                let num_cols = row.column_values.len();
-                let mut column_values = Vec::with_capacity(num_cols);
-                for val in &row.column_values {
-                    match val.dup(self.stmt.conn) {
-                        Ok(dupval) => column_values.push(dupval),
-                        Err(err) => return Some(Err(err)),
-                    }
-                }
-                Some(Ok(Row {
-                    shared: row.shared.clone(),
-                    column_values: column_values,
-                }))
-            },
-            Some(Err(err)) => Some(Err(err)),
-            None => None,
-        }
-    }
-}
-
-/// Result set returned by Statement.query_as and Statement.query_as_named.
-pub struct RowValueResultSet<'stmt, T> {
+/// Result set
+pub struct ResultSet<'stmt, T> where T: RowValue {
     stmt: &'stmt Statement<'stmt>,
     phantom: PhantomData<T>,
 }
 
-impl<'stmt, T> RowValueResultSet<'stmt, T> {
-    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> RowValueResultSet<'stmt, T> {
-        RowValueResultSet {
+impl<'stmt, T> ResultSet<'stmt, T> where T: RowValue {
+    pub(crate) fn new(stmt: &'stmt Statement<'stmt>) -> ResultSet<'stmt, T> {
+        ResultSet {
             stmt: stmt,
             phantom: PhantomData,
         }
@@ -179,7 +137,7 @@ impl<'stmt, T> RowValueResultSet<'stmt, T> {
     }
 }
 
-impl<'stmt, T> Iterator for RowValueResultSet<'stmt, T> where T: RowValue {
+impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
     type Item = Result<<T>::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {

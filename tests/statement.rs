@@ -102,61 +102,47 @@ fn bind_names() {
 #[test]
 fn query() {
     let conn = common::connect().unwrap();
-    let sql_stmt = "select IntCol from TestStrings where IntCol >= :lower order by IntCol";
+    let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
 
-    let mut stmt = conn.prepare(sql_stmt).unwrap();
+    let mut stmt = conn.prepare(sql).unwrap();
     stmt.set_fetch_array_size(3);
 
     for (idx, row_result) in stmt.query(&[&2]).unwrap().enumerate() {
         let row = row_result.unwrap();
-        let int_col: usize = row.get(0).unwrap();
-        assert_eq!(int_col, idx + 2);
+        common::assert_test_string_row(idx + 2, &row);
     }
 
-    for (idx, row_result) in stmt.query_named(&[("lower", &3)]).unwrap().enumerate() {
+    for (idx, row_result) in stmt.query_named(&[("icol", &3)]).unwrap().enumerate() {
         let row = row_result.unwrap();
-        let int_col: usize = row.get(0).unwrap();
-        assert_eq!(int_col, idx + 3);
+        common::assert_test_string_row(idx + 3, &row);
     }
 
     let res_vec: Vec<_> = stmt.query(&[&2]).unwrap().collect();
     for (idx, row_result) in res_vec.into_iter().enumerate() {
         let row = row_result.unwrap();
-        let int_col: usize = row.get(0).unwrap();
-        assert_eq!(int_col, idx + 2);
+        common::assert_test_string_row(idx + 2, &row);
     }
-}
 
-#[test]
-fn query_as() {
-    let conn = common::connect().unwrap();
-    let sql_stmt = "select * from TestStrings where IntCol >= :lower order by IntCol";
-
-    let mut stmt = conn.prepare(sql_stmt).unwrap();
-    stmt.set_fetch_array_size(3);
-
+    // fetch the first column
     for (idx, row_result) in stmt.query_as::<usize>(&[&2]).unwrap().enumerate() {
         let int_col = row_result.unwrap();
         assert_eq!(int_col, idx + 2);
     }
 
-    for (idx, row_result) in stmt.query_as_named::<(usize, String)>(&[("lower", &3)]).unwrap().enumerate() {
+    // fetch the first two columns
+    for (idx, row_result) in stmt.query_as_named::<(usize, String)>(&[("icol", &3)]).unwrap().enumerate() {
         let (int_col, string_col) = row_result.unwrap();
         assert_eq!(int_col, idx + 3);
         assert_eq!(string_col, format!("String {}", idx + 3));
     }
 
-    for (idx, row_result) in stmt.query_as_named::<common::TestString>(&[("lower", &3)]).unwrap().enumerate() {
-        let test_string = row_result.unwrap();
-        let int_col = (idx + 3) as i32;
-        assert_eq!(test_string.int_col, int_col);
-        assert_eq!(test_string.string_col, format!("String {}", int_col));
-        assert_eq!(test_string.raw_col, format!("Raw {}", int_col).as_bytes());
-        assert_eq!(test_string.fixed_char_col, format!("Fixed Char {:<29}", int_col));
-        if int_col % 2 == 0 {
-            assert_eq!(test_string.nullable_col, None);
-        } else {
-            assert_eq!(test_string.nullable_col, Some(format!("Nullable {}", int_col).to_string()));
-        }
+    for (idx, row_result) in stmt.query_as::<common::TestString>(&[&3]).unwrap().enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_type(idx + 3, &row);
+    }
+
+    for (idx, row_result) in stmt.query_as_named::<common::TestStringTuple>(&[("icol", &3)]).unwrap().enumerate() {
+        let row = row_result.unwrap();
+        common::assert_test_string_tuple(idx + 3, &row);
     }
 }
