@@ -34,6 +34,9 @@
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 Don't use this until the version number reaches to 0.1.0.
+Methods for executing SQL statements are almost ready for 0.1.0.
+However methods for establishing connections will be changed.
+Especially [Connector][] may or may not be removed.
 
 **Methods for querying rows were changed in 0.0.4.** If you had written
 programs using rust-oracle before 0.0.4, enable the `restore-deleted`
@@ -75,84 +78,148 @@ oracle = { version = "0.0.4", features = ["restore-deleted"] }
 
 ## Examples
 
-Query rows from a table
+Executes select statements and get rows:
 
 ```no_run
-extern crate oracle;
+// Connect to a database.
+let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
 
-fn main() {
-    // Connect to a database.
-    let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+let sql = "select ename, sal, comm from emp where deptno = :1";
 
-    // Select a table with a bind variable.
-    let sql = "select ename, sal, comm from emp where deptno = :1";
-    let mut stmt = conn.prepare(sql).unwrap();
-    let rows = stmt.query(&[&30]).unwrap();
-
-    // Print column names
-    for info in rows.column_info() {
-        print!(" {:14}|", info.name());
-    }
-    println!("");
-
-    // Print column types
-    for info in rows.column_info() {
-        print!(" {:14}|", info.oracle_type().to_string());
-    }
-    println!("");
-
-    // Print column values
-    println!("---------------|---------------|---------------|");
-    for row_result in rows {
-        let row = row_result.unwrap();
-        // get a column value by position (0-based)
-        let ename: String = row.get(0).unwrap();
-        // get a column by name (case-insensitive)
-        let sal: i32 = row.get("sal").unwrap();
-        // get a nullable column
-        let comm: Option<i32> = row.get(2).unwrap();
-
-        println!(" {:14}| {:>10}    | {:>10}    |",
-                 ename,
-                 sal,
-                 comm.map_or("".to_string(), |v| v.to_string()));
-    }
-
-    // Another way to fetch rows.
-    // The rows iterator returns Result<(String, i32, Option<i32>)>.
-    let mut stmt = conn.prepare(sql).unwrap();
-    let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
-
-    println!("---------------|---------------|---------------|");
-    for row_result in rows {
-        let (ename, sal, comm) = row_result.unwrap();
-        println!(" {:14}| {:>10}    | {:>10}    |",
-                 ename,
-                 sal,
-                 comm.map_or("".to_string(), |v| v.to_string()));
-    }
-
-    // Return one row without creating stmt.
-    let sql = "select ename, sal, comm from emp where empno = :1";
-    let row = conn.query_row(sql, &[&7369]).unwrap();
-    println!("---------------|---------------|---------------|");
-    let ename: String = row.get("empno").unwrap();
+// Select a table with a bind variable.
+println!("---------------|---------------|---------------|");
+let rows = conn.query(sql, &[&30]).unwrap();
+for row_result in rows {
+    let row = row_result.unwrap();
+    // get a column value by position (0-based)
+    let ename: String = row.get(0).unwrap();
+    // get a column by name (case-insensitive)
     let sal: i32 = row.get("sal").unwrap();
-    let comm: Option<i32> = row.get("comm").unwrap();
+    // Use `Option<...>` to get a nullable column.
+    // Otherwise, `Err(oracle::Error::NullValue)` is returned
+    // for null values.
+    let comm: Option<i32> = row.get(2).unwrap();
+
     println!(" {:14}| {:>10}    | {:>10}    |",
              ename,
              sal,
              comm.map_or("".to_string(), |v| v.to_string()));
+}
 
-    // Return one row as a tupple without creating stmt.
-    let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
-    println!("---------------|---------------|---------------|");
+// Another way to fetch rows.
+// The rows iterator returns Result<(String, i32, Option<i32>)>.
+println!("---------------|---------------|---------------|");
+let rows = conn.query_as::<(String, i32, Option<i32>)>(sql, &[&10]).unwrap();
+for row_result in rows {
+    let (ename, sal, comm) = row_result.unwrap();
     println!(" {:14}| {:>10}    | {:>10}    |",
-             row.0,
-             row.1,
-             row.2.map_or("".to_string(), |v| v.to_string()));
+             ename,
+             sal,
+             comm.map_or("".to_string(), |v| v.to_string()));
 }
 ```
+
+Executes select statements and get the first rows:
+
+```no_run
+// Connect to a database.
+let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
+let sql = "select ename, sal, comm from emp where empno = :1";
+
+// Print the first row.
+let row = conn.query_row(sql, &[&7369]).unwrap();
+let ename: String = row.get("empno").unwrap();
+let sal: i32 = row.get("sal").unwrap();
+let comm: Option<i32> = row.get("comm").unwrap();
+println!("---------------|---------------|---------------|");
+println!(" {:14}| {:>10}    | {:>10}    |",
+         ename,
+         sal,
+         comm.map_or("".to_string(), |v| v.to_string()));
+// When no rows are found, conn.query_row() returns `Err(oracle::Error::NoMoreData)`.
+
+// Get the first row as a tupple
+let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
+println!("---------------|---------------|---------------|");
+println!(" {:14}| {:>10}    | {:>10}    |",
+         row.0,
+         row.1,
+         row.2.map_or("".to_string(), |v| v.to_string()));
+```
+
+Executes non-select statements:
+
+```no_run
+// Connect to a database.
+let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
+conn.execute("create table person (id number(38), name varchar2(40))", &[]).unwrap();
+
+// Execute a statement with positional parameters.
+conn.execute("insert into person values (:1, :2)",
+             &[&1, // first parameter
+               &"John" // second parameter
+              ]).unwrap();
+
+// Execute a statement with named parameters.
+conn.execute_named("insert into person values (:id, :name)",
+                   &[("id", &2), // 'id' parameter
+                     ("name", &"Smith"), // 'name' parameter
+                    ]).unwrap();
+
+// Commit the transaction.
+conn.commit().unwrap();
+
+// Delete rows
+conn.execute("delete from person", &[]).unwrap();
+
+// Rollback the transaction.
+conn.rollback().unwrap();
+```
+
+Prints column information:
+
+```no_run
+// Connect to a database.
+let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
+let sql = "select ename, sal, comm from emp where 1 = 2";
+let rows = conn.query(sql, &[]).unwrap();
+
+// Print column names
+for info in rows.column_info() {
+    print!(" {:14}|", info.name());
+}
+println!("");
+
+// Print column types
+for info in rows.column_info() {
+    print!(" {:14}|", info.oracle_type().to_string());
+}
+println!("");
+```
+
+Prepared statement:
+
+```no_run
+let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+
+// Create a prepared statement
+let mut stmt = conn.prepare("insert into person values (:1, :2)").unwrap();
+// Insert one row
+stmt.execute(&[&1, &"John"]).unwrap();
+// Insert another row
+stmt.execute(&[&2, &"Smith"]).unwrap();
+```
+
+This is more efficient than two `conn.execute()`.
+An SQL statement is executed in the DBMS as follows:
+
+* step 1. Parse the SQL statement and create an execution plan.
+* step 2. Execute the plan with bind parameters.
+
+When a prepared statement is used, step 1 is called only once.
 
 ## NLS_LANG parameter
 
@@ -164,8 +231,6 @@ The territory component specifies numeric format, date format and so on.
 However it affects only conversion in Oracle. See the following example:
 
 ```no_run
-extern crate oracle;
-
 // The territory is France.
 std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
 let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
@@ -189,6 +254,7 @@ required.
 * REF CURSOR, BOOLEAN
 * Scrollable cursors
 * Batch DML
+* DML returning
 
 ## License
 
@@ -206,6 +272,7 @@ ODPI-C bundled in rust-oracle is under the terms of:
 [NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
 [language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
 [territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
+[Connector]: https://docs.rs/oracle/0.0.4/oracle/struct.Connector.html
 */
 
 #[cfg(feature = "chrono")]
