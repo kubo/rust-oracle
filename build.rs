@@ -1,6 +1,5 @@
 extern crate cc;
 
-use std::fs;
 use std::path;
 
 fn main() {
@@ -11,15 +10,9 @@ fn main() {
         std::process::exit(1);
     }
 
-    let mut build = cc::Build::new();
-    for entry in fs::read_dir("odpi/src").unwrap() {
-        let fname = entry.unwrap().file_name().into_string().unwrap();
-        if fname.ends_with(".c") {
-            build.file(format!("odpi/src/{}", fname));
-        }
-    }
-    build.include("odpi/include")
-        .include("odpi/src")
+    cc::Build::new()
+        .file("odpi/embed/dpi.c")
+        .include("odpi/include")
         .flag_if_supported("-Wno-unused-parameter")
         .compile("libodpic.a");
 }
