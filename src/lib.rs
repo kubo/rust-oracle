@@ -43,6 +43,62 @@ programs using rust-oracle before 0.0.4, enable the `restore-deleted`
 feature in `Cargo.toml`. It restores deleted methods and disables
 statement-type checking in execute methods.
 
+## Change Log
+
+### 0.0.5
+
+New features:
+
+* Add query methods to `Connection` to fetch rows without using `Statement`.
+  * `Connection.query()`
+  * `Connection.query_named()`
+  * `Connection.query_as()`
+  * `Connection.query_as_named()`
+* Add query_row methods to `Statement` to fetch a first row without using `ResultSet`.
+  * `Statement.query_row()`
+  * `Statement.query_row_named()`
+  * `Statement.query_row_as()`
+  * `Statement.query_row_as_named()`
+
+Incompatible changes:
+
+* Merge `RowResultSet` struct into `RowValueResultSet` and rename it to `ResultSet`.
+
+### 0.0.4
+
+New features:
+
+* Add query methods to `Statement` to fetch rows as iterator.
+  * `Statement.query()`
+  * `Statement.query_named()`
+  * `Statement.query_as()`
+  * `Statement.query_as_named()`
+* Add query_row methods to `Connection` to fetch a first row without using `Statement`.
+  * `Connection.query_row()`
+  * `Connection.query_row_named()`
+  * `Connection.query_row_as()`
+  * `Connection.query_row_as_named()`
+* Autocommit mode.
+
+Incompatible changes:
+
+* Execute methods fail for select statements. Use query methods instead.
+  * `Connection.execute()`
+  * `Connection.execute_named()`
+  * `Statement.execute()`
+  * `Statement.execute_named()`
+* Renamed traits, methods and variants.
+  * `ColumnValues` &#x2192; `RowValue`
+  * `Row.values()` &#x2192; `Row.get_as()`
+  * `Row.columns()` &#x2192; `Row.sql_values()`
+  * `Error::Overflow` &#x2192; `Error::OutOfRange`
+* Removed methods.
+  * Statement.column_count()
+  * Statement.column_names()
+  * Statement.column_info()
+  * Statement.fetch()
+  * SqlValue.clone()
+
 ## Build-time Requirements
 
 * Rust 1.19 or later
@@ -54,9 +110,11 @@ statement-type checking in execute methods.
 
 ## Usage
 
+Put this in your `Cargo.toml`:
+
 ```text
 [dependencies]
-oracle = "0.0.4"
+oracle = "0.0.5"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -64,16 +122,22 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.0.4", features = ["chrono"] }
+oracle = { version = "0.0.5", features = ["chrono"] }
 ```
 
-If you had written programs using rust-oracle before 0.0.4, enable
+If you had written programs using rust-oracle before 0.0.4, try
 the `restore-deleted` feature. It restores deleted methods and
 disables statement-type checking in execute methods.
 
 ```text
 [dependencies]
-oracle = { version = "0.0.4", features = ["restore-deleted"] }
+oracle = { version = "0.0.5", features = ["restore-deleted"] }
+```
+
+Then put this in your crate root:
+
+```rust
+extern crate oracle;
 ```
 
 ## Examples
