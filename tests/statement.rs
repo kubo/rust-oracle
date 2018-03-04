@@ -167,3 +167,26 @@ fn query_row() {
     let row = stmt.query_row_as_named::<common::TestString>(&[("icol", &5)]).unwrap();
     common::assert_test_string_type(5, &row);
 }
+
+#[test]
+#[cfg(feature = "restore-deleted")]
+#[allow(deprecated)]
+fn deprecated_methods() {
+
+    let conn = common::connect().unwrap();
+    let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
+
+    let mut stmt = conn.execute(sql, &[&2]).unwrap();
+    let mut idx = 2;
+    while let Ok(row) = stmt.fetch() {
+        common::assert_test_string_row(idx, row);
+        idx += 1;
+    }
+
+    stmt.execute_named(&[("icol", &3)]).unwrap();
+    let mut idx = 3;
+    while let Ok(row) = stmt.fetch() {
+        common::assert_test_string_row(idx, row);
+        idx += 1;
+    }
+}

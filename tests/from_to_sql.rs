@@ -150,6 +150,18 @@ fn numeric_to_sql() {
     chk_num_to!(stmt, usize);
 }
 
+#[test]
+fn raw_from_to_sql() {
+    let conn = common::connect().unwrap();
+    let raw = b"0123456789".to_vec();
+    let hex = "30313233343536373839";
+
+    test_from_sql!(&conn, &format!("hextoraw('{}')", hex),
+                   &OracleType::Raw(10), &raw);
+
+    test_to_sql!(&conn, &raw, "rawtohex(:1)", hex);
+}
+
 //
 // Timestamp
 //
