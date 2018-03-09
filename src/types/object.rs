@@ -109,7 +109,7 @@ impl Collection {
         if exists != 0 {
             Ok(index)
         } else {
-            Err(Error::NoMoreData)
+            Err(Error::NoDataFound)
         }
     }
 
@@ -124,7 +124,7 @@ impl Collection {
         if exists != 0 {
             Ok(index)
         } else {
-            Err(Error::NoMoreData)
+            Err(Error::NoDataFound)
         }
     }
 
@@ -139,7 +139,7 @@ impl Collection {
         if exists != 0 {
             Ok(next)
         } else {
-            Err(Error::NoMoreData)
+            Err(Error::NoDataFound)
         }
     }
 
@@ -154,7 +154,7 @@ impl Collection {
         if exists != 0 {
             Ok(prev)
         } else {
-            Err(Error::NoMoreData)
+            Err(Error::NoDataFound)
         }
     }
 

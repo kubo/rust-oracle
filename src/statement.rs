@@ -318,37 +318,37 @@ impl<'conn> Statement<'conn> {
     /// Gets the first row from the prepared statement.
     ///
     /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
         let row = self.query(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        row.unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement using named bind parameters.
     ///
     /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
         let row = self.query_named(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        row.unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type.
     ///
     /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let row = self.query_as::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        row.unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type using named bind parameters.
     ///
     /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoMoreData)` when no rows are found.
+    /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let row = self.query_as_named::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoMoreData))
+        row.unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Binds values by position and executes the statement.
@@ -541,13 +541,13 @@ impl<'conn> Statement<'conn> {
         &self.column_info
     }
 
-    /// Fetchs one row from the statement. This returns `Err(Error::NoMoreData)`
+    /// Fetchs one row from the statement. This returns `Err(Error::NoDataFound)`
     /// when all rows are fetched.
     #[cfg(feature = "restore-deleted")]
     #[deprecated(since="0.0.4", note="use `query`, `query_named`, `query_as` or `query_as_named` instead of `execute` and `fetch`")]
     #[doc(hidden)]
     pub fn fetch(&mut self) -> Result<&Row> {
-        self.next().unwrap_or(Err(Error::NoMoreData))
+        self.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     pub(crate) fn next(&self) -> Option<Result<&Row>> {

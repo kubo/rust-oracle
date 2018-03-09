@@ -201,7 +201,7 @@ println!(" {:14}| {:>10}    | {:>10}    |",
          ename,
          sal,
          comm.map_or("".to_string(), |v| v.to_string()));
-// When no rows are found, conn.query_row() returns `Err(oracle::Error::NoMoreData)`.
+// When no rows are found, conn.query_row() returns `Err(oracle::Error::NoDataFound)`.
 
 // Get the first row as a tupple
 let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();

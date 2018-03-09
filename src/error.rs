@@ -91,7 +91,7 @@ pub enum Error {
     UninitializedBindValue,
 
     /// Error when no more rows exist in the SQL.
-    NoMoreData,
+    NoDataFound,
 
     /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError(String),
@@ -212,8 +212,8 @@ impl fmt::Display for Error {
                 write!(f, "invalid operation: {}", msg),
             Error::UninitializedBindValue =>
                 write!(f, "Try to access uninitialized bind value"),
-            Error::NoMoreData =>
-                write!(f, "No more data to be fetched"),
+            Error::NoDataFound =>
+                write!(f, "No data found"),
             Error::InternalError(ref msg) =>
                 write!(f, "Internal Error: {}", msg),
         }
@@ -251,8 +251,8 @@ impl fmt::Debug for Error {
                 write!(f, "InvalidOperation: {}", msg),
             Error::UninitializedBindValue =>
                 write!(f, "UninitializedBindValue"),
-            Error::NoMoreData =>
-                write!(f, "NoMoreData"),
+            Error::NoDataFound =>
+                write!(f, "NoDataFound"),
             Error::InternalError(_) =>
                 write!(f, "{}", *self),
         }
@@ -275,7 +275,7 @@ impl error::Error for Error {
             Error::InvalidAttributeName(_) => "invalid attribute name",
             Error::InvalidOperation(_) => "invalid operation",
             Error::UninitializedBindValue => "uninitialided bind value error",
-            Error::NoMoreData => "no more data",
+            Error::NoDataFound => "no data found",
             Error::InternalError(_) => "internal error",
         }
     }
