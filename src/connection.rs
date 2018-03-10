@@ -48,36 +48,6 @@ use new_odpi_str;
 use to_odpi_str;
 use to_rust_str;
 
-/// Authorization mode
-///
-/// See [Connector.auth_mode](struct.Connector.html#method.auth_mode).
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum AuthMode {
-    /// connect without system privileges
-    Default,
-
-    /// connect as [SYSDBA](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
-    SYSDBA,
-
-    /// connect as [SYSOPER](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
-    SYSOPER,
-
-    /// connect as [SYSASM](https://docs.oracle.com/database/122/OSTMG/authenticate-access-asm-instance.htm#OSTMG02600) (Oracle 12c or later)
-    SYSASM,
-
-    /// connect as [SYSBACKUP](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG785) (Oracle 12c or later)
-    SYSBACKUP,
-
-    /// connect as [SYSDG](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
-    SYSDG,
-
-    /// connect as [SYSKM](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
-    SYSKM,
-
-    /// connect as [SYSRAC](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG-GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
-    SYSRAC,
-}
-
 /// Database startup mode
 ///
 /// See [Connection.startup_database](struct.Connection.html#method.startup_database).
@@ -127,184 +97,49 @@ pub enum ShutdownMode {
     Final,
 }
 
-#[doc(hidden)] // hiden until connection pooling is supported.
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Purity {
-    Default,
-    New,
-    Self_,
-}
-
-//
-// Connector
-//
-
-/// Connection Builder
+/// Parameters to create Connection passed to [Connection::connect][].
 ///
-/// A connection is created by two methods. One is [Connection::new][].
-/// The other is [connect method][]. Use the former to connect to a database
-/// with username, password and connect_string. Use the latter when
-/// additional parameters such as `SYSDBA` are required.
-/// See examples below.
-///
-/// [Connection::new]: struct.Connection.html#method.new
-/// [connect method]: #method.connect
-pub struct Connector {
-    username: String,
-    password: String,
-    connect_string: String,
-    events: bool,
-    edition: Option<String>,
-    driver_name: Option<String>,
-    auth_mode: AuthMode,
-    prelim_auth: bool,
-    connection_class: Option<String>,
-    purity: Purity,
-    new_password: Option<String>,
-    app_context: Vec<String>,
-    tag: Option<String>,
-    match_any_tag: bool,
-}
-
-impl Connector {
-    /// Creates a connection builder.
-    pub fn new(username: &str, password: &str, connect_string: &str) -> Connector {
-        Connector {
-            username: username.to_string(),
-            password: password.to_string(),
-            connect_string: connect_string.to_string(),
-            events: false,
-            edition: None,
-            driver_name: None,
-            auth_mode: AuthMode::Default,
-            prelim_auth: false,
-            connection_class: None,
-            purity: Purity::Default,
-            new_password: None,
-            app_context: Vec::new(),
-            tag: None,
-            match_any_tag: false,
-        }
-    }
-
-    /// Establishes a connection.
-    pub fn connect(&self) -> Result<Connection> {
-        let ctxt = Context::get()?;
-        let mut common_params = ctxt.common_create_params;
-        let mut conn_params = ctxt.conn_create_params;
-
-        if self.events {
-            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
-        }
-        if let Some(ref edition) = self.edition {
-            let s = to_odpi_str(edition);
-            common_params.edition = s.ptr;
-            common_params.editionLength = s.len;
-        }
-        if let Some(ref name) = self.driver_name {
-            let s = to_odpi_str(name);
-            common_params.driverName = s.ptr;
-            common_params.driverNameLength = s.len;
-        }
-        conn_params.authMode = match self.auth_mode {
-            AuthMode::Default   => DPI_MODE_AUTH_DEFAULT,
-            AuthMode::SYSDBA    => DPI_MODE_AUTH_SYSDBA,
-            AuthMode::SYSOPER   => DPI_MODE_AUTH_SYSOPER,
-            AuthMode::SYSASM    => DPI_MODE_AUTH_SYSASM,
-            AuthMode::SYSBACKUP => DPI_MODE_AUTH_SYSBKP,
-            AuthMode::SYSDG     => DPI_MODE_AUTH_SYSDGD,
-            AuthMode::SYSKM     => DPI_MODE_AUTH_SYSKMT,
-            AuthMode::SYSRAC    => DPI_MODE_AUTH_SYSRAC,
-        };
-        if self.prelim_auth {
-            conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
-        }
-
-        if let Some(ref name) = self.connection_class {
-            let s = to_odpi_str(name);
-            conn_params.connectionClass = s.ptr;
-            conn_params.connectionClassLength = s.len;
-        }
-        if let Some(ref password) = self.new_password {
-            let s = to_odpi_str(password);
-            conn_params.newPassword = s.ptr;
-            conn_params.newPasswordLength = s.len;
-        }
-        conn_params.purity = match self.purity {
-            Purity::Default => DPI_PURITY_DEFAULT,
-            Purity::New => DPI_PURITY_NEW,
-            Purity::Self_ => DPI_PURITY_SELF,
-        };
-        let mut app_context = Vec::new();
-        if !self.app_context.is_empty() {
-            let n = self.app_context.len() / 3;
-            app_context = Vec::with_capacity(n);
-            for i in 0..n {
-                let namespace = to_odpi_str(&self.app_context[i * 3 + 0]);
-                let name = to_odpi_str(&self.app_context[i * 3 + 1]);
-                let value = to_odpi_str(&self.app_context[i * 3 + 2]);
-                app_context.push(
-                    dpiAppContext {
-                        namespaceName: namespace.ptr,
-                        namespaceNameLength: namespace.len,
-                        name: name.ptr,
-                        nameLength: name.len,
-                        value: value.ptr,
-                        valueLength: value.len,
-                    });
-            }
-        }
-        if self.username.len() == 0 && self.password.len() == 0 {
-            conn_params.externalAuth = 1;
-        }
-        if let Some(ref name) = self.tag {
-            let s = to_odpi_str(name);
-            conn_params.tag = s.ptr;
-            conn_params.tagLength = s.len;
-        }
-        if self.match_any_tag {
-            conn_params.matchAnyTag = 1;
-        }
-        conn_params.outTag = ptr::null();
-        conn_params.outTagLength = 0;
-        conn_params.outTagFound = 0;
-        conn_params.appContext = app_context.as_mut_ptr();
-        conn_params.numAppContext = app_context.len() as u32;
-        Connection::connect_internal(ctxt, &self.username, &self.password, &self.connect_string, &common_params, &conn_params)
-    }
-
-    /// Sets a system privilege such as SYSDBA.
+/// [Connection::connect]: struct.Connection.html#method.connect
+pub enum ConnParam {
+    /// Connects as [SYSDBA](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
+    ///
+    /// # Examples
     ///
     /// ```no_run
-    /// // same with `sqlplus system/manager as sysdba` on command line.
-    /// let mut connector = oracle::Connector::new("system", "manager", "");
-    /// connector.auth_mode(oracle::AuthMode::SYSDBA);
-    /// let conn = connector.connect().unwrap();
+    /// use oracle::Connection;
+    /// use oracle::ConnParam;
+    ///
+    /// let conn = Connection::connect("system", "manager", "", &[ConnParam::Sysdba]).unwrap();
     /// ```
+    Sysdba,
+
+    /// Connects as [SYSOPER](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
+    Sysoper,
+
+    /// Connects as [SYSASM](https://docs.oracle.com/database/122/OSTMG/authenticate-access-asm-instance.htm#OSTMG02600) (Oracle 12c or later)
+    Sysasm,
+
+    /// Connects as [SYSBACKUP](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG785) (Oracle 12c or later)
+    Sysbackup,
+
+    /// Connects as [SYSDG](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
+    Sysdg,
+
+    /// Connects as [SYSKM](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
+    Syskm,
+
+    /// Connects as [SYSRAC](https://docs.oracle.com/database/122/DBSEG/configuring-privilege-and-role-authorization.htm#DBSEG-GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
+    Sysrac,
+
+    /// Uses external authentication such as [OS authentication][].
     ///
-    pub fn auth_mode<'a>(&'a mut self, auth_mode: AuthMode) -> &'a mut Connector {
-        self.auth_mode = auth_mode;
-        self
-    }
+    /// [OS authentication]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/dbseg/configuring-authentication.html#GUID-37BECE32-58D5-43BF-A098-97936D66968F
+    ExternalAuth,
 
-    /// Sets prelim_auth mode. This is required to connect to an idle instance.
+    /// Sets prelim auth mode to connect to an idle instance.
     ///
-    /// This is required only when [starting up a database](struct.Connection.html#method.startup_database).
-    pub fn prelim_auth<'a>(&'a mut self, prelim_auth: bool) -> &'a mut Connector {
-        self.prelim_auth = prelim_auth;
-        self
-    }
-
-    pub fn events<'a>(&'a mut self, events: bool) -> &'a mut Connector {
-        self.events = events;
-        self
-    }
-
-    // https://docs.oracle.com/database/122/ADFNS/editions.htm#ADFNS020
-    pub fn edition<'a>(&'a mut self, edition: &str) -> &'a mut Connector {
-        self.edition = Some(edition.to_string());
-        self
-    }
+    /// See [starting up a database](struct.Connection.html#method.startup_database).
+    PrelimAuth,
 
     /// Sets new password during establishing a connection.
     ///
@@ -318,71 +153,83 @@ impl Connector {
     /// is expired, set a new password `jaguar`.
     ///
     /// ```no_run
-    /// let conn = match oracle::Connection::new("scott", "tiger", "") {
+    /// use oracle::Connection;
+    /// use oracle::ConnParam;
+    /// use oracle::Error;
+    ///
+    /// let conn = match Connection::connect("scott", "tiger", "", &[]) {
     ///     Ok(conn) => conn,
-    ///     Err(oracle::Error::OciError(ref dberr)) if dberr.code() == 28001 => {
+    ///     Err(Error::OciError(ref dberr)) if dberr.code() == 28001 => {
     ///         // ORA-28001: the password has expired
-    ///         let mut connector = oracle::Connector::new("scott", "tiger", "");
-    ///         connector.new_password("jaguar");
-    ///         connector.connect().unwrap()
+    ///         let params = [ConnParam::NewPassword("jaguar".into())];
+    ///         Connection::connect("scott", "tiger", "", &params).unwrap()
     ///     },
     ///     Err(err) => panic!(err.to_string()),
     /// };
     /// ```
-    pub fn new_password<'a>(&'a mut self, password: &str) -> &'a mut Connector {
-        self.new_password = Some(password.to_string());
-        self
-    }
+    NewPassword(String),
+
+    /// Uses a new session in [DRCP][] pooled sessions.
+    ///
+    /// See [here][] for more detail.
+    ///
+    /// [DRCP]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-0B0DC596-17FF-4EEE-BAA1-9F428710C1AC
+    /// [here]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665
+    PurityNew,
+
+    /// Reuses a pooled session in [DRCP][] pooled sessions.
+    ///
+    /// See [here][] for more detail.
+    ///
+    /// [DRCP]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-0B0DC596-17FF-4EEE-BAA1-9F428710C1AC
+    /// [here]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665
+    PuritySelf,
+
+    /// Sets a connection class to restrict sharing [DRCP][] pooled sessions.
+    ///
+    /// See [here][] for more detail.
+    ///
+    /// [DRCP]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-0B0DC596-17FF-4EEE-BAA1-9F428710C1AC
+    /// [here]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adfns/performance-and-scalability.html#GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37
+    ConnectionClass(String),
 
     /// Sets an application context.
+    ///
     /// See [Oracle manual](https://docs.oracle.com/database/122/DBSEG/using-application-contexts-to-retrieve-user-information.htm#DBSEG165)
     ///
     /// This is same with [DBMS_SESSION.SET_CONTEXT][] but this can set application contexts before a connection is established.
     /// [DBMS_SESSION.SET_CONTEXT]: https://docs.oracle.com/database/122/ARPLS/DBMS_SESSION.htm#GUID-395C622C-ED79-44CC-9157-6A320934F2A9
     ///
-    /// Examples:
+    /// # Examples
     ///
     /// ```no_run
-    /// let mut connector = oracle::Connector::new("scott", "tiger", "");
-    /// connector.app_context("CLIENTCONTEXT", "foo", "bar");
-    /// connector.app_context("CLIENTCONTEXT", "baz", "qux");
-    /// let conn = connector.connect().unwrap();
+    /// use oracle::Connection;
+    /// use oracle::ConnParam;
+    ///
+    /// let params = [
+    ///     ConnParam::AppContext("CLIENTCONTEXT".into(), "foo".into(), "bar".into()),
+    ///     ConnParam::AppContext("CLIENTCONTEXT".into(), "baz".into(), "qux".into()),
+    /// ];
+    /// let conn = Connection::connect("scott", "tiger", "", &params).unwrap();
     /// let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[]).unwrap();
     /// assert_eq!(val, "qux");
     /// ```
-    pub fn app_context<'a>(&'a mut self, namespace: &str, name: &str, value: &str) -> &'a mut Connector {
-        self.app_context.reserve(3);
-        self.app_context.push(namespace.to_string());
-        self.app_context.push(name.to_string());
-        self.app_context.push(value.to_string());
-        self
-    }
+    AppContext(String, String, String),
 
-    // https://docs.oracle.com/database/122/ADFNS/performance-and-scalability.htm#ADFNS494
-    #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn purity<'a>(&'a mut self, purity: Purity) -> &'a mut Connector {
-        self.purity = purity;
-        self
-    }
+    /// Reserved for when connection pooling is supported.
+    Tag(String),
 
-    // https://docs.oracle.com/database/122/ADFNS/performance-and-scalability.htm#GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37
-    #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn connection_class<'a>(&'a mut self, name: &str) -> &'a mut Connector {
-        self.connection_class = Some(name.to_string());
-        self
-    }
+    /// Reserved for when connection pooling is supported.
+    MatchAnyTag,
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn tag<'a>(&'a mut self, name: &str) -> &'a mut Connector {
-        self.tag = Some(name.to_string());
-        self
-    }
+    /// Reserved for when advanced queuing (AQ) or continuous query
+    /// notification (CQN) is supported.
+    Events,
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn match_any_tag<'a>(&'a mut self, b: bool) -> &'a mut Connector {
-        self.match_any_tag = b;
-        self
-    }
+    /// Specifies edition of [Edition-Based Redefinition][].
+    ///
+    /// [Edition-Based Redefinition]: https://docs.oracle.com/database/122/ADFNS/editions.htm#ADFNS020
+    Edition(String),
 
     /// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].
     ///
@@ -391,15 +238,8 @@ impl Connector {
     /// lower than 12.0.1.2.
     ///
     /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://docs.oracle.com/database/122/REFRN/V-SESSION_CONNECT_INFO.htm
-    pub fn driver_name<'a>(&'a mut self, name: &str) -> &'a mut Connector {
-        self.driver_name = Some(name.to_string());
-        self
-    }
+    DriverName(String),
 }
-
-//
-// Connection
-//
 
 /// Connection to an Oracle database
 ///
@@ -422,8 +262,6 @@ impl Connection {
 
     /// Connects to an Oracle database with username, password and connect_string.
     ///
-    /// When you need to set more parameters before connecting to the server, see [Connector](struct.Connector.html).
-    ///
     /// # Examples
     /// To connect to a local database.
     ///
@@ -437,7 +275,156 @@ impl Connection {
     /// let conn = oracle::Connection::new("scott", "tiger", "server_name:1521/service_name").unwrap();
     /// ```
     pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
-        Connector::new(username, password, connect_string).connect()
+        Connection::connect(username, password, connect_string, &[])
+    }
+
+    /// Connects to an Oracle server
+    ///
+    /// # Examples
+    /// Connect to a local database.
+    ///
+    /// ```no_run
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+    /// ```
+    ///
+    /// Connect to a remote database specified by easy connect naming.
+    ///
+    /// ```no_run
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger",
+    ///                                "server_name:1521/service_name", &[]).unwrap();
+    /// ```
+    ///
+    /// Connect as sysdba.
+    ///
+    /// ```no_run
+    /// # use oracle::{Connection, ConnParam};
+    /// let conn = Connection::connect("system", "manager", "",
+    ///                                &[ConnParam::Sysdba]).unwrap();
+    /// ```
+    ///
+    pub fn connect(username: &str, password: &str, connect_string: &str, params: &[ConnParam]) -> Result<Connection> {
+        let ctxt = Context::get()?;
+        Connection::connect_internal(ctxt, username, password, connect_string, params, ptr::null_mut())
+    }
+
+    pub(crate) fn connect_internal(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, params: &[ConnParam], pool: *mut dpiPool) -> Result<Connection> {
+        let mut common_params = ctxt.common_create_params;
+        let mut conn_params = ctxt.conn_create_params;
+
+        let mut num_app_context = 0;
+        for param in params {
+            if let &ConnParam::AppContext(_, _, _) = param {
+                num_app_context += 1;
+            }
+        }
+        let mut app_context = Vec::with_capacity(num_app_context);
+
+        for param in params {
+            match param {
+                &ConnParam::Sysdba => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSDBA;
+                },
+                &ConnParam::Sysoper => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSOPER;
+                },
+                &ConnParam::Sysasm => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSASM;
+                },
+                &ConnParam::Sysbackup => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSBKP;
+                },
+                &ConnParam::Sysdg => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSDGD;
+                },
+                &ConnParam::Syskm => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSKMT;
+                },
+                &ConnParam::Sysrac => {
+                    conn_params.authMode |= DPI_MODE_AUTH_SYSRAC;
+                },
+                &ConnParam::ExternalAuth => {
+                    conn_params.externalAuth = 1;
+                },
+                &ConnParam::PrelimAuth => {
+                    conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
+                },
+                &ConnParam::NewPassword(ref password) => {
+                    let s = to_odpi_str(password);
+                    conn_params.newPassword = s.ptr;
+                    conn_params.newPasswordLength = s.len;
+                },
+                &ConnParam::PurityNew => {
+                    conn_params.purity = DPI_PURITY_NEW;
+                },
+                &ConnParam::PuritySelf => {
+                    conn_params.purity = DPI_PURITY_SELF;
+                },
+                &ConnParam::ConnectionClass(ref name) => {
+                    let s = to_odpi_str(name);
+                    conn_params.connectionClass = s.ptr;
+                    conn_params.connectionClassLength = s.len;
+                },
+                &ConnParam::AppContext(ref namespace, ref name, ref value) => {
+                    let namespace = to_odpi_str(namespace);
+                    let name = to_odpi_str(name);
+                    let value = to_odpi_str(value);
+                    app_context.push(
+                        dpiAppContext {
+                            namespaceName: namespace.ptr,
+                            namespaceNameLength: namespace.len,
+                            name: name.ptr,
+                            nameLength: name.len,
+                            value: value.ptr,
+                            valueLength: value.len,
+                        });
+                },
+                &ConnParam::Tag(ref tag) => {
+                    let s = to_odpi_str(tag);
+                    conn_params.tag = s.ptr;
+                    conn_params.tagLength = s.len;
+                },
+                &ConnParam::MatchAnyTag => {
+                    conn_params.matchAnyTag = 1;
+                },
+                &ConnParam::Events => {
+                    common_params.createMode |= DPI_MODE_CREATE_EVENTS;
+                },
+                &ConnParam::Edition(ref edition) => {
+                    let s = to_odpi_str(edition);
+                    common_params.edition = s.ptr;
+                    common_params.editionLength = s.len;
+                },
+                &ConnParam::DriverName(ref driver_name) => {
+                    let s = to_odpi_str(driver_name);
+                    common_params.driverName = s.ptr;
+                    common_params.driverNameLength = s.len;
+                },
+            }
+        }
+        if app_context.len() != 0 {
+            conn_params.appContext = app_context.as_mut_ptr();
+            conn_params.numAppContext = app_context.len() as u32;
+        }
+        conn_params.pool = pool;
+
+        let username = to_odpi_str(username);
+        let password = to_odpi_str(password);
+        let connect_string = to_odpi_str(connect_string);
+        let mut handle = ptr::null_mut();
+        chkerr!(ctxt,
+                dpiConn_create(ctxt.context, username.ptr, username.len,
+                               password.ptr, password.len, connect_string.ptr,
+                               connect_string.len, &common_params,
+                               &mut conn_params, &mut handle));
+        Ok(Connection{
+            ctxt: ctxt,
+            handle: handle,
+            tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
+            tag_found: conn_params.outTagFound != 0,
+            autocommit: false,
+        })
     }
 
     /// Prepares a statement and returns it for subsequent execution/fetching
@@ -902,21 +889,21 @@ impl Connection {
     /// Connect to an idle instance as sysdba and start up a database
     ///
     /// ```no_run
-    /// use oracle::{Connector, AuthMode};
-    /// // connect to an idle instance
-    /// let conn = Connector::new("sys", "change_on_install", "")
-    ///              .prelim_auth(true) // required to connect to an idle instance
-    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
-    ///              .connect().unwrap();
+    /// # use oracle::{Connection, ConnParam};
+    /// // connect as sysdba with prelim_auth mode
+    /// let conn = Connection::connect("sys", "change_on_install", "",
+    ///                                 &[ConnParam::Sysdba,
+    ///                                   ConnParam::PrelimAuth,
+    ///                                   ]).unwrap();
     ///
     /// // start the instance
     /// conn.startup_database(&[]).unwrap();
     /// conn.close().unwrap();
     ///
     /// // connect again without prelim_auth
-    /// let conn = Connector::new("sys", "change_on_install", "")
-    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
-    ///              .connect().unwrap();
+    /// let conn = Connection::connect("sys", "change_on_install", "",
+    ///                                 &[ConnParam::Sysdba,
+    ///                                   ]).unwrap();
     ///
     /// // mount and open a database
     /// conn.execute("alter database mount", &[]).unwrap();
@@ -975,11 +962,10 @@ impl Connection {
     /// Same with `shutdown immediate` on sqlplus.
     ///
     /// ```no_run
-    /// use oracle::{Connector, AuthMode, ShutdownMode};
-    /// // connect
-    /// let conn = Connector::new("sys", "change_on_install", "")
-    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
-    ///              .connect().unwrap();
+    /// # use oracle::{Connection, ConnParam, ShutdownMode};
+    /// // connect as sysdba
+    /// let conn = Connection::connect("sys", "change_on_install", "",
+    ///                                &[ConnParam::Sysdba]).unwrap();
     ///
     /// // begin 'shutdown immediate'
     /// conn.shutdown_database(ShutdownMode::Immediate).unwrap();
@@ -995,11 +981,10 @@ impl Connection {
     /// Same with `shutdown abort` on sqlplus.
     ///
     /// ```no_run
-    /// use oracle::{Connector, AuthMode, ShutdownMode};
-    /// // connect
-    /// let conn = Connector::new("sys", "change_on_install", "")
-    ///              .auth_mode(AuthMode::SYSDBA) // connect as sysdba
-    ///              .connect().unwrap();
+    /// # use oracle::{Connection, ConnParam, ShutdownMode};
+    /// // connect as sysdba
+    /// let conn = Connection::connect("sys", "change_on_install", "",
+    ///                                &[ConnParam::Sysdba]).unwrap();
     ///
     /// // 'shutdown abort'
     /// conn.shutdown_database(ShutdownMode::Abort).unwrap();
@@ -1028,26 +1013,6 @@ impl Connection {
     #[doc(hidden)] // hiden until connection pooling is supported.
     pub fn tag_found(&self) -> bool {
         self.tag_found
-    }
-
-    pub(crate) fn connect_internal(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, common_param: &dpiCommonCreateParams, conn_param: &dpiConnCreateParams) -> Result<Connection> {
-        let username = to_odpi_str(username);
-        let password = to_odpi_str(password);
-        let connect_string = to_odpi_str(connect_string);
-        let mut param = *conn_param;
-        let mut handle = ptr::null_mut();
-        chkerr!(ctxt,
-                dpiConn_create(ctxt.context, username.ptr, username.len,
-                               password.ptr, password.len, connect_string.ptr,
-                               connect_string.len, common_param,
-                               &mut param, &mut handle));
-        Ok(Connection{
-            ctxt: ctxt,
-            handle: handle,
-            tag: to_rust_str(conn_param.outTag, conn_param.outTagLength),
-            tag_found: conn_param.outTagFound != 0,
-            autocommit: false,
-        })
     }
 
     fn close_internal(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {

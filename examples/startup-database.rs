@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -31,26 +31,30 @@
 // or implied, of the authors.
 
 extern crate oracle;
+use oracle::Connection;
+use oracle::ConnParam;
 
 fn main() {
     let username = "sys";
     let password = "change_on_install";
     let database = "";
-    let auth_mode = oracle::AuthMode::SYSDBA;
 
     // connect as sysdba or sysoper with prelim_auth mode
-    let mut connector = oracle::Connector::new(username, password, database);
-    connector.auth_mode(auth_mode);
-    connector.prelim_auth(true);
-    let conn = connector.connect().unwrap();
+    let params = [
+        ConnParam::Sysdba, // or ConnParam::Sysoper
+        ConnParam::PrelimAuth, // required to connect to idle database.
+    ];
+    let conn = Connection::connect(username, password, database, &params).unwrap();
 
     // start up database. The database is not mounted at this time.
     conn.startup_database(&[]).unwrap();
     conn.close().unwrap();
 
     // connect as sysdba or sysoper **without** prelim_auth mode
-    connector.prelim_auth(false);
-    let conn = connector.connect().unwrap();
+    let params = [
+        ConnParam::Sysdba, // or ConnParam::Sysoper
+    ];
+    let conn = Connection::connect(username, password, database, &params).unwrap();
 
     // mount and open the database
     conn.execute("alter database mount", &[]).unwrap();

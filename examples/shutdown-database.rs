@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -31,17 +31,21 @@
 // or implied, of the authors.
 
 extern crate oracle;
+use oracle::Connection;
+use oracle::ConnParam;
+use oracle::ShutdownMode;
 
 fn main() {
     let username = "sys";
     let password = "change_on_install";
     let database = "";
-    let auth_mode = oracle::AuthMode::SYSDBA;
-    let shutdown_mode = oracle::ShutdownMode::Immediate;
+    let shutdown_mode = ShutdownMode::Immediate;
 
     // connect as sysdba or sysoper
-    let mut connector = oracle::Connector::new(username, password, database);
-    let conn = connector.auth_mode(auth_mode).connect().unwrap();
+    let params = [
+        ConnParam::Sysdba, // or ConnParam::Sysoper
+    ];
+    let conn = Connection::connect(username, password, database, &params).unwrap();
 
     // begin 'shutdown'
     conn.shutdown_database(shutdown_mode).unwrap();

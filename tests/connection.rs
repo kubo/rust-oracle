@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -35,9 +35,10 @@ mod common;
 
 #[test]
 fn app_context() {
-    let mut connector = oracle::Connector::new(&common::main_user(), &common::main_password(), &common::connect_string());
-    connector.app_context("CLIENTCONTEXT", "foo", "bar");
-    let conn = connector.connect().unwrap();
+    let params = [
+        oracle::ConnParam::AppContext("CLIENTCONTEXT".into(), "foo".into(), "bar".into()),
+    ];
+    let conn = oracle::Connection::connect(&common::main_user(), &common::main_password(), &common::connect_string(), &params).unwrap();
     let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[]).unwrap();
     assert_eq!(val, "bar");
 }

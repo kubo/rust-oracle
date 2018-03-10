@@ -3,23 +3,34 @@
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 Don't use this until the version number reaches to 0.1.0.
-Methods for executing SQL statements are almost ready for 0.1.0.
-However methods for establishing connections will be changed.
-Especially [Connector][] may or may not be removed.
+This will be 0.1.0 if there are no incompatible changes predicted
+from planned features.
 
 **Methods for querying rows were changed in 0.0.4.** If you had written
 programs using rust-oracle before 0.0.4, enable the `restore-deleted`
-feature in `Cargo.toml`. It restores deleted methods and disables
+feature in `Cargo.toml`. It restores deleted methods in 0.0.4 and disables
 statement-type checking in execute methods.
 
 ## Change Log
 
 ### 0.0.6 (not released)
 
+Methods for establishing connections were changed in order to avoid
+incompatible changes when connection pooling is supported in future.
+
+Changes:
+
+* New methods and enums.
+  * `Connection::connect()`.
+  * `ConnParam`
+
 Incompatible changes:
 
 * Renamed variants.
   * `Error::NoMoreData` &#x2192; `Error::NoDataFound`
+* Removed structs and enums.
+  * `Connector` (connection builder). Use `ConnParam` in order to specify extra connection parameters instead.
+  * `AuthMode`. Use `ConnParam` to specify authentication mode instead.
 
 ### 0.0.5
 
@@ -102,7 +113,7 @@ oracle = { version = "0.0.5", features = ["chrono"] }
 ```
 
 If you had written programs using rust-oracle before 0.0.4, try
-the `restore-deleted` feature. It restores deleted methods and
+the `restore-deleted` feature. It restores deleted methods in 0.0.4 and
 disables statement-type checking in execute methods.
 
 ```text
@@ -295,6 +306,7 @@ required.
 * Scrollable cursors
 * Batch DML
 * DML returning
+* Better Oracle object type support
 
 ## License
 
