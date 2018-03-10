@@ -65,11 +65,11 @@ fn collection_udt_nestedarray() {
     assert_eq!(obj.exist(1).unwrap(), true);
     assert_eq!(obj.size().unwrap(), 2);
 
-    let subobj: oracle::Object = obj.get(0).unwrap();
+    let subobj: Object = obj.get(0).unwrap();
     assert_eq!(subobj.get::<i32>("SUBNUMBERVALUE").unwrap(), 1);
     assert_eq!(subobj.get::<String>("SUBSTRINGVALUE").unwrap(), "STRVAL:1");
 
-    let subobj: oracle::Object = obj.get(1).unwrap();
+    let subobj: Object = obj.get(1).unwrap();
     assert_eq!(subobj.get::<Option<i32>>("SUBNUMBERVALUE").unwrap(), None);
     assert_eq!(subobj.get::<Option<String>>("SUBSTRINGVALUE").unwrap(), None);
 
@@ -162,8 +162,8 @@ fn udt_object() {
     obj.set("NUMBERVALUE", &1).unwrap();
     obj.set("STRINGVALUE", &"STRVAL:1").unwrap();
     obj.set("FIXEDCHARVALUE", &"CHARVAL:1").unwrap();
-    obj.set("DATEVALUE", &oracle::Timestamp::new(2012, 3, 4, 5, 6, 7, 0)).unwrap();
-    obj.set("TIMESTAMPVALUE", &oracle::Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)).unwrap();
+    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0)).unwrap();
+    obj.set("TIMESTAMPVALUE", &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)).unwrap();
     obj.set("SUBOBJECTVALUE", &subobj).unwrap();
     obj.set("SUBOBJECTARRAY", &objary).unwrap();
 
@@ -184,15 +184,15 @@ fn udt_object() {
 
 #[test]
 fn udt_stringlist() {
-    if oracle::client_version().unwrap().major() < 12 {
+    if client_version().unwrap().major() < 12 {
         return;
     }
     let conn = common::connect().unwrap();
     let objtype = conn.object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST").unwrap();
 
     let mut stmt = conn.prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;").unwrap();
-    stmt.execute(&[&oracle::OracleType::Object(objtype)]).unwrap();
-    let obj: oracle::Collection = stmt.bind_value(1).unwrap();
+    stmt.execute(&[&OracleType::Object(objtype)]).unwrap();
+    let obj: Collection = stmt.bind_value(1).unwrap();
 
     // first index
     let idx = obj.first_index().unwrap();
@@ -251,7 +251,7 @@ fn sdo_geometry() {
                    [expectec_attrs[idx][0], expectec_attrs[idx][1]],
                    "attrs[{}]", idx);
     }
-    let oratype = oracle::OracleType::Object(objtype);
+    let oratype = OracleType::Object(objtype);
 
     // 2.7.1 Rectangle
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-9354E585-2B45-43EC-95B3-87A3EAA4BB2E

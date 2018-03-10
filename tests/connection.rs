@@ -33,12 +33,14 @@
 extern crate oracle;
 mod common;
 
+use oracle::{Connection, ConnParam};
+
 #[test]
 fn app_context() {
     let params = [
-        oracle::ConnParam::AppContext("CLIENTCONTEXT".into(), "foo".into(), "bar".into()),
+        ConnParam::AppContext("CLIENTCONTEXT".into(), "foo".into(), "bar".into()),
     ];
-    let conn = oracle::Connection::connect(&common::main_user(), &common::main_password(), &common::connect_string(), &params).unwrap();
+    let conn = Connection::connect(&common::main_user(), &common::main_password(), &common::connect_string(), &params).unwrap();
     let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[]).unwrap();
     assert_eq!(val, "bar");
 }

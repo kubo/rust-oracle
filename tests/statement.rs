@@ -33,48 +33,50 @@
 extern crate oracle;
 mod common;
 
+use oracle::StatementType;
+
 #[test]
 fn statement_type() {
     let conn = common::connect().unwrap();
 
     let stmt_type = conn.prepare("SELECT ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Select);
+    assert_eq!(stmt_type, StatementType::Select);
     assert_eq!(stmt_type.to_string(), "select");
 
     let stmt_type = conn.prepare("INSERT ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Insert);
+    assert_eq!(stmt_type, StatementType::Insert);
     assert_eq!(stmt_type.to_string(), "insert");
 
     let stmt_type = conn.prepare("UPDATE ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Update);
+    assert_eq!(stmt_type, StatementType::Update);
     assert_eq!(stmt_type.to_string(), "update");
 
     let stmt_type = conn.prepare("DELETE ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Delete);
+    assert_eq!(stmt_type, StatementType::Delete);
     assert_eq!(stmt_type.to_string(), "delete");
 
     let stmt_type = conn.prepare("MERGE ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Merge);
+    assert_eq!(stmt_type, StatementType::Merge);
     assert_eq!(stmt_type.to_string(), "merge");
 
     let stmt_type = conn.prepare("CREATE ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Create);
+    assert_eq!(stmt_type, StatementType::Create);
     assert_eq!(stmt_type.to_string(), "create");
 
     let stmt_type = conn.prepare("ALTER ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Alter);
+    assert_eq!(stmt_type, StatementType::Alter);
     assert_eq!(stmt_type.to_string(), "alter");
 
     let stmt_type = conn.prepare("DROP ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Drop);
+    assert_eq!(stmt_type, StatementType::Drop);
     assert_eq!(stmt_type.to_string(), "drop");
 
     let stmt_type = conn.prepare("BEGIN ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Begin);
+    assert_eq!(stmt_type, StatementType::Begin);
     assert_eq!(stmt_type.to_string(), "PL/SQL(begin)");
 
     let stmt_type = conn.prepare("DECLARE ...").unwrap().statement_type();
-    assert_eq!(stmt_type, oracle::StatementType::Declare);
+    assert_eq!(stmt_type, StatementType::Declare);
     assert_eq!(stmt_type.to_string(), "PL/SQL(declare)");
 }
 

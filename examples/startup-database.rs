@@ -31,8 +31,7 @@
 // or implied, of the authors.
 
 extern crate oracle;
-use oracle::Connection;
-use oracle::ConnParam;
+use oracle::{Connection, ConnParam};
 
 fn main() {
     let username = "sys";

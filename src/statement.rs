@@ -197,12 +197,12 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::Connection;
+    /// # use oracle::{Connection, OracleType};
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
-    /// stmt.bind(1, &oracle::OracleType::Varchar2(60)).unwrap();
+    /// stmt.bind(1, &OracleType::Varchar2(60)).unwrap();
     ///
     /// // Sets "to be upper-case" to the second by its name.
     /// stmt.bind("inval", &"to be upper-case").unwrap();
@@ -229,14 +229,14 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::Connection;
+    /// # use oracle::{Connection, OracleType};
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
     /// // sets "to be upper-case" to the second and then executes it.
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
-    /// stmt.execute(&[&oracle::OracleType::Varchar2(60),
+    /// stmt.execute(&[&OracleType::Varchar2(60),
     ///              &"to be upper-case"]).unwrap();
     ///
     /// // Get the first bind value by position.

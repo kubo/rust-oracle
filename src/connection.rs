@@ -961,7 +961,7 @@ impl Connection {
     /// conn.execute("alter database dismount", &[]).unwrap();
     ///
     /// // finish shutdown
-    /// conn.shutdown_database(oracle::ShutdownMode::Final).unwrap();
+    /// conn.shutdown_database(ShutdownMode::Final).unwrap();
     /// ```
     ///
     /// Same with `shutdown abort` on sqlplus.

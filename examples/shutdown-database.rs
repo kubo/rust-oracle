@@ -31,9 +31,7 @@
 // or implied, of the authors.
 
 extern crate oracle;
-use oracle::Connection;
-use oracle::ConnParam;
-use oracle::ShutdownMode;
+use oracle::{Connection, ConnParam, ShutdownMode};
 
 fn main() {
     let username = "sys";
@@ -59,7 +57,7 @@ fn main() {
     println!("Database dismounted.");
 
     // finish 'shutdown'
-    conn.shutdown_database(oracle::ShutdownMode::Final).unwrap();
+    conn.shutdown_database(ShutdownMode::Final).unwrap();
     println!("ORACLE instance shut down.");
     conn.close().unwrap();
 }

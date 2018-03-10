@@ -201,15 +201,15 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 /// as follows:
 ///
 /// ```no_run
-/// # use oracle::Connection;
+/// # use oracle::{Connection, Error, RowValue, Row};
 /// struct Emp {
 ///     empno: i32,
 ///     ename: String,
 /// }
 ///
-/// impl oracle::RowValue for Emp {
+/// impl RowValue for Emp {
 ///     type Item = Emp;
-///     fn get(row: &oracle::Row) -> oracle::Result<Emp> {
+///     fn get(row: &Row) -> Result<Emp, Error> {
 ///         Ok(Emp {
 ///             empno: row.get("empno")?,
 ///             ename: row.get("ename")?,

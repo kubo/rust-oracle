@@ -32,14 +32,14 @@
 
 extern crate oracle;
 
-use oracle::Connection;
+use oracle::{Connection, OracleType, Timestamp};
 
 fn main() {
     let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
     let rows = stmt.query(&[]).unwrap();
 
-    // stmt.define("HIREDATE", oracle::OracleType::Varchar2(60)).unwrap();
+    // stmt.define("HIREDATE", OracleType::Varchar2(60)).unwrap();
 
     println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
     println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
@@ -57,7 +57,7 @@ fn main() {
         let ename: String = row.get("ENAME").unwrap(); // index by case-sensitive string
         let job: String = row.get(2).unwrap();
         let mgr: Option<i32> = row.get(3).unwrap(); // nullable column must be get as Option<...> to avoid panic.
-        let hiredate: oracle::Timestamp = row.get(4).unwrap();
+        let hiredate: Timestamp = row.get(4).unwrap();
         let sal: f64 = row.get(5).unwrap();
         let comm: Option<f64> = row.get(6).unwrap();
         let deptno: Option<i32> = row.get(7).unwrap();
@@ -75,14 +75,13 @@ fn main() {
 
     // Set/Get bind values
     let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
-    stmt.bind(1, &oracle::OracleType::Varchar2(5)).unwrap();
+    stmt.bind(1, &OracleType::Varchar2(5)).unwrap();
     stmt.bind(2, &123).unwrap();
     stmt.execute(&[]).unwrap();
     let retval: String = stmt.bind_value(1).unwrap();
     println!(":1 (as String) => {}", retval);
     let retval: i32 = stmt.bind_value(1).unwrap();
     println!(":1 (as i32) => {}", retval);
-    //    stmt.bind(2, oracle::null_bind_value::<i32>()).unwrap();
     stmt.bind(2, &None::<i32>).unwrap();
     stmt.execute(&[]).unwrap();
     let retval: Option<i32> = stmt.bind_value(1).unwrap();

@@ -31,7 +31,7 @@
 // or implied, of the authors.
 
 use std::env;
-use oracle;
+use oracle::{Connection, Error, FromSql, OracleType, Row, RowValue, ToSql};
 
 fn env_var_or(env_name: &str, default: &str) -> String {
     match env::var_os(env_name) {
@@ -68,8 +68,8 @@ pub fn dir_name() -> String {
 }
 
 #[allow(dead_code)]
-pub fn connect() -> Result<oracle::Connection, oracle::Error> {
-    oracle::Connection::connect(&main_user(), &main_password(), &connect_string(), &[])
+pub fn connect() -> Result<Connection, Error> {
+    Connection::connect(&main_user(), &main_password(), &connect_string(), &[])
 }
 
 #[allow(unused_macros)]
@@ -80,7 +80,7 @@ macro_rules! test_from_sql {
 }
 
 #[allow(dead_code)]
-pub fn test_from_sql<T>(conn: &oracle::Connection, column_literal: &str, column_type: &oracle::OracleType, expected_result: &T, file: &str, line: u32) where T: oracle::FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq {
+pub fn test_from_sql<T>(conn: &Connection, column_literal: &str, column_type: &OracleType, expected_result: &T, file: &str, line: u32) where T: FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq {
     let mut stmt = conn.prepare(&format!("select {} from dual", column_literal)).unwrap();
     let mut rows = stmt.query_as::<T>(&[]).expect(format!("error at {}:{}", file, line).as_str());
     assert_eq!(rows.column_info()[0].oracle_type(), column_type, "called by {}:{}", file, line);
@@ -96,9 +96,9 @@ macro_rules! test_to_sql {
 }
 
 #[allow(dead_code)]
-pub fn test_to_sql<T>(conn: &oracle::Connection, input_data: &T, input_literal: &str, expected_result: &str, file: &str, line: u32) where T: oracle::ToSql {
+pub fn test_to_sql<T>(conn: &Connection, input_data: &T, input_literal: &str, expected_result: &str, file: &str, line: u32) where T: ToSql {
     let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal)).unwrap();
-    stmt.bind(1, &oracle::OracleType::Varchar2(4000)).unwrap();
+    stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
     stmt.bind(2, input_data).unwrap();
     stmt.execute(&[]).expect(format!("error at {}:{}", file, line).as_str());
     let result: String = stmt.bind_value(1).unwrap();
@@ -114,9 +114,9 @@ pub struct TestString {
     pub nullable_col: Option<String>,
 }
 
-impl oracle::RowValue for TestString {
+impl RowValue for TestString {
     type Item = TestString;
-    fn get(row: &oracle::Row) -> oracle::Result<TestString> {
+    fn get(row: &Row) -> Result<TestString, Error> {
         Ok(TestString {
             int_col: row.get(0)?,
             string_col: row.get(1)?,
@@ -153,7 +153,7 @@ pub fn assert_test_string_type(idx: usize, row: &TestString) {
 }
 
 #[allow(dead_code)]
-pub fn assert_test_string_row(idx: usize, row: &oracle::Row) {
+pub fn assert_test_string_row(idx: usize, row: &Row) {
     let row = row.get_as::<TestStringTuple>().unwrap();
     assert_test_string_tuple(idx, &row);
 }
