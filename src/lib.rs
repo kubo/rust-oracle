@@ -65,6 +65,19 @@ Incompatible changes:
 * Removed structs and enums.
   * `Connector` (connection builder). Use `ConnParam` in order to specify extra connection parameters instead.
   * `AuthMode`. Use `ConnParam` to specify authentication mode instead.
+* Methods whose return type was changed from `&String` to `&str`.
+  * `Connection.tag()`
+  * `ColumnInfo.name()`
+  * `DbError.message()`
+  * `DbError.fn_name()`
+  * `DbError.action()`
+  * `ObjectType.schema()`
+  * `ObjectType.name()`
+  * `ObjectTypeAttr.name()`
+* Methods whose return type was changed from `&Vec<...>` to `&[...]`.
+  * `Row.sql_values()`
+  * `ResultSet.column_info()`
+  * `ObjectType.attributes()`
 
 ### 0.0.5
 

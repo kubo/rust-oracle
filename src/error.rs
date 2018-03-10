@@ -168,17 +168,17 @@ impl DbError {
     }
 
     /// error message
-    pub fn message(&self) -> &String {
+    pub fn message(&self) -> &str {
         &self.message
     }
 
     /// function name in ODPI-C used by rust-oracle
-    pub fn fn_name(&self) -> &String {
+    pub fn fn_name(&self) -> &str {
         &self.fn_name
     }
 
     /// action name in ODPI-C used by rust-oracle
-    pub fn action(&self) -> &String {
+    pub fn action(&self) -> &str {
         &self.action
     }
 }

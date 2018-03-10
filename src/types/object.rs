@@ -489,12 +489,12 @@ impl ObjectType {
     }
 
     /// Gets schema name
-    pub fn schema(&self) -> &String {
+    pub fn schema(&self) -> &str {
         &self.internal.schema
     }
 
     /// Gets object name
-    pub fn name(&self) -> &String {
+    pub fn name(&self) -> &str {
         &self.internal.name
     }
 
@@ -534,7 +534,7 @@ impl ObjectType {
     ///     println!("{:-20} {}", attr.name(), attr.oracle_type());
     /// }
     /// ```
-    pub fn attributes(&self) -> &Vec<ObjectTypeAttr> {
+    pub fn attributes(&self) -> &[ObjectTypeAttr] {
         &self.internal.attrs
     }
 
@@ -607,7 +607,7 @@ impl ObjectTypeAttr {
     }
 
     /// Gets the attribute name
-    pub fn name(&self) -> &String {
+    pub fn name(&self) -> &str {
         &self.name
     }
 

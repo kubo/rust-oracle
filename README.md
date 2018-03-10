@@ -34,6 +34,19 @@ Incompatible changes:
 * Removed structs and enums.
   * `Connector` (connection builder). Use `ConnParam` in order to specify extra connection parameters instead.
   * `AuthMode`. Use `ConnParam` to specify authentication mode instead.
+* Methods whose return type was changed from `&String` to `&str`.
+  * `Connection.tag()`
+  * `ColumnInfo.name()`
+  * `DbError.message()`
+  * `DbError.fn_name()`
+  * `DbError.action()`
+  * `ObjectType.schema()`
+  * `ObjectType.name()`
+  * `ObjectTypeAttr.name()`
+* Methods whose return type was changed from `&Vec<...>` to `&[...]`.
+  * `Row.sql_values()`
+  * `ResultSet.column_info()`
+  * `ObjectType.attributes()`
 
 ### 0.0.5
 
@@ -135,7 +148,7 @@ extern crate oracle;
 Executes select statements and get rows:
 
 ```rust
-use oracle::Connection;
+use oracle::{Connection, Error};
 
 // Connect to a database.
 let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
@@ -152,7 +165,7 @@ for row_result in rows {
     // get a column by name (case-insensitive)
     let sal: i32 = row.get("sal").unwrap();
     // Use `Option<...>` to get a nullable column.
-    // Otherwise, `Err(oracle::Error::NullValue)` is returned
+    // Otherwise, `Err(Error::NullValue)` is returned
     // for null values.
     let comm: Option<i32> = row.get(2).unwrap();
 
@@ -195,7 +208,7 @@ println!(" {:14}| {:>10}    | {:>10}    |",
          ename,
          sal,
          comm.map_or("".to_string(), |v| v.to_string()));
-// When no rows are found, conn.query_row() returns `Err(oracle::Error::NoDataFound)`.
+// When no rows are found, conn.query_row() returns `Err(Error::NoDataFound)`.
 
 // Get the first row as a tupple
 let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();

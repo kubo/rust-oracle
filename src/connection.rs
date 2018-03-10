@@ -992,7 +992,7 @@ impl Connection {
     }
 
     #[doc(hidden)] // hiden until connection pooling is supported.
-    pub fn tag(&self) -> &String {
+    pub fn tag(&self) -> &str {
         &self.tag
     }
 

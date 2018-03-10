@@ -84,7 +84,7 @@ impl Row {
     }
 
     /// Returns column values as a vector of SqlValue
-    pub fn sql_values(&self) -> &Vec<SqlValue> {
+    pub fn sql_values(&self) -> &[SqlValue] {
         &self.column_values
     }
 
@@ -154,7 +154,7 @@ impl<'a, T> ResultSet<'a, T> where T: RowValue {
         }
     }
 
-    pub fn column_info(&self) -> &Vec<ColumnInfo> {
+    pub fn column_info(&self) -> &[ColumnInfo] {
         &self.stmt().column_info
     }
 }
