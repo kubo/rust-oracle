@@ -197,7 +197,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
@@ -228,7 +229,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
@@ -268,7 +270,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1").unwrap();
     /// let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
     ///
@@ -295,7 +298,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :deptno").unwrap();
     /// let rows = stmt.query_as_named::<(String, i32, Option<i32>)>(&[("deptno", &10)]).unwrap();
     ///
@@ -359,7 +363,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement without bind parameters
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')").unwrap();
@@ -383,7 +388,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement with binding parameters by name
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
@@ -480,7 +486,8 @@ impl<'conn> Statement<'conn> {
     /// PL/SQL statements this is the count of the **unique** bind variables.
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // SQL statements
     /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual").unwrap();
@@ -501,7 +508,8 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").unwrap();
     /// assert_eq!(stmt.bind_count(), 3);
@@ -612,7 +620,8 @@ impl<'conn> Drop for Statement<'conn> {
 /// Print column information of `emp` table.
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 /// let mut stmt = conn.prepare("select * from emp").unwrap();
 /// let rows = stmt.query(&[]).unwrap();
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");

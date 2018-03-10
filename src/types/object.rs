@@ -53,7 +53,8 @@ use util::write_literal;
 /// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm).
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 ///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
 /// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY").unwrap();
@@ -295,7 +296,8 @@ impl fmt::Debug for Collection {
 /// Oracle-specific object data type
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 ///
 /// // MDSYS.SDO_GEOMETRY
 /// // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/spatl/spatial-datatypes-metadata.html#GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
@@ -450,14 +452,16 @@ impl fmt::Debug for Object {
 /// Gets MDSYS.SDO_GEOMETRY object type information.
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
 /// ```
 ///
 /// Gets object type infomration in query.
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
 /// let mut stmt = conn.prepare("select loc from location where name = '...'").unwrap();
 /// let rows = stmt.query(&[]).unwrap();
@@ -523,7 +527,8 @@ impl ObjectType {
     /// Prints attribute information of `MDSYS.SDO_GEOMETRY`.
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY").unwrap();
     /// for attr in objtype.attributes() {
     ///     println!("{:-20} {}", attr.name(), attr.oracle_type());

@@ -242,14 +242,6 @@ pub enum ConnParam {
 }
 
 /// Connection to an Oracle database
-///
-/// A connection is created by two methods. One is [Connection::new][].
-/// The other is [Connector.connect][]. Use the former to connect to a database
-/// with username, password and connect_string. Use the latter when
-/// additional parameters such as `SYSDBA` are required.
-///
-/// [Connection::new]: #method.new
-/// [Connector.connect]: struct.Connector.html#method.connect
 pub struct Connection {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: *mut dpiConn,
@@ -259,24 +251,6 @@ pub struct Connection {
 }
 
 impl Connection {
-
-    /// Connects to an Oracle database with username, password and connect_string.
-    ///
-    /// # Examples
-    /// To connect to a local database.
-    ///
-    /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
-    /// ```
-    ///
-    /// To connect to a remote database specified by easy connect naming.
-    ///
-    /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "server_name:1521/service_name").unwrap();
-    /// ```
-    pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
-        Connection::connect(username, password, connect_string, &[])
-    }
 
     /// Connects to an Oracle server
     ///
@@ -307,6 +281,11 @@ impl Connection {
     pub fn connect(username: &str, password: &str, connect_string: &str, params: &[ConnParam]) -> Result<Connection> {
         let ctxt = Context::get()?;
         Connection::connect_internal(ctxt, username, password, connect_string, params, ptr::null_mut())
+    }
+
+    #[deprecated(since="0.0.6", note="use `Connection::connect()` instead")]
+    pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
+        Connection::connect(username, password, connect_string, &[])
     }
 
     pub(crate) fn connect_internal(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, params: &[ConnParam], pool: *mut dpiPool) -> Result<Connection> {
@@ -432,7 +411,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
     ///
     /// // insert one row. (set parameters by position)
@@ -452,7 +432,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement without bind parameters
     /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &[]).unwrap();
@@ -475,7 +456,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement with binding parameters by name
     /// conn.execute_named("insert into emp(empno, ename) values (:id, :name)",
@@ -559,7 +541,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // get a row as `(i32, String)`.
     /// let sql = "select empno, ename from emp where empno = 7369";
@@ -596,7 +579,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // fetch as a tuple whose type is `(i32, String)` with a named bind parameter "empno".
     /// let sql = "select empno, ename from emp where empno = :empno";
@@ -652,7 +636,8 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let (version, banner) = conn.server_version().unwrap();
     /// println!("Oracle Version: {}", version);
     /// println!("--- Version Banner ---");
@@ -862,7 +847,8 @@ impl Connection {
     /// Gets an object type information from name
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
     /// ```
     pub fn object_type(&self, name: &str) -> Result<ObjectType> {

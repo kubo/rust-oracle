@@ -32,8 +32,10 @@
 
 extern crate oracle;
 
+use oracle::Connection;
+
 fn main() {
-    let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
     let rows = stmt.query(&[]).unwrap();
 

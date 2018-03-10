@@ -32,6 +32,8 @@
 
 extern crate oracle;
 
+use oracle::Connection;
+
 // Select a table and print column types and values as CSV.
 // The CSV format isn't valid if data include double quotation
 // marks, commas or return codes.
@@ -41,7 +43,7 @@ fn main() {
     let database = "";
     let sql = "select * from emp";
 
-    let conn = oracle::Connection::new(username, password, database).unwrap();
+    let conn = Connection::connect(username, password, database, &[]).unwrap();
     let mut stmt = conn.prepare(sql).unwrap();
     let rows = stmt.query(&[]).unwrap();
 

@@ -69,7 +69,7 @@ pub fn dir_name() -> String {
 
 #[allow(dead_code)]
 pub fn connect() -> Result<oracle::Connection, oracle::Error> {
-    oracle::Connection::new(&main_user(), &main_password(), &connect_string())
+    oracle::Connection::connect(&main_user(), &main_password(), &connect_string(), &[])
 }
 
 #[allow(unused_macros)]

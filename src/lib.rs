@@ -52,8 +52,11 @@ incompatible changes when connection pooling is supported in future.
 Changes:
 
 * New methods and enums.
-  * `Connection::connect()`.
+  * `Connection::connect()`
   * `ConnParam`
+
+* Deprecated methods.
+  * `Connnection::new()`. Use `Connection::connect()` instead.
 
 Incompatible changes:
 
@@ -163,8 +166,10 @@ extern crate oracle;
 Executes select statements and get rows:
 
 ```no_run
+use oracle::Connection;
+
 // Connect to a database.
-let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 let sql = "select ename, sal, comm from emp where deptno = :1";
 
@@ -204,8 +209,10 @@ for row_result in rows {
 Executes select statements and get the first rows:
 
 ```no_run
+use oracle::Connection;
+
 // Connect to a database.
-let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 let sql = "select ename, sal, comm from emp where empno = :1";
 
@@ -233,8 +240,10 @@ println!(" {:14}| {:>10}    | {:>10}    |",
 Executes non-select statements:
 
 ```no_run
+use oracle::Connection;
+
 // Connect to a database.
-let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 conn.execute("create table person (id number(38), name varchar2(40))", &[]).unwrap();
 
@@ -263,8 +272,10 @@ conn.rollback().unwrap();
 Prints column information:
 
 ```no_run
+use oracle::Connection;
+
 // Connect to a database.
-let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 let sql = "select ename, sal, comm from emp where 1 = 2";
 let rows = conn.query(sql, &[]).unwrap();
@@ -285,7 +296,9 @@ println!("");
 Prepared statement:
 
 ```no_run
-let conn = oracle::Connection::new("scott", "tiger", "//localhost/XE").unwrap();
+use oracle::Connection;
+
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 // Create a prepared statement
 let mut stmt = conn.prepare("insert into person values (:1, :2)").unwrap();
@@ -313,9 +326,11 @@ The territory component specifies numeric format, date format and so on.
 However it affects only conversion in Oracle. See the following example:
 
 ```no_run
+use oracle::Connection;
+
 // The territory is France.
 std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
-let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 
 // 10.1 is converted to a string in Oracle and fetched as a string.
 let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[]).unwrap();

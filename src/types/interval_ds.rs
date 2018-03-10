@@ -84,9 +84,8 @@ use ParseOracleTypeError;
 /// Fetch and bind interval values.
 ///
 /// ```
-/// use oracle::{Connection, IntervalDS, OracleType, Timestamp};
-///
-/// let conn = Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::{Connection, IntervalDS, OracleType, Timestamp};
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 ///
 /// // Fetch IntervalDS
 /// let sql = "select interval '+01 02:03:04.500' day to second(3) from dual";

@@ -78,8 +78,7 @@ use ParseOracleTypeError;
 ///
 /// ```
 /// use oracle::{Connection, IntervalYM, OracleType, Timestamp};
-///
-/// let conn = Connection::new("scott", "tiger", "").unwrap();
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 ///
 /// // Fetch IntervalYM
 /// let sql = "select interval '+02-03' year to month from dual";

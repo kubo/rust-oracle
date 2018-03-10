@@ -104,7 +104,8 @@ impl Row {
     /// [RowValue]: trait.RowValue.html
     ///
     /// ```no_run
-    /// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    /// # use oracle::Connection;
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     /// let mut stmt = conn.prepare("select empno, ename from emp").unwrap();
     ///
     /// for result in stmt.query(&[]).unwrap() {
@@ -180,7 +181,8 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 ///  be 1 through 50.
 ///
 /// ```no_run
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// # use oracle::Connection;
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 ///
 /// let sql = "select * from emp where empno = :1";
 ///
@@ -199,6 +201,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 /// as follows:
 ///
 /// ```no_run
+/// # use oracle::Connection;
 /// struct Emp {
 ///     empno: i32,
 ///     ename: String,
@@ -214,7 +217,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 ///     }
 /// }
 ///
-/// let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
 /// let mut stmt = conn.prepare("select * from emp").unwrap();
 ///
 /// // Gets rows as Emp

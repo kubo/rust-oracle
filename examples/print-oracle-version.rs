@@ -32,11 +32,13 @@
 
 extern crate oracle;
 
+use oracle::{client_version, Connection};
+
 fn main() {
-    let client_ver = oracle::client_version().unwrap();
+    let client_ver = client_version().unwrap();
     println!("Oracle Client Version: {}", client_ver);
 
-    let conn = oracle::Connection::new("scott", "tiger", "").unwrap();
+    let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     let (server_ver, banner) = conn.server_version().unwrap();
     println!("Oracle Server Version: {}", server_ver);
     println!("--- Server Version Banner ---");
