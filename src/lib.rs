@@ -45,7 +45,7 @@ statement-type checking in execute methods.
 
 ## Change Log
 
-### 0.0.6 (not released)
+### 0.0.6
 
 Methods for establishing connections were changed in order to avoid
 incompatible changes when connection pooling is supported in future.
