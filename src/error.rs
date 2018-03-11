@@ -227,10 +227,10 @@ impl fmt::Debug for Error {
                 write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
                        err.code, err.offset, err.message, err.fn_name, err.action),
             Error::DpiError(ref err) =>
-                write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
+                write!(f, "DPI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
                        err.code, err.offset, err.message, err.fn_name, err.action),
             Error::NullValue =>
-                write!(f, "NULLValue"),
+                write!(f, "NullValue"),
             Error::ParseError(ref err) =>
                 write!(f, "ParseError: {:?}", err),
             Error::OutOfRange(ref msg) =>
