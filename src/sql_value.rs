@@ -238,6 +238,12 @@ impl SqlValue {
         Ok(true)
     }
 
+    pub(crate) fn fix_internal_data(&mut self) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiVar_getData(self.handle, &mut self.array_size, &mut self.data));
+        Ok(())
+    }
+
     fn buffer_row_index(&self) -> u32 {
         match self.buffer_row_index {
             BufferRowIndex::Shared(ref idx) => *idx.borrow(),

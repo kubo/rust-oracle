@@ -3,8 +3,9 @@
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 Don't use this until the version number reaches to 0.1.0.
-This will be 0.1.0 if there are no incompatible changes predicted
-from planned features.
+`FromSql` may be changed to support DML returning in 0.0.7. After
+that, 0.1.0 will be released if no additional incompatible changes are
+predicted from planned features.
 
 **Methods for querying rows were changed in 0.0.4.** If you had written
 programs using rust-oracle before 0.0.4, enable the `restore-deleted`
@@ -352,4 +353,3 @@ ODPI-C bundled in rust-oracle is under the terms of:
 [NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
 [language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
 [territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
-[Connector]: https://docs.rs/oracle/0.0.5/oracle/struct.Connector.html

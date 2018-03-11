@@ -171,6 +171,33 @@ fn query_row() {
 }
 
 #[test]
+fn dml_returning() {
+    let conn = common::connect().unwrap();
+    let sql = "update TestStrings set StringCol = StringCol where IntCol >= :1 returning IntCol into :icol";
+
+    let mut stmt = conn.prepare(sql).unwrap();
+    assert_eq!(stmt.is_returning(), true);
+
+    stmt.bind(2, &None::<i32>).unwrap();
+
+    // update no rows
+    stmt.execute(&[&11]).unwrap();
+    // TODO: check values returned to :icol after DML returning is supported.
+
+    // update one row
+    stmt.execute(&[&10]).unwrap();
+    // TODO: check values returned to :icol after DML returning is supported.
+
+    // update 10 rows
+    stmt.execute(&[&1]).unwrap();
+    // TODO: check values returned to :icol after DML returning is supported.
+
+    // update no rows
+    stmt.execute(&[&11]).unwrap();
+    // TODO: check values returned to :icol after DML returning is supported.
+}
+
+#[test]
 #[cfg(feature = "restore-deleted")]
 #[allow(deprecated)]
 fn deprecated_methods() {

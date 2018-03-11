@@ -477,6 +477,11 @@ impl<'conn> Statement<'conn> {
                 self.row = Some(Row::new(self.conn, column_names, column_values)?);
             }
         }
+        if self.is_returning {
+            for mut val in self.bind_values.iter_mut() {
+                val.fix_internal_data()?;
+            }
+        }
         Ok(())
     }
 
