@@ -149,7 +149,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.0.5"
+oracle = "0.0.6"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -157,7 +157,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.0.5", features = ["chrono"] }
+oracle = { version = "0.0.6", features = ["chrono"] }
 ```
 
 If you had written programs using rust-oracle before 0.0.4, try
@@ -166,7 +166,7 @@ disables statement-type checking in execute methods.
 
 ```text
 [dependencies]
-oracle = { version = "0.0.5", features = ["restore-deleted"] }
+oracle = { version = "0.0.6", features = ["restore-deleted"] }
 ```
 
 Then put this in your crate root:
