@@ -148,7 +148,7 @@ pub struct SqlValue {
     data: *mut dpiData,
     native_type: NativeType,
     oratype: Option<OracleType>,
-    array_size: u32,
+    pub(crate) array_size: u32,
     pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
     keep_dpiobj: *mut dpiObject,
@@ -1086,6 +1086,22 @@ impl SqlValue {
                 self.set_bool_unchecked(*val),
             _ =>
                 self.invalid_conversion_from_rust_type("bool"),
+        }
+    }
+
+    /// The cloned value must not live longer than self.
+    /// Otherwise it may cause access violation.
+    pub(crate) fn unsafely_clone(&self) -> SqlValue {
+        SqlValue {
+            ctxt: self.ctxt,
+            handle: ptr::null_mut(),
+            data: self.data,
+            native_type: self.native_type.clone(),
+            oratype: self.oratype.clone(),
+            array_size: self.array_size,
+            buffer_row_index: BufferRowIndex::Owned(0),
+            keep_bytes: Vec::new(),
+            keep_dpiobj: ptr::null_mut(),
         }
     }
 }

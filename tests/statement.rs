@@ -182,19 +182,24 @@ fn dml_returning() {
 
     // update no rows
     stmt.execute(&[&11]).unwrap();
-    // TODO: check values returned to :icol after DML returning is supported.
+    let updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
+    assert_eq!(updated_int_col, vec![]);
 
     // update one row
     stmt.execute(&[&10]).unwrap();
-    // TODO: check values returned to :icol after DML returning is supported.
+    let updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
+    assert_eq!(updated_int_col, vec![10]);
 
     // update 10 rows
     stmt.execute(&[&1]).unwrap();
-    // TODO: check values returned to :icol after DML returning is supported.
+    let mut updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
+    updated_int_col.sort();
+    assert_eq!(updated_int_col, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
     // update no rows
     stmt.execute(&[&11]).unwrap();
-    // TODO: check values returned to :icol after DML returning is supported.
+    let updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
+    assert_eq!(updated_int_col, vec![]);
 }
 
 #[test]

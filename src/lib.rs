@@ -34,8 +34,7 @@
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 Don't use this until the version number reaches to 0.1.0.
-`FromSql` may be changed to support DML returning in 0.0.7. After
-that, 0.1.0 will be released if no additional incompatible changes are
+Version 0.1.0 will be released if no additional incompatible changes are
 predicted from planned features.
 
 **Methods for querying rows were changed in 0.0.4.** If you had written
@@ -44,6 +43,12 @@ feature in `Cargo.toml`. It restores deleted methods in 0.0.4 and disables
 statement-type checking in execute methods.
 
 ## Change Log
+
+### 0.0.7 (not released)
+
+New features:
+
+* Add `Statement.returned_values()` to support RETURNING INTO clause.
 
 ### 0.0.6
 
@@ -365,7 +370,6 @@ required.
 * REF CURSOR, BOOLEAN
 * Scrollable cursors
 * Batch DML
-* DML returning
 * Better Oracle object type support
 
 ## License

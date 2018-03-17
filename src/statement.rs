@@ -485,6 +485,61 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
+    /// Gets values returned by RETURNING INTO clause.
+    ///
+    /// When the `bindidx` ponints to a bind variable out of RETURNING INTO clause,
+    /// the behavior is undefined.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::{Connection, OracleType};
+    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+    ///
+    /// // create a table using identity column (Oracle 12c feature).
+    /// conn.execute("create table people (id number generated as identity, name varchar2(30))", &[]).unwrap();
+    ///
+    /// // insert one person and return the generated id into :id.
+    /// let stmt = conn.execute("insert into people(name) values ('Asimov') returning id into :id", &[&None::<i32>]).unwrap();
+    /// let inserted_id: i32 = stmt.returned_values("id").unwrap()[0];
+    /// println!("Asimov's ID is {}", inserted_id);
+    ///
+    /// // insert another person and return the generated id into :id.
+    /// let stmt = conn.execute("insert into people(name) values ('Clark') returning id into :id", &[&None::<i32>]).unwrap();
+    /// let inserted_id: i32 = stmt.returned_values("id").unwrap()[0];
+    /// println!("Clark's ID is {}", inserted_id);
+    ///
+    /// // delete all people and return deleted names into :name.
+    /// let stmt = conn.execute("delete from people returning name into :name", &[&OracleType::Varchar2(30)]).unwrap();
+    /// let deleted_names: Vec<String> = stmt.returned_values("name").unwrap();
+    /// for name in deleted_names {
+    ///     println!("{} is deleted.", name);
+    /// }
+    ///
+    /// // cleanup
+    /// conn.execute("drop table people purge", &[]).unwrap();
+    /// ```
+    ///
+    /// [Statement.bind_value()]: #method.bind_value
+    pub fn returned_values<I, T>(&self, bindidx: I) -> Result<Vec<T>> where I: BindIndex, T: FromSql {
+        let mut rows = 0;
+        chkerr!(self.conn.ctxt,
+                dpiStmt_getRowCount(self.handle, &mut rows));
+        if rows == 0 {
+            return Ok(vec![]);
+        }
+        let mut sqlval = self.bind_values[bindidx.idx(&self)?].unsafely_clone();
+        if rows > sqlval.array_size as u64 {
+            rows = sqlval.array_size as u64;
+        }
+        let mut vec = Vec::with_capacity(rows as usize);
+        for i in 0..rows {
+            sqlval.buffer_row_index = BufferRowIndex::Owned(i as u32);
+            vec.push(sqlval.get()?);
+        }
+        Ok(vec)
+    }
+
     /// Returns the number of bind variables in the statement.
     ///
     /// In SQL statements this is the total number of bind variables whereas in
