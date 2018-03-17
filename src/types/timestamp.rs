@@ -101,7 +101,7 @@ use ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql).unwrap();
+/// let mut stmt = conn.prepare(sql, &[]).unwrap();
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &ts, // bind the ts variable
 ///               ]).unwrap();

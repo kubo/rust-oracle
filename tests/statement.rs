@@ -33,49 +33,49 @@
 extern crate oracle;
 mod common;
 
-use oracle::StatementType;
+use oracle::{StmtParam, StatementType};
 
 #[test]
 fn statement_type() {
     let conn = common::connect().unwrap();
 
-    let stmt_type = conn.prepare("SELECT ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("SELECT ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Select);
     assert_eq!(stmt_type.to_string(), "select");
 
-    let stmt_type = conn.prepare("INSERT ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("INSERT ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Insert);
     assert_eq!(stmt_type.to_string(), "insert");
 
-    let stmt_type = conn.prepare("UPDATE ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("UPDATE ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Update);
     assert_eq!(stmt_type.to_string(), "update");
 
-    let stmt_type = conn.prepare("DELETE ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("DELETE ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Delete);
     assert_eq!(stmt_type.to_string(), "delete");
 
-    let stmt_type = conn.prepare("MERGE ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("MERGE ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Merge);
     assert_eq!(stmt_type.to_string(), "merge");
 
-    let stmt_type = conn.prepare("CREATE ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("CREATE ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Create);
     assert_eq!(stmt_type.to_string(), "create");
 
-    let stmt_type = conn.prepare("ALTER ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("ALTER ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Alter);
     assert_eq!(stmt_type.to_string(), "alter");
 
-    let stmt_type = conn.prepare("DROP ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("DROP ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Drop);
     assert_eq!(stmt_type.to_string(), "drop");
 
-    let stmt_type = conn.prepare("BEGIN ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("BEGIN ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Begin);
     assert_eq!(stmt_type.to_string(), "PL/SQL(begin)");
 
-    let stmt_type = conn.prepare("DECLARE ...").unwrap().statement_type();
+    let stmt_type = conn.prepare("DECLARE ...", &[]).unwrap().statement_type();
     assert_eq!(stmt_type, StatementType::Declare);
     assert_eq!(stmt_type.to_string(), "PL/SQL(declare)");
 }
@@ -84,7 +84,7 @@ fn statement_type() {
 fn bind_names() {
     let conn = common::connect().unwrap();
 
-    let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").unwrap();
+    let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[]).unwrap();
     assert_eq!(stmt.bind_count(), 3);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -92,7 +92,7 @@ fn bind_names() {
     assert_eq!(bind_names[1], "VAL2");
     assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
 
-    let stmt = conn.prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual").unwrap();
+    let stmt = conn.prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual", &[]).unwrap();
     assert_eq!(stmt.bind_count(), 4);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -106,8 +106,7 @@ fn query() {
     let conn = common::connect().unwrap();
     let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
 
-    let mut stmt = conn.prepare(sql).unwrap();
-    stmt.set_fetch_array_size(3);
+    let mut stmt = conn.prepare(sql, &[StmtParam::FetchArraySize(3)]).unwrap();
 
     for (idx, row_result) in stmt.query(&[&2]).unwrap().enumerate() {
         let row = row_result.unwrap();
@@ -154,8 +153,7 @@ fn query_row() {
     let conn = common::connect().unwrap();
     let sql = "select * from TestStrings where IntCol = :icol";
 
-    let mut stmt = conn.prepare(sql).unwrap();
-    stmt.set_fetch_array_size(1);
+    let mut stmt = conn.prepare(sql, &[StmtParam::FetchArraySize(1)]).unwrap();
 
     let row = stmt.query_row(&[&2]).unwrap();
     common::assert_test_string_row(2, &row);
@@ -175,7 +173,7 @@ fn dml_returning() {
     let conn = common::connect().unwrap();
     let sql = "update TestStrings set StringCol = StringCol where IntCol >= :1 returning IntCol into :icol";
 
-    let mut stmt = conn.prepare(sql).unwrap();
+    let mut stmt = conn.prepare(sql, &[]).unwrap();
     assert_eq!(stmt.is_returning(), true);
 
     stmt.bind(2, &None::<i32>).unwrap();

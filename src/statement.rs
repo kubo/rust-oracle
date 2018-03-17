@@ -52,8 +52,30 @@ use SqlValue;
 use ToSql;
 
 use sql_value::BufferRowIndex;
+use new_odpi_str;
 use to_odpi_str;
 use to_rust_str;
+
+/// Parameters to prepare Statement.
+pub enum StmtParam {
+    /// The array size used for performing fetches.
+    ///
+    /// This specifies the number of rows allocated before performing
+    /// fetches. The default value is 100. Higher value reduces
+    /// the number of network round trips to fetch rows but requires
+    /// more memory. The preferable value depends on the query and
+    /// the environment.
+    ///
+    /// If the query returns only onw row, you should use
+    /// `StmtParam::FetchArraySize(1)`.
+    FetchArraySize(u32),
+
+    /// Reserved for when statement caching is supported.
+    Tag(String),
+
+    /// Reserved for when scrollable cursors are supported.
+    Scrollable,
+}
 
 /// Statement type returned by [Statement.statement_type()](struct.Statement.html#method.statement_type).
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -127,10 +149,24 @@ pub struct Statement<'conn> {
 
 impl<'conn> Statement<'conn> {
 
-    pub(crate) fn new(conn: &'conn Connection, scrollable: bool, sql: &str, tag: &str) -> Result<Statement<'conn>> {
-        let scrollable = if scrollable { 1 } else { 0 };
+    pub(crate) fn new(conn: &'conn Connection, sql: &str, params: &[StmtParam]) -> Result<Statement<'conn>> {
         let sql = to_odpi_str(sql);
-        let tag = to_odpi_str(tag);
+        let mut fetch_array_size = DPI_DEFAULT_FETCH_ARRAY_SIZE;
+        let mut scrollable = 0;
+        let mut tag = new_odpi_str();
+        for param in params {
+            match param {
+                &StmtParam::FetchArraySize(size) => {
+                    fetch_array_size = size;
+                },
+                &StmtParam::Scrollable => {
+                    scrollable = 1;
+                },
+                &StmtParam::Tag(ref name) => {
+                    tag = to_odpi_str(name);
+                },
+            }
+        }
         let mut handle: *mut dpiStmt = ptr::null_mut();
         chkerr!(conn.ctxt,
                 dpiConn_prepareStmt(conn.handle, scrollable, sql.ptr, sql.len,
@@ -170,7 +206,7 @@ impl<'conn> Statement<'conn> {
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: bind_values,
-            fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
+            fetch_array_size: fetch_array_size,
         })
     }
 
@@ -199,7 +235,7 @@ impl<'conn> Statement<'conn> {
     /// ```no_run
     /// # use oracle::{Connection, OracleType};
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[]).unwrap();
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
     /// stmt.bind(1, &OracleType::Varchar2(60)).unwrap();
@@ -235,7 +271,7 @@ impl<'conn> Statement<'conn> {
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
     /// // sets "to be upper-case" to the second and then executes it.
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;").unwrap();
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[]).unwrap();
     /// stmt.execute(&[&OracleType::Varchar2(60),
     ///              &"to be upper-case"]).unwrap();
     ///
@@ -272,7 +308,7 @@ impl<'conn> Statement<'conn> {
     /// ```no_run
     /// # use oracle::Connection;
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1").unwrap();
+    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1", &[]).unwrap();
     /// let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10]).unwrap();
     ///
     /// println!("---------------|---------------|---------------|");
@@ -300,7 +336,7 @@ impl<'conn> Statement<'conn> {
     /// ```no_run
     /// # use oracle::Connection;
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :deptno").unwrap();
+    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :deptno", &[]).unwrap();
     /// let rows = stmt.query_as_named::<(String, i32, Option<i32>)>(&[("deptno", &10)]).unwrap();
     ///
     /// println!("---------------|---------------|---------------|");
@@ -367,11 +403,11 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement without bind parameters
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')", &[]).unwrap();
     /// stmt.execute(&[]).unwrap();
     ///
     /// // execute a statement with binding parameters by position
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)", &[]).unwrap();
     /// stmt.execute(&[&114, &"Smith"]).unwrap();
     /// stmt.execute(&[&115, &"Paul"]).unwrap();  // execute with other values.
     ///
@@ -392,7 +428,7 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // execute a statement with binding parameters by name
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[]).unwrap();
     /// stmt.execute_named(&[("id", &114),
     ///                      ("name", &"Smith")]).unwrap();
     /// stmt.execute_named(&[("id", &115),
@@ -550,11 +586,11 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
     /// // SQL statements
-    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual").unwrap();
+    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[]).unwrap();
     /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
     ///
     /// // PL/SQL statements
-    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;").unwrap();
+    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[]).unwrap();
     /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
     /// ```
     pub fn bind_count(&self) -> usize {
@@ -571,7 +607,7 @@ impl<'conn> Statement<'conn> {
     /// # use oracle::Connection;
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
     ///
-    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").unwrap();
+    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[]).unwrap();
     /// assert_eq!(stmt.bind_count(), 3);
     /// let bind_names = stmt.bind_names();
     /// assert_eq!(bind_names.len(), 3);
@@ -651,16 +687,6 @@ impl<'conn> Statement<'conn> {
         }
     }
 
-    /// Sets the array size used for performing fetches.
-    ///
-    /// This specifies the number of rows allocated before performing
-    /// fetches. The higher this value is the less network round trips are
-    /// required to fetch rows from the database but more memory is also
-    /// required.
-    pub fn set_fetch_array_size(&mut self, fetch_array_size: u32) {
-        self.fetch_array_size = fetch_array_size;
-    }
-
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
     pub fn is_returning(&self) -> bool {
         self.is_returning
@@ -682,7 +708,7 @@ impl<'conn> Drop for Statement<'conn> {
 /// ```no_run
 /// # use oracle::Connection;
 /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-/// let mut stmt = conn.prepare("select * from emp").unwrap();
+/// let mut stmt = conn.prepare("select * from emp", &[]).unwrap();
 /// let rows = stmt.query(&[]).unwrap();
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
 /// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");

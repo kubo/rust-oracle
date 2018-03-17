@@ -36,7 +36,7 @@ use oracle::{Connection, OracleType, Timestamp};
 
 fn main() {
     let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp").unwrap();
+    let mut stmt = conn.prepare("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp", &[]).unwrap();
     let rows = stmt.query(&[]).unwrap();
 
     // stmt.define("HIREDATE", OracleType::Varchar2(60)).unwrap();
@@ -74,7 +74,7 @@ fn main() {
     }
 
     // Set/Get bind values
-    let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
     stmt.bind(1, &OracleType::Varchar2(5)).unwrap();
     stmt.bind(2, &123).unwrap();
     stmt.execute(&[]).unwrap();

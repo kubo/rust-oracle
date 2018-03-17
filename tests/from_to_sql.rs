@@ -137,7 +137,7 @@ macro_rules! chk_num_to {
 #[test]
 fn numeric_to_sql() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :out := to_char(:in); end;").unwrap();
+    let mut stmt = conn.prepare("begin :out := to_char(:in); end;", &[]).unwrap();
     chk_num_to!(stmt, i8);
     chk_num_to!(stmt, i16);
     chk_num_to!(stmt, i32);
@@ -743,7 +743,7 @@ mod chrono {
 
         // Overflow
         let d = Duration::days(1000000000);
-        let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;").unwrap();
+        let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;", &[]).unwrap();
         let bind_result = stmt.bind(2, &d);
         if let Err(Error::OutOfRange(_)) = bind_result {
             ; /* OK */

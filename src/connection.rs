@@ -42,6 +42,7 @@ use Result;
 use ResultSet;
 use Row;
 use RowValue;
+use StmtParam;
 use ToSql;
 
 use new_odpi_str;
@@ -413,7 +414,7 @@ impl Connection {
     /// ```no_run
     /// # use oracle::Connection;
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)").unwrap();
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[]).unwrap();
     ///
     /// // insert one row. (set parameters by position)
     /// stmt.execute(&[&113, &"John"]).unwrap();
@@ -422,8 +423,8 @@ impl Connection {
     /// stmt.execute_named(&[("id", &114),
     ///                      ("name", &"Smith")]).unwrap();
     /// ```
-    pub fn prepare(&self, sql: &str) -> Result<Statement> {
-        Statement::new(self, false, sql, "")
+    pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
+        Statement::new(self, sql, params)
     }
 
     /// Prepares a statement, binds values by position and executes it in one call.
@@ -443,7 +444,7 @@ impl Connection {
     ///
     /// ```
     pub fn execute(&self, sql: &str, params: &[&ToSql])-> Result<Statement> {
-        let mut stmt = self.prepare(sql)?;
+        let mut stmt = self.prepare(sql, &[])?;
         stmt.execute(params)?;
         Ok(stmt)
     }
@@ -466,7 +467,7 @@ impl Connection {
     ///
     /// ```
     pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)])-> Result<Statement> {
-        let mut stmt = self.prepare(sql)?;
+        let mut stmt = self.prepare(sql, &[])?;
         stmt.execute_named(params)?;
         Ok(stmt)
     }
@@ -509,15 +510,13 @@ impl Connection {
 
     /// Gets one row from a query in one call.
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
-        let mut stmt = self.prepare(sql)?;
-        stmt.set_fetch_array_size(1);
+        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row(params)
     }
 
     /// Gets one row from a query using named bind parameters in one call.
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
-        let mut stmt = self.prepare(sql)?;
-        stmt.set_fetch_array_size(1);
+        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_named(params)
     }
 
@@ -558,8 +557,7 @@ impl Connection {
     ///
     /// ```
     pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
-        let mut stmt = self.prepare(sql)?;
-        stmt.set_fetch_array_size(1);
+        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_as::<T>(params)
     }
 
@@ -590,8 +588,7 @@ impl Connection {
     ///
     /// ```
     pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
-        let mut stmt = self.prepare(sql)?;
-        stmt.set_fetch_array_size(1);
+        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_as_named::<T>(params)
     }
 

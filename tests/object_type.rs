@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@ fn udt_objectdatatypes() {
 #[test]
 fn udt_objectdatatypes_in_query() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0").unwrap();
+    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[]).unwrap();
     let rows = stmt.query(&[]).unwrap();
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) =>
@@ -124,7 +124,7 @@ fn udt_object() {
 #[test]
 fn udt_object_in_query() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0").unwrap();
+    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0", &[]).unwrap();
     let rows = stmt.query(&[]).unwrap();
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) =>

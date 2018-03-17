@@ -96,7 +96,7 @@ use ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql).unwrap();
+/// let mut stmt = conn.prepare(sql, &[]).unwrap();
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &intvl, // bind the intvl variable
 ///               ]).unwrap();

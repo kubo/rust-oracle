@@ -46,9 +46,21 @@ statement-type checking in execute methods.
 
 ### 0.0.7 (not released)
 
-New features:
+The method to prepare statements was changed for future extension.
 
-* Add `Statement.returned_values()` to support RETURNING INTO clause.
+Changes:
+
+* New methods and structs
+  * `Statement.returned_values()` to support RETURNING INTO clause.
+  * `StmtParam` struct to specify prepared statement parameters.
+
+Incompatible changes:
+
+* Changed Methods
+  * `Connection.prepare()`. The `params` argument was added.
+
+* Removed methods
+  * `Statement.set_fetch_array_size()`. Use `StmtParam::FetchArraySize` instead.
 
 ### 0.0.6
 
@@ -320,7 +332,7 @@ use oracle::Connection;
 let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
 
 // Create a prepared statement
-let mut stmt = conn.prepare("insert into person values (:1, :2)").unwrap();
+let mut stmt = conn.prepare("insert into person values (:1, :2)", &[]).unwrap();
 // Insert one row
 stmt.execute(&[&1, &"John"]).unwrap();
 // Insert another row
@@ -425,6 +437,7 @@ pub use error::DbError;
 pub use row::ResultSet;
 pub use row::Row;
 pub use row::RowValue;
+pub use statement::StmtParam;
 pub use statement::StatementType;
 pub use statement::Statement;
 pub use statement::ColumnInfo;

@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -190,7 +190,7 @@ fn udt_stringlist() {
     let conn = common::connect().unwrap();
     let objtype = conn.object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST").unwrap();
 
-    let mut stmt = conn.prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;").unwrap();
+    let mut stmt = conn.prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;", &[]).unwrap();
     stmt.execute(&[&OracleType::Object(objtype)]).unwrap();
     let obj: Collection = stmt.bind_value(1).unwrap();
 
@@ -256,7 +256,7 @@ fn sdo_geometry() {
     // 2.7.1 Rectangle
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-9354E585-2B45-43EC-95B3-87A3EAA4BB2E
     let text = "MDSYS.SDO_GEOMETRY(2003, NULL, NULL, MDSYS.SDO_ELEM_INFO_ARRAY(1, 1003, 3), MDSYS.SDO_ORDINATE_ARRAY(1, 1, 5, 7))";
-    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text)).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[]).unwrap();
     stmt.execute(&[&oratype]).unwrap();
     let obj: Object = stmt.bind_value(1).unwrap();
     assert_eq!(obj.to_string(), text);
@@ -264,7 +264,7 @@ fn sdo_geometry() {
     // 2.7.5 Point
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-990FC1F2-5EA2-468A-82AC-CDA7B6BEA17D
     let text = "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(12, 14, NULL), NULL, NULL)";
-    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text)).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[]).unwrap();
     stmt.execute(&[&oratype]).unwrap();
     let obj: Object = stmt.bind_value(1).unwrap();
     assert_eq!(obj.to_string(), text);

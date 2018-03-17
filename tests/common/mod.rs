@@ -4,7 +4,7 @@
 //
 // ------------------------------------------------------
 //
-// Copyright 2017 Kubo Takehiro <kubo@jiubao.org>
+// Copyright 2017-2018 Kubo Takehiro <kubo@jiubao.org>
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -81,7 +81,7 @@ macro_rules! test_from_sql {
 
 #[allow(dead_code)]
 pub fn test_from_sql<T>(conn: &Connection, column_literal: &str, column_type: &OracleType, expected_result: &T, file: &str, line: u32) where T: FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq {
-    let mut stmt = conn.prepare(&format!("select {} from dual", column_literal)).unwrap();
+    let mut stmt = conn.prepare(&format!("select {} from dual", column_literal), &[]).unwrap();
     let mut rows = stmt.query_as::<T>(&[]).expect(format!("error at {}:{}", file, line).as_str());
     assert_eq!(rows.column_info()[0].oracle_type(), column_type, "called by {}:{}", file, line);
     let result = rows.next().unwrap().unwrap();
@@ -97,7 +97,7 @@ macro_rules! test_to_sql {
 
 #[allow(dead_code)]
 pub fn test_to_sql<T>(conn: &Connection, input_data: &T, input_literal: &str, expected_result: &str, file: &str, line: u32) where T: ToSql {
-    let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal)).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal), &[]).unwrap();
     stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
     stmt.bind(2, input_data).unwrap();
     stmt.execute(&[]).expect(format!("error at {}:{}", file, line).as_str());

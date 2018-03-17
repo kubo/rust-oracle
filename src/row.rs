@@ -106,7 +106,7 @@ impl Row {
     /// ```no_run
     /// # use oracle::Connection;
     /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("select empno, ename from emp").unwrap();
+    /// let mut stmt = conn.prepare("select empno, ename from emp", &[]).unwrap();
     ///
     /// for result in stmt.query(&[]).unwrap() {
     ///     let row = result.unwrap();
@@ -139,7 +139,7 @@ impl<'a, T> ResultSet<'a, T> where T: RowValue {
     pub(crate) fn from_conn(conn: &'a Connection, sql: &str) -> Result<ResultSet<'a, T>> {
         Ok(ResultSet {
             stmt: None,
-            stmt_boxed: Some(Box::new(conn.prepare(sql)?)),
+            stmt_boxed: Some(Box::new(conn.prepare(sql, &[])?)),
             phantom: PhantomData,
         })
     }
@@ -218,7 +218,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 /// }
 ///
 /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-/// let mut stmt = conn.prepare("select * from emp").unwrap();
+/// let mut stmt = conn.prepare("select * from emp", &[]).unwrap();
 ///
 /// // Gets rows as Emp
 /// for result in stmt.query_as::<Emp>(&[]).unwrap() {

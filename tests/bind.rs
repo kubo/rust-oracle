@@ -20,7 +20,7 @@ macro_rules! test_in_out {
 #[test]
 fn in_out_same_values() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
 
     test_in_out!(stmt, i8, -123i8);
     test_in_out!(stmt, i16, -12345i16);
@@ -70,7 +70,7 @@ macro_rules! test_to_string {
 #[test]
 fn to_string_in_rust_oracle() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
     let raw_data = vec![0x01u8, 0x19u8, 0x9au8, 0xafu8, 0xf0u8];
 
     conn.execute("alter session set nls_timestamp_format = 'yyyy-mm-dd hh24:mi:ss.ff9'", &[]).unwrap();
@@ -124,7 +124,7 @@ macro_rules! test_from_string {
 #[test]
 fn from_string_in_rust_oracle() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;").unwrap();
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
 
     conn.execute("alter session set nls_timestamp_format = 'yyyy-mm-dd hh24:mi:ss.ff9'", &[]).unwrap();
     conn.execute("alter session set nls_timestamp_tz_format = 'yyyy-mm-dd hh24:mi:ss.ff9 tzh:tzm'", &[]).unwrap();
@@ -158,7 +158,7 @@ fn bind_named() {
     let outval: String = stmt.bind_value("out").unwrap();
     assert_eq!(outval, "12345");
 
-    let mut stmt = conn.prepare("begin :out := :in; end;").unwrap();
+    let mut stmt = conn.prepare("begin :out := :in; end;", &[]).unwrap();
     let inval: Option<&str> = Some("12345");
     stmt.execute_named(&[("out", &OracleType::Varchar2(10)),
                          ("in", &inval)]).unwrap();
