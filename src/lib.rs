@@ -39,7 +39,7 @@ predicted from planned features.
 
 ## Change Log
 
-### 0.0.7 (not released)
+### 0.0.7
 
 The method to prepare statements was changed for future extension.
 
@@ -161,7 +161,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.0.6"
+oracle = "0.0.7"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -169,7 +169,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.0.6", features = ["chrono"] }
+oracle = { version = "0.0.7", features = ["chrono"] }
 ```
 
 Then put this in your crate root:
