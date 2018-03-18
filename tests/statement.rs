@@ -199,26 +199,3 @@ fn dml_returning() {
     let updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
     assert_eq!(updated_int_col, vec![]);
 }
-
-#[test]
-#[cfg(feature = "restore-deleted")]
-#[allow(deprecated)]
-fn deprecated_methods() {
-
-    let conn = common::connect().unwrap();
-    let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
-
-    let mut stmt = conn.execute(sql, &[&2]).unwrap();
-    let mut idx = 2;
-    while let Ok(row) = stmt.fetch() {
-        common::assert_test_string_row(idx, row);
-        idx += 1;
-    }
-
-    stmt.execute_named(&[("icol", &3)]).unwrap();
-    let mut idx = 3;
-    while let Ok(row) = stmt.fetch() {
-        common::assert_test_string_row(idx, row);
-        idx += 1;
-    }
-}

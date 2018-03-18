@@ -561,13 +561,6 @@ impl Connection {
         stmt.query_row_as::<T>(params)
     }
 
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `query_row_as` instead")]
-    #[doc(hidden)]
-    pub fn select_one<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
-        self.query_row_as::<T>(sql, params)
-    }
-
     /// Gets one row from a query with named bind parameters as specified type in one call.
     ///
     /// See [query_row_as][] for more detail.
@@ -591,14 +584,6 @@ impl Connection {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_as_named::<T>(params)
     }
-
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `query_row_as_named` instead")]
-    #[doc(hidden)]
-    pub fn select_one_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
-        self.query_row_as_named::<T>(sql, params)
-    }
-
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {

@@ -88,13 +88,6 @@ impl Row {
         &self.column_values
     }
 
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `sql_value` instead")]
-    #[doc(hidden)]
-    pub fn columns(&self) -> &Vec<SqlValue> {
-        self.sql_values()
-    }
-
     /// Gets column values as specified type.
     ///
     /// Type inference for the return type doesn't work. You need to specify

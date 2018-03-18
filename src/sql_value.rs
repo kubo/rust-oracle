@@ -1133,38 +1133,6 @@ impl fmt::Debug for SqlValue {
     }
 }
 
-#[cfg(feature = "restore-deleted")]
-#[deprecated(since="0.0.4", note="use `dup` instead")]
-#[doc(hidden)]
-impl Clone for SqlValue {
-    /// Returns a shallow copy of the value.
-    ///
-    /// When it is a column value in a select statement,
-    /// the internal data in the copy are changed after 100 fetches.
-    ///
-    /// When it is a bind value in a SQL statement, the internal
-    /// data in the copy are changed by the next execution of the
-    /// statement.
-    ///
-    /// Use [dup]{#method.dup} to return a deep copy.
-    fn clone(&self) -> SqlValue {
-        if !self.handle.is_null() {
-            unsafe { dpiVar_addRef(self.handle); }
-        }
-        SqlValue {
-            ctxt: self.ctxt,
-            handle: self.handle,
-            data: self.data,
-            native_type: self.native_type.clone(),
-            oratype: self.oratype.clone(),
-            array_size: self.array_size,
-            buffer_row_index: BufferRowIndex::Owned(self.buffer_row_index()),
-            keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
-        }
-    }
-}
-
 impl Drop for SqlValue {
     fn drop(&mut self) {
         if !self.handle.is_null() {

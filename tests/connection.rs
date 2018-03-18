@@ -81,12 +81,8 @@ fn execute() {
     let conn = common::connect().unwrap();
 
     conn.execute("delete from TestTempTable", &[]).unwrap();
-    if cfg!(feature = "restore-deleted") {
-        conn.execute("select * from TestTempTable", &[]).expect("error for select statements");
-    } else {
-        if conn.execute("select * from TestTempTable", &[]).is_ok() {
-            panic!("No error for select statements");
-        }
+    if conn.execute("select * from TestTempTable", &[]).is_ok() {
+        panic!("No error for select statements");
     }
 }
 

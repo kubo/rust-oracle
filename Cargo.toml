@@ -9,10 +9,6 @@ keywords = ["oracle", "database"]
 readme = "README.md"
 description = "Oracle binding"
 
-[features]
-# Restore deleted methods
-restore-deleted = []
-
 [dependencies]
 lazy_static = "0.2"
 try_from = "0.2.2"

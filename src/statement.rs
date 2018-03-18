@@ -446,7 +446,7 @@ impl<'conn> Statement<'conn> {
                 Err(Error::InvalidOperation(format!("Could not use the `{}` method for non-select statements", method_name)))
             }
         } else {
-            if cfg!(feature = "restore-deleted") || self.statement_type != DPI_STMT_TYPE_SELECT {
+            if self.statement_type != DPI_STMT_TYPE_SELECT {
                 Ok(())
             } else {
                 Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
@@ -617,41 +617,6 @@ impl<'conn> Statement<'conn> {
     /// ```
     pub fn bind_names(&self) -> Vec<&str> {
         self.bind_names.iter().map(|name| name.as_str()).collect()
-    }
-
-    /// Returns the number of columns.
-    /// This returns zero for non-query statements.
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
-    #[doc(hidden)]
-    pub fn column_count(&self) -> usize {
-        self.column_info.len()
-    }
-
-    /// Returns the column names.
-    /// This returns an empty vector for non-query statements.
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
-    #[doc(hidden)]
-    pub fn column_names(&self) -> Vec<&str> {
-        self.column_info.iter().map(|info| info.name().as_str()).collect()
-    }
-
-    /// Returns column information.
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `column_info` in the return value of `query`, `query_named`, `query_as` or `query_as_named`")]
-    #[doc(hidden)]
-    pub fn column_info(&self) -> &Vec<ColumnInfo> {
-        &self.column_info
-    }
-
-    /// Fetchs one row from the statement. This returns `Err(Error::NoDataFound)`
-    /// when all rows are fetched.
-    #[cfg(feature = "restore-deleted")]
-    #[deprecated(since="0.0.4", note="use `query`, `query_named`, `query_as` or `query_as_named` instead of `execute` and `fetch`")]
-    #[doc(hidden)]
-    pub fn fetch(&mut self) -> Result<&Row> {
-        self.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     pub(crate) fn next(&self) -> Option<Result<&Row>> {

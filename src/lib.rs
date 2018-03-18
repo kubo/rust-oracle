@@ -37,11 +37,6 @@ Don't use this until the version number reaches to 0.1.0.
 Version 0.1.0 will be released if no additional incompatible changes are
 predicted from planned features.
 
-**Methods for querying rows were changed in 0.0.4.** If you had written
-programs using rust-oracle before 0.0.4, enable the `restore-deleted`
-feature in `Cargo.toml`. It restores deleted methods in 0.0.4 and disables
-statement-type checking in execute methods.
-
 ## Change Log
 
 ### 0.0.7 (not released)
@@ -175,15 +170,6 @@ data types, enable `chrono` feature:
 ```text
 [dependencies]
 oracle = { version = "0.0.6", features = ["chrono"] }
-```
-
-If you had written programs using rust-oracle before 0.0.4, try
-the `restore-deleted` feature. It restores deleted methods in 0.0.4 and
-disables statement-type checking in execute methods.
-
-```text
-[dependencies]
-oracle = { version = "0.0.6", features = ["restore-deleted"] }
 ```
 
 Then put this in your crate root:
