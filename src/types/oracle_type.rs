@@ -268,11 +268,11 @@ impl OracleType {
         // as dpiNativeTypeNum.
         match *self {
             OracleType::Varchar2(size) =>
-                Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 1)),
+                Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 0)),
             OracleType::NVarchar2(size) =>
                 Ok((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, 0)),
             OracleType::Char(size) =>
-                Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 1)),
+                Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 0)),
             OracleType::NChar(size) =>
                 Ok((DPI_ORACLE_TYPE_NCHAR, NativeType::Char, size, 0)),
             OracleType::Rowid =>
