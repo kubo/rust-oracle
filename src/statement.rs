@@ -55,6 +55,7 @@ use sql_value::BufferRowIndex;
 use new_odpi_str;
 use to_odpi_str;
 use to_rust_str;
+use private;
 
 /// Parameters to prepare Statement.
 pub enum StmtParam {
@@ -746,12 +747,14 @@ impl fmt::Display for ColumnInfo {
 }
 
 /// A trait implemented by types that can index into bind values of a statement.
-pub trait BindIndex {
+///
+/// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.
+pub trait BindIndex: private::Sealed {
     /// Returns the index of the bind value specified by `self`.
+    #[doc(hidden)]
     fn idx(&self, stmt: &Statement) -> Result<usize>;
     /// Binds the specified value by using a private method.
-    ///
-    /// TODO: hide this method.
+    #[doc(hidden)]
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32;
 }
 
@@ -784,8 +787,11 @@ impl<'a> BindIndex for &'a str {
 }
 
 /// A trait implemented by types that can index into columns of a row.
-pub trait ColumnIndex {
+///
+/// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.
+pub trait ColumnIndex: private::Sealed {
     /// Returns the index of the column specified by `self`.
+    #[doc(hidden)]
     fn idx(&self, column_names: &Vec<String>) -> Result<usize>;
 }
 

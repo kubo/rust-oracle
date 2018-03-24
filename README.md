@@ -8,6 +8,19 @@ predicted from planned features.
 
 ## Change Log
 
+### 0.1.0 (not released)
+
+Fixed bugs:
+
+* Fix an error when a column value converted from the database character set to
+  UTF-8 becomes longer than the column size. ([GH-3][])
+
+[GH-3]: https://github.com/kubo/rust-oracle/issues/3
+
+Incompatible changes:
+
+* BindIndex and ColumnIndex were sealed and cannot be implemented for types outside of the crate.
+
 ### 0.0.7
 
 The method to prepare statements was changed for future extension.
