@@ -539,29 +539,27 @@ impl ObjectType {
     }
 
     /// Create a new Oracle object.
-    pub fn new_object(&self) -> Option<Object> {
+    pub fn new_object(&self) -> Result<Object> {
         if self.is_collection() {
-            return None
+            return Err(Error::InvalidOperation(format!("{}.{} isn't object type.", self.schema(), self.name())));
         }
         let ctxt = self.internal.ctxt;
         let mut handle = ptr::null_mut();
-        if unsafe {dpiObjectType_createObject(self.internal.handle, &mut handle)} != DPI_SUCCESS as i32 {
-            return None;
-        }
-        Some(Object::new(ctxt, handle, self.clone()))
+        chkerr!(ctxt,
+                dpiObjectType_createObject(self.internal.handle, &mut handle));
+        Ok(Object::new(ctxt, handle, self.clone()))
     }
 
     /// Create a new collection.
-    pub fn new_collection(&self) -> Option<Collection> {
+    pub fn new_collection(&self) -> Result<Collection> {
         if !self.is_collection() {
-            return None
+            return Err(Error::InvalidOperation(format!("{}.{} isn't collection type.", self.schema(), self.name())));
         }
         let ctxt = self.internal.ctxt;
         let mut handle = ptr::null_mut();
-        if unsafe {dpiObjectType_createObject(self.internal.handle, &mut handle)} != DPI_SUCCESS as i32 {
-            return None;
-        }
-        Some(Collection::new(ctxt, handle, self.clone()))
+        chkerr!(ctxt,
+                dpiObjectType_createObject(self.internal.handle, &mut handle));
+        Ok(Collection::new(ctxt, handle, self.clone()))
     }
 }
 

@@ -13,6 +13,10 @@ Incompatible changes:
 
 * The `Other` variant of [`StatetmentType`][] enum was removed. `Commit`, `Rollback`, `ExplainPlan`, `Call` and `Unknown` variants were added to the enum.
 
+* Change the return type of [`ObjectType.new_object()`][] from `Option<Object>` to `Result<Object>`.
+
+* Change the return type of [`ObjectType.new_collection()`][] from `Option<Collection>` to `Result<Collection>`.
+
 ## 0.0.7 (2018-03-18)
 
 The method to prepare statements was changed for future extension.
@@ -143,6 +147,8 @@ Incompatible changes:
 [`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
 [`ObjectType.attributes()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.attributes
 [`ObjectType.name()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.name
+[`ObjectType.new_collection()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.new_collection
+[`ObjectType.new_object()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.new_object
 [`ObjectType.schema()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.schema
 [`ObjectTypeAttr.name()`]: https://docs.rs/oracle/*/oracle/struct.ObjectTypeAttr.html#method.name
 [`ResultSet.column_info()`]: https://docs.rs/oracle/*/oracle/struct.ResultSet.html#method.column_info
