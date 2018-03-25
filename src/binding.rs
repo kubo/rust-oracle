@@ -2,7 +2,7 @@
 
 pub const DPI_MAJOR_VERSION: u32 = 2;
 pub const DPI_MINOR_VERSION: u32 = 2;
-pub const DPI_PATCH_LEVEL: u32 = 1;
+pub const DPI_PATCH_LEVEL: u32 = 2;
 pub const DPI_DEFAULT_FETCH_ARRAY_SIZE: u32 = 100;
 pub const DPI_DEFAULT_PING_INTERVAL: u32 = 60;
 pub const DPI_DEFAULT_PING_TIMEOUT: u32 = 5000;
@@ -233,6 +233,7 @@ pub const DPI_MODE_STARTUP_DEFAULT: dpiStartupMode = 0;
 pub const DPI_MODE_STARTUP_FORCE: dpiStartupMode = 1;
 pub const DPI_MODE_STARTUP_RESTRICT: dpiStartupMode = 2;
 pub type dpiStartupMode = u32;
+pub const DPI_STMT_TYPE_UNKNOWN: dpiStatementType = 0;
 pub const DPI_STMT_TYPE_SELECT: dpiStatementType = 1;
 pub const DPI_STMT_TYPE_UPDATE: dpiStatementType = 2;
 pub const DPI_STMT_TYPE_DELETE: dpiStatementType = 3;
@@ -243,7 +244,10 @@ pub const DPI_STMT_TYPE_ALTER: dpiStatementType = 7;
 pub const DPI_STMT_TYPE_BEGIN: dpiStatementType = 8;
 pub const DPI_STMT_TYPE_DECLARE: dpiStatementType = 9;
 pub const DPI_STMT_TYPE_CALL: dpiStatementType = 10;
+pub const DPI_STMT_TYPE_EXPLAIN_PLAN: dpiStatementType = 15;
 pub const DPI_STMT_TYPE_MERGE: dpiStatementType = 16;
+pub const DPI_STMT_TYPE_ROLLBACK: dpiStatementType = 17;
+pub const DPI_STMT_TYPE_COMMIT: dpiStatementType = 21;
 pub type dpiStatementType = u32;
 pub const DPI_SUBSCR_NAMESPACE_DBCHANGE: dpiSubscrNamespace = 2;
 pub type dpiSubscrNamespace = u32;

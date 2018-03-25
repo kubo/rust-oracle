@@ -52,6 +52,8 @@ Incompatible changes:
 
 * BindIndex and ColumnIndex were sealed and cannot be implemented for types outside of the crate.
 
+* The `Other` variant of `StatetmentType` enum was removed. `Commit`, `Rollback`, `ExplainPlan`, `Call` and `Unknown` variants were added to the enum.
+
 ### 0.0.7
 
 The method to prepare statements was changed for future extension.

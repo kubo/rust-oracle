@@ -93,7 +93,9 @@ pub enum StatementType {
     /// DELETE statement
     Delete,
 
-    /// MERGE statement
+    /// [MERGE][] statement
+    ///
+    /// [MERGE]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/MERGE.html
     Merge,
 
     /// CREATE statement
@@ -111,24 +113,44 @@ pub enum StatementType {
     /// PL/SQL statement with declare clause
     Declare,
 
-    /// Undocumented value in [Oracle manual](https://docs.oracle.com/database/122/LNOCI/handle-and-descriptor-attributes.htm#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-8D4D4620-9318-4AD3-8E59-231EB71901B8)
-    Other(u32),
+    /// COMMIT statement
+    Commit,
+
+    /// ROLLBACK statement
+    Rollback,
+
+    /// [EXPLAIN PLAN][] statement
+    ///
+    /// [EXPLAIN PLAN]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/EXPLAIN-PLAN.html
+    ExplainPlan,
+
+    /// [CALL][] statement
+    ///
+    /// [CALL]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/CALL.html
+    Call,
+
+    /// Unknown statement
+    Unknown,
 }
 
 impl fmt::Display for StatementType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            StatementType::Select => write!(f, "select"),
-            StatementType::Insert => write!(f, "insert"),
-            StatementType::Update => write!(f, "update"),
-            StatementType::Delete => write!(f, "delete"),
-            StatementType::Merge => write!(f, "merge"),
-            StatementType::Create => write!(f, "create"),
-            StatementType::Alter => write!(f, "alter"),
-            StatementType::Drop => write!(f, "drop"),
-            StatementType::Begin => write!(f, "PL/SQL(begin)"),
-            StatementType::Declare => write!(f, "PL/SQL(declare)"),
-            StatementType::Other(ref n) => write!(f, "other({})", n),
+        match self {
+            &StatementType::Select => write!(f, "select"),
+            &StatementType::Insert => write!(f, "insert"),
+            &StatementType::Update => write!(f, "update"),
+            &StatementType::Delete => write!(f, "delete"),
+            &StatementType::Merge => write!(f, "merge"),
+            &StatementType::Create => write!(f, "create"),
+            &StatementType::Alter => write!(f, "alter"),
+            &StatementType::Drop => write!(f, "drop"),
+            &StatementType::Begin => write!(f, "PL/SQL(begin)"),
+            &StatementType::Declare => write!(f, "PL/SQL(declare)"),
+            &StatementType::Commit => write!(f, "commit"),
+            &StatementType::Rollback => write!(f, "rollback"),
+            &StatementType::ExplainPlan => write!(f, "explain plan"),
+            &StatementType::Call => write!(f, "call"),
+            &StatementType::Unknown => write!(f, "unknown"),
         }
     }
 }
@@ -649,7 +671,11 @@ impl<'conn> Statement<'conn> {
             DPI_STMT_TYPE_DROP => StatementType::Drop,
             DPI_STMT_TYPE_BEGIN => StatementType::Begin,
             DPI_STMT_TYPE_DECLARE => StatementType::Declare,
-            _ => StatementType::Other(self.statement_type),
+            DPI_STMT_TYPE_COMMIT => StatementType::Commit,
+            DPI_STMT_TYPE_ROLLBACK => StatementType::Rollback,
+            DPI_STMT_TYPE_EXPLAIN_PLAN => StatementType::ExplainPlan,
+            DPI_STMT_TYPE_CALL => StatementType::Call,
+            _ => StatementType::Unknown,
         }
     }
 
