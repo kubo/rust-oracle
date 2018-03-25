@@ -36,6 +36,7 @@ This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 Don't use this until the version number reaches to 0.1.0.
 Version 0.1.0 will be released if no additional incompatible changes are
 predicted from planned features.
+It may be at the beginning of April, 2018.
 
 ## Change Log
 
@@ -56,7 +57,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.0.7"
+oracle = "0.0.8"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -64,7 +65,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.0.7", features = ["chrono"] }
+oracle = { version = "0.0.8", features = ["chrono"] }
 ```
 
 Then put this in your crate root:

@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.0 (not released)
+## 0.0.8 (2018-03-25)
 
 Fixed bugs:
 
