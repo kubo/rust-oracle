@@ -53,17 +53,18 @@ use util::write_literal;
 /// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm).
 ///
 /// ```no_run
-/// # use oracle::Connection;
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
-/// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY").unwrap();
+/// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY")?;
 ///
 /// // Create a new collection
-/// let mut obj = objtype.new_collection().unwrap();
+/// let mut obj = objtype.new_collection()?;
 /// obj.push(&1);
 /// obj.push(&3);
 /// assert_eq!(obj.to_string(), "MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)");
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Note: Methods in the type may be changed in future.
@@ -296,26 +297,27 @@ impl fmt::Debug for Collection {
 /// Oracle-specific object data type
 ///
 /// ```no_run
-/// # use oracle::Connection;
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // MDSYS.SDO_GEOMETRY
 /// // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/spatl/spatial-datatypes-metadata.html#GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
-/// let geom_type = conn.object_type("MDSYS.SDO_GEOMETRY").unwrap();
-/// let point_type = conn.object_type("MDSYS.SDO_POINT_TYPE").unwrap();
+/// let geom_type = conn.object_type("MDSYS.SDO_GEOMETRY")?;
+/// let point_type = conn.object_type("MDSYS.SDO_POINT_TYPE")?;
 ///
 /// // Create a new object
-/// let mut obj = geom_type.new_object().unwrap();
-/// let mut point = point_type.new_object().unwrap();
-/// point.set("X", &-79).unwrap();
-/// point.set("Y", &37).unwrap();
-/// obj.set("SDO_GTYPE", &2001).unwrap();
-/// obj.set("SDO_POINT", &point).unwrap();
+/// let mut obj = geom_type.new_object()?;
+/// let mut point = point_type.new_object()?;
+/// point.set("X", &-79)?;
+/// point.set("Y", &37)?;
+/// obj.set("SDO_GTYPE", &2001)?;
+/// obj.set("SDO_POINT", &point)?;
 /// assert_eq!(obj.to_string(), "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(-79, 37, NULL), NULL, NULL)");
 ///
 /// // Gets an attribute value.
-/// let gtype: i32 = obj.get("SDO_GTYPE").unwrap();
+/// let gtype: i32 = obj.get("SDO_GTYPE")?;
 /// assert_eq!(gtype, 2001);
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Note: Methods in the type may be changed in future.
@@ -452,24 +454,26 @@ impl fmt::Debug for Object {
 /// Gets MDSYS.SDO_GEOMETRY object type information.
 ///
 /// ```no_run
-/// # use oracle::Connection;
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Gets object type infomration in query.
 ///
 /// ```no_run
-/// # use oracle::{Connection, OracleType};
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
-/// let mut stmt = conn.prepare("select loc from location where name = '...'", &[]).unwrap();
-/// let rows = stmt.query(&[]).unwrap();
+/// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;
+/// let rows = stmt.query(&[])?;
 /// let objtype = if let OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {
 ///     objtype
 /// } else {
 ///     panic!("Not an object type")
 /// };
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 #[derive(Clone)]
 pub struct ObjectType {
@@ -527,12 +531,13 @@ impl ObjectType {
     /// Prints attribute information of `MDSYS.SDO_GEOMETRY`.
     ///
     /// ```no_run
-    /// # use oracle::Connection;
-    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY").unwrap();
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY")?;
     /// for attr in objtype.attributes() {
     ///     println!("{:-20} {}", attr.name(), attr.oracle_type());
     /// }
+    /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
     pub fn attributes(&self) -> &[ObjectTypeAttr] {
         &self.internal.attrs

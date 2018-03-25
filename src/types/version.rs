@@ -39,10 +39,10 @@ use binding::dpiVersionInfo;
 /// # Examples
 ///
 /// ```no_run
-/// # use oracle::Connection;
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-/// let client_version = oracle::client_version().unwrap();
-/// let (server_version, _) = conn.server_version().unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let client_version = oracle::client_version()?;
+/// let (server_version, _) = conn.server_version()?;
 ///
 /// println!("Client version:");
 /// println!("  1st part: {}", client_version.major());
@@ -52,6 +52,7 @@ use binding::dpiVersionInfo;
 /// println!("  5th part: {}", client_version.port_update());
 ///
 /// println!("Server version: {}", server_version);
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Version {

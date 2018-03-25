@@ -52,6 +52,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
+/// # use oracle::*; fn try_main() -> Result<()> {
 /// use oracle::IntervalDS;
 ///
 /// // Create an interval by new().
@@ -74,35 +75,37 @@ use ParseOracleTypeError;
 /// assert!(intvl1 == intvl3);
 ///
 /// // Create an interval from string.
-/// let intvl4: IntervalDS = "+1 02:03:04.50".parse().unwrap();
+/// let intvl4: IntervalDS = "+1 02:03:04.50".parse()?;
 ///
 /// // The precisions are determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.lfprec(), 1);
 /// assert_eq!(intvl4.fsprec(), 2);
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```
-/// # use oracle::{Connection, IntervalDS, OracleType, Timestamp};
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch IntervalDS
 /// let sql = "select interval '+01 02:03:04.500' day to second(3) from dual";
-/// let intvl = conn.query_row_as::<IntervalDS>(sql, &[]).unwrap();
+/// let intvl = conn.query_row_as::<IntervalDS>(sql, &[])?;
 /// assert_eq!(intvl.to_string(), "+01 02:03:04.500");
 ///
 /// // Bind IntervalDS
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[]).unwrap();
+/// let mut stmt = conn.prepare(sql, &[])?;
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &intvl, // bind the intvl variable
-///               ]).unwrap();
-/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+///               ])?;
+/// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (1 day, 2 hours, 3 minutes and 4.5 seconds)
 /// assert_eq!(outval.to_string(), "2017-08-10 02:03:04.500");
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {

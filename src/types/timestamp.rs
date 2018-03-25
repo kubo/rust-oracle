@@ -56,8 +56,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// use oracle::Timestamp;
-///
+/// # use oracle::*; fn try_main() -> Result<()> {
 /// // Create a timestamp.
 /// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
 ///
@@ -80,34 +79,36 @@ use ParseOracleTypeError;
 /// assert_eq!(ts1, ts3);
 ///
 /// // Create a timestamp from string.
-/// let ts4: Timestamp = "2017-08-09 11:22:33.500 -08:00".parse().unwrap();
+/// let ts4: Timestamp = "2017-08-09 11:22:33.500 -08:00".parse()?;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(ts4.precision(), 3);
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```
-/// # use oracle::{Connection, OracleType, Timestamp};
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch Timestamp
 /// let sql = "select TIMESTAMP '2017-08-09 11:22:33.500' from dual";
-/// let ts = conn.query_row_as::<Timestamp>(sql, &[]).unwrap();
+/// let ts = conn.query_row_as::<Timestamp>(sql, &[])?;
 /// assert_eq!(ts.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Bind Timestamp
 /// let sql = "begin \
 ///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[]).unwrap();
+/// let mut stmt = conn.prepare(sql, &[])?;
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &ts, // bind the ts variable
-///               ]).unwrap();
-/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+///               ])?;
+/// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
 /// assert_eq!(outval.to_string(), "2017-08-10 13:25:38.000");
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct Timestamp {

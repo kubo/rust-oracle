@@ -50,23 +50,23 @@ Executes select statements and get rows:
 use oracle::{Connection, Error};
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
 
 let sql = "select ename, sal, comm from emp where deptno = :1";
 
 // Select a table with a bind variable.
 println!("---------------|---------------|---------------|");
-let rows = conn.query(sql, &[&30]).unwrap();
+let rows = conn.query(sql, &[&30])?;
 for row_result in rows {
-    let row = row_result.unwrap();
+    let row = row_result?;
     // get a column value by position (0-based)
-    let ename: String = row.get(0).unwrap();
+    let ename: String = row.get(0)?;
     // get a column by name (case-insensitive)
-    let sal: i32 = row.get("sal").unwrap();
+    let sal: i32 = row.get("sal")?;
     // Use `Option<...>` to get a nullable column.
     // Otherwise, `Err(Error::NullValue)` is returned
     // for null values.
-    let comm: Option<i32> = row.get(2).unwrap();
+    let comm: Option<i32> = row.get(2)?;
 
     println!(" {:14}| {:>10}    | {:>10}    |",
              ename,
@@ -77,9 +77,9 @@ for row_result in rows {
 // Another way to fetch rows.
 // The rows iterator returns Result<(String, i32, Option<i32>)>.
 println!("---------------|---------------|---------------|");
-let rows = conn.query_as::<(String, i32, Option<i32>)>(sql, &[&10]).unwrap();
+let rows = conn.query_as::<(String, i32, Option<i32>)>(sql, &[&10])?;
 for row_result in rows {
-    let (ename, sal, comm) = row_result.unwrap();
+    let (ename, sal, comm) = row_result?;
     println!(" {:14}| {:>10}    | {:>10}    |",
              ename,
              sal,
@@ -93,15 +93,15 @@ Executes select statements and get the first rows:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
 
 let sql = "select ename, sal, comm from emp where empno = :1";
 
 // Print the first row.
-let row = conn.query_row(sql, &[&7369]).unwrap();
-let ename: String = row.get("empno").unwrap();
-let sal: i32 = row.get("sal").unwrap();
-let comm: Option<i32> = row.get("comm").unwrap();
+let row = conn.query_row(sql, &[&7369])?;
+let ename: String = row.get("empno")?;
+let sal: i32 = row.get("sal")?;
+let comm: Option<i32> = row.get("comm")?;
 println!("---------------|---------------|---------------|");
 println!(" {:14}| {:>10}    | {:>10}    |",
          ename,
@@ -110,7 +110,7 @@ println!(" {:14}| {:>10}    | {:>10}    |",
 // When no rows are found, conn.query_row() returns `Err(Error::NoDataFound)`.
 
 // Get the first row as a tupple
-let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566]).unwrap();
+let row = conn.query_row_as::<(String, i32, Option<i32>)>(sql, &[&7566])?;
 println!("---------------|---------------|---------------|");
 println!(" {:14}| {:>10}    | {:>10}    |",
          row.0,
@@ -124,30 +124,30 @@ Executes non-select statements:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
 
-conn.execute("create table person (id number(38), name varchar2(40))", &[]).unwrap();
+conn.execute("create table person (id number(38), name varchar2(40))", &[])?;
 
 // Execute a statement with positional parameters.
 conn.execute("insert into person values (:1, :2)",
              &[&1, // first parameter
                &"John" // second parameter
-              ]).unwrap();
+              ])?;
 
 // Execute a statement with named parameters.
 conn.execute_named("insert into person values (:id, :name)",
                    &[("id", &2), // 'id' parameter
                      ("name", &"Smith"), // 'name' parameter
-                    ]).unwrap();
+                    ])?;
 
 // Commit the transaction.
-conn.commit().unwrap();
+conn.commit()?;
 
 // Delete rows
-conn.execute("delete from person", &[]).unwrap();
+conn.execute("delete from person", &[])?;
 
 // Rollback the transaction.
-conn.rollback().unwrap();
+conn.rollback()?;
 ```
 
 Prints column information:
@@ -156,10 +156,10 @@ Prints column information:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
 
 let sql = "select ename, sal, comm from emp where 1 = 2";
-let rows = conn.query(sql, &[]).unwrap();
+let rows = conn.query(sql, &[])?;
 
 // Print column names
 for info in rows.column_info() {
@@ -179,14 +179,14 @@ Prepared statement:
 ```rust
 use oracle::Connection;
 
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
 
 // Create a prepared statement
-let mut stmt = conn.prepare("insert into person values (:1, :2)", &[]).unwrap();
+let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
 // Insert one row
-stmt.execute(&[&1, &"John"]).unwrap();
+stmt.execute(&[&1, &"John"])?;
 // Insert another row
-stmt.execute(&[&2, &"Smith"]).unwrap();
+stmt.execute(&[&2, &"Smith"])?;
 ```
 
 This is more efficient than two `conn.execute()`.
@@ -211,14 +211,14 @@ use oracle::Connection;
 
 // The territory is France.
 std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
-let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+let conn = Connection::connect("scott", "tiger", "", &[])?;
 
 // 10.1 is converted to a string in Oracle and fetched as a string.
-let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[]).unwrap();
+let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[])?;
 assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
 
 // 10.1 is fetched as a number and converted to a string in rust-oracle
-let result = conn.query_row_as::<String>("select 10.1 from dual", &[]).unwrap();
+let result = conn.query_row_as::<String>("select 10.1 from dual", &[])?;
 assert_eq!(result, "10.1"); // The decimal mark is always period(.).
 ```
 

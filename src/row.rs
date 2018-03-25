@@ -97,16 +97,17 @@ impl Row {
     /// [RowValue]: trait.RowValue.html
     ///
     /// ```no_run
-    /// # use oracle::Connection;
-    /// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-    /// let mut stmt = conn.prepare("select empno, ename from emp", &[]).unwrap();
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
     ///
-    /// for result in stmt.query(&[]).unwrap() {
-    ///     let row = result.unwrap();
+    /// for result in stmt.query(&[])? {
+    ///     let row = result?;
     ///     // Gets a row as `(i32, String)`.
-    ///     let (empno, ename) = row.get_as::<(i32, String)>().unwrap();
+    ///     let (empno, ename) = row.get_as::<(i32, String)>()?;
     ///     println!("{},{}", empno, ename);
     /// }
+    /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
     pub fn get_as<T>(&self) -> Result<<T>::Item> where T: RowValue {
         <T>::get(self)
@@ -174,18 +175,19 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 ///  be 1 through 50.
 ///
 /// ```no_run
-/// # use oracle::Connection;
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// let sql = "select * from emp where empno = :1";
 ///
 /// // Gets the first column value in a row.
 /// // Values after the second column are ignored.
-/// let empno = conn.query_row_as::<u32>(sql, &[&7369]).unwrap();
+/// let empno = conn.query_row_as::<u32>(sql, &[&7369])?;
 ///
 /// // Gets the first two column values in a row.
 /// // Values after the third column are ignored.
-/// let tuple_of_empno_and_ename = conn.query_row_as::<(i32, String)>(sql, &[&7499]).unwrap();
+/// let tuple_of_empno_and_ename = conn.query_row_as::<(i32, String)>(sql, &[&7499])?;
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// You can implement the trait for your own types. For example
@@ -194,7 +196,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 /// as follows:
 ///
 /// ```no_run
-/// # use oracle::{Connection, Error, RowValue, Row};
+/// # use oracle::{Connection, Error, Result, Row, RowValue};
 /// struct Emp {
 ///     empno: i32,
 ///     ename: String,
@@ -202,7 +204,7 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 ///
 /// impl RowValue for Emp {
 ///     type Item = Emp;
-///     fn get(row: &Row) -> Result<Emp, Error> {
+///     fn get(row: &Row) -> std::result::Result<Emp, Error> {
 ///         Ok(Emp {
 ///             empno: row.get("empno")?,
 ///             ename: row.get("ename")?,
@@ -210,14 +212,16 @@ impl<'stmt, T> Iterator for ResultSet<'stmt, T> where T: RowValue {
 ///     }
 /// }
 ///
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
-/// let mut stmt = conn.prepare("select * from emp", &[]).unwrap();
+/// # fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let mut stmt = conn.prepare("select * from emp", &[])?;
 ///
 /// // Gets rows as Emp
-/// for result in stmt.query_as::<Emp>(&[]).unwrap() {
-///     let emp = result.unwrap();
+/// for result in stmt.query_as::<Emp>(&[])? {
+///     let emp = result?;
 ///     println!("{},{}", emp.empno, emp.ename);
 /// }
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [FromSql]: trait.FromSql.html

@@ -46,8 +46,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// use oracle::IntervalYM;
-///
+/// # use oracle::*; fn try_main() -> Result<()> {
 /// // Create an interval by new().
 /// let intvl1 = IntervalYM::new(2, 3);
 ///
@@ -68,34 +67,36 @@ use ParseOracleTypeError;
 /// assert!(intvl1 == intvl3);
 ///
 /// // Create an interval from string.
-/// let intvl4: IntervalYM = "+002-3".parse().unwrap();
+/// let intvl4: IntervalYM = "+002-3".parse()?;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.precision(), 3);
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```
-/// use oracle::{Connection, IntervalYM, OracleType, Timestamp};
-/// let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+/// # use oracle::*; fn try_main() -> Result<()> {
+/// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch IntervalYM
 /// let sql = "select interval '+02-03' year to month from dual";
-/// let intvl = conn.query_row_as::<IntervalYM>(sql, &[]).unwrap();
+/// let intvl = conn.query_row_as::<IntervalYM>(sql, &[])?;
 /// assert_eq!(intvl.to_string(), "+02-03");
 ///
 /// // Bind IntervalYM
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[]).unwrap();
+/// let mut stmt = conn.prepare(sql, &[])?;
 /// stmt.execute(&[&OracleType::Date, // bind null as date
 ///                &intvl, // bind the intvl variable
-///               ]).unwrap();
-/// let outval: Timestamp = stmt.bind_value(1).unwrap(); // get the first bind value.
+///               ])?;
+/// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (2 years and 3 months)
 /// assert_eq!(outval.to_string(), "2019-11-09 00:00:00");
+/// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {
