@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.1.0 (not released)
+
+Changes:
+
+* New methods
+  * [`Statement.is_query()`][]
+  * [`Statement.is_plsql()`][]
+  * [`Statement.is_ddl()`][]
+  * [`Statement.is_dml()`][]
+
 ## 0.0.8 (2018-03-25)
 
 Fixed bugs:
@@ -167,5 +177,9 @@ Incompatible changes:
 [`Statement.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as
 [`Statement.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as_named
 [`Statement.returned_values()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.returned_values
+[`Statement.is_query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_query
+[`Statement.is_plsql()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_plsql
+[`Statement.is_ddl()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_ddl
+[`Statement.is_dml()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.id_dml
 [`StmtParam`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html#variant.FetchArraySize

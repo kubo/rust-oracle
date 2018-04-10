@@ -39,45 +39,122 @@ use oracle::{StmtParam, StatementType};
 fn statement_type() {
     let conn = common::connect().unwrap();
 
-    let stmt_type = conn.prepare("SELECT ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("SELECT ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Select);
     assert_eq!(stmt_type.to_string(), "select");
+    assert_eq!(stmt.is_query(), true);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
 
-    let stmt_type = conn.prepare("INSERT ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("INSERT ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Insert);
     assert_eq!(stmt_type.to_string(), "insert");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), true);
 
-    let stmt_type = conn.prepare("UPDATE ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("UPDATE ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Update);
     assert_eq!(stmt_type.to_string(), "update");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), true);
 
-    let stmt_type = conn.prepare("DELETE ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("DELETE ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Delete);
     assert_eq!(stmt_type.to_string(), "delete");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), true);
 
-    let stmt_type = conn.prepare("MERGE ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("MERGE ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Merge);
     assert_eq!(stmt_type.to_string(), "merge");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), true);
 
-    let stmt_type = conn.prepare("CREATE ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("CREATE ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Create);
     assert_eq!(stmt_type.to_string(), "create");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), true);
+    assert_eq!(stmt.is_dml(), false);
 
-    let stmt_type = conn.prepare("ALTER ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("ALTER ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Alter);
     assert_eq!(stmt_type.to_string(), "alter");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), true);
+    assert_eq!(stmt.is_dml(), false);
 
-    let stmt_type = conn.prepare("DROP ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("DROP ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Drop);
     assert_eq!(stmt_type.to_string(), "drop");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), true);
+    assert_eq!(stmt.is_dml(), false);
 
-    let stmt_type = conn.prepare("BEGIN ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("BEGIN ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Begin);
     assert_eq!(stmt_type.to_string(), "PL/SQL(begin)");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), true);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
 
-    let stmt_type = conn.prepare("DECLARE ...", &[]).unwrap().statement_type();
+    let stmt = conn.prepare("DECLARE ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Declare);
     assert_eq!(stmt_type.to_string(), "PL/SQL(declare)");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), true);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
+
+    let stmt = conn.prepare("COMMIT ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
+    assert_eq!(stmt_type, StatementType::Commit);
+    assert_eq!(stmt_type.to_string(), "commit");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
+
+    let stmt = conn.prepare("ROLLBACK ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
+    assert_eq!(stmt_type, StatementType::Rollback);
+    assert_eq!(stmt_type.to_string(), "rollback");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
+
+    let stmt = conn.prepare("EXPLAIN PLAN FOR ...", &[]).unwrap();
+    let stmt_type = stmt.statement_type();
+    assert_eq!(stmt_type, StatementType::ExplainPlan);
+    assert_eq!(stmt_type.to_string(), "explain plan");
+    assert_eq!(stmt.is_query(), false);
+    assert_eq!(stmt.is_plsql(), false);
+    assert_eq!(stmt.is_ddl(), false);
+    assert_eq!(stmt.is_dml(), false);
 }
 
 #[test]

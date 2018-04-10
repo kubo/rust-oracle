@@ -688,6 +688,42 @@ impl<'conn> Statement<'conn> {
         }
     }
 
+    /// Returns true when the SQL statement is a query.
+    pub fn is_query(&self) -> bool {
+        self.statement_type == DPI_STMT_TYPE_SELECT
+    }
+
+    /// Returns true when the SQL statement is a PL/SQL block.
+    pub fn is_plsql(&self) -> bool {
+        match self.statement_type {
+            DPI_STMT_TYPE_BEGIN |
+            DPI_STMT_TYPE_DECLARE |
+            DPI_STMT_TYPE_CALL => true,
+            _ => false,
+        }
+    }
+
+    /// Returns true when the SQL statement is DDL (data definition language).
+    pub fn is_ddl(&self) -> bool {
+        match self.statement_type {
+            DPI_STMT_TYPE_CREATE |
+            DPI_STMT_TYPE_DROP |
+            DPI_STMT_TYPE_ALTER => true,
+            _ => false,
+        }
+    }
+
+    /// Returns true when the SQL statement is DML (data manipulation language).
+    pub fn is_dml(&self) -> bool {
+        match self.statement_type {
+            DPI_STMT_TYPE_INSERT |
+            DPI_STMT_TYPE_UPDATE |
+            DPI_STMT_TYPE_DELETE |
+            DPI_STMT_TYPE_MERGE => true,
+            _ => false,
+        }
+    }
+
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
     pub fn is_returning(&self) -> bool {
         self.is_returning
