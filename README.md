@@ -5,7 +5,7 @@ This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 Don't use this until the version number reaches to 0.1.0.
 Version 0.1.0 will be released if no additional incompatible changes are
 predicted from planned features.
-It may be at the beginning of April, 2018.
+~~It may be at the beginning of April, 2018.~~
 
 ## Change Log
 
