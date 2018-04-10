@@ -51,7 +51,7 @@ fn main() {
     }
     println!("");
 
-    for row_result in rows {
+    for row_result in &rows {
         let row = row_result.unwrap();
         let empno: i32 = row.get(0).unwrap();  // index by 0-based position
         let ename: String = row.get("ENAME").unwrap(); // index by case-sensitive string

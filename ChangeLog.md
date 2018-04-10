@@ -10,6 +10,12 @@ Changes:
   * [`Statement.is_ddl()`][]
   * [`Statement.is_dml()`][]
 
+Incompatible changes:
+
+* Iterator for `ResultSet<T>` was removed and that for `&ResultSet<T>`
+  was added in order not to consume `ResultSet<T>` by for-loop.  
+  Change `for row_result in result_set {...}` to `for row_result in &result_set {...}`.
+
 ## 0.0.8 (2018-03-25)
 
 Fixed bugs:

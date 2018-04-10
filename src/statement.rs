@@ -337,7 +337,7 @@ impl<'conn> Statement<'conn> {
     /// let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10])?;
     ///
     /// println!("---------------|---------------|---------------|");
-    /// for row_result in rows {
+    /// for row_result in &rows {
     ///     let (ename, sal, comm) = row_result?;
     ///     println!(" {:14}| {:>10}    | {:>10}    |",
     ///              ename,
@@ -366,7 +366,7 @@ impl<'conn> Statement<'conn> {
     /// let rows = stmt.query_as_named::<(String, i32, Option<i32>)>(&[("deptno", &10)])?;
     ///
     /// println!("---------------|---------------|---------------|");
-    /// for row_result in rows {
+    /// for row_result in &rows {
     ///     let (ename, sal, comm) = row_result?;
     ///     println!(" {:14}| {:>10}    | {:>10}    |",
     ///              ename,
@@ -387,8 +387,8 @@ impl<'conn> Statement<'conn> {
     /// If the query returns more than one row, all rows except the first are ignored.
     /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
-        let row = self.query(params)?.next();
-        row.unwrap_or(Err(Error::NoDataFound))
+        let rows = self.query(params)?;
+        (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement using named bind parameters.
@@ -396,8 +396,8 @@ impl<'conn> Statement<'conn> {
     /// If the query returns more than one row, all rows except the first are ignored.
     /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
-        let row = self.query_named(params)?.next();
-        row.unwrap_or(Err(Error::NoDataFound))
+        let rows = self.query_named(params)?;
+        (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type.
@@ -405,8 +405,8 @@ impl<'conn> Statement<'conn> {
     /// If the query returns more than one row, all rows except the first are ignored.
     /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
-        let row = self.query_as::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoDataFound))
+        let rows = self.query_as::<T>(params)?;
+        (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type using named bind parameters.
@@ -414,8 +414,8 @@ impl<'conn> Statement<'conn> {
     /// If the query returns more than one row, all rows except the first are ignored.
     /// It returns `Err(Error::NoDataFound)` when no rows are found.
     pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
-        let row = self.query_as_named::<T>(params)?.next();
-        row.unwrap_or(Err(Error::NoDataFound))
+        let rows = self.query_as_named::<T>(params)?;
+        (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Binds values by position and executes the statement.
