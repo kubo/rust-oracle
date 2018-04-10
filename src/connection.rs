@@ -30,6 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::mem;
 use std::ptr;
 
 use Version;
@@ -534,13 +535,19 @@ impl Connection {
     /// Gets one row from a query in one call.
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
-        stmt.query_row(params)
+        if let Err(err) = stmt.query_row(params) {
+            return Err(err)
+        };
+        Ok(mem::replace(&mut stmt.row, None).unwrap())
     }
 
     /// Gets one row from a query using named bind parameters in one call.
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
-        stmt.query_row_named(params)
+        if let Err(err) = stmt.query_row_named(params) {
+            return Err(err)
+        };
+        Ok(mem::replace(&mut stmt.row, None).unwrap())
     }
 
     /// Gets one row from a query as specified type in one call.
