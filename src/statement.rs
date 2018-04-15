@@ -313,39 +313,34 @@ impl<'conn> Statement<'conn> {
         self.bind_values[pos].get()
     }
 
-    /// Executes the prepared statement and returns an Iterator over rows.
+    /// Executes the prepared statement and returns a result set containing [Row][]s.
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Row]: struct.Row.html
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&mut self, params: &[&ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
         Ok(ResultSet::<Row>::new(self))
     }
 
-    /// Executes the prepared statement and returns an Iterator over rows.
+    /// Executes the prepared statement using named parameters and returns a result set containing [Row][]s.
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Row]: struct.Row.html
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
         Ok(ResultSet::<Row>::new(self))
     }
 
-    /// Executes the prepared statement and returns an Iterator over rows.
-    /// The iterator returns `Result<T>` where T is the specified type.
+    /// Executes the prepared statement and returns a result set containing [RowValue][]s.
     ///
-    /// # Examples
+    /// See [Query Methods][].
     ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :1", &[])?;
-    /// let rows = stmt.query_as::<(String, i32, Option<i32>)>(&[&10])?;
-    ///
-    /// println!("---------------|---------------|---------------|");
-    /// for row_result in &rows {
-    ///     let (ename, sal, comm) = row_result?;
-    ///     println!(" {:14}| {:>10}    | {:>10}    |",
-    ///              ename,
-    ///              sal,
-    ///              comm.map_or("".to_string(), |v| v.to_string()));
-    /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
+    /// [RowValue]: struct.RowValue.html
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<ResultSet<'a, T>>
         where T: RowValue
     {
@@ -353,28 +348,12 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(self))
     }
 
-    /// Executes the prepared statement and returns an Iterator over rows.
-    /// The iterator returns `Result<T>` where T is the specified type.
-    /// Bind parameters are bound by their names.
+    /// Executes the prepared statement using named parameters and returns a result set containing [RowValue][]s.
     ///
-    /// # Examples
+    /// See [Query Methods][].
     ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    /// let mut stmt = conn.prepare("select ename, sal, comm from emp where deptno = :deptno", &[])?;
-    /// let rows = stmt.query_as_named::<(String, i32, Option<i32>)>(&[("deptno", &10)])?;
-    ///
-    /// println!("---------------|---------------|---------------|");
-    /// for row_result in &rows {
-    ///     let (ename, sal, comm) = row_result?;
-    ///     println!(" {:14}| {:>10}    | {:>10}    |",
-    ///              ename,
-    ///              sal,
-    ///              comm.map_or("".to_string(), |v| v.to_string()));
-    /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
+    /// [RowValue]: struct.RowValue.html
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<'a, T>>
         where T: RowValue
     {
@@ -382,10 +361,11 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(self))
     }
 
-    /// Gets the first row from the prepared statement.
+    /// Gets one row from the prepared statement using positoinal bind parameters.
     ///
-    /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoDataFound)` when no rows are found.
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
         let rows = self.query(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
@@ -393,17 +373,19 @@ impl<'conn> Statement<'conn> {
 
     /// Gets one row from the prepared statement using named bind parameters.
     ///
-    /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoDataFound)` when no rows are found.
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
         let rows = self.query_named(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
 
-    /// Gets one row from the prepared statement as specified type.
+    /// Gets one row from the prepared statement as specified type using positoinal bind parameters.
     ///
-    /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoDataFound)` when no rows are found.
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
         let rows = self.query_as::<T>(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
@@ -411,8 +393,9 @@ impl<'conn> Statement<'conn> {
 
     /// Gets one row from the prepared statement as specified type using named bind parameters.
     ///
-    /// If the query returns more than one row, all rows except the first are ignored.
-    /// It returns `Err(Error::NoDataFound)` when no rows are found.
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
         let rows = self.query_as_named::<T>(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
