@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.0 (not released)
+## 0.1.0 (2018-04-15)
 
 Changes:
 
