@@ -306,6 +306,7 @@ impl Connection {
     }
 
     #[deprecated(since="0.0.6", note="use `Connection::connect()` instead")]
+    #[doc(hidden)]
     pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
         Connection::connect(username, password, connect_string, &[])
     }
@@ -428,72 +429,68 @@ impl Connection {
         })
     }
 
-    /// Prepares a statement and returns it for subsequent execution/fetching
+    /// Closes the connection before the end of lifetime.
+    ///
+    /// This fails when open statements or LOBs exist.
+    pub fn close(&self) -> Result<()> {
+        self.close_internal(DPI_MODE_CONN_CLOSE_DEFAULT, "")
+    }
+
+    /// Prepares a statement
     ///
     /// # Examples
     ///
+    /// Executes a SQL statement with different parameters.
+    ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// # let conn = Connection::connect("scott", "tiger", "", &[])?;
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
     ///
-    /// // insert one row. (set parameters by position)
-    /// stmt.execute(&[&113, &"John"])?;
+    /// let emp_list = [
+    ///     (7369, "Smith"),
+    ///     (7499, "Allen"),
+    ///     (7521, "Ward"),
+    /// ];
     ///
-    /// // insert another row. (set parameters by name)
-    /// stmt.execute_named(&[("id", &114),
-    ///                      ("name", &"Smith")])?;
+    /// // insert rows using positional parameters
+    /// for emp in &emp_list {
+    ///    stmt.execute(&[&emp.0, &emp.1])?;
+    /// }
+    ///
+    /// let emp_list = [
+    ///     (7566, "Jones"),
+    ///     (7654, "Martin"),
+    ///     (7698, "Blake"),
+    /// ];
+    ///
+    /// // insert rows using named parameters
+    /// for emp in &emp_list {
+    ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
+    /// }
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
+    ///
+    /// Query methods in Connection allocate memory for 100 rows by default
+    /// to reduce the number of network round trips in case that many rows are
+    /// fetched. When 100 isn't preferable, use `StmtParam::FetchArraySize(u32)`
+    /// to customize it.
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// // fetch top 10 rows.
+    /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
+    ///                             &[StmtParam::FetchArraySize(10)])?;
+    /// for row_result in &stmt.query_as::<(i32, String)>(&[])? {
+    ///     let (empno, ename) = row_result?;
+    ///     println!("empno: {}, ename: {}", empno, ename);
+    /// }
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    ///
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::new(self, sql, params)
-    }
-
-    /// Prepares a statement, binds values by position and executes it in one call.
-    /// It will retunrs `Err` when the statemnet is a select statement.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    ///
-    /// // execute a statement without bind parameters
-    /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &[])?;
-    ///
-    /// // execute a statement with binding parameters by position
-    /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &[&114, &"Smith"])?;
-    ///
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn execute(&self, sql: &str, params: &[&ToSql])-> Result<Statement> {
-        let mut stmt = self.prepare(sql, &[])?;
-        stmt.execute(params)?;
-        Ok(stmt)
-    }
-
-    /// Prepares a statement, binds values by name and executes it in one call.
-    /// It will retunrs `Err` when the statemnet is a select statement.
-    ///
-    /// The bind variable names are compared case-insensitively.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    ///
-    /// // execute a statement with binding parameters by name
-    /// conn.execute_named("insert into emp(empno, ename) values (:id, :name)",
-    ///                    &[("id", &114),
-    ///                      ("name", &"Smith")])?;
-    ///
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)])-> Result<Statement> {
-        let mut stmt = self.prepare(sql, &[])?;
-        stmt.execute_named(params)?;
-        Ok(stmt)
     }
 
     /// Executes a select statement and returns a result set containing [Row][]s.
@@ -590,11 +587,51 @@ impl Connection {
         stmt.query_row_as_named::<T>(params)
     }
 
-    /// Cancels execution of running statements in the connection
-    pub fn break_execution(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_breakExecution(self.handle));
-        Ok(())
+    /// Prepares a statement, binds values by position and executes it in one call.
+    /// It will retunrs `Err` when the statemnet is a select statement.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    ///
+    /// // execute a statement without bind parameters
+    /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &[])?;
+    ///
+    /// // execute a statement with binding parameters by position
+    /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &[&114, &"Smith"])?;
+    ///
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn execute(&self, sql: &str, params: &[&ToSql])-> Result<Statement> {
+        let mut stmt = self.prepare(sql, &[])?;
+        stmt.execute(params)?;
+        Ok(stmt)
+    }
+
+    /// Prepares a statement, binds values by name and executes it in one call.
+    /// It will retunrs `Err` when the statemnet is a select statement.
+    ///
+    /// The bind variable names are compared case-insensitively.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    ///
+    /// // execute a statement with binding parameters by name
+    /// conn.execute_named("insert into emp(empno, ename) values (:id, :name)",
+    ///                    &[("id", &114),
+    ///                      ("name", &"Smith")])?;
+    ///
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)])-> Result<Statement> {
+        let mut stmt = self.prepare(sql, &[])?;
+        stmt.execute_named(params)?;
+        Ok(stmt)
     }
 
     /// Commits the current active transaction
@@ -611,11 +648,41 @@ impl Connection {
         Ok(())
     }
 
-    /// Closes the connection before the end of lifetime.
+    /// Gets autocommit mode.
+    /// It is false by default.
+    pub fn autocommit(&self) -> bool {
+        self.autocommit
+    }
+
+    /// Enables or disables autocommit mode.
+    /// It is disabled by default.
+    pub fn set_autocommit(&mut self, autocommit: bool) {
+        self.autocommit = autocommit;
+    }
+
+    /// Cancels execution of running statements in the connection
+    pub fn break_execution(&self) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiConn_breakExecution(self.handle));
+        Ok(())
+    }
+
+    /// Gets an object type information from name
     ///
-    /// This fails when open statements or LOBs exist.
-    pub fn close(&self) -> Result<()> {
-        self.close_internal(DPI_MODE_CONN_CLOSE_DEFAULT, "")
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn object_type(&self, name: &str) -> Result<ObjectType> {
+        let name = to_odpi_str(name);
+        let mut handle = ptr::null_mut();
+        chkerr!(self.ctxt,
+                dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle));
+        let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
+        unsafe { dpiObjectType_release(handle); }
+        res
     }
 
     /// Gets information about the server version
@@ -661,8 +728,20 @@ impl Connection {
         Ok(())
     }
 
-    //pub fn dpiConn_deqObject
-    //pub fn dpiConn_enqObject
+    /// Gets the statement cache size
+    pub fn stmt_cache_size(&self) -> Result<u32> {
+        let mut size = 0u32;
+        chkerr!(self.ctxt,
+                dpiConn_getStmtCacheSize(self.handle, &mut size));
+        Ok(size)
+    }
+
+    /// Sets the statement cache size
+    pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
+        chkerr!(self.ctxt,
+                dpiConn_setStmtCacheSize(self.handle, size));
+        Ok(())
+    }
 
     /// Gets current schema associated with the connection
     pub fn current_schema(&self) -> Result<String> {
@@ -720,31 +799,6 @@ impl Connection {
         Ok(())
     }
 
-    //pub fn dpiConn_getLTXID
-    //pub fn dpiConn_getObjectType
-
-    /// Gets the statement cache size
-    pub fn stmt_cache_size(&self) -> Result<u32> {
-        let mut size = 0u32;
-        chkerr!(self.ctxt,
-                dpiConn_getStmtCacheSize(self.handle, &mut size));
-        Ok(size)
-    }
-
-    /// Sets the statement cache size
-    pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_setStmtCacheSize(self.handle, size));
-        Ok(())
-    }
-
-    //pub fn dpiConn_newDeqOptions
-    //pub fn dpiConn_newEnqOptions
-    //pub fn dpiConn_newMsgProps
-    //pub fn dpiConn_newSubscription
-    //pub fn dpiConn_newTempLob
-    //pub fn dpiConn_prepareDistribTrans
-
     /// Sets module associated with the connection
     ///
     /// This is same with calling [DBMS_APPLICATION_INFO.SET_MODULE][] but
@@ -787,18 +841,6 @@ impl Connection {
         Ok(())
     }
 
-    /// Gets autocommit mode.
-    /// It is false by default.
-    pub fn autocommit(&self) -> bool {
-        self.autocommit
-    }
-
-    /// Enables or disables autocommit mode.
-    /// It is disabled by default.
-    pub fn set_autocommit(&mut self, autocommit: bool) {
-        self.autocommit = autocommit;
-    }
-
     /// Sets client identifier associated with the connection
     ///
     /// This is same with calling [DBMS_SESSION.SET_IDENTIFIER][] but
@@ -830,24 +872,6 @@ impl Connection {
         chkerr!(self.ctxt,
                 dpiConn_setDbOp(self.handle, s.ptr, s.len));
         Ok(())
-    }
-
-    /// Gets an object type information from name
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn object_type(&self, name: &str) -> Result<ObjectType> {
-        let name = to_odpi_str(name);
-        let mut handle = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle));
-        let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
-        unsafe { dpiObjectType_release(handle); }
-        res
     }
 
     /// Starts up a database

@@ -247,72 +247,6 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    /// Set a bind value in the statement.
-    ///
-    /// The position starts from one when the bind index type is `usize`.
-    /// The variable name is compared case-insensitively when the bind index
-    /// type is `&str`.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
-    ///
-    /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
-    /// stmt.bind(1, &OracleType::Varchar2(60))?;
-    ///
-    /// // Sets "to be upper-case" to the second by its name.
-    /// stmt.bind("inval", &"to be upper-case")?;
-    ///
-    /// stmt.execute(&[])?;
-    /// let outval: String = stmt.bind_value(1)?;
-    /// assert_eq!(outval, "TO BE UPPER-CASE");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()> where I: BindIndex {
-        let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
-            chkerr!(self.conn.ctxt,
-                    bindidx.bind(self.handle, self.bind_values[pos].handle));
-        }
-        self.bind_values[pos].set(value)
-    }
-
-    /// Gets a bind value in the statement.
-    ///
-    /// The position starts from one when the bind index type is `usize`.
-    /// The variable name is compared case-insensitively when the bind index
-    /// type is `&str`.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    ///
-    /// // Prepares "begin :outval := upper(:inval); end;",
-    /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
-    /// // sets "to be upper-case" to the second and then executes it.
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
-    /// stmt.execute(&[&OracleType::Varchar2(60),
-    ///              &"to be upper-case"])?;
-    ///
-    /// // Get the first bind value by position.
-    /// let outval: String = stmt.bind_value(1)?;
-    /// assert_eq!(outval, "TO BE UPPER-CASE");
-    ///
-    /// // Get the first bind value by name.
-    /// let outval: String = stmt.bind_value("outval")?;
-    /// assert_eq!(outval, "TO BE UPPER-CASE");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
-        let pos = bindidx.idx(&self)?;
-        self.bind_values[pos].get()
-    }
-
     /// Executes the prepared statement and returns a result set containing [Row][]s.
     ///
     /// See [Query Methods][].
@@ -533,6 +467,117 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
+    /// Returns the number of bind variables in the statement.
+    ///
+    /// In SQL statements this is the total number of bind variables whereas in
+    /// PL/SQL statements this is the count of the **unique** bind variables.
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    ///
+    /// // SQL statements
+    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[])?;
+    /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
+    ///
+    /// // PL/SQL statements
+    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[])?;
+    /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn bind_count(&self) -> usize {
+        self.bind_count
+    }
+
+    /// Returns the names of the unique bind variables in the statement.
+    ///
+    /// The bind variable names in statements are converted to upper-case.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    ///
+    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
+    /// assert_eq!(stmt.bind_count(), 3);
+    /// let bind_names = stmt.bind_names();
+    /// assert_eq!(bind_names.len(), 3);
+    /// assert_eq!(bind_names[0], "VAL1");
+    /// assert_eq!(bind_names[1], "VAL2");
+    /// assert_eq!(bind_names[2], "AÀÁÂÃÄÅ");
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn bind_names(&self) -> Vec<&str> {
+        self.bind_names.iter().map(|name| name.as_str()).collect()
+    }
+
+    /// Set a bind value in the statement.
+    ///
+    /// The position starts from one when the bind index type is `usize`.
+    /// The variable name is compared case-insensitively when the bind index
+    /// type is `&str`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    ///
+    /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
+    /// stmt.bind(1, &OracleType::Varchar2(60))?;
+    ///
+    /// // Sets "to be upper-case" to the second by its name.
+    /// stmt.bind("inval", &"to be upper-case")?;
+    ///
+    /// stmt.execute(&[])?;
+    /// let outval: String = stmt.bind_value(1)?;
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()> where I: BindIndex {
+        let pos = bindidx.idx(&self)?;
+        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
+            chkerr!(self.conn.ctxt,
+                    bindidx.bind(self.handle, self.bind_values[pos].handle));
+        }
+        self.bind_values[pos].set(value)
+    }
+
+    /// Gets a bind value in the statement.
+    ///
+    /// The position starts from one when the bind index type is `usize`.
+    /// The variable name is compared case-insensitively when the bind index
+    /// type is `&str`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    ///
+    /// // Prepares "begin :outval := upper(:inval); end;",
+    /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
+    /// // sets "to be upper-case" to the second and then executes it.
+    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    /// stmt.execute(&[&OracleType::Varchar2(60),
+    ///              &"to be upper-case"])?;
+    ///
+    /// // Get the first bind value by position.
+    /// let outval: String = stmt.bind_value(1)?;
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    ///
+    /// // Get the first bind value by name.
+    /// let outval: String = stmt.bind_value("outval")?;
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
+        let pos = bindidx.idx(&self)?;
+        self.bind_values[pos].get()
+    }
+
     /// Gets values returned by RETURNING INTO clause.
     ///
     /// When the `bindidx` ponints to a bind variable out of RETURNING INTO clause,
@@ -587,51 +632,6 @@ impl<'conn> Statement<'conn> {
             vec.push(sqlval.get()?);
         }
         Ok(vec)
-    }
-
-    /// Returns the number of bind variables in the statement.
-    ///
-    /// In SQL statements this is the total number of bind variables whereas in
-    /// PL/SQL statements this is the count of the **unique** bind variables.
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    ///
-    /// // SQL statements
-    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[])?;
-    /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
-    ///
-    /// // PL/SQL statements
-    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[])?;
-    /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn bind_count(&self) -> usize {
-        self.bind_count
-    }
-
-    /// Returns the names of the unique bind variables in the statement.
-    ///
-    /// The bind variable names in statements are converted to upper-case.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
-    ///
-    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
-    /// assert_eq!(stmt.bind_count(), 3);
-    /// let bind_names = stmt.bind_names();
-    /// assert_eq!(bind_names.len(), 3);
-    /// assert_eq!(bind_names[0], "VAL1");
-    /// assert_eq!(bind_names[1], "VAL2");
-    /// assert_eq!(bind_names[2], "AÀÁÂÃÄÅ");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
-    /// ```
-    pub fn bind_names(&self) -> Vec<&str> {
-        self.bind_names.iter().map(|name| name.as_str()).collect()
     }
 
     pub(crate) fn next(&self) -> Option<Result<&Row>> {
