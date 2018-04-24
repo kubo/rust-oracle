@@ -30,6 +30,7 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
+use std::fmt;
 use std::mem;
 use std::ptr;
 
@@ -102,6 +103,7 @@ pub enum ShutdownMode {
 /// Parameters to create Connection passed to [Connection::connect][].
 ///
 /// [Connection::connect]: struct.Connection.html#method.connect
+#[derive(Debug, Clone, PartialEq)]
 pub enum ConnParam {
     /// Connects as [SYSDBA](https://docs.oracle.com/database/122/ADMQS/administering-user-accounts-and-security.htm#GUID-2033E766-8FE6-4FBA-97E0-2607B083FA2C)
     ///
@@ -1027,6 +1029,19 @@ impl Connection {
 
 impl Drop for Connection {
     fn drop(&mut self) {
-        let _ = unsafe { dpiConn_release(self.handle) };
+        unsafe { dpiConn_release(self.handle) };
+    }
+}
+
+impl fmt::Debug for Connection {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Connection {{ handle: {:?}", self.handle)?;
+        if self.tag.len() != 0 {
+            write!(f, ", tag: {:?}", self.tag)?;
+        }
+        if self.tag_found {
+            write!(f, ", tag_found: {:?}", self.tag_found)?;
+        }
+        write!(f, ", autocommit: {:?} }}", self.autocommit)
     }
 }

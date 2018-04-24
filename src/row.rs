@@ -31,6 +31,7 @@
 // or implied, of the authors.
 
 use std::boxed::Box;
+use std::fmt;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -114,6 +115,16 @@ impl Row {
     }
 }
 
+impl fmt::Debug for Row {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Row {{ ")?;
+        for (name, value) in self.shared.column_names.iter().zip(&self.column_values) {
+            write!(f, "{}: {:?} ", name, value)?;
+        }
+        write!(f, "}}")
+    }
+}
+
 /// Result set
 pub struct ResultSet<'a, T> where T: RowValue {
     stmt: Option<&'a Statement<'a>>,
@@ -160,6 +171,15 @@ impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T> where T: RowValue {
         self.stmt()
             .next()
             .map(|row_result| row_result.and_then(|row| row.get_as::<T>()))
+    }
+}
+
+impl<'stmt, T> fmt::Debug for ResultSet<'stmt, T> where T: RowValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let stmt = self.stmt();
+        write!(f, "ResultSet {{ origin: {}, stmt: {:?} }}",
+               if self.stmt.is_some() { "statement" } else { "connection" },
+               stmt)
     }
 }
 

@@ -1125,10 +1125,24 @@ impl fmt::Display for SqlValue {
 
 impl fmt::Debug for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.oratype {
-            Some(ref oratype) => write!(f, "SqlValue(data=\"{}\", type={}, idx/size={}/{})",
-                                        self, oratype, self.buffer_row_index(), self.array_size),
-            None => write!(f, "SqlValue(uninitialized)"),
+        if let Some(ref oratype) = self.oratype {
+            write!(f, "SqlValue {{ val: ")?;
+            match self.as_string() {
+                Ok(s) =>
+                    match self.native_type {
+                        NativeType::Char |
+                        NativeType::Raw |
+                        NativeType::CLOB |
+                        NativeType::BLOB => write!(f, "{:?}", s),
+                        _ => write!(f, "{}", s),
+                    },
+                Err(Error::NullValue) => write!(f, "NULL"),
+                Err(err) => write!(f, "{}", err),
+            }?;
+            write!(f, ", type: {}, idx/size: {}/{})",
+                   oratype, self.buffer_row_index(), self.array_size)
+        } else {
+            write!(f, "SqlValue {{ uninitialized }}")
         }
     }
 }

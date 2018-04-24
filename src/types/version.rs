@@ -54,7 +54,7 @@ use binding::dpiVersionInfo;
 /// println!("Server version: {}", server_version);
 /// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Version {
     major: i32,
     minor: i32,

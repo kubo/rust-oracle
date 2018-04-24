@@ -58,6 +58,7 @@ use to_rust_str;
 use private;
 
 /// Parameters to prepare Statement.
+#[derive(Debug, Clone, PartialEq)]
 pub enum StmtParam {
     /// The array size used for performing fetches.
     ///
@@ -719,6 +720,32 @@ impl<'conn> Drop for Statement<'conn> {
     }
 }
 
+impl<'conn> fmt::Debug for Statement<'conn> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Statement {{ handle: {:?}, conn: {:?}, stmt_type: {}",
+               self.handle, self.conn, self.statement_type())?;
+        if self.column_info.len() != 0 {
+            write!(f, ", colum_info: [")?;
+            for (idx, colinfo) in (&self.column_info).iter().enumerate() {
+                if idx != 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{} {}{}", colinfo.name(), colinfo.oracle_type(),
+                       if colinfo.nullable() {""} else {" NOT NULL"})?;
+            }
+            write!(f, "], fetch_array_size: {}", self.fetch_array_size)?;
+        }
+        if self.bind_count != 0 {
+            write!(f, ", bind_count: {}, bind_names: {:?}, bind_values: {:?}",
+                   self.bind_count, self.bind_names, self.bind_values)?;
+        }
+        if self.is_returning {
+            write!(f, ", is_returning: true")?;
+        }
+        write!(f, " }}")
+    }
+}
+
 /// Column information in a select statement
 ///
 /// # Examples
@@ -755,7 +782,7 @@ impl<'conn> Drop for Statement<'conn> {
 ///  COMM                                    NUMBER(7,2)
 ///  DEPTNO                                  NUMBER(2)
 /// ```
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ColumnInfo {
     name: String,
     oracle_type: OracleType,

@@ -137,7 +137,7 @@ impl error::Error for ParseOracleTypeError {
 }
 
 /// Oracle database error or ODPI-C error
-#[derive(Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct DbError {
     code: i32,
     offset: u16,
@@ -224,37 +224,35 @@ impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::OciError(ref err) =>
-                write!(f, "OCI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
-                       err.code, err.offset, err.message, err.fn_name, err.action),
+                write!(f, "OciError({:?})", err),
             Error::DpiError(ref err) =>
-                write!(f, "DPI Error: (code: {}, offset: {}, message:{}, fn_name: {}, action: {})",
-                       err.code, err.offset, err.message, err.fn_name, err.action),
+                write!(f, "DpiError({:?})", err),
             Error::NullValue =>
                 write!(f, "NullValue"),
             Error::ParseError(ref err) =>
-                write!(f, "ParseError: {:?}", err),
+                write!(f, "ParseError({:?})", err),
             Error::OutOfRange(ref msg) =>
-                write!(f, "OutOfRange {{ msg: {} }}", msg),
+                write!(f, "OutOfRange({:?})", msg),
             Error::InvalidTypeConversion(ref from, ref to) =>
-                write!(f, "InvalidTypeConversion {{ from: {}, to: {} }}", from, to),
+                write!(f, "InvalidTypeConversion(from: {:?}, to: {:?})", from, to),
             Error::InvalidBindIndex(ref idx) =>
-                write!(f, "InvalidBindIndex: {}", idx),
+                write!(f, "InvalidBindIndex({:?})", idx),
             Error::InvalidBindName(ref name) =>
-                write!(f, "InvalidBindName: {}", name),
+                write!(f, "InvalidBindName({:?})", name),
             Error::InvalidColumnIndex(ref idx) =>
-                write!(f, "InvalidColumnIndex: {}", idx),
+                write!(f, "InvalidColumnIndex({:?})", idx),
             Error::InvalidColumnName(ref name) =>
-                write!(f, "InvalidColumnName: {}", name),
+                write!(f, "InvalidColumnName({:?})", name),
             Error::InvalidAttributeName(ref name) =>
-                write!(f, "InvalidAttributeName: {}", name),
+                write!(f, "InvalidAttributeName({:?})", name),
             Error::InvalidOperation(ref msg) =>
-                write!(f, "InvalidOperation: {}", msg),
+                write!(f, "InvalidOperation({:?})", msg),
             Error::UninitializedBindValue =>
                 write!(f, "UninitializedBindValue"),
             Error::NoDataFound =>
                 write!(f, "NoDataFound"),
-            Error::InternalError(_) =>
-                write!(f, "{}", *self),
+            Error::InternalError(ref msg) =>
+                write!(f, "InternalError({:?})", msg),
         }
     }
 }
