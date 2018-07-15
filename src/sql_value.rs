@@ -239,8 +239,14 @@ impl SqlValue {
     }
 
     pub(crate) fn fix_internal_data(&mut self) -> Result<()> {
+        let mut num = 0;
+        let mut data = ptr::null_mut();
         chkerr!(self.ctxt,
-                dpiVar_getData(self.handle, &mut self.array_size, &mut self.data));
+                dpiVar_getReturnedData(self.handle, 0, &mut num, &mut data));
+        if num != 0 {
+            self.array_size = num;
+            self.data = data;
+        }
         Ok(())
     }
 

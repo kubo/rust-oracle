@@ -501,6 +501,9 @@ impl Default for dpiPoolCreateParams {
             getMode: 0,
             outPoolName: ptr::null(),
             outPoolNameLength: 0,
+            timeout: 0,
+            waitTimeout: 0,
+            maxLifetimeSession: 0,
         }
     }
 }
@@ -520,6 +523,11 @@ impl Default for dpiSubscrCreateParams {
             callbackContext: ptr::null_mut(),
             recipientName: ptr::null(),
             recipientNameLength: 0,
+            ipAddress: ptr::null_mut(),
+            ipAddressLength: 0,
+            groupingClass: 0,
+            groupingValue: 0,
+            groupingType: 0,
         }
     }
 }
