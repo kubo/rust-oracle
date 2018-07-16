@@ -337,12 +337,12 @@ fn insert_and_fetch() {
     assert_eq!(row.0, 100);
     assert_eq!(row.1, nchar_data);
 
-    // conn.execute("insert into TestBLOBs values (:1, :2)",
-    //              &[&100, &raw_data]).unwrap();
-    // let row = conn.query_row_as::<(i32, Vec<u8>)>
-    //     ("select * from TestBLOBs where IntCol = :1", &[&100]).unwrap();
-    // assert_eq!(row.0, 100);
-    // assert_eq!(row.1, raw_data);
+    conn.execute("insert into TestBLOBs values (:1, :2)",
+                 &[&100, &raw_data.as_ref()]).unwrap();
+    let row = conn.query_row_as::<(i32, Vec<u8>)>
+        ("select * from TestBLOBs where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, raw_data);
 
     // conn.execute("insert into TestBFILEs values (:1, :2)",
     //              &[&100, ...]).unwrap();

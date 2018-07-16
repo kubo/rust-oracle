@@ -481,6 +481,21 @@ impl SqlValue {
         Ok(result)
     }
 
+    fn get_blob_unchecked(&self) -> Result<Vec<u8>> {
+        self.check_not_null()?;
+        let lob = unsafe { dpiData_getLOB(self.data()) };
+        let mut total_size = 0;
+        unsafe {
+            dpiLob_getSize(lob, &mut total_size);
+        }
+        let mut result: Vec<u8> = Vec::with_capacity(total_size as usize);
+        let mut read_len = total_size;
+        chkerr!(self.ctxt,
+                dpiLob_readBytes(lob, 1, total_size, result.as_mut_ptr() as *mut i8, &mut read_len));
+        unsafe { result.set_len(read_len as usize); }
+        Ok(result)
+    }
+
     fn get_blob_as_hex_string_unchecked(&self) -> Result<String> {
         self.check_not_null()?;
         const READ_SIZE: u64 = 8192;
@@ -845,6 +860,8 @@ impl SqlValue {
         match self.native_type {
             NativeType::Raw =>
                 self.get_raw_unchecked(),
+            NativeType::BLOB =>
+                self.get_blob_unchecked(),
             NativeType::Char |
             NativeType::CLOB =>
                 Ok(parse_str_into_raw(&self.get_string()?)?),
