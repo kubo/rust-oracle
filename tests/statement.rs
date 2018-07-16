@@ -33,7 +33,7 @@
 extern crate oracle;
 mod common;
 
-use oracle::{StmtParam, StatementType};
+use oracle::{IntervalDS, StmtParam, StatementType, Timestamp};
 
 #[test]
 fn statement_type() {
@@ -275,4 +275,101 @@ fn dml_returning() {
     stmt.execute(&[&11]).unwrap();
     let updated_int_col: Vec<i32> = stmt.returned_values(2).unwrap();
     assert_eq!(updated_int_col, vec![]);
+}
+
+#[test]
+fn insert_and_fetch() {
+    let conn = common::connect().unwrap();
+    let char_data = "Hello, Guten Tag";
+    let nchar_data = "Hello, こんにちは, 你好";
+    let raw_data = b"\x7fELF, PE\0\0";
+    let timestamp_data: Timestamp = "2017-08-09 10:11:13".parse().unwrap();
+    let interval_ds_data: IntervalDS = "+12 03:04:05.6789".parse().unwrap();
+
+    conn.execute("insert into TestNumbers values (:1, :2, :3, :4, :5)",
+                 &[&100, &9.2, &10.14, &7.14, &None::<i32>]).unwrap();
+    let row = conn.query_row_as::<(i32, f64, f64, f64, Option<i32>)>
+        ("select * from TestNumbers where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, 9.2);
+    assert_eq!(row.2, 10.14);
+    assert_eq!(row.3, 7.14);
+    assert_eq!(row.4, None);
+
+    conn.execute("insert into TestStrings values (:1, :2, :3, :4, :5)",
+                 &[&100, &char_data, &b"str100".to_vec(), &char_data, &None::<String>]).unwrap();
+    let row = conn.query_row_as::<(i32, String, Vec<u8>, String, Option<String>)>
+        ("select * from TestStrings where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, char_data);
+    assert_eq!(row.2, b"str100");
+    assert_eq!(row.3, format!("{:40}", char_data));
+    assert_eq!(row.4, None);
+
+    conn.execute("insert into TestUnicodes values (:1, :2, :3, :4)",
+                 &[&100, &nchar_data, &nchar_data, &None::<String>]).unwrap();
+    let row = conn.query_row_as::<(i32, String, String, Option<String>)>
+        ("select * from TestUnicodes where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, nchar_data);
+    assert_eq!(row.2, format!("{:40}", nchar_data));
+    assert_eq!(row.3, None);
+
+    conn.execute("insert into TestDates values (:1, :2, :3)",
+                 &[&100, &timestamp_data, &None::<Timestamp>]).unwrap();
+    let row = conn.query_row_as::<(i32, Timestamp, Option<Timestamp>)>
+        ("select * from TestDates where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, timestamp_data);
+    assert_eq!(row.2, None);
+
+    conn.execute("insert into TestCLOBs values (:1, :2)",
+                 &[&100, &char_data]).unwrap();
+    let row = conn.query_row_as::<(i32, String)>
+        ("select * from TestCLOBs where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, char_data);
+
+    conn.execute("insert into TestNCLOBs values (:1, :2)",
+                 &[&100, &nchar_data]).unwrap();
+    let row = conn.query_row_as::<(i32, String)>
+        ("select * from TestNCLOBs where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, nchar_data);
+
+    // conn.execute("insert into TestBLOBs values (:1, :2)",
+    //              &[&100, &raw_data]).unwrap();
+    // let row = conn.query_row_as::<(i32, Vec<u8>)>
+    //     ("select * from TestBLOBs where IntCol = :1", &[&100]).unwrap();
+    // assert_eq!(row.0, 100);
+    // assert_eq!(row.1, raw_data);
+
+    // conn.execute("insert into TestBFILEs values (:1, :2)",
+    //              &[&100, ...]).unwrap();
+    // let row = conn.query_row_as::<(i32, ...)>
+    //     ("select * from TestBFILEs where IntCol = :1", &[&100]).unwrap();
+    // assert_eq!(row.0, 100);
+    // assert_eq!(row.1, ...);
+
+    conn.execute("insert into TestLongs values (:1, :2)",
+                 &[&100, &char_data]).unwrap();
+    let row = conn.query_row_as::<(i32, String)>
+        ("select * from TestLongs where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, char_data);
+
+    conn.execute("insert into TestLongRaws values (:1, :2)",
+                 &[&100, &raw_data.to_vec()]).unwrap();
+    let row = conn.query_row_as::<(i32, Vec<u8>)>
+        ("select * from TestLongRaws where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, raw_data);
+
+    conn.execute("insert into TestIntervals values (:1, :2, :3)",
+                 &[&100, &interval_ds_data, &None::<IntervalDS>]).unwrap();
+    let row = conn.query_row_as::<(i32, IntervalDS, Option<IntervalDS>)>
+        ("select * from TestIntervals where IntCol = :1", &[&100]).unwrap();
+    assert_eq!(row.0, 100);
+    assert_eq!(row.1, interval_ds_data);
+    assert_eq!(row.2, None);
 }
