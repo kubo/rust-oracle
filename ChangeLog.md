@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.1 (2018-07-16)
+
+Changes:
+
+* Allow fetching BLOB data as `Vec<u8>`.
+* Implement `ToSql` and `ToSqlNull` for `&[u8]`.
+* Implement `Debug` for `Connection`, `Statement` and so on.
+* Update ODPI-C to version 2.4.2.
+
 ## 0.1.0 (2018-04-15)
 
 Changes:
