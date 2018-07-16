@@ -73,9 +73,9 @@ fn assert_udt_objectdatatypes(objtype: &ObjectType) {
     assert_eq!(objtype.name(), "UDT_OBJECTDATATYPES");
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
-    assert_eq!(objtype.num_attributes(), 12);
+    assert_eq!(objtype.num_attributes(), 13);
     let attrs = objtype.attributes();
-    assert_eq!(attrs.len(), 12);
+    assert_eq!(attrs.len(), 13);
 
     assert_eq!(attrs[0].name(), "STRINGCOL");
     assert_eq!(attrs[0].oracle_type(), &OracleType::Varchar2(60));
@@ -112,6 +112,9 @@ fn assert_udt_objectdatatypes(objtype: &ObjectType) {
 
     assert_eq!(attrs[11].name(), "BINARYDOUBLECOL");
     assert_eq!(attrs[11].oracle_type(), &OracleType::BinaryDouble);
+
+    assert_eq!(attrs[12].name(), "SIGNEDINTCOL");
+    assert_eq!(attrs[12].oracle_type(), &OracleType::Int64);
 }
 
 #[test]

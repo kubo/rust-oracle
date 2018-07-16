@@ -214,7 +214,7 @@ pub enum OracleType {
     /// LONG RAW
     LongRaw,
 
-    /// Not an Oracle type, used only internally to bind/define values as i64
+    /// Integer type in Oracle object type attributes. This will be renamed to Integer in future.
     Int64,
 
     /// Not an Oracle type, used only internally to bind/define values as u64
@@ -233,6 +233,7 @@ impl OracleType {
             DPI_ORACLE_TYPE_RAW => Ok(OracleType::Raw(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NATIVE_FLOAT => Ok(OracleType::BinaryFloat),
             DPI_ORACLE_TYPE_NATIVE_DOUBLE => Ok(OracleType::BinaryDouble),
+            DPI_ORACLE_TYPE_NATIVE_INT => Ok(OracleType::Int64),
             DPI_ORACLE_TYPE_NUMBER => {
                 if info.precision != 0 && info.scale == -127 {
                     Ok(OracleType::Float(info.precision as u8))
