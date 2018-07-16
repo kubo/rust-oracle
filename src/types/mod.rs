@@ -222,34 +222,34 @@ macro_rules! impl_to_sql {
 }
 
 macro_rules! impl_from_and_to_sql {
-    ($type:ty, $as_func:ident, $set_func:ident, $oratype:expr) => {
-        impl_from_sql!($type, $as_func);
+    ($type:ty, $to_func:ident, $set_func:ident, $oratype:expr) => {
+        impl_from_sql!($type, $to_func);
         impl_to_sql!($type, $set_func, $oratype);
     };
-    ($as_type:ty, $as_func:ident, $set_type:ty, $set_func:ident, $oratype:expr) => {
-        impl_from_sql!($as_type, $as_func);
+    ($to_type:ty, $to_func:ident, $set_type:ty, $set_func:ident, $oratype:expr) => {
+        impl_from_sql!($to_type, $to_func);
         impl_to_sql!($set_type, $set_func, $oratype);
     };
 }
 
-impl_from_and_to_sql!(i8, as_i8, set_i8, OracleType::Number(0,0));
-impl_from_and_to_sql!(i16, as_i16, set_i16, OracleType::Number(0,0));
-impl_from_and_to_sql!(i32, as_i32, set_i32, OracleType::Number(0,0));
-impl_from_and_to_sql!(i64, as_i64, set_i64, OracleType::Number(0,0));
-impl_from_and_to_sql!(isize, as_isize, set_isize, OracleType::Number(0,0));
-impl_from_and_to_sql!(u8, as_u8, set_u8, OracleType::Number(0,0));
-impl_from_and_to_sql!(u16, as_u16, set_u16, OracleType::Number(0,0));
-impl_from_and_to_sql!(u32, as_u32, set_u32, OracleType::Number(0,0));
-impl_from_and_to_sql!(u64, as_u64, set_u64, OracleType::Number(0,0));
-impl_from_and_to_sql!(usize, as_usize, set_usize, OracleType::Number(0,0));
-impl_from_and_to_sql!(f64, as_f64, set_f64, OracleType::Number(0,0));
-impl_from_and_to_sql!(f32, as_f32, set_f32, OracleType::Number(0,0));
-impl_from_and_to_sql!(bool, as_bool, set_bool, OracleType::Boolean);
-impl_from_sql!(String, as_string);
-impl_from_sql!(Vec<u8>, as_bytes);
-impl_from_and_to_sql!(Timestamp, as_timestamp, Timestamp, set_timestamp, OracleType::TimestampTZ(9));
-impl_from_and_to_sql!(IntervalDS, as_interval_ds, IntervalDS, set_interval_ds, OracleType::IntervalDS(9,9));
-impl_from_and_to_sql!(IntervalYM, as_interval_ym, IntervalYM, set_interval_ym, OracleType::IntervalYM(9));
+impl_from_and_to_sql!(i8, to_i8, set_i8, OracleType::Number(0,0));
+impl_from_and_to_sql!(i16, to_i16, set_i16, OracleType::Number(0,0));
+impl_from_and_to_sql!(i32, to_i32, set_i32, OracleType::Number(0,0));
+impl_from_and_to_sql!(i64, to_i64, set_i64, OracleType::Number(0,0));
+impl_from_and_to_sql!(isize, to_isize, set_isize, OracleType::Number(0,0));
+impl_from_and_to_sql!(u8, to_u8, set_u8, OracleType::Number(0,0));
+impl_from_and_to_sql!(u16, to_u16, set_u16, OracleType::Number(0,0));
+impl_from_and_to_sql!(u32, to_u32, set_u32, OracleType::Number(0,0));
+impl_from_and_to_sql!(u64, to_u64, set_u64, OracleType::Number(0,0));
+impl_from_and_to_sql!(usize, to_usize, set_usize, OracleType::Number(0,0));
+impl_from_and_to_sql!(f64, to_f64, set_f64, OracleType::Number(0,0));
+impl_from_and_to_sql!(f32, to_f32, set_f32, OracleType::Number(0,0));
+impl_from_and_to_sql!(bool, to_bool, set_bool, OracleType::Boolean);
+impl_from_sql!(String, to_string);
+impl_from_sql!(Vec<u8>, to_bytes);
+impl_from_and_to_sql!(Timestamp, to_timestamp, Timestamp, set_timestamp, OracleType::TimestampTZ(9));
+impl_from_and_to_sql!(IntervalDS, to_interval_ds, IntervalDS, set_interval_ds, OracleType::IntervalDS(9,9));
+impl_from_and_to_sql!(IntervalYM, to_interval_ym, IntervalYM, set_interval_ym, OracleType::IntervalYM(9));
 
 impl ToSqlNull for String {
     fn oratype_for_null() -> Result<OracleType> {

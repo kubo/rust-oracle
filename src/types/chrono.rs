@@ -58,21 +58,21 @@ fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>> where 
 
 impl FromSql for DateTime<Utc> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<Utc>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         datetime_from_sql(&Utc, &ts)
     }
 }
 
 impl FromSql for DateTime<Local> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<Local>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         datetime_from_sql(&Local, &ts)
     }
 }
 
 impl FromSql for DateTime<FixedOffset> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<FixedOffset>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         datetime_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
     }
 }
@@ -112,21 +112,21 @@ fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>> where Tz: Time
 
 impl FromSql for Date<Utc> {
     fn from_sql(val: &SqlValue) -> Result<Date<Utc>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         date_from_sql(&Utc, &ts)
     }
 }
 
 impl FromSql for Date<Local> {
     fn from_sql(val: &SqlValue) -> Result<Date<Local>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         date_from_sql(&Local, &ts)
     }
 }
 
 impl FromSql for Date<FixedOffset> {
     fn from_sql(val: &SqlValue) -> Result<Date<FixedOffset>> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         date_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
     }
 }
@@ -156,7 +156,7 @@ impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
 
 impl FromSql for NaiveDateTime {
     fn from_sql(val: &SqlValue) -> Result<NaiveDateTime> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
     }
 }
@@ -186,7 +186,7 @@ impl ToSql for NaiveDateTime  {
 
 impl FromSql for NaiveDate {
     fn from_sql(val: &SqlValue) -> Result<NaiveDate> {
-        let ts = val.as_timestamp()?;
+        let ts = val.to_timestamp()?;
         Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()))
     }
 }
@@ -216,7 +216,7 @@ impl ToSql for NaiveDate {
 impl FromSql for Duration {
     fn from_sql(val: &SqlValue) -> Result<Duration> {
         let err = |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it.to_string()));
-        let it = val.as_interval_ds()?;
+        let it = val.to_interval_ds()?;
         let d = Duration::milliseconds(0);
         let d = d.checked_add(&Duration::days(it.days() as i64)).ok_or(err(it))?;
         let d = d.checked_add(&Duration::hours(it.hours() as i64)).ok_or(err(it))?;

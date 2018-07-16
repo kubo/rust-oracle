@@ -72,7 +72,7 @@ macro_rules! flt_to_int {
     }
 }
 
-macro_rules! define_fn_as_int {
+macro_rules! define_fn_to_int {
     ($(#[$attr:meta])* : $func_name:ident, $type:ident) => {
         $(#[$attr])*
         pub (crate)fn $func_name(&self) -> Result<$type> {
@@ -700,26 +700,26 @@ impl SqlValue {
     // as_TYPE methods
     //
 
-    define_fn_as_int!(
+    define_fn_to_int!(
         /// Gets the SQL value as i8. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_i8, i8);
-    define_fn_as_int!(
+        : to_i8, i8);
+    define_fn_to_int!(
         /// Gets the SQL value as i16. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_i16, i16);
-    define_fn_as_int!(
+        : to_i16, i16);
+    define_fn_to_int!(
         /// Gets the SQL value as i32. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_i32, i32);
-    define_fn_as_int!(
+        : to_i32, i32);
+    define_fn_to_int!(
         /// Gets the SQL value as isize. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_isize, isize);
+        : to_isize, isize);
 
     /// Gets the SQL value as i64. The Oracle type must be
     /// numeric or string (excluding LOB) types.
-    pub(crate) fn as_i64(&self) -> Result<i64> {
+    pub(crate) fn to_i64(&self) -> Result<i64> {
         match self.native_type {
             NativeType::Int64 =>
                 self.get_i64_unchecked(),
@@ -738,26 +738,26 @@ impl SqlValue {
         }
     }
 
-    define_fn_as_int!(
+    define_fn_to_int!(
         /// Gets the SQL value as u8. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_u8, u8);
-    define_fn_as_int!(
+        : to_u8, u8);
+    define_fn_to_int!(
         /// Gets the SQL value as u16. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_u16, u16);
-    define_fn_as_int!(
+        : to_u16, u16);
+    define_fn_to_int!(
         /// Gets the SQL value as u32. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_u32, u32);
-    define_fn_as_int!(
+        : to_u32, u32);
+    define_fn_to_int!(
         /// Gets the SQL value as usize. The Oracle type must be
         /// numeric or string (excluding LOB) types.
-        : as_usize, usize);
+        : to_usize, usize);
 
     /// Gets the SQL value as u64. The Oracle type must be
     /// numeric or string (excluding LOB) types.
-    pub(crate) fn as_u64(&self) -> Result<u64> {
+    pub(crate) fn to_u64(&self) -> Result<u64> {
         match self.native_type {
             NativeType::Int64 =>
                 Ok(self.get_i64_unchecked()?.try_into()?),
@@ -778,7 +778,7 @@ impl SqlValue {
 
     /// Gets the SQL value as f32. The Oracle type must be
     /// numeric or string (excluding LOB) types.
-    pub(crate) fn as_f32(&self) -> Result<f32> {
+    pub(crate) fn to_f32(&self) -> Result<f32> {
         match self.native_type {
             NativeType::Int64 =>
                 Ok(self.get_i64_unchecked()? as f32),
@@ -799,7 +799,7 @@ impl SqlValue {
 
     /// Gets the SQL value as f64. The Oracle type must be
     /// numeric or string (excluding LOB) types.
-    pub(crate) fn as_f64(&self) -> Result<f64> {
+    pub(crate) fn to_f64(&self) -> Result<f64> {
         match self.native_type {
             NativeType::Int64 =>
                 Ok(self.get_i64_unchecked()? as f64),
@@ -819,7 +819,7 @@ impl SqlValue {
     }
 
     /// Gets the SQL value as string. ...
-    pub(crate) fn as_string(&self) -> Result<String> {
+    pub(crate) fn to_string(&self) -> Result<String> {
         match self.native_type {
             NativeType::Int64 =>
                 Ok(self.get_i64_unchecked()?.to_string()),
@@ -856,7 +856,7 @@ impl SqlValue {
     }
 
     /// Gets the SQL value as Vec\<u8>. ...
-    pub(crate) fn as_bytes(&self) -> Result<Vec<u8>> {
+    pub(crate) fn to_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
             NativeType::Raw =>
                 self.get_raw_unchecked(),
@@ -872,7 +872,7 @@ impl SqlValue {
 
     /// Gets the SQL value as Timestamp. The Oracle type must be
     /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
-    pub(crate) fn as_timestamp(&self) -> Result<Timestamp> {
+    pub(crate) fn to_timestamp(&self) -> Result<Timestamp> {
         match self.native_type {
             NativeType::Timestamp =>
                 self.get_timestamp_unchecked(),
@@ -886,7 +886,7 @@ impl SqlValue {
 
     /// Gets the SQL value as IntervalDS. The Oracle type must be
     /// `INTERVAL DAY TO SECOND`.
-    pub(crate) fn as_interval_ds(&self) -> Result<IntervalDS> {
+    pub(crate) fn to_interval_ds(&self) -> Result<IntervalDS> {
         match self.native_type {
             NativeType::IntervalDS =>
                 self.get_interval_ds_unchecked(),
@@ -900,7 +900,7 @@ impl SqlValue {
 
     /// Gets the SQL value as IntervalYM. The Oracle type must be
     /// `INTERVAL YEAR TO MONTH`.
-    pub(crate) fn as_interval_ym(&self) -> Result<IntervalYM> {
+    pub(crate) fn to_interval_ym(&self) -> Result<IntervalYM> {
         match self.native_type {
             NativeType::IntervalYM =>
                 self.get_interval_ym_unchecked(),
@@ -912,7 +912,7 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn as_collection(&self) -> Result<Collection> {
+    pub(crate) fn to_collection(&self) -> Result<Collection> {
         match self.native_type {
             NativeType::Object(ref objtype) =>
                 if objtype.is_collection() {
@@ -925,7 +925,7 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn as_object(&self) -> Result<Object> {
+    pub(crate) fn to_object(&self) -> Result<Object> {
         match self.native_type {
             NativeType::Object(ref objtype) =>
                 if !objtype.is_collection() {
@@ -940,7 +940,7 @@ impl SqlValue {
 
     /// Gets the SQL value as bool. The Oracle type must be
     /// `BOOLEAN`(PL/SQL only).
-    pub(crate) fn as_bool(&self) -> Result<bool> {
+    pub(crate) fn to_bool(&self) -> Result<bool> {
         match self.native_type {
             NativeType::Boolean =>
                 self.get_bool_unchecked(),
@@ -1135,7 +1135,7 @@ impl fmt::Display for SqlValue {
     /// as `NULL`.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.oratype.is_some() {
-            match self.as_string() {
+            match self.to_string() {
                 Ok(s) => write!(f, "{}", s),
                 Err(Error::NullValue) => write!(f, "NULL"),
                 Err(err) => write!(f, "{}", err),
@@ -1150,7 +1150,7 @@ impl fmt::Debug for SqlValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(ref oratype) = self.oratype {
             write!(f, "SqlValue {{ val: ")?;
-            match self.as_string() {
+            match self.to_string() {
                 Ok(s) =>
                     match self.native_type {
                         NativeType::Char |

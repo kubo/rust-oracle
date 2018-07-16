@@ -241,7 +241,7 @@ impl Drop for Collection {
 
 impl FromSql for Collection {
     fn from_sql(val: &SqlValue) -> Result<Collection> {
-        val.as_collection()
+        val.to_collection()
     }
 }
 
@@ -398,7 +398,7 @@ impl Drop for Object {
 
 impl FromSql for Object {
     fn from_sql(val: &SqlValue) -> Result<Object> {
-        val.as_object()
+        val.to_object()
     }
 }
 
