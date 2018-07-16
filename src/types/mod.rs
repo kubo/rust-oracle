@@ -296,6 +296,21 @@ impl<'a> ToSql for &'a str {
     }
 }
 
+impl<'a> ToSqlNull for &'a [u8] {
+    fn oratype_for_null() -> Result<OracleType> {
+        Ok(OracleType::Raw(0))
+    }
+}
+
+impl<'a> ToSql for &'a [u8] {
+    fn oratype(&self) -> Result<OracleType> {
+        Ok(OracleType::Raw(self.len() as u32))
+    }
+    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+        val.set_bytes(*self)
+    }
+}
+
 impl<T: FromSql> FromSql for Option<T> {
     fn from_sql(val: &SqlValue) -> Result<Option<T>> {
         match <T>::from_sql(val) {

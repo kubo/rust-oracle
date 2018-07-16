@@ -581,10 +581,10 @@ impl SqlValue {
         self.set_bytes_unchecked(val.as_bytes())
     }
 
-    /// Sets Vec<u8> to the SQL value. The native_type must be
+    /// Sets &[u8] to the SQL value. The native_type must be
     /// NativeType::Raw. Otherwise, this may cause access violation.
-    fn set_raw_unchecked(&mut self, val: &Vec<u8>) -> Result<()> {
-        self.set_bytes_unchecked(val.as_slice())
+    fn set_raw_unchecked(&mut self, val: &[u8]) -> Result<()> {
+        self.set_bytes_unchecked(val)
     }
 
     /// Sets Timestamp to the SQL value. The native_type must be
@@ -627,7 +627,7 @@ impl SqlValue {
         Ok(())
     }
 
-    fn set_raw_to_blob_unchecked(&mut self, val: &Vec<u8>) -> Result<()> {
+    fn set_raw_to_blob_unchecked(&mut self, val: &[u8]) -> Result<()> {
         let ptr = val.as_ptr() as *const i8;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
@@ -1019,15 +1019,15 @@ impl SqlValue {
         }
     }
 
-    /// Sets Vec\<u8> to the SQL value. ...
-    pub(crate) fn set_bytes(&mut self, val: &Vec<u8>) -> Result<()> {
+    /// Sets &[u8] to the SQL value. ...
+    pub(crate) fn set_bytes(&mut self, val: &[u8]) -> Result<()> {
         match self.native_type {
             NativeType::Raw =>
                 self.set_raw_unchecked(val),
             NativeType::BLOB => 
                 self.set_raw_to_blob_unchecked(val),
             _ =>
-                self.invalid_conversion_from_rust_type("Vec<u8>"),
+                self.invalid_conversion_from_rust_type("&[u8]"),
         }
     }
 

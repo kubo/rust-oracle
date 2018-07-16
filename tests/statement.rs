@@ -297,12 +297,12 @@ fn insert_and_fetch() {
     assert_eq!(row.4, None);
 
     conn.execute("insert into TestStrings values (:1, :2, :3, :4, :5)",
-                 &[&100, &char_data, &b"str100".to_vec(), &char_data, &None::<String>]).unwrap();
+                 &[&100, &char_data, &raw_data.as_ref(), &char_data, &None::<String>]).unwrap();
     let row = conn.query_row_as::<(i32, String, Vec<u8>, String, Option<String>)>
         ("select * from TestStrings where IntCol = :1", &[&100]).unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, char_data);
-    assert_eq!(row.2, b"str100");
+    assert_eq!(row.2, raw_data);
     assert_eq!(row.3, format!("{:40}", char_data));
     assert_eq!(row.4, None);
 
