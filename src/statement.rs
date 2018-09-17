@@ -134,6 +134,28 @@ pub enum StatementType {
     Unknown,
 }
 
+impl StatementType {
+    pub(crate) fn from_enum(num: dpiStatementType) -> StatementType {
+        match num as u32 {
+            DPI_STMT_TYPE_SELECT => StatementType::Select,
+            DPI_STMT_TYPE_INSERT => StatementType::Insert,
+            DPI_STMT_TYPE_UPDATE => StatementType::Update,
+            DPI_STMT_TYPE_DELETE => StatementType::Delete,
+            DPI_STMT_TYPE_MERGE => StatementType::Merge,
+            DPI_STMT_TYPE_CREATE => StatementType::Create,
+            DPI_STMT_TYPE_ALTER => StatementType::Alter,
+            DPI_STMT_TYPE_DROP => StatementType::Drop,
+            DPI_STMT_TYPE_BEGIN => StatementType::Begin,
+            DPI_STMT_TYPE_DECLARE => StatementType::Declare,
+            DPI_STMT_TYPE_COMMIT => StatementType::Commit,
+            DPI_STMT_TYPE_ROLLBACK => StatementType::Rollback,
+            DPI_STMT_TYPE_EXPLAIN_PLAN => StatementType::ExplainPlan,
+            DPI_STMT_TYPE_CALL => StatementType::Call,
+            _ => StatementType::Unknown,
+        }
+    }
+}
+
 impl fmt::Display for StatementType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -163,7 +185,7 @@ pub struct Statement<'conn> {
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
-    statement_type: dpiStatementType,
+    statement_type: StatementType,
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec<String>,
@@ -225,7 +247,7 @@ impl<'conn> Statement<'conn> {
             column_info: Vec::new(),
             row: None,
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
-            statement_type: info.statementType,
+            statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
             bind_names: bind_names,
@@ -387,13 +409,13 @@ impl<'conn> Statement<'conn> {
 
     fn check_stmt_type(&self, must_be_query: bool, method_name: &str) -> Result<()> {
         if must_be_query {
-            if self.statement_type == DPI_STMT_TYPE_SELECT {
+            if self.statement_type == StatementType::Select {
                 Ok(())
             } else {
                 Err(Error::InvalidOperation(format!("Could not use the `{}` method for non-select statements", method_name)))
             }
         } else {
-            if self.statement_type != DPI_STMT_TYPE_SELECT {
+            if self.statement_type != StatementType::Select {
                 Ok(())
             } else {
                 Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
@@ -427,7 +449,7 @@ impl<'conn> Statement<'conn> {
                 dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size));
         chkerr!(self.conn.ctxt,
                 dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
-        if self.statement_type == DPI_STMT_TYPE_SELECT {
+        if self.statement_type == StatementType::Select {
             if self.row.is_none() {
                 let num_cols = num_query_columns as usize;
                 let mut column_names = Vec::with_capacity(num_cols);
@@ -653,36 +675,20 @@ impl<'conn> Statement<'conn> {
 
     /// Returns statement type
     pub fn statement_type(&self) -> StatementType {
-        match self.statement_type {
-            DPI_STMT_TYPE_SELECT => StatementType::Select,
-            DPI_STMT_TYPE_INSERT => StatementType::Insert,
-            DPI_STMT_TYPE_UPDATE => StatementType::Update,
-            DPI_STMT_TYPE_DELETE => StatementType::Delete,
-            DPI_STMT_TYPE_MERGE => StatementType::Merge,
-            DPI_STMT_TYPE_CREATE => StatementType::Create,
-            DPI_STMT_TYPE_ALTER => StatementType::Alter,
-            DPI_STMT_TYPE_DROP => StatementType::Drop,
-            DPI_STMT_TYPE_BEGIN => StatementType::Begin,
-            DPI_STMT_TYPE_DECLARE => StatementType::Declare,
-            DPI_STMT_TYPE_COMMIT => StatementType::Commit,
-            DPI_STMT_TYPE_ROLLBACK => StatementType::Rollback,
-            DPI_STMT_TYPE_EXPLAIN_PLAN => StatementType::ExplainPlan,
-            DPI_STMT_TYPE_CALL => StatementType::Call,
-            _ => StatementType::Unknown,
-        }
+        self.statement_type
     }
 
     /// Returns true when the SQL statement is a query.
     pub fn is_query(&self) -> bool {
-        self.statement_type == DPI_STMT_TYPE_SELECT
+        self.statement_type == StatementType::Select
     }
 
     /// Returns true when the SQL statement is a PL/SQL block.
     pub fn is_plsql(&self) -> bool {
         match self.statement_type {
-            DPI_STMT_TYPE_BEGIN |
-            DPI_STMT_TYPE_DECLARE |
-            DPI_STMT_TYPE_CALL => true,
+            StatementType::Begin |
+            StatementType::Declare |
+            StatementType::Call => true,
             _ => false,
         }
     }
@@ -690,9 +696,9 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement is DDL (data definition language).
     pub fn is_ddl(&self) -> bool {
         match self.statement_type {
-            DPI_STMT_TYPE_CREATE |
-            DPI_STMT_TYPE_DROP |
-            DPI_STMT_TYPE_ALTER => true,
+            StatementType::Create |
+            StatementType::Drop |
+            StatementType::Alter => true,
             _ => false,
         }
     }
@@ -700,10 +706,10 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement is DML (data manipulation language).
     pub fn is_dml(&self) -> bool {
         match self.statement_type {
-            DPI_STMT_TYPE_INSERT |
-            DPI_STMT_TYPE_UPDATE |
-            DPI_STMT_TYPE_DELETE |
-            DPI_STMT_TYPE_MERGE => true,
+            StatementType::Insert |
+            StatementType::Update |
+            StatementType::Delete |
+            StatementType::Merge => true,
             _ => false,
         }
     }

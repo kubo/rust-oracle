@@ -689,6 +689,11 @@ impl Connection {
 
     /// Gets information about the server version
     ///
+    /// NOTE: if you connect to Oracle Database 18 or higher with
+    /// Oracle client libraries 12.2 or lower, it gets the base
+    /// version (such as 18.0.0.0.0) instead of the full version
+    /// (such as 18.3.0.0.0).
+    ///
     /// # Examples
     ///
     /// ```no_run

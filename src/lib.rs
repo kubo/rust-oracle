@@ -513,8 +513,8 @@ impl Default for dpiSubscrCreateParams {
         dpiSubscrCreateParams {
             subscrNamespace: 0,
             protocol: 0,
-            qos: dpiSubscrQOS(0),
-            operations: dpiOpCode(0),
+            qos: 0,
+            operations: 0,
             portNumber: 0,
             timeout: 0,
             name: ptr::null(),
