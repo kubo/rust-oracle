@@ -85,7 +85,7 @@ use ParseOracleTypeError;
 ///
 /// Fetch and bind interval values.
 ///
-/// ```
+/// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
