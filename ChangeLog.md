@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.1.2 (2018-09-22)
+
+Changes:
+
+* Change the license to the Universal Permissive License v 1.0 and/or the Apache License v 2.0.
+
+* Update ODPI-C to 3.0.0, which includes support for Oracle 18c client.
+
+* New methods
+  * [`Statement.row_count()`][]
+
 ## 0.1.1 (2018-07-16)
 
 Changes:
@@ -192,6 +203,7 @@ Incompatible changes:
 [`Statement.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as
 [`Statement.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as_named
 [`Statement.returned_values()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.returned_values
+[`Statement.row_count()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.row_count
 [`Statement.is_query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_query
 [`Statement.is_plsql()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_plsql
 [`Statement.is_ddl()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_ddl
