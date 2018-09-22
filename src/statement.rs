@@ -673,6 +673,15 @@ impl<'conn> Statement<'conn> {
         }
     }
 
+    /// Returns the number of rows fetched when the SQL statement is a query.
+    /// Otherwise, the number of rows affected.
+    pub fn row_count(&self) -> Result<u64> {
+        let mut count = 0;
+        chkerr!(self.conn.ctxt,
+                dpiStmt_getRowCount(self.handle, &mut count));
+        Ok(count)
+    }
+
     /// Returns statement type
     pub fn statement_type(&self) -> StatementType {
         self.statement_type

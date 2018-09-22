@@ -373,3 +373,19 @@ fn insert_and_fetch() {
     assert_eq!(row.1, interval_ds_data);
     assert_eq!(row.2, None);
 }
+
+#[test]
+fn row_count() {
+    let conn = common::connect().unwrap();
+
+    // rows affected
+    let stmt = conn.execute("update TestStrings set StringCol = StringCol where IntCol >= :1", &[&6]).unwrap();
+    assert_eq!(stmt.row_count().unwrap(), 5);
+
+    // rows fetched
+    let mut stmt = conn.prepare("select * from TestStrings where IntCol >= :1", &[]).unwrap();
+    assert_eq!(stmt.row_count().unwrap(), 0); // before fetch
+    for _row in &stmt.query(&[&6]).unwrap() {
+    }
+    assert_eq!(stmt.row_count().unwrap(), 5); // after fetch
+}
