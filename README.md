@@ -232,9 +232,7 @@ required.
 
 ## License
 
-Rust-oracle itself is under [2-clause BSD-style license](https://opensource.org/licenses/BSD-2-Clause).
-
-ODPI-C bundled in rust-oracle is under the terms of:
+Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
