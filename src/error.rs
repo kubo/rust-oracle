@@ -38,7 +38,7 @@ pub enum Error {
     NullValue,
 
     /// Error when conversion from a string to an Oracle value fails
-    ParseError(Box<error::Error>),
+    ParseError(Box<error::Error + Send + Sync>),
 
     /// Error when conversion from a type to another fails due to out-of-range
     OutOfRange(String),
