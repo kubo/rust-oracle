@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.0 (not released)
+
+Incompatible changes:
+
+* Make errors usable across threads ([GH-6][])
+
 ## 0.1.2 (2018-09-22)
 
 Changes:
@@ -161,6 +167,7 @@ Incompatible changes:
   * SqlValue.clone()
 
 [GH-3]: https://github.com/kubo/rust-oracle/issues/3
+[GH-6]: https://github.com/kubo/rust-oracle/issues/6
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute

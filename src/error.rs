@@ -341,3 +341,17 @@ macro_rules! chkerr {
         }
     }};
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn assert_send<T: Send>() {}
+    fn assert_sync<T: Sync>() {}
+
+    #[test]
+    fn thread_safety() {
+        assert_send::<Error>();
+        assert_sync::<Error>();
+    }
+}
