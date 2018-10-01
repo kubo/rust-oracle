@@ -21,6 +21,8 @@ use std::str;
 use try_from;
 use binding::dpiErrorInfo;
 use binding::dpiContext_getError;
+use AssertSend;
+use AssertSync;
 use Context;
 
 use to_rust_str;
@@ -79,6 +81,9 @@ pub enum Error {
     /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError(String),
 }
+
+impl AssertSend for Error {}
+impl AssertSync for Error {}
 
 /// An error when parsing a string into an Oracle type fails.
 /// This appears only in boxed data associated with [Error::ParseError][].
@@ -340,18 +345,4 @@ macro_rules! chkerr {
             return Err(err);
         }
     }};
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn assert_send<T: Send>() {}
-    fn assert_sync<T: Sync>() {}
-
-    #[test]
-    fn thread_safety() {
-        assert_send::<Error>();
-        assert_sync::<Error>();
-    }
 }
