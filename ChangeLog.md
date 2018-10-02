@@ -1,12 +1,12 @@
 # Change Log
 
-## 0.2.0 (not released)
+## 0.2.0 (2018-10-02)
 
 Incompatible changes:
 
 * Make errors usable across threads ([GH-6][])
 
-## 0.1.2 (2018-09-22)
+## 0.1.2 (2018-09-22 - yanked because of packaging miss)
 
 Changes:
 
