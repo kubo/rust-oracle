@@ -368,6 +368,9 @@ enum ContextResult {
 
 unsafe impl Sync for ContextResult {}
 
+trait AssertSend: Send {}
+trait AssertSync: Sync {}
+
 lazy_static! {
     static ref DPI_CONTEXT: ContextResult = {
         let mut ctxt = Context {
