@@ -260,7 +260,7 @@ required.
 Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
-2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
+2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 [Rust]:                 https://www.rust-lang.org/
 [ODPI-C]:               https://oracle.github.io/odpi/
@@ -291,40 +291,40 @@ mod binding;
 mod error;
 mod connection;
 mod row;
-mod statement;
 mod sql_value;
+mod statement;
 mod types;
 mod util;
 
-pub use connection::StartupMode;
-pub use connection::ShutdownMode;
 pub use connection::ConnParam;
 pub use connection::Connection;
+pub use connection::ShutdownMode;
+pub use connection::StartupMode;
+pub use error::DbError;
 pub use error::Error;
 pub use error::ParseOracleTypeError;
-pub use error::DbError;
 pub use row::ResultSet;
 pub use row::Row;
 pub use row::RowValue;
-pub use statement::StmtParam;
-pub use statement::StatementType;
-pub use statement::Statement;
-pub use statement::ColumnInfo;
+pub use sql_value::SqlValue;
 pub use statement::BindIndex;
 pub use statement::ColumnIndex;
-pub use sql_value::SqlValue;
-pub use types::FromSql;
-pub use types::ToSql;
-pub use types::ToSqlNull;
+pub use statement::ColumnInfo;
+pub use statement::Statement;
+pub use statement::StatementType;
+pub use statement::StmtParam;
+pub use types::interval_ds::IntervalDS;
+pub use types::interval_ym::IntervalYM;
 pub use types::object::Collection;
 pub use types::object::Object;
 pub use types::object::ObjectType;
 pub use types::object::ObjectTypeAttr;
 pub use types::oracle_type::OracleType;
 pub use types::timestamp::Timestamp;
-pub use types::interval_ds::IntervalDS;
-pub use types::interval_ym::IntervalYM;
 pub use types::version::Version;
+pub use types::FromSql;
+pub use types::ToSql;
+pub use types::ToSqlNull;
 
 use binding::*;
 use types::oracle_type::NativeType;
@@ -344,8 +344,7 @@ pub type Result<T> = result::Result<T, Error>;
 pub fn client_version() -> Result<Version> {
     let mut dpi_ver = Default::default();
     let ctx = Context::get()?;
-    chkerr!(ctx,
-            dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
+    chkerr!(ctx, dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
     Ok(Version::new_from_dpi_ver(dpi_ver))
 }
 
@@ -382,8 +381,14 @@ lazy_static! {
         };
         let mut err: dpiErrorInfo = Default::default();
         if unsafe {
-            dpiContext_create(DPI_MAJOR_VERSION, DPI_MINOR_VERSION, &mut ctxt.context, &mut err)
-        } == DPI_SUCCESS as i32 {
+            dpiContext_create(
+                DPI_MAJOR_VERSION,
+                DPI_MINOR_VERSION,
+                &mut ctxt.context,
+                &mut err,
+            )
+        } == DPI_SUCCESS as i32
+        {
             unsafe {
                 let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
                 let driver_name = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
@@ -465,9 +470,7 @@ impl Default for dpiData {
     fn default() -> dpiData {
         dpiData {
             isNull: 0,
-            value: dpiDataBuffer {
-                asInt64: 0,
-            },
+            value: dpiDataBuffer { asInt64: 0 },
         }
     }
 }

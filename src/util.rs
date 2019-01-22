@@ -14,8 +14,8 @@
 //-----------------------------------------------------------------------------
 
 use std::fmt;
-use std::str;
 use std::result;
+use std::str;
 use Error;
 use OracleType;
 use ParseOracleTypeError;
@@ -51,25 +51,26 @@ impl<'a> Scanner<'a> {
         let mut num = 0;
         self.ndigits = 0;
         loop {
-            num = num * 10 + match self.char {
-                Some('0') =>  0,
-                Some('1') =>  1,
-                Some('2') =>  2,
-                Some('3') =>  3,
-                Some('4') =>  4,
-                Some('5') =>  5,
-                Some('6') =>  6,
-                Some('7') =>  7,
-                Some('8') =>  8,
-                Some('9') =>  9,
-                _ => {
-                    if self.ndigits > 0 {
-                        return Some(num);
-                    } else {
-                        return None;
+            num = num * 10
+                + match self.char {
+                    Some('0') => 0,
+                    Some('1') => 1,
+                    Some('2') => 2,
+                    Some('3') => 3,
+                    Some('4') => 4,
+                    Some('5') => 5,
+                    Some('6') => 6,
+                    Some('7') => 7,
+                    Some('8') => 8,
+                    Some('9') => 9,
+                    _ => {
+                        if self.ndigits > 0 {
+                            return Some(num);
+                        } else {
+                            return None;
+                        }
                     }
-                }
-            };
+                };
             self.char = self.chars.next();
             self.ndigits += 1;
         }
@@ -107,13 +108,13 @@ pub fn check_number_format(s: &str) -> result::Result<(), ParseOracleTypeError> 
             match s.char() {
                 Some('+') | Some('-') => {
                     s.next();
-                },
+                }
                 _ => (),
             }
             if s.read_digits().is_none() {
                 return Err(err());
             }
-        },
+        }
         _ => (),
     }
     if let Some(_) = s.char() {
@@ -128,9 +129,9 @@ pub fn parse_str_into_raw(s: &str) -> result::Result<Vec<u8>, ParseOracleTypeErr
     let mut upper_half = 0u8;
     for chr in s.bytes() {
         let half_byte = match chr {
-            b'0' ... b'9' => chr - b'0',
-            b'A' ... b'F' => chr - b'A' + 10,
-            b'a' ... b'f' => chr - b'a' + 10,
+            b'0'...b'9' => chr - b'0',
+            b'A'...b'F' => chr - b'A' + 10,
+            b'a'...b'f' => chr - b'a' + 10,
             _ => return Err(ParseOracleTypeError::new("raw")),
         };
         if upper {
@@ -144,10 +145,12 @@ pub fn parse_str_into_raw(s: &str) -> result::Result<Vec<u8>, ParseOracleTypeErr
 }
 
 pub fn set_hex_string(s: &mut String, bytes: &[u8]) {
-    let to_hex = |x| if x < 10 {
-        (b'0' + x) as char
-    } else {
-        (b'A' + (x - 10)) as char
+    let to_hex = |x| {
+        if x < 10 {
+            (b'0' + x) as char
+        } else {
+            (b'A' + (x - 10)) as char
+        }
     };
     for byte in bytes {
         s.push(to_hex(byte >> 4));
@@ -155,33 +158,35 @@ pub fn set_hex_string(s: &mut String, bytes: &[u8]) {
     }
 }
 
-pub fn write_literal(f: &mut fmt::Formatter, s: &Result<String>, oratype: &OracleType) -> fmt::Result {
+pub fn write_literal(
+    f: &mut fmt::Formatter,
+    s: &Result<String>,
+    oratype: &OracleType,
+) -> fmt::Result {
     match *s {
-        Ok(ref s) => {
-            match *oratype {
-                OracleType::Varchar2(_) |
-                OracleType::NVarchar2(_) |
-                OracleType::Char(_) |
-                OracleType::NChar(_) |
-                OracleType::Rowid |
-                OracleType::Raw(_) |
-                OracleType::CLOB |
-                OracleType::NCLOB |
-                OracleType::BLOB |
-                OracleType::BFILE |
-                OracleType::Long |
-                OracleType::LongRaw => {
-                    write!(f, "\"")?;
-                    for c in s.chars() {
-                        if c == '"' {
-                            write!(f, "\"")?;
-                        }
-                        write!(f, "{}", c)?;
+        Ok(ref s) => match *oratype {
+            OracleType::Varchar2(_)
+            | OracleType::NVarchar2(_)
+            | OracleType::Char(_)
+            | OracleType::NChar(_)
+            | OracleType::Rowid
+            | OracleType::Raw(_)
+            | OracleType::CLOB
+            | OracleType::NCLOB
+            | OracleType::BLOB
+            | OracleType::BFILE
+            | OracleType::Long
+            | OracleType::LongRaw => {
+                write!(f, "\"")?;
+                for c in s.chars() {
+                    if c == '"' {
+                        write!(f, "\"")?;
                     }
-                    write!(f, "\"")
-                },
-                _ => write!(f, "{}", s),
+                    write!(f, "{}", c)?;
+                }
+                write!(f, "\"")
             }
+            _ => write!(f, "{}", s),
         },
         Err(Error::NullValue) => write!(f, "NULL"),
         Err(ref err) => write!(f, "ERR({})", err),
@@ -231,12 +236,23 @@ mod tests {
         assert_eq!(parse_str_into_raw(""), Ok(vec![]));
         assert_eq!(parse_str_into_raw("010203"), Ok(vec![1, 2, 3]));
         assert_eq!(parse_str_into_raw("10203"), Ok(vec![1, 2, 3]));
-        assert_eq!(parse_str_into_raw("090a0A0f0F"), Ok(vec![9, 10, 10, 15, 15]));
+        assert_eq!(
+            parse_str_into_raw("090a0A0f0F"),
+            Ok(vec![9, 10, 10, 15, 15])
+        );
         assert_eq!(parse_str_into_raw("G"), err);
         assert_eq!(parse_str_into_raw("g"), err);
-        assert_eq!(parse_str_into_raw("1223344556677889"), Ok(vec![0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89]));
-        assert_eq!(parse_str_into_raw("9aabbccddeeff0"), Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0]));
-        assert_eq!(parse_str_into_raw("9AABBCCDDEEFF0"), Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0]));
+        assert_eq!(
+            parse_str_into_raw("1223344556677889"),
+            Ok(vec![0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89])
+        );
+        assert_eq!(
+            parse_str_into_raw("9aabbccddeeff0"),
+            Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0])
+        );
+        assert_eq!(
+            parse_str_into_raw("9AABBCCDDEEFF0"),
+            Ok(vec![0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0])
+        );
     }
 }
-

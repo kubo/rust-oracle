@@ -48,9 +48,12 @@ pub struct Row {
 }
 
 impl Row {
-    pub(crate) fn new(conn: &Connection, column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
-        chkerr!(conn.ctxt,
-                dpiConn_addRef(conn.handle));
+    pub(crate) fn new(
+        conn: &Connection,
+        column_names: Vec<String>,
+        column_values: Vec<SqlValue>,
+    ) -> Result<Row> {
+        chkerr!(conn.ctxt, dpiConn_addRef(conn.handle));
         let shared = RowSharedData {
             column_names: column_names,
             conn_handle: conn.handle,
@@ -62,7 +65,11 @@ impl Row {
     }
 
     /// Gets the column value at the specified index.
-    pub fn get<I, T>(&self, colidx: I) -> Result<T> where I: ColumnIndex, T: FromSql {
+    pub fn get<I, T>(&self, colidx: I) -> Result<T>
+    where
+        I: ColumnIndex,
+        T: FromSql,
+    {
         let pos = colidx.idx(&self.shared.column_names)?;
         self.column_values[pos].get()
     }
@@ -93,7 +100,10 @@ impl Row {
     /// }
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn get_as<T>(&self) -> Result<<T>::Item> where T: RowValue {
+    pub fn get_as<T>(&self) -> Result<<T>::Item>
+    where
+        T: RowValue,
+    {
         <T>::get(self)
     }
 }
@@ -109,13 +119,19 @@ impl fmt::Debug for Row {
 }
 
 /// Result set
-pub struct ResultSet<'a, T> where T: RowValue {
+pub struct ResultSet<'a, T>
+where
+    T: RowValue,
+{
     stmt: Option<&'a Statement<'a>>,
     pub(crate) stmt_boxed: Option<Box<Statement<'a>>>,
     phantom: PhantomData<T>,
 }
 
-impl<'a, T> ResultSet<'a, T> where T: RowValue {
+impl<'a, T> ResultSet<'a, T>
+where
+    T: RowValue,
+{
     pub(crate) fn new(stmt: &'a Statement<'a>) -> ResultSet<'a, T> {
         ResultSet {
             stmt: Some(stmt),
@@ -147,7 +163,10 @@ impl<'a, T> ResultSet<'a, T> where T: RowValue {
     }
 }
 
-impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T> where T: RowValue {
+impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T>
+where
+    T: RowValue,
+{
     type Item = Result<<T>::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -157,12 +176,22 @@ impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T> where T: RowValue {
     }
 }
 
-impl<'stmt, T> fmt::Debug for ResultSet<'stmt, T> where T: RowValue {
+impl<'stmt, T> fmt::Debug for ResultSet<'stmt, T>
+where
+    T: RowValue,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let stmt = self.stmt();
-        write!(f, "ResultSet {{ origin: {}, stmt: {:?} }}",
-               if self.stmt.is_some() { "statement" } else { "connection" },
-               stmt)
+        write!(
+            f,
+            "ResultSet {{ origin: {}, stmt: {:?} }}",
+            if self.stmt.is_some() {
+                "statement"
+            } else {
+                "connection"
+            },
+            stmt
+        )
     }
 }
 
@@ -275,7 +304,7 @@ macro_rules! impl_row_value_for_tuple {
     }
 }
 
-impl_row_value_for_tuple!{
+impl_row_value_for_tuple! {
     [(0,T0)],
     [(0,T0)(1,T1)],
     [(0,T0)(1,T1)(2,T2)],

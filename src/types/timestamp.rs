@@ -145,8 +145,15 @@ impl Timestamp {
     /// | `second` | 0 to 59 |
     /// | `nanosecond` | 0 to 999,999,999 |
     ///
-    pub fn new(year: i32, month: u32, day: u32,
-               hour: u32, minute: u32, second: u32, nanosecond: u32) -> Timestamp {
+    pub fn new(
+        year: i32,
+        month: u32,
+        day: u32,
+        hour: u32,
+        minute: u32,
+        second: u32,
+        nanosecond: u32,
+    ) -> Timestamp {
         Timestamp {
             year: year,
             month: month,
@@ -171,7 +178,7 @@ impl Timestamp {
             tz_hour_offset: offset / 3600,
             tz_minute_offset: offset % 3600 / 60,
             with_tz: true,
-            .. *self
+            ..*self
         }
     }
 
@@ -186,7 +193,7 @@ impl Timestamp {
             tz_hour_offset: hour_offset,
             tz_minute_offset: minute_offset,
             with_tz: true,
-            .. *self
+            ..*self
         }
     }
 
@@ -198,7 +205,7 @@ impl Timestamp {
     pub fn and_prec(&self, precision: u8) -> Timestamp {
         Timestamp {
             precision: precision,
-            .. *self
+            ..*self
         }
     }
 
@@ -254,7 +261,7 @@ impl Timestamp {
 
     /// Returns true when the timestamp's text representation includes time zone information.
     /// Otherwise, false.
-    pub fn with_tz(&self) ->bool {
+    pub fn with_tz(&self) -> bool {
         self.with_tz
     }
 
@@ -280,7 +287,11 @@ impl cmp::PartialEq for Timestamp {
 
 impl fmt::Display for Timestamp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}-{:02}-{:02} {:02}:{:02}:{:02}", self.year, self.month, self.day, self.hour, self.minute, self.second)?;
+        write!(
+            f,
+            "{}-{:02}-{:02} {:02}:{:02}:{:02}",
+            self.year, self.month, self.day, self.hour, self.minute, self.second
+        )?;
         match self.precision {
             1 => write!(f, ".{:01}", self.nanosecond / 100000000)?,
             2 => write!(f, ".{:02}", self.nanosecond / 10000000)?,
@@ -299,8 +310,13 @@ impl fmt::Display for Timestamp {
             } else {
                 '+'
             };
-            write!(f, " {}{:02}:{:02}", sign,
-                   self.tz_hour_offset.abs(), self.tz_minute_offset.abs())?;
+            write!(
+                f,
+                " {}{:02}:{:02}",
+                sign,
+                self.tz_hour_offset.abs(),
+                self.tz_minute_offset.abs()
+            )?;
         }
         Ok(())
     }
@@ -328,7 +344,7 @@ impl str::FromStr for Timestamp {
                     month = (year / 100) % 100;
                     year /= 10000;
                 }
-            },
+            }
             Some('-') => {
                 s.next();
                 month = s.read_digits().ok_or(err())?;
@@ -336,15 +352,15 @@ impl str::FromStr for Timestamp {
                     s.next();
                     day = s.read_digits().ok_or(err())?
                 }
-            },
+            }
             _ => return Err(err()),
         }
         let mut hour = 0;
         let mut min = 0;
         let mut sec = 0;
         let mut nsec = 0;
-        let mut tz_hour:i32 = 0;
-        let mut tz_min:i32 = 0;
+        let mut tz_hour: i32 = 0;
+        let mut tz_min: i32 = 0;
         let mut precision = 0;
         let mut with_tz = false;
         if let Some(c) = s.char() {
@@ -365,10 +381,10 @@ impl str::FromStr for Timestamp {
                         min = (hour / 100) % 100;
                         hour /= 10000;
                     } else {
-                        return Err(err())
+                        return Err(err());
                     }
-                },
-                _ => return Err(err())
+                }
+                _ => return Err(err()),
             }
             if let Some('.') = s.char() {
                 s.next();
@@ -397,7 +413,7 @@ impl str::FromStr for Timestamp {
                         tz_hour /= 100;
                     }
                     with_tz = true;
-                },
+                }
                 Some('-') => {
                     s.next();
                     tz_hour = s.read_digits().ok_or(err())? as i32;
@@ -408,23 +424,29 @@ impl str::FromStr for Timestamp {
                         tz_min = tz_hour % 100;
                         tz_hour /= 100;
                     }
-                    tz_hour = - tz_hour;
-                    tz_min = - tz_min;
+                    tz_hour = -tz_hour;
+                    tz_min = -tz_min;
                     with_tz = true;
-                },
+                }
                 Some('Z') => {
                     s.next();
                     with_tz = true;
-                },
+                }
                 _ => (),
             }
             if s.char().is_some() {
-                return Err(err())
+                return Err(err());
             }
         }
-        let mut ts = Timestamp::new(if minus { - (year as i32) } else { year as i32},
-                                    month as u32, day as u32,
-                                    hour as u32, min as u32, sec as u32, nsec as u32);
+        let mut ts = Timestamp::new(
+            if minus { -(year as i32) } else { year as i32 },
+            month as u32,
+            day as u32,
+            hour as u32,
+            min as u32,
+            sec as u32,
+            nsec as u32,
+        );
         ts.precision = precision as u8;
         if with_tz {
             ts = ts.and_tz_hm_offset(tz_hour, tz_min);
@@ -463,7 +485,8 @@ mod tests {
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456");
         ts.with_tz = true;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456 +08:45");
-        ts.tz_hour_offset = -8; ts.tz_minute_offset = -45;
+        ts.tz_hour_offset = -8;
+        ts.tz_minute_offset = -45;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456 -08:45");
         ts.precision = 0;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07 -08:45");
@@ -483,55 +506,73 @@ mod tests {
 
     #[test]
     fn parse() {
-        let mut ts = Timestamp::new(2012, 1, 1, // year, month, day,
-                                    0, 0, 0, 0); // hour, minute, second, nanosecond,
+        let mut ts = Timestamp::new(
+            2012, 1, 1, // year, month, day,
+            0, 0, 0, 0,
+        ); // hour, minute, second, nanosecond,
         ts.precision = 0;
         assert_eq!("2012".parse(), Ok(ts));
-        ts.month = 3; ts.day = 4;
+        ts.month = 3;
+        ts.day = 4;
         assert_eq!("20120304".parse(), Ok(ts));
         assert_eq!("2012-03-04".parse(), Ok(ts));
-        ts.hour = 5; ts.minute = 6; ts.second = 7;
+        ts.hour = 5;
+        ts.minute = 6;
+        ts.second = 7;
         assert_eq!("2012-03-04 05:06:07".parse(), Ok(ts));
         assert_eq!("2012-03-04T05:06:07".parse(), Ok(ts));
         assert_eq!("20120304T050607".parse(), Ok(ts));
-        ts.nanosecond = 800000000; ts.precision = 1;
+        ts.nanosecond = 800000000;
+        ts.precision = 1;
         assert_eq!("2012-03-04 05:06:07.8".parse(), Ok(ts));
-        ts.nanosecond = 890000000; ts.precision = 2;
+        ts.nanosecond = 890000000;
+        ts.precision = 2;
         assert_eq!("2012-03-04T05:06:07.89".parse(), Ok(ts));
-        ts.nanosecond = 890000000; ts.precision = 3;
+        ts.nanosecond = 890000000;
+        ts.precision = 3;
         assert_eq!("20120304T050607.890".parse(), Ok(ts));
-        ts.nanosecond = 890100000; ts.precision = 4;
+        ts.nanosecond = 890100000;
+        ts.precision = 4;
         assert_eq!("2012-03-04 05:06:07.8901".parse(), Ok(ts));
-        ts.nanosecond = 890120000; ts.precision = 5;
+        ts.nanosecond = 890120000;
+        ts.precision = 5;
         assert_eq!("2012-03-04 05:06:07.89012".parse(), Ok(ts));
-        ts.nanosecond = 890123000; ts.precision = 6;
+        ts.nanosecond = 890123000;
+        ts.precision = 6;
         assert_eq!("2012-03-04 05:06:07.890123".parse(), Ok(ts));
-        ts.nanosecond = 890123400; ts.precision = 7;
+        ts.nanosecond = 890123400;
+        ts.precision = 7;
         assert_eq!("2012-03-04 05:06:07.8901234".parse(), Ok(ts));
-        ts.nanosecond = 890123450; ts.precision = 8;
+        ts.nanosecond = 890123450;
+        ts.precision = 8;
         assert_eq!("2012-03-04 05:06:07.89012345".parse(), Ok(ts));
-        ts.nanosecond = 890123456; ts.precision = 9;
+        ts.nanosecond = 890123456;
+        ts.precision = 9;
         assert_eq!("2012-03-04 05:06:07.890123456".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.8901234567".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.89012345678".parse(), Ok(ts));
         ts.with_tz = true;
-        ts.nanosecond = 0; ts.precision = 0;
+        ts.nanosecond = 0;
+        ts.precision = 0;
         assert_eq!("2012-03-04 05:06:07Z".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+00:00".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +00:00".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+0000".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +0000".parse(), Ok(ts));
-        ts.tz_hour_offset = 8; ts.tz_minute_offset = 45;
+        ts.tz_hour_offset = 8;
+        ts.tz_minute_offset = 45;
         assert_eq!("2012-03-04 05:06:07+08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+0845".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +0845".parse(), Ok(ts));
-        ts.tz_hour_offset = -8; ts.tz_minute_offset = -45;
+        ts.tz_hour_offset = -8;
+        ts.tz_minute_offset = -45;
         assert_eq!("2012-03-04 05:06:07-08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 -08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07-0845".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 -0845".parse(), Ok(ts));
-        ts.nanosecond = 123000000; ts.precision = 3;
+        ts.nanosecond = 123000000;
+        ts.precision = 3;
         assert_eq!("2012-03-04 05:06:07.123-08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.123 -08:45".parse(), Ok(ts));
         ts.year = -123;

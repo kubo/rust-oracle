@@ -27,5 +27,4 @@ fn main() {
     println!("--- Server Version Banner ---");
     println!("{}", banner);
     println!("-----------------------------");
-
 }

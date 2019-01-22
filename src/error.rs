@@ -13,14 +13,14 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::ffi::CStr;
+use binding::dpiContext_getError;
+use binding::dpiErrorInfo;
 use std::error;
+use std::ffi::CStr;
 use std::fmt;
 use std::num;
 use std::str;
 use try_from;
-use binding::dpiErrorInfo;
-use binding::dpiContext_getError;
 use AssertSend;
 use AssertSync;
 use Context;
@@ -96,9 +96,7 @@ pub struct ParseOracleTypeError {
 
 impl ParseOracleTypeError {
     pub fn new(typename: &'static str) -> ParseOracleTypeError {
-        ParseOracleTypeError {
-            typename: typename,
-        }
+        ParseOracleTypeError { typename: typename }
     }
 }
 
@@ -135,7 +133,13 @@ pub struct DbError {
 }
 
 impl DbError {
-    pub fn new(code: i32, offset: u16, message: String, fn_name: String, action: String) -> DbError {
+    pub fn new(
+        code: i32,
+        offset: u16,
+        message: String,
+        fn_name: String,
+        action: String,
+    ) -> DbError {
         DbError {
             code: code,
             offset: offset,
@@ -174,36 +178,27 @@ impl DbError {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Error::OciError(ref err) =>
-                write!(f, "OCI Error: {}", err.message),
-            Error::DpiError(ref err) =>
-                write!(f, "DPI Error: {}", err.message),
-            Error::NullValue =>
-                write!(f, "NULL value found"),
-            Error::ParseError(ref err) =>
-                write!(f, "{}", err),
-            Error::OutOfRange(ref msg) =>
-                write!(f, "out of range: {}", msg),
-            Error::InvalidTypeConversion(ref from, ref to) =>
-                write!(f, "invalid type conversion from {} to {}", from, to),
-            Error::InvalidBindIndex(ref idx) =>
-                write!(f, "invalid bind index (one-based): {}", idx),
-            Error::InvalidBindName(ref name) =>
-                write!(f, "invalid bind name: {}", name),
-            Error::InvalidColumnIndex(ref idx) =>
-                write!(f, "invalid column index (zero-based): {}", idx),
-            Error::InvalidColumnName(ref name) =>
-                write!(f, "invalid column name: {}", name),
-            Error::InvalidAttributeName(ref name) =>
-                write!(f, "invalid attribute name: {}", name),
-            Error::InvalidOperation(ref msg) =>
-                write!(f, "invalid operation: {}", msg),
-            Error::UninitializedBindValue =>
-                write!(f, "Try to access uninitialized bind value"),
-            Error::NoDataFound =>
-                write!(f, "No data found"),
-            Error::InternalError(ref msg) =>
-                write!(f, "Internal Error: {}", msg),
+            Error::OciError(ref err) => write!(f, "OCI Error: {}", err.message),
+            Error::DpiError(ref err) => write!(f, "DPI Error: {}", err.message),
+            Error::NullValue => write!(f, "NULL value found"),
+            Error::ParseError(ref err) => write!(f, "{}", err),
+            Error::OutOfRange(ref msg) => write!(f, "out of range: {}", msg),
+            Error::InvalidTypeConversion(ref from, ref to) => {
+                write!(f, "invalid type conversion from {} to {}", from, to)
+            }
+            Error::InvalidBindIndex(ref idx) => {
+                write!(f, "invalid bind index (one-based): {}", idx)
+            }
+            Error::InvalidBindName(ref name) => write!(f, "invalid bind name: {}", name),
+            Error::InvalidColumnIndex(ref idx) => {
+                write!(f, "invalid column index (zero-based): {}", idx)
+            }
+            Error::InvalidColumnName(ref name) => write!(f, "invalid column name: {}", name),
+            Error::InvalidAttributeName(ref name) => write!(f, "invalid attribute name: {}", name),
+            Error::InvalidOperation(ref msg) => write!(f, "invalid operation: {}", msg),
+            Error::UninitializedBindValue => write!(f, "Try to access uninitialized bind value"),
+            Error::NoDataFound => write!(f, "No data found"),
+            Error::InternalError(ref msg) => write!(f, "Internal Error: {}", msg),
         }
     }
 }
@@ -211,36 +206,23 @@ impl fmt::Display for Error {
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Error::OciError(ref err) =>
-                write!(f, "OciError({:?})", err),
-            Error::DpiError(ref err) =>
-                write!(f, "DpiError({:?})", err),
-            Error::NullValue =>
-                write!(f, "NullValue"),
-            Error::ParseError(ref err) =>
-                write!(f, "ParseError({:?})", err),
-            Error::OutOfRange(ref msg) =>
-                write!(f, "OutOfRange({:?})", msg),
-            Error::InvalidTypeConversion(ref from, ref to) =>
-                write!(f, "InvalidTypeConversion(from: {:?}, to: {:?})", from, to),
-            Error::InvalidBindIndex(ref idx) =>
-                write!(f, "InvalidBindIndex({:?})", idx),
-            Error::InvalidBindName(ref name) =>
-                write!(f, "InvalidBindName({:?})", name),
-            Error::InvalidColumnIndex(ref idx) =>
-                write!(f, "InvalidColumnIndex({:?})", idx),
-            Error::InvalidColumnName(ref name) =>
-                write!(f, "InvalidColumnName({:?})", name),
-            Error::InvalidAttributeName(ref name) =>
-                write!(f, "InvalidAttributeName({:?})", name),
-            Error::InvalidOperation(ref msg) =>
-                write!(f, "InvalidOperation({:?})", msg),
-            Error::UninitializedBindValue =>
-                write!(f, "UninitializedBindValue"),
-            Error::NoDataFound =>
-                write!(f, "NoDataFound"),
-            Error::InternalError(ref msg) =>
-                write!(f, "InternalError({:?})", msg),
+            Error::OciError(ref err) => write!(f, "OciError({:?})", err),
+            Error::DpiError(ref err) => write!(f, "DpiError({:?})", err),
+            Error::NullValue => write!(f, "NullValue"),
+            Error::ParseError(ref err) => write!(f, "ParseError({:?})", err),
+            Error::OutOfRange(ref msg) => write!(f, "OutOfRange({:?})", msg),
+            Error::InvalidTypeConversion(ref from, ref to) => {
+                write!(f, "InvalidTypeConversion(from: {:?}, to: {:?})", from, to)
+            }
+            Error::InvalidBindIndex(ref idx) => write!(f, "InvalidBindIndex({:?})", idx),
+            Error::InvalidBindName(ref name) => write!(f, "InvalidBindName({:?})", name),
+            Error::InvalidColumnIndex(ref idx) => write!(f, "InvalidColumnIndex({:?})", idx),
+            Error::InvalidColumnName(ref name) => write!(f, "InvalidColumnName({:?})", name),
+            Error::InvalidAttributeName(ref name) => write!(f, "InvalidAttributeName({:?})", name),
+            Error::InvalidOperation(ref msg) => write!(f, "InvalidOperation({:?})", msg),
+            Error::UninitializedBindValue => write!(f, "UninitializedBindValue"),
+            Error::NoDataFound => write!(f, "NoDataFound"),
+            Error::InternalError(ref msg) => write!(f, "InternalError({:?})", msg),
         }
     }
 }
@@ -309,10 +291,17 @@ impl From<str::Utf8Error> for Error {
 //
 
 pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
-    let err = DbError::new(err.code, err.offset,
-                           to_rust_str(err.message, err.messageLength),
-                           unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy().into_owned(),
-                           unsafe { CStr::from_ptr(err.action) }.to_string_lossy().into_owned());
+    let err = DbError::new(
+        err.code,
+        err.offset,
+        to_rust_str(err.message, err.messageLength),
+        unsafe { CStr::from_ptr(err.fnName) }
+            .to_string_lossy()
+            .into_owned(),
+        unsafe { CStr::from_ptr(err.action) }
+            .to_string_lossy()
+            .into_owned(),
+    );
     if err.message().starts_with("DPI") {
         Error::DpiError(err)
     } else {

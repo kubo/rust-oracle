@@ -21,9 +21,9 @@ use std::str;
 use try_from::TryInto;
 
 use binding::*;
+use Collection;
 use Connection;
 use Context;
-use Collection;
 use Error;
 use FromSql;
 use IntervalDS;
@@ -36,23 +36,27 @@ use Result;
 use Timestamp;
 use ToSql;
 
-use to_rust_str;
 use to_rust_slice;
+use to_rust_str;
 use util::check_number_format;
 use util::parse_str_into_raw;
 use util::set_hex_string;
 
 macro_rules! flt_to_int {
-    ($expr:expr, $src_type:ident, $dest_type:ident) => {
+    ($expr:expr, $src_type:ident, $dest_type:ident) => {{
+        let src_val = $expr;
+        if $dest_type::min_value() as $src_type <= src_val
+            && src_val <= $dest_type::max_value() as $src_type
         {
-            let src_val = $expr;
-            if $dest_type::min_value() as $src_type <= src_val && src_val <= $dest_type::max_value() as $src_type {
-                Ok(src_val as $dest_type)
-            } else {
-                Err(Error::OutOfRange(format!("{} overflow: {}", stringify!($dest_type), src_val.to_string(), )))
-            }
+            Ok(src_val as $dest_type)
+        } else {
+            Err(Error::OutOfRange(format!(
+                "{} overflow: {}",
+                stringify!($dest_type),
+                src_val.to_string(),
+            )))
         }
-    }
+    }};
 }
 
 macro_rules! define_fn_to_int {
@@ -138,7 +142,6 @@ pub struct SqlValue {
 }
 
 impl SqlValue {
-
     // for column and bind values
     pub(crate) fn new(ctxt: &'static Context) -> SqlValue {
         SqlValue {
@@ -155,7 +158,11 @@ impl SqlValue {
     }
 
     // for object type
-    pub(crate) fn from_oratype(ctxt: &'static Context, oratype: &OracleType, data: &mut dpiData) -> Result<SqlValue> {
+    pub(crate) fn from_oratype(
+        ctxt: &'static Context,
+        oratype: &OracleType,
+        data: &mut dpiData,
+    ) -> Result<SqlValue> {
         let (_, native_type, _, _) = oratype.var_create_param()?;
         Ok(SqlValue {
             ctxt: ctxt,
@@ -181,25 +188,31 @@ impl SqlValue {
             Some(ref oratype) => oratype,
             None => return Ok(false),
         };
-        let (current_oratype_num, current_native_type, current_size, _) = current_oratype.var_create_param()?;
+        let (current_oratype_num, current_native_type, current_size, _) =
+            current_oratype.var_create_param()?;
         let (new_oratype_num, new_native_type, new_size, _) = oratype.var_create_param()?;
-        if current_oratype_num != new_oratype_num  {
+        if current_oratype_num != new_oratype_num {
             return Ok(false);
         }
         match current_oratype_num {
-            DPI_ORACLE_TYPE_VARCHAR |
-            DPI_ORACLE_TYPE_NVARCHAR |
-            DPI_ORACLE_TYPE_CHAR |
-            DPI_ORACLE_TYPE_NCHAR |
-            DPI_ORACLE_TYPE_RAW => Ok(current_size >= new_size),
+            DPI_ORACLE_TYPE_VARCHAR
+            | DPI_ORACLE_TYPE_NVARCHAR
+            | DPI_ORACLE_TYPE_CHAR
+            | DPI_ORACLE_TYPE_NCHAR
+            | DPI_ORACLE_TYPE_RAW => Ok(current_size >= new_size),
             DPI_ORACLE_TYPE_OBJECT => Ok(current_native_type == new_native_type),
             _ => Ok(true),
         }
     }
 
-    pub(crate) fn init_handle(&mut self, conn_handle: *mut dpiConn, oratype: &OracleType, array_size: u32) -> Result<bool> {
+    pub(crate) fn init_handle(
+        &mut self,
+        conn_handle: *mut dpiConn,
+        oratype: &OracleType,
+        array_size: u32,
+    ) -> Result<bool> {
         if self.handle_is_reusable(oratype, array_size)? {
-            return Ok(false)
+            return Ok(false);
         }
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };
@@ -210,9 +223,21 @@ impl SqlValue {
         let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
         let object_type_handle = native_type.to_object_type_handle();
-        chkerr!(self.ctxt,
-                dpiConn_newVar(conn_handle, oratype_num, native_type_num, array_size, size, size_is_byte,
-                               0, object_type_handle, &mut handle, &mut data));
+        chkerr!(
+            self.ctxt,
+            dpiConn_newVar(
+                conn_handle,
+                oratype_num,
+                native_type_num,
+                array_size,
+                size,
+                size_is_byte,
+                0,
+                object_type_handle,
+                &mut handle,
+                &mut data
+            )
+        );
         self.handle = handle;
         self.data = data;
         self.native_type = native_type;
@@ -224,8 +249,10 @@ impl SqlValue {
     pub(crate) fn fix_internal_data(&mut self) -> Result<()> {
         let mut num = 0;
         let mut data = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiVar_getReturnedData(self.handle, 0, &mut num, &mut data));
+        chkerr!(
+            self.ctxt,
+            dpiVar_getReturnedData(self.handle, 0, &mut num, &mut data)
+        );
         if num != 0 {
             self.array_size = num;
             self.data = data;
@@ -260,7 +287,10 @@ impl SqlValue {
     ///    implicitly if required. For example string is converted to i64 by
     ///    [parse][] if `get::<i64>()` is called for `VARCHAR2` columns.
     ///    If the conversion fails, various errors are returned.
-    pub fn get<T>(&self) -> Result<T> where T: FromSql {
+    pub fn get<T>(&self) -> Result<T>
+    where
+        T: FromSql,
+    {
         <T>::from_sql(self)
     }
 
@@ -281,19 +311,21 @@ impl SqlValue {
 
     fn invalid_conversion_to_rust_type<T>(&self, to_type: &str) -> Result<T> {
         match self.oratype {
-            Some(ref oratype) =>
-                Err(Error::InvalidTypeConversion(oratype.to_string(), to_type.to_string())),
-            None =>
-                Err(Error::UninitializedBindValue),
+            Some(ref oratype) => Err(Error::InvalidTypeConversion(
+                oratype.to_string(),
+                to_type.to_string(),
+            )),
+            None => Err(Error::UninitializedBindValue),
         }
     }
 
     fn invalid_conversion_from_rust_type<T>(&self, from_type: &str) -> Result<T> {
         match self.oratype {
-            Some(ref oratype) =>
-                Err(Error::InvalidTypeConversion(from_type.to_string(), oratype.to_string())),
-            None =>
-                Err(Error::UninitializedBindValue),
+            Some(ref oratype) => Err(Error::InvalidTypeConversion(
+                from_type.to_string(),
+                oratype.to_string(),
+            )),
+            None => Err(Error::UninitializedBindValue),
         }
     }
 
@@ -307,9 +339,7 @@ impl SqlValue {
 
     /// Returns `Ok(true)` when the SQL value is null. `Ok(false)` when it isn't null.
     pub fn is_null(&self) -> Result<bool> {
-        unsafe {
-            Ok((*self.data()).isNull != 0)
-        }
+        unsafe { Ok((*self.data()).isNull != 0) }
     }
 
     /// Sets null to the SQL value.
@@ -330,13 +360,9 @@ impl SqlValue {
 
     fn get_string(&self) -> Result<String> {
         match self.native_type {
-            NativeType::Char |
-            NativeType::Number =>
-                self.get_string_unchecked(),
-            NativeType::CLOB =>
-                self.get_clob_as_string_unchecked(),
-            _ =>
-                self.invalid_conversion_to_rust_type("String")
+            NativeType::Char | NativeType::Number => self.get_string_unchecked(),
+            NativeType::CLOB => self.get_clob_as_string_unchecked(),
+            _ => self.invalid_conversion_to_rust_type("String"),
         }
     }
 
@@ -456,8 +482,10 @@ impl SqlValue {
         let mut offset = 1;
         while offset <= total_char_size {
             let mut read_len = bufsiz;
-            chkerr!(self.ctxt,
-                    dpiLob_readBytes(lob, offset, READ_CHAR_SIZE, bufptr, &mut read_len));
+            chkerr!(
+                self.ctxt,
+                dpiLob_readBytes(lob, offset, READ_CHAR_SIZE, bufptr, &mut read_len)
+            );
             result.push_str(str::from_utf8(&buf[..(read_len as usize)])?);
             offset += READ_CHAR_SIZE;
         }
@@ -473,9 +501,19 @@ impl SqlValue {
         }
         let mut result: Vec<u8> = Vec::with_capacity(total_size as usize);
         let mut read_len = total_size;
-        chkerr!(self.ctxt,
-                dpiLob_readBytes(lob, 1, total_size, result.as_mut_ptr() as *mut i8, &mut read_len));
-        unsafe { result.set_len(read_len as usize); }
+        chkerr!(
+            self.ctxt,
+            dpiLob_readBytes(
+                lob,
+                1,
+                total_size,
+                result.as_mut_ptr() as *mut i8,
+                &mut read_len
+            )
+        );
+        unsafe {
+            result.set_len(read_len as usize);
+        }
         Ok(result)
     }
 
@@ -494,8 +532,10 @@ impl SqlValue {
         let mut offset = 1;
         while offset <= total_size {
             let mut read_len = READ_SIZE;
-            chkerr!(self.ctxt,
-                    dpiLob_readBytes(lob, offset, READ_SIZE, bufptr, &mut read_len));
+            chkerr!(
+                self.ctxt,
+                dpiLob_readBytes(lob, offset, READ_SIZE, bufptr, &mut read_len)
+            );
             set_hex_string(&mut result, &buf[..(read_len as usize)]);
             offset += READ_SIZE;
         }
@@ -558,19 +598,25 @@ impl SqlValue {
             self.keep_bytes = Vec::with_capacity(val.len());
             self.keep_bytes.extend_from_slice(val);
             unsafe {
-                dpiData_setBytes(self.data(),
-                                 self.keep_bytes.as_mut_ptr() as *mut i8,
-                                 val.len() as u32);
+                dpiData_setBytes(
+                    self.data(),
+                    self.keep_bytes.as_mut_ptr() as *mut i8,
+                    val.len() as u32,
+                );
             }
         } else {
-            chkerr!(self.ctxt,
-                    dpiVar_setFromBytes(self.handle, self.buffer_row_index(),
-                                        val.as_ptr() as *const i8,
-                                        val.len() as u32));
+            chkerr!(
+                self.ctxt,
+                dpiVar_setFromBytes(
+                    self.handle,
+                    self.buffer_row_index(),
+                    val.as_ptr() as *const i8,
+                    val.len() as u32
+                )
+            );
         }
         Ok(())
     }
-
 
     /// Sets utf8 string to the SQL value. The native_type must be
     /// NativeType::Char or NativeType::Number. Otherwise, this may cause access
@@ -588,19 +634,36 @@ impl SqlValue {
     /// Sets Timestamp to the SQL value. The native_type must be
     /// NativeType::Timestamp. Otherwise, this may cause access violation.
     fn set_timestamp_unchecked(&mut self, val: &Timestamp) -> Result<()> {
-        unsafe { dpiData_setTimestamp(self.data(), val.year() as i16,
-                                      val.month() as u8, val.day() as u8,
-                                      val.hour() as u8, val.minute() as u8, val.second() as u8,
-                                      val.nanosecond(), val.tz_hour_offset() as i8,
-                                      val.tz_minute_offset() as i8) }
+        unsafe {
+            dpiData_setTimestamp(
+                self.data(),
+                val.year() as i16,
+                val.month() as u8,
+                val.day() as u8,
+                val.hour() as u8,
+                val.minute() as u8,
+                val.second() as u8,
+                val.nanosecond(),
+                val.tz_hour_offset() as i8,
+                val.tz_minute_offset() as i8,
+            )
+        }
         Ok(())
     }
 
     /// Sets IntervalDS to the SQL value. The native_type must be
     /// NativeType::IntervalDS. Otherwise, this may cause access violation.
     fn set_interval_ds_unchecked(&mut self, val: &IntervalDS) -> Result<()> {
-        unsafe { dpiData_setIntervalDS(self.data(), val.days(), val.hours(),
-                                       val.minutes(), val.seconds(), val.nanoseconds()) }
+        unsafe {
+            dpiData_setIntervalDS(
+                self.data(),
+                val.days(),
+                val.hours(),
+                val.minutes(),
+                val.seconds(),
+                val.nanoseconds(),
+            )
+        }
         Ok(())
     }
 
@@ -615,10 +678,8 @@ impl SqlValue {
         let ptr = val.as_ptr() as *const i8;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
-        chkerr!(self.ctxt,
-                dpiLob_trim(lob, 0));
-        chkerr!(self.ctxt,
-                dpiLob_writeBytes(lob, 1, ptr, len));
+        chkerr!(self.ctxt, dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt, dpiLob_writeBytes(lob, 1, ptr, len));
         unsafe {
             (*self.data()).isNull = 0;
         }
@@ -629,10 +690,8 @@ impl SqlValue {
         let ptr = val.as_ptr() as *const i8;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
-        chkerr!(self.ctxt,
-                dpiLob_trim(lob, 0));
-        chkerr!(self.ctxt,
-                dpiLob_writeBytes(lob, 1, ptr, len));
+        chkerr!(self.ctxt, dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt, dpiLob_writeBytes(lob, 1, ptr, len));
         unsafe {
             (*self.data()).isNull = 0;
         }
@@ -650,8 +709,10 @@ impl SqlValue {
             }
             self.keep_dpiobj = obj;
         } else {
-            chkerr!(self.ctxt,
-                    dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj));
+            chkerr!(
+                self.ctxt,
+                dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj)
+            );
         }
         Ok(())
     }
@@ -672,9 +733,13 @@ impl SqlValue {
         let mut val = SqlValue::new(self.ctxt);
         if let Some(ref oratype) = self.oratype {
             val.init_handle(conn_handle, oratype, 1)?;
-            chkerr!(self.ctxt,
-                    dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
-                    unsafe { dpiVar_release(val.handle); });
+            chkerr!(
+                self.ctxt,
+                dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
+                unsafe {
+                    dpiVar_release(val.handle);
+                }
+            );
         }
         Ok(val)
     }
@@ -704,20 +769,14 @@ impl SqlValue {
     /// numeric or string (excluding LOB) types.
     pub(crate) fn to_i64(&self) -> Result<i64> {
         match self.native_type {
-            NativeType::Int64 =>
-                self.get_i64_unchecked(),
-            NativeType::UInt64 =>
-                Ok(self.get_u64_unchecked()?.try_into()?),
-            NativeType::Float =>
-                flt_to_int!(self.get_f32_unchecked()?, f32, i64),
-            NativeType::Double =>
-                flt_to_int!(self.get_f64_unchecked()?, f64, i64),
-            NativeType::Char |
-            NativeType::CLOB |
-            NativeType::Number =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("i64"),
+            NativeType::Int64 => self.get_i64_unchecked(),
+            NativeType::UInt64 => Ok(self.get_u64_unchecked()?.try_into()?),
+            NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, i64),
+            NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, i64),
+            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+                Ok(self.get_string()?.parse()?)
+            }
+            _ => self.invalid_conversion_to_rust_type("i64"),
         }
     }
 
@@ -742,20 +801,14 @@ impl SqlValue {
     /// numeric or string (excluding LOB) types.
     pub(crate) fn to_u64(&self) -> Result<u64> {
         match self.native_type {
-            NativeType::Int64 =>
-                Ok(self.get_i64_unchecked()?.try_into()?),
-            NativeType::UInt64 =>
-                self.get_u64_unchecked(),
-            NativeType::Float =>
-                flt_to_int!(self.get_f32_unchecked()?, f32, u64),
-            NativeType::Double =>
-                flt_to_int!(self.get_f64_unchecked()?, f64, u64),
-            NativeType::Char |
-            NativeType::CLOB |
-            NativeType::Number =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("u64"),
+            NativeType::Int64 => Ok(self.get_i64_unchecked()?.try_into()?),
+            NativeType::UInt64 => self.get_u64_unchecked(),
+            NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, u64),
+            NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, u64),
+            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+                Ok(self.get_string()?.parse()?)
+            }
+            _ => self.invalid_conversion_to_rust_type("u64"),
         }
     }
 
@@ -763,20 +816,14 @@ impl SqlValue {
     /// numeric or string (excluding LOB) types.
     pub(crate) fn to_f32(&self) -> Result<f32> {
         match self.native_type {
-            NativeType::Int64 =>
-                Ok(self.get_i64_unchecked()? as f32),
-            NativeType::UInt64 =>
-                Ok(self.get_u64_unchecked()? as f32),
-            NativeType::Float =>
-                self.get_f32_unchecked(),
-            NativeType::Double =>
-                Ok(self.get_f64_unchecked()? as f32),
-            NativeType::Char |
-            NativeType::CLOB |
-            NativeType::Number =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("f32"),
+            NativeType::Int64 => Ok(self.get_i64_unchecked()? as f32),
+            NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f32),
+            NativeType::Float => self.get_f32_unchecked(),
+            NativeType::Double => Ok(self.get_f64_unchecked()? as f32),
+            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+                Ok(self.get_string()?.parse()?)
+            }
+            _ => self.invalid_conversion_to_rust_type("f32"),
         }
     }
 
@@ -784,72 +831,49 @@ impl SqlValue {
     /// numeric or string (excluding LOB) types.
     pub(crate) fn to_f64(&self) -> Result<f64> {
         match self.native_type {
-            NativeType::Int64 =>
-                Ok(self.get_i64_unchecked()? as f64),
-            NativeType::UInt64 =>
-                Ok(self.get_u64_unchecked()? as f64),
-            NativeType::Float =>
-                Ok(self.get_f32_unchecked()? as f64),
-            NativeType::Double =>
-                self.get_f64_unchecked(),
-            NativeType::Char |
-            NativeType::CLOB |
-            NativeType::Number =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("f64"),
+            NativeType::Int64 => Ok(self.get_i64_unchecked()? as f64),
+            NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f64),
+            NativeType::Float => Ok(self.get_f32_unchecked()? as f64),
+            NativeType::Double => self.get_f64_unchecked(),
+            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+                Ok(self.get_string()?.parse()?)
+            }
+            _ => self.invalid_conversion_to_rust_type("f64"),
         }
     }
 
     /// Gets the SQL value as string. ...
     pub(crate) fn to_string(&self) -> Result<String> {
         match self.native_type {
-            NativeType::Int64 =>
-                Ok(self.get_i64_unchecked()?.to_string()),
-            NativeType::UInt64 =>
-                Ok(self.get_u64_unchecked()?.to_string()),
-            NativeType::Float =>
-                Ok(self.get_f32_unchecked()?.to_string()),
-            NativeType::Double =>
-                Ok(self.get_f64_unchecked()?.to_string()),
-            NativeType::Char |
-            NativeType::Number =>
-                self.get_string_unchecked(),
-            NativeType::Raw =>
-                self.get_raw_as_hex_string_unchecked(),
-            NativeType::Timestamp =>
-                Ok(self.get_timestamp_unchecked()?.to_string()),
-            NativeType::IntervalDS =>
-                Ok(self.get_interval_ds_unchecked()?.to_string()),
-            NativeType::IntervalYM =>
-                Ok(self.get_interval_ym_unchecked()?.to_string()),
-            NativeType::CLOB =>
-                self.get_clob_as_string_unchecked(),
-            NativeType::BLOB =>
-                self.get_blob_as_hex_string_unchecked(),
-            NativeType::Object(ref objtype) =>
+            NativeType::Int64 => Ok(self.get_i64_unchecked()?.to_string()),
+            NativeType::UInt64 => Ok(self.get_u64_unchecked()?.to_string()),
+            NativeType::Float => Ok(self.get_f32_unchecked()?.to_string()),
+            NativeType::Double => Ok(self.get_f64_unchecked()?.to_string()),
+            NativeType::Char | NativeType::Number => self.get_string_unchecked(),
+            NativeType::Raw => self.get_raw_as_hex_string_unchecked(),
+            NativeType::Timestamp => Ok(self.get_timestamp_unchecked()?.to_string()),
+            NativeType::IntervalDS => Ok(self.get_interval_ds_unchecked()?.to_string()),
+            NativeType::IntervalYM => Ok(self.get_interval_ym_unchecked()?.to_string()),
+            NativeType::CLOB => self.get_clob_as_string_unchecked(),
+            NativeType::BLOB => self.get_blob_as_hex_string_unchecked(),
+            NativeType::Object(ref objtype) => {
                 if objtype.is_collection() {
                     Ok(self.get_collection_unchecked(objtype)?.to_string())
                 } else {
                     Ok(self.get_object_unchecked(objtype)?.to_string())
-                },
-            _ =>
-                self.invalid_conversion_to_rust_type("string"),
+                }
+            }
+            _ => self.invalid_conversion_to_rust_type("string"),
         }
     }
 
     /// Gets the SQL value as Vec\<u8>. ...
     pub(crate) fn to_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
-            NativeType::Raw =>
-                self.get_raw_unchecked(),
-            NativeType::BLOB =>
-                self.get_blob_unchecked(),
-            NativeType::Char |
-            NativeType::CLOB =>
-                Ok(parse_str_into_raw(&self.get_string()?)?),
-            _ =>
-                self.invalid_conversion_to_rust_type("raw"),
+            NativeType::Raw => self.get_raw_unchecked(),
+            NativeType::BLOB => self.get_blob_unchecked(),
+            NativeType::Char | NativeType::CLOB => Ok(parse_str_into_raw(&self.get_string()?)?),
+            _ => self.invalid_conversion_to_rust_type("raw"),
         }
     }
 
@@ -857,13 +881,9 @@ impl SqlValue {
     /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
     pub(crate) fn to_timestamp(&self) -> Result<Timestamp> {
         match self.native_type {
-            NativeType::Timestamp =>
-                self.get_timestamp_unchecked(),
-            NativeType::Char |
-            NativeType::CLOB =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("Timestamp"),
+            NativeType::Timestamp => self.get_timestamp_unchecked(),
+            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            _ => self.invalid_conversion_to_rust_type("Timestamp"),
         }
     }
 
@@ -871,13 +891,9 @@ impl SqlValue {
     /// `INTERVAL DAY TO SECOND`.
     pub(crate) fn to_interval_ds(&self) -> Result<IntervalDS> {
         match self.native_type {
-            NativeType::IntervalDS =>
-                self.get_interval_ds_unchecked(),
-            NativeType::Char |
-            NativeType::CLOB =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("IntervalDS"),
+            NativeType::IntervalDS => self.get_interval_ds_unchecked(),
+            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            _ => self.invalid_conversion_to_rust_type("IntervalDS"),
         }
     }
 
@@ -885,39 +901,35 @@ impl SqlValue {
     /// `INTERVAL YEAR TO MONTH`.
     pub(crate) fn to_interval_ym(&self) -> Result<IntervalYM> {
         match self.native_type {
-            NativeType::IntervalYM =>
-                self.get_interval_ym_unchecked(),
-            NativeType::Char |
-            NativeType::CLOB =>
-                Ok(self.get_string()?.parse()?),
-            _ =>
-                self.invalid_conversion_to_rust_type("IntervalYM"),
+            NativeType::IntervalYM => self.get_interval_ym_unchecked(),
+            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            _ => self.invalid_conversion_to_rust_type("IntervalYM"),
         }
     }
 
     pub(crate) fn to_collection(&self) -> Result<Collection> {
         match self.native_type {
-            NativeType::Object(ref objtype) =>
+            NativeType::Object(ref objtype) => {
                 if objtype.is_collection() {
                     self.get_collection_unchecked(objtype)
                 } else {
                     self.invalid_conversion_to_rust_type("Collection")
-                },
-            _ =>
-                self.invalid_conversion_to_rust_type("Collection"),
+                }
+            }
+            _ => self.invalid_conversion_to_rust_type("Collection"),
         }
     }
 
     pub(crate) fn to_object(&self) -> Result<Object> {
         match self.native_type {
-            NativeType::Object(ref objtype) =>
+            NativeType::Object(ref objtype) => {
                 if !objtype.is_collection() {
                     self.get_object_unchecked(objtype)
                 } else {
                     self.invalid_conversion_to_rust_type("Object")
-                },
-            _ =>
-                self.invalid_conversion_to_rust_type("Object"),
+                }
+            }
+            _ => self.invalid_conversion_to_rust_type("Object"),
         }
     }
 
@@ -925,10 +937,8 @@ impl SqlValue {
     /// `BOOLEAN`(PL/SQL only).
     pub(crate) fn to_bool(&self) -> Result<bool> {
         match self.native_type {
-            NativeType::Boolean =>
-                self.get_bool_unchecked(),
-            _ =>
-                self.invalid_conversion_to_rust_type("bool"),
+            NativeType::Boolean => self.get_bool_unchecked(),
+            _ => self.invalid_conversion_to_rust_type("bool"),
         }
     }
 
@@ -988,46 +998,31 @@ impl SqlValue {
     /// Sets &str to the SQL value. ...
     pub(crate) fn set_string(&mut self, val: &str) -> Result<()> {
         match self.native_type {
-            NativeType::Int64 =>
-                self.set_i64_unchecked(val.parse()?),
-            NativeType::UInt64 =>
-                self.set_u64_unchecked(val.parse()?),
-            NativeType::Float =>
-                self.set_f32_unchecked(val.parse()?),
-            NativeType::Double =>
-                self.set_f64_unchecked(val.parse()?),
-            NativeType::Char =>
-                self.set_string_unchecked(val),
+            NativeType::Int64 => self.set_i64_unchecked(val.parse()?),
+            NativeType::UInt64 => self.set_u64_unchecked(val.parse()?),
+            NativeType::Float => self.set_f32_unchecked(val.parse()?),
+            NativeType::Double => self.set_f64_unchecked(val.parse()?),
+            NativeType::Char => self.set_string_unchecked(val),
             NativeType::Number => {
                 check_number_format(val)?;
                 self.set_string_unchecked(val)
-            },
-            NativeType::Raw =>
-                self.set_raw_unchecked(&parse_str_into_raw(val)?),
-            NativeType::Timestamp =>
-                self.set_timestamp_unchecked(&val.parse()?),
-            NativeType::IntervalDS =>
-                self.set_interval_ds_unchecked(&val.parse()?),
-            NativeType::IntervalYM =>
-                self.set_interval_ym_unchecked(&val.parse()?),
-            NativeType::CLOB =>
-                self.set_string_to_clob_unchecked(val),
-            NativeType::BLOB =>
-                self.set_raw_to_blob_unchecked(&parse_str_into_raw(val)?),
-            _ =>
-                self.invalid_conversion_from_rust_type("&str"),
+            }
+            NativeType::Raw => self.set_raw_unchecked(&parse_str_into_raw(val)?),
+            NativeType::Timestamp => self.set_timestamp_unchecked(&val.parse()?),
+            NativeType::IntervalDS => self.set_interval_ds_unchecked(&val.parse()?),
+            NativeType::IntervalYM => self.set_interval_ym_unchecked(&val.parse()?),
+            NativeType::CLOB => self.set_string_to_clob_unchecked(val),
+            NativeType::BLOB => self.set_raw_to_blob_unchecked(&parse_str_into_raw(val)?),
+            _ => self.invalid_conversion_from_rust_type("&str"),
         }
     }
 
     /// Sets &[u8] to the SQL value. ...
     pub(crate) fn set_bytes(&mut self, val: &[u8]) -> Result<()> {
         match self.native_type {
-            NativeType::Raw =>
-                self.set_raw_unchecked(val),
-            NativeType::BLOB => 
-                self.set_raw_to_blob_unchecked(val),
-            _ =>
-                self.invalid_conversion_from_rust_type("&[u8]"),
+            NativeType::Raw => self.set_raw_unchecked(val),
+            NativeType::BLOB => self.set_raw_to_blob_unchecked(val),
+            _ => self.invalid_conversion_from_rust_type("&[u8]"),
         }
     }
 
@@ -1035,10 +1030,8 @@ impl SqlValue {
     /// `DATE`, `TIMESTAMP`, or `TIMESTAMP WITH TIME ZONE`.
     pub(crate) fn set_timestamp(&mut self, val: &Timestamp) -> Result<()> {
         match self.native_type {
-            NativeType::Timestamp =>
-                self.set_timestamp_unchecked(val),
-            _ =>
-                self.invalid_conversion_from_rust_type("Timestamp"),
+            NativeType::Timestamp => self.set_timestamp_unchecked(val),
+            _ => self.invalid_conversion_from_rust_type("Timestamp"),
         }
     }
 
@@ -1046,10 +1039,8 @@ impl SqlValue {
     /// `INTERVAL DAY TO SECOND`.
     pub(crate) fn set_interval_ds(&mut self, val: &IntervalDS) -> Result<()> {
         match self.native_type {
-            NativeType::IntervalDS =>
-                self.set_interval_ds_unchecked(val),
-            _ =>
-                self.invalid_conversion_from_rust_type("IntervalDS"),
+            NativeType::IntervalDS => self.set_interval_ds_unchecked(val),
+            _ => self.invalid_conversion_from_rust_type("IntervalDS"),
         }
     }
 
@@ -1057,30 +1048,24 @@ impl SqlValue {
     /// `INTERVAL YEAR TO MONTH`.
     pub(crate) fn set_interval_ym(&mut self, val: &IntervalYM) -> Result<()> {
         match self.native_type {
-            NativeType::IntervalYM =>
-                self.set_interval_ym_unchecked(val),
-            _ =>
-                self.invalid_conversion_from_rust_type("IntervalYM"),
+            NativeType::IntervalYM => self.set_interval_ym_unchecked(val),
+            _ => self.invalid_conversion_from_rust_type("IntervalYM"),
         }
     }
 
     /// Sets Object to the Sql Value
     pub(crate) fn set_object(&mut self, val: &Object) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) =>
-                return self.set_object_unchecked(val.handle),
-            _ =>
-                self.invalid_conversion_from_rust_type("Object")
+            NativeType::Object(_) => return self.set_object_unchecked(val.handle),
+            _ => self.invalid_conversion_from_rust_type("Object"),
         }
     }
 
     /// Sets Collection to the Sql Value
     pub(crate) fn set_collection(&mut self, val: &Collection) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) =>
-                return self.set_object_unchecked(val.handle),
-            _ =>
-                self.invalid_conversion_from_rust_type("Collection")
+            NativeType::Object(_) => return self.set_object_unchecked(val.handle),
+            _ => self.invalid_conversion_from_rust_type("Collection"),
         }
     }
 
@@ -1088,10 +1073,8 @@ impl SqlValue {
     /// `BOOLEAN`(PL/SQL only).
     pub(crate) fn set_bool(&mut self, val: &bool) -> Result<()> {
         match self.native_type {
-            NativeType::Boolean =>
-                self.set_bool_unchecked(*val),
-            _ =>
-                self.invalid_conversion_from_rust_type("bool"),
+            NativeType::Boolean => self.set_bool_unchecked(*val),
+            _ => self.invalid_conversion_from_rust_type("bool"),
         }
     }
 
@@ -1134,19 +1117,22 @@ impl fmt::Debug for SqlValue {
         if let Some(ref oratype) = self.oratype {
             write!(f, "SqlValue {{ val: ")?;
             match self.to_string() {
-                Ok(s) =>
-                    match self.native_type {
-                        NativeType::Char |
-                        NativeType::Raw |
-                        NativeType::CLOB |
-                        NativeType::BLOB => write!(f, "{:?}", s),
-                        _ => write!(f, "{}", s),
-                    },
+                Ok(s) => match self.native_type {
+                    NativeType::Char | NativeType::Raw | NativeType::CLOB | NativeType::BLOB => {
+                        write!(f, "{:?}", s)
+                    }
+                    _ => write!(f, "{}", s),
+                },
                 Err(Error::NullValue) => write!(f, "NULL"),
                 Err(err) => write!(f, "{}", err),
             }?;
-            write!(f, ", type: {}, idx/size: {}/{})",
-                   oratype, self.buffer_row_index(), self.array_size)
+            write!(
+                f,
+                ", type: {}, idx/size: {}/{})",
+                oratype,
+                self.buffer_row_index(),
+                self.array_size
+            )
         } else {
             write!(f, "SqlValue {{ uninitialized }}")
         }

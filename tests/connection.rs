@@ -16,15 +16,25 @@
 extern crate oracle;
 mod common;
 
-use oracle::{Connection, ConnParam};
+use oracle::{ConnParam, Connection};
 
 #[test]
 fn app_context() {
-    let params = [
-        ConnParam::AppContext("CLIENTCONTEXT".into(), "foo".into(), "bar".into()),
-    ];
-    let conn = Connection::connect(&common::main_user(), &common::main_password(), &common::connect_string(), &params).unwrap();
-    let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[]).unwrap();
+    let params = [ConnParam::AppContext(
+        "CLIENTCONTEXT".into(),
+        "foo".into(),
+        "bar".into(),
+    )];
+    let conn = Connection::connect(
+        &common::main_user(),
+        &common::main_password(),
+        &common::connect_string(),
+        &params,
+    )
+    .unwrap();
+    let val = conn
+        .query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[])
+        .unwrap();
     assert_eq!(val, "bar");
 }
 
@@ -36,26 +46,36 @@ fn test_autocommit() {
 
     // Autocommit is disabled by default.
     assert_eq!(conn.autocommit(), false);
-    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])
+        .unwrap();
     conn.rollback().unwrap();
-    let (row_count,) = conn.query_row_as::<(u32,)>("select count(*) from TestTempTable", &[]).unwrap();
+    let (row_count,) = conn
+        .query_row_as::<(u32,)>("select count(*) from TestTempTable", &[])
+        .unwrap();
     assert_eq!(row_count, 0);
 
     // Enable autocommit
     conn.set_autocommit(true);
     assert_eq!(conn.autocommit(), true);
-    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])
+        .unwrap();
     conn.rollback().unwrap();
-    let row_count = conn.query_row_as::<(u32)>("select count(*) from TestTempTable", &[]).unwrap();
+    let row_count = conn
+        .query_row_as::<(u32)>("select count(*) from TestTempTable", &[])
+        .unwrap();
     assert_eq!(row_count, 1);
-    conn.execute("delete TestTempTable where IntCol = 1", &[]).unwrap();
+    conn.execute("delete TestTempTable where IntCol = 1", &[])
+        .unwrap();
 
     // Disable autocommit
     conn.set_autocommit(false);
     assert_eq!(conn.autocommit(), false);
-    conn.execute("insert into TestTempTable values(1, '1')", &[]).unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])
+        .unwrap();
     conn.rollback().unwrap();
-    let row_count = conn.query_row_as::<u32>("select count(*) from TestTempTable", &[]).unwrap();
+    let row_count = conn
+        .query_row_as::<u32>("select count(*) from TestTempTable", &[])
+        .unwrap();
     assert_eq!(row_count, 0);
 }
 
@@ -92,7 +112,9 @@ fn query() {
         common::assert_test_string_type(idx + 4, &row);
     }
 
-    let rows = conn.query_as_named::<common::TestStringTuple>(sql, &[("icol", &5)]).unwrap();
+    let rows = conn
+        .query_as_named::<common::TestStringTuple>(sql, &[("icol", &5)])
+        .unwrap();
     for (idx, row_result) in rows.enumerate() {
         let row = row_result.unwrap();
         common::assert_test_string_tuple(idx + 5, &row);
@@ -110,10 +132,13 @@ fn query_row() {
     let row = conn.query_row_named(sql, &[("icol", &3)]).unwrap();
     common::assert_test_string_row(3, &row);
 
-    let row = conn.query_row_as::<common::TestStringTuple>(sql, &[&4]).unwrap();
+    let row = conn
+        .query_row_as::<common::TestStringTuple>(sql, &[&4])
+        .unwrap();
     common::assert_test_string_tuple(4, &row);
 
-    let row = conn.query_row_as_named::<common::TestString>(sql, &[("icol", &5)]).unwrap();
+    let row = conn
+        .query_row_as_named::<common::TestString>(sql, &[("icol", &5)])
+        .unwrap();
     common::assert_test_string_type(5, &row);
 }
-

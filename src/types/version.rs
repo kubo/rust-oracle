@@ -49,12 +49,23 @@ pub struct Version {
 impl Version {
     /// Creates a new version information
     pub fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
-        Version { major: major, minor: minor, update: update,
-                  patch: patch, port_update: port_update }
+        Version {
+            major: major,
+            minor: minor,
+            update: update,
+            patch: patch,
+            port_update: port_update,
+        }
     }
 
     pub(crate) fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
-        Version::new(ver.versionNum, ver.releaseNum, ver.updateNum, ver.portReleaseNum, ver.portUpdateNum)
+        Version::new(
+            ver.versionNum,
+            ver.releaseNum,
+            ver.updateNum,
+            ver.portReleaseNum,
+            ver.portUpdateNum,
+        )
     }
 
     /// Gets 1st part of Oracle version number
@@ -85,6 +96,10 @@ impl Version {
 
 impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}.{}.{}.{}", self.major, self.minor, self.update, self.patch, self.port_update)
+        write!(
+            f,
+            "{}.{}.{}.{}.{}",
+            self.major, self.minor, self.update, self.patch, self.port_update
+        )
     }
 }

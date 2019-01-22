@@ -154,7 +154,7 @@ impl IntervalDS {
         IntervalDS {
             lfprec: lfprec,
             fsprec: fsprec,
-            .. *self
+            ..*self
         }
     }
 
@@ -206,7 +206,12 @@ impl cmp::PartialEq for IntervalDS {
 
 impl fmt::Display for IntervalDS {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.days < 0 || self.hours < 0 || self.minutes < 0 || self.seconds < 0 || self.nanoseconds < 0 {
+        if self.days < 0
+            || self.hours < 0
+            || self.minutes < 0
+            || self.seconds < 0
+            || self.nanoseconds < 0
+        {
             write!(f, "-")?;
         } else {
             write!(f, "+")?;
@@ -223,7 +228,13 @@ impl fmt::Display for IntervalDS {
             9 => write!(f, "{:09}", days)?,
             _ => write!(f, "{}", days)?,
         };
-        write!(f, " {:02}:{:02}:{:02}", self.hours.abs(), self.minutes.abs(), self.seconds.abs())?;
+        write!(
+            f,
+            " {:02}:{:02}:{:02}",
+            self.hours.abs(),
+            self.minutes.abs(),
+            self.seconds.abs()
+        )?;
         let nsec = self.nanoseconds.abs();
         match self.fsprec {
             1 => write!(f, ".{:01}", nsec / 100000000),
@@ -250,11 +261,11 @@ impl str::FromStr for IntervalDS {
             Some('+') => {
                 s.next();
                 false
-            },
+            }
             Some('-') => {
                 s.next();
                 true
-            },
+            }
             _ => false,
         };
         let days = s.read_digits().ok_or(err())? as i32;
@@ -292,7 +303,7 @@ impl str::FromStr for IntervalDS {
             }
         }
         if s.char().is_some() {
-            return Err(err())
+            return Err(err());
         }
         Ok(IntervalDS {
             days: if minus { -days } else { days },
@@ -313,7 +324,8 @@ mod tests {
     #[test]
     fn to_string() {
         let mut it = IntervalDS::new(1, 2, 3, 4, 123456789);
-        it.lfprec = 0; it.fsprec = 0;
+        it.lfprec = 0;
+        it.fsprec = 0;
         assert_eq!(it.to_string(), "+1 02:03:04");
         it.fsprec = 1;
         assert_eq!(it.to_string(), "+1 02:03:04.1");
@@ -335,7 +347,8 @@ mod tests {
         assert_eq!(it.to_string(), "+1 02:03:04.123456789");
 
         let mut it = IntervalDS::new(-1, -2, -3, -4, -123456789);
-        it.lfprec = 0; it.fsprec = 0;
+        it.lfprec = 0;
+        it.fsprec = 0;
         assert_eq!(it.to_string(), "-1 02:03:04");
         it.fsprec = 1;
         assert_eq!(it.to_string(), "-1 02:03:04.1");
@@ -379,7 +392,8 @@ mod tests {
     #[test]
     fn parse() {
         let mut it = IntervalDS::new(1, 2, 3, 4, 0);
-        it.lfprec = 1; it.fsprec = 0;
+        it.lfprec = 1;
+        it.fsprec = 0;
         assert_eq!("1 02:03:04".parse(), Ok(it));
         assert_eq!("+1 02:03:04".parse(), Ok(it));
         it.lfprec = 2;
@@ -399,30 +413,41 @@ mod tests {
         it.lfprec = 9;
         assert_eq!("000000001 02:03:04".parse(), Ok(it));
 
-        it.fsprec = 1; it.nanoseconds = 100000000;
+        it.fsprec = 1;
+        it.nanoseconds = 100000000;
         assert_eq!("000000001 02:03:04.1".parse(), Ok(it));
 
         let mut it = IntervalDS::new(-1, -2, -3, -4, 0);
-        it.lfprec = 1; it.fsprec = 0;
+        it.lfprec = 1;
+        it.fsprec = 0;
         assert_eq!("-1 02:03:04".parse(), Ok(it));
 
-        it.fsprec = 1; it.nanoseconds = -100000000;
+        it.fsprec = 1;
+        it.nanoseconds = -100000000;
         assert_eq!("-1 02:03:04.1".parse(), Ok(it));
-        it.fsprec = 2; it.nanoseconds = -120000000;
+        it.fsprec = 2;
+        it.nanoseconds = -120000000;
         assert_eq!("-1 02:03:04.12".parse(), Ok(it));
-        it.fsprec = 3; it.nanoseconds = -123000000;
+        it.fsprec = 3;
+        it.nanoseconds = -123000000;
         assert_eq!("-1 02:03:04.123".parse(), Ok(it));
-        it.fsprec = 4; it.nanoseconds = -123400000;
+        it.fsprec = 4;
+        it.nanoseconds = -123400000;
         assert_eq!("-1 02:03:04.1234".parse(), Ok(it));
-        it.fsprec = 5; it.nanoseconds = -123450000;
+        it.fsprec = 5;
+        it.nanoseconds = -123450000;
         assert_eq!("-1 02:03:04.12345".parse(), Ok(it));
-        it.fsprec = 6; it.nanoseconds = -123456000;
+        it.fsprec = 6;
+        it.nanoseconds = -123456000;
         assert_eq!("-1 02:03:04.123456".parse(), Ok(it));
-        it.fsprec = 7; it.nanoseconds = -123456700;
+        it.fsprec = 7;
+        it.nanoseconds = -123456700;
         assert_eq!("-1 02:03:04.1234567".parse(), Ok(it));
-        it.fsprec = 8; it.nanoseconds = -123456780;
+        it.fsprec = 8;
+        it.nanoseconds = -123456780;
         assert_eq!("-1 02:03:04.12345678".parse(), Ok(it));
-        it.fsprec = 9; it.nanoseconds = -123456789;
+        it.fsprec = 9;
+        it.nanoseconds = -123456789;
         assert_eq!("-1 02:03:04.123456789".parse(), Ok(it));
     }
 }

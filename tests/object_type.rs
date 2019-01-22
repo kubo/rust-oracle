@@ -23,9 +23,15 @@ fn invalid_obj() {
     let conn = common::connect().unwrap();
     let err = conn.object_type("DUMMY_OBJECT").unwrap_err();
     if client_version().unwrap().major() >= 12 {
-        assert_eq!(err.to_string(), "OCI Error: OCI-22303: type \"\".\"DUMMY_OBJECT\" not found");
+        assert_eq!(
+            err.to_string(),
+            "OCI Error: OCI-22303: type \"\".\"DUMMY_OBJECT\" not found"
+        );
     } else {
-        assert_eq!(err.to_string(), "OCI Error: ORA-04043: object DUMMY_OBJECT does not exist");
+        assert_eq!(
+            err.to_string(),
+            "OCI Error: ORA-04043: object DUMMY_OBJECT does not exist"
+        );
     }
 }
 
@@ -40,11 +46,12 @@ fn udt_objectdatatypes() {
 #[test]
 fn udt_objectdatatypes_in_query() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[]).unwrap();
+    let mut stmt = conn
+        .prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[])
+        .unwrap();
     let rows = stmt.query(&[]).unwrap();
     match rows.column_info()[0].oracle_type() {
-        &OracleType::Object(ref objtype) =>
-            assert_udt_objectdatatypes(objtype),
+        &OracleType::Object(ref objtype) => assert_udt_objectdatatypes(objtype),
         _ => assert!(false),
     }
 }
@@ -110,11 +117,12 @@ fn udt_object() {
 #[test]
 fn udt_object_in_query() {
     let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0", &[]).unwrap();
+    let mut stmt = conn
+        .prepare("select ObjectCol from TestObjects where 1 = 0", &[])
+        .unwrap();
     let rows = stmt.query(&[]).unwrap();
     match rows.column_info()[0].oracle_type() {
-        &OracleType::Object(ref objtype) =>
-            assert_udt_object(objtype),
+        &OracleType::Object(ref objtype) => assert_udt_object(objtype),
         _ => assert!(false),
     }
 }
@@ -160,7 +168,7 @@ fn assert_udt_object(objtype: &ObjectType) {
             }
             assert_eq!(attrtype.num_attributes(), 0);
             assert_eq!(attrtype.attributes().len(), 0);
-        },
+        }
         _ => assert!(false),
     }
 }
@@ -181,7 +189,7 @@ fn assert_udt_subobject(oratype: &OracleType) {
             assert_eq!(attrs_in_attr[0].oracle_type(), &OracleType::Number(0, -127));
             assert_eq!(attrs_in_attr[1].name(), "SUBSTRINGVALUE");
             assert_eq!(attrs_in_attr[1].oracle_type(), &OracleType::Varchar2(60));
-        },
+        }
         _ => assert!(false),
     }
 }
@@ -195,12 +203,14 @@ fn udt_array() {
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_ARRAY");
     assert_eq!(objtype.is_collection(), true);
-    assert_eq!(objtype.element_oracle_type(), Some(&OracleType::Number(0, -127)));
+    assert_eq!(
+        objtype.element_oracle_type(),
+        Some(&OracleType::Number(0, -127))
+    );
     assert_eq!(objtype.num_attributes(), 0);
     let attrs = objtype.attributes();
     assert_eq!(attrs.len(), 0);
 }
-
 
 #[test]
 fn pkg_testnumberarrays_udt_numberlist() {
@@ -208,13 +218,18 @@ fn pkg_testnumberarrays_udt_numberlist() {
         return;
     }
     let conn = common::connect().unwrap();
-    let objtype = conn.object_type("PKG_TESTNUMBERARRAYS.UDT_NUMBERLIST").unwrap();
+    let objtype = conn
+        .object_type("PKG_TESTNUMBERARRAYS.UDT_NUMBERLIST")
+        .unwrap();
     let username = common::main_user().to_uppercase();
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_NUMBERLIST");
     assert_eq!(objtype.is_collection(), true);
-    assert_eq!(objtype.element_oracle_type(), Some(&OracleType::Number(0, -127)));
+    assert_eq!(
+        objtype.element_oracle_type(),
+        Some(&OracleType::Number(0, -127))
+    );
     assert_eq!(objtype.num_attributes(), 0);
     let attrs = objtype.attributes();
     assert_eq!(attrs.len(), 0);

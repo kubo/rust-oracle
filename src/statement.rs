@@ -14,8 +14,8 @@
 //-----------------------------------------------------------------------------
 
 use std::cell::RefCell;
-use std::ptr;
 use std::fmt;
+use std::ptr;
 use std::rc::Rc;
 
 #[allow(unused_imports, deprecated)]
@@ -34,11 +34,11 @@ use RowValue;
 use SqlValue;
 use ToSql;
 
-use sql_value::BufferRowIndex;
 use new_odpi_str;
+use private;
+use sql_value::BufferRowIndex;
 use to_odpi_str;
 use to_rust_str;
-use private;
 
 /// Parameters to prepare Statement.
 #[derive(Debug, Clone, PartialEq)]
@@ -177,8 +177,11 @@ pub struct Statement<'conn> {
 }
 
 impl<'conn> Statement<'conn> {
-
-    pub(crate) fn new(conn: &'conn Connection, sql: &str, params: &[StmtParam]) -> Result<Statement<'conn>> {
+    pub(crate) fn new(
+        conn: &'conn Connection,
+        sql: &str,
+        params: &[StmtParam],
+    ) -> Result<Statement<'conn>> {
         let sql = to_odpi_str(sql);
         let mut fetch_array_size = DPI_DEFAULT_FETCH_ARRAY_SIZE;
         let mut scrollable = 0;
@@ -187,37 +190,49 @@ impl<'conn> Statement<'conn> {
             match param {
                 &StmtParam::FetchArraySize(size) => {
                     fetch_array_size = size;
-                },
+                }
                 &StmtParam::Scrollable => {
                     scrollable = 1;
-                },
+                }
                 &StmtParam::Tag(ref name) => {
                     tag = to_odpi_str(name);
-                },
+                }
             }
         }
         let mut handle: *mut dpiStmt = ptr::null_mut();
-        chkerr!(conn.ctxt,
-                dpiConn_prepareStmt(conn.handle, scrollable, sql.ptr, sql.len,
-                                    tag.ptr, tag.len, &mut handle));
+        chkerr!(
+            conn.ctxt,
+            dpiConn_prepareStmt(
+                conn.handle,
+                scrollable,
+                sql.ptr,
+                sql.len,
+                tag.ptr,
+                tag.len,
+                &mut handle
+            )
+        );
         let mut info: dpiStmtInfo = Default::default();
-        chkerr!(conn.ctxt,
-                dpiStmt_getInfo(handle, &mut info),
-                unsafe { dpiStmt_release(handle); });
+        chkerr!(conn.ctxt, dpiStmt_getInfo(handle, &mut info), unsafe {
+            dpiStmt_release(handle);
+        });
         let mut num = 0;
-        chkerr!(conn.ctxt,
-                dpiStmt_getBindCount(handle, &mut num),
-                unsafe { dpiStmt_release(handle); });
+        chkerr!(conn.ctxt, dpiStmt_getBindCount(handle, &mut num), unsafe {
+            dpiStmt_release(handle);
+        });
         let bind_count = num as usize;
         let mut bind_names = Vec::with_capacity(bind_count);
         let mut bind_values = Vec::with_capacity(bind_count);
         if bind_count > 0 {
             let mut names: Vec<*const i8> = vec![ptr::null_mut(); bind_count];
             let mut lengths = vec![0; bind_count];
-            chkerr!(conn.ctxt,
-                    dpiStmt_getBindNames(handle, &mut num,
-                                         names.as_mut_ptr(), lengths.as_mut_ptr()),
-                    unsafe { dpiStmt_release(handle); });
+            chkerr!(
+                conn.ctxt,
+                dpiStmt_getBindNames(handle, &mut num, names.as_mut_ptr(), lengths.as_mut_ptr()),
+                unsafe {
+                    dpiStmt_release(handle);
+                }
+            );
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
                 bind_names.push(to_rust_str(names[i], lengths[i]));
@@ -247,8 +262,7 @@ impl<'conn> Statement<'conn> {
     fn close_internal(&mut self, tag: &str) -> Result<()> {
         let tag = to_odpi_str(tag);
 
-        chkerr!(self.conn.ctxt,
-                dpiStmt_close(self.handle, tag.ptr, tag.len));
+        chkerr!(self.conn.ctxt, dpiStmt_close(self.handle, tag.ptr, tag.len));
         self.handle = ptr::null_mut();
         Ok(())
     }
@@ -282,7 +296,8 @@ impl<'conn> Statement<'conn> {
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<ResultSet<'a, T>>
-        where T: RowValue
+    where
+        T: RowValue,
     {
         self.exec(params, true, "query_as")?;
         Ok(ResultSet::new(self))
@@ -294,8 +309,12 @@ impl<'conn> Statement<'conn> {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as_named<'a, T>(&'a mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<'a, T>>
-        where T: RowValue
+    pub fn query_as_named<'a, T>(
+        &'a mut self,
+        params: &[(&str, &ToSql)],
+    ) -> Result<ResultSet<'a, T>>
+    where
+        T: RowValue,
     {
         self.exec_named(params, true, "query_as_named")?;
         Ok(ResultSet::new(self))
@@ -326,7 +345,10 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item>
+    where
+        T: RowValue,
+    {
         let rows = self.query_as::<T>(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
@@ -336,7 +358,10 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item>
+    where
+        T: RowValue,
+    {
         let rows = self.query_as_named::<T>(params)?;
         (&rows).next().unwrap_or(Err(Error::NoDataFound))
     }
@@ -395,18 +420,29 @@ impl<'conn> Statement<'conn> {
             if self.statement_type == StatementType::Select {
                 Ok(())
             } else {
-                Err(Error::InvalidOperation(format!("Could not use the `{}` method for non-select statements", method_name)))
+                Err(Error::InvalidOperation(format!(
+                    "Could not use the `{}` method for non-select statements",
+                    method_name
+                )))
             }
         } else {
             if self.statement_type != StatementType::Select {
                 Ok(())
             } else {
-                Err(Error::InvalidOperation(format!("Could not use the `{}` method for select statements", method_name)))
+                Err(Error::InvalidOperation(format!(
+                    "Could not use the `{}` method for select statements",
+                    method_name
+                )))
             }
         }
     }
 
-    pub(crate) fn exec(&mut self, params: &[&ToSql], must_be_query: bool, method_name: &str) -> Result<()> {
+    pub(crate) fn exec(
+        &mut self,
+        params: &[&ToSql],
+        must_be_query: bool,
+        method_name: &str,
+    ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
         for i in 0..params.len() {
             self.bind(i + 1, params[i])?;
@@ -414,7 +450,12 @@ impl<'conn> Statement<'conn> {
         self.exec_common()
     }
 
-    pub(crate) fn exec_named(&mut self, params: &[(&str, &ToSql)], must_be_query: bool, method_name: &str) -> Result<()> {
+    pub(crate) fn exec_named(
+        &mut self,
+        params: &[(&str, &ToSql)],
+        must_be_query: bool,
+        method_name: &str,
+    ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
         for i in 0..params.len() {
             self.bind(params[i].0, params[i].1)?;
@@ -428,10 +469,14 @@ impl<'conn> Statement<'conn> {
         if self.conn.autocommit {
             exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
         }
-        chkerr!(self.conn.ctxt,
-                dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size));
-        chkerr!(self.conn.ctxt,
-                dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns));
+        chkerr!(
+            self.conn.ctxt,
+            dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size)
+        );
+        chkerr!(
+            self.conn.ctxt,
+            dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns)
+        );
         if self.statement_type == StatementType::Select {
             if self.row.is_none() {
                 let num_cols = num_query_columns as usize;
@@ -446,20 +491,25 @@ impl<'conn> Statement<'conn> {
                     self.column_info.push(ci);
                     // setup column value
                     let mut val = SqlValue::new(self.conn.ctxt);
-                    val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
+                    val.buffer_row_index =
+                        BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
                     let oratype = self.column_info[i].oracle_type();
                     let oratype_i64 = OracleType::Int64;
                     let oratype = match *oratype {
                         // When the column type is number whose prec is less than 18
                         // and the scale is zero, define it as int64.
-                        OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
-                            &oratype_i64,
-                        _ =>
-                            oratype,
+                        OracleType::Number(prec, 0)
+                            if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
+                        {
+                            &oratype_i64
+                        }
+                        _ => oratype,
                     };
                     val.init_handle(self.conn.handle, oratype, self.fetch_array_size)?;
-                    chkerr!(self.conn.ctxt,
-                            dpiStmt_define(self.handle, (i + 1) as u32, val.handle));
+                    chkerr!(
+                        self.conn.ctxt,
+                        dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
+                    );
                     column_values.push(val);
                 }
                 self.row = Some(Row::new(self.conn, column_names, column_values)?);
@@ -542,11 +592,16 @@ impl<'conn> Statement<'conn> {
     /// assert_eq!(outval, "TO BE UPPER-CASE");
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()> where I: BindIndex {
+    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()>
+    where
+        I: BindIndex,
+    {
         let pos = bindidx.idx(&self)?;
         if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
-            chkerr!(self.conn.ctxt,
-                    bindidx.bind(self.handle, self.bind_values[pos].handle));
+            chkerr!(
+                self.conn.ctxt,
+                bindidx.bind(self.handle, self.bind_values[pos].handle)
+            );
         }
         self.bind_values[pos].set(value)
     }
@@ -579,7 +634,11 @@ impl<'conn> Statement<'conn> {
     /// assert_eq!(outval, "TO BE UPPER-CASE");
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T> where I: BindIndex, T: FromSql {
+    pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T>
+    where
+        I: BindIndex,
+        T: FromSql,
+    {
         let pos = bindidx.idx(&self)?;
         self.bind_values[pos].get()
     }
@@ -621,10 +680,13 @@ impl<'conn> Statement<'conn> {
     /// ```
     ///
     /// [Statement.bind_value()]: #method.bind_value
-    pub fn returned_values<I, T>(&self, bindidx: I) -> Result<Vec<T>> where I: BindIndex, T: FromSql {
+    pub fn returned_values<I, T>(&self, bindidx: I) -> Result<Vec<T>>
+    where
+        I: BindIndex,
+        T: FromSql,
+    {
         let mut rows = 0;
-        chkerr!(self.conn.ctxt,
-                dpiStmt_getRowCount(self.handle, &mut rows));
+        chkerr!(self.conn.ctxt, dpiStmt_getRowCount(self.handle, &mut rows));
         if rows == 0 {
             return Ok(vec![]);
         }
@@ -660,8 +722,7 @@ impl<'conn> Statement<'conn> {
     /// Otherwise, the number of rows affected.
     pub fn row_count(&self) -> Result<u64> {
         let mut count = 0;
-        chkerr!(self.conn.ctxt,
-                dpiStmt_getRowCount(self.handle, &mut count));
+        chkerr!(self.conn.ctxt, dpiStmt_getRowCount(self.handle, &mut count));
         Ok(count)
     }
 
@@ -678,9 +739,7 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement is a PL/SQL block.
     pub fn is_plsql(&self) -> bool {
         match self.statement_type {
-            StatementType::Begin |
-            StatementType::Declare |
-            StatementType::Call => true,
+            StatementType::Begin | StatementType::Declare | StatementType::Call => true,
             _ => false,
         }
     }
@@ -688,9 +747,7 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement is DDL (data definition language).
     pub fn is_ddl(&self) -> bool {
         match self.statement_type {
-            StatementType::Create |
-            StatementType::Drop |
-            StatementType::Alter => true,
+            StatementType::Create | StatementType::Drop | StatementType::Alter => true,
             _ => false,
         }
     }
@@ -698,10 +755,10 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement is DML (data manipulation language).
     pub fn is_dml(&self) -> bool {
         match self.statement_type {
-            StatementType::Insert |
-            StatementType::Update |
-            StatementType::Delete |
-            StatementType::Merge => true,
+            StatementType::Insert
+            | StatementType::Update
+            | StatementType::Delete
+            | StatementType::Merge => true,
             _ => false,
         }
     }
@@ -720,22 +777,35 @@ impl<'conn> Drop for Statement<'conn> {
 
 impl<'conn> fmt::Debug for Statement<'conn> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Statement {{ handle: {:?}, conn: {:?}, stmt_type: {}",
-               self.handle, self.conn, self.statement_type())?;
+        write!(
+            f,
+            "Statement {{ handle: {:?}, conn: {:?}, stmt_type: {}",
+            self.handle,
+            self.conn,
+            self.statement_type()
+        )?;
         if self.column_info.len() != 0 {
             write!(f, ", colum_info: [")?;
             for (idx, colinfo) in (&self.column_info).iter().enumerate() {
                 if idx != 0 {
                     write!(f, ", ")?;
                 }
-                write!(f, "{} {}{}", colinfo.name(), colinfo.oracle_type(),
-                       if colinfo.nullable() {""} else {" NOT NULL"})?;
+                write!(
+                    f,
+                    "{} {}{}",
+                    colinfo.name(),
+                    colinfo.oracle_type(),
+                    if colinfo.nullable() { "" } else { " NOT NULL" }
+                )?;
             }
             write!(f, "], fetch_array_size: {}", self.fetch_array_size)?;
         }
         if self.bind_count != 0 {
-            write!(f, ", bind_count: {}, bind_names: {:?}, bind_values: {:?}",
-                   self.bind_count, self.bind_names, self.bind_values)?;
+            write!(
+                f,
+                ", bind_count: {}, bind_names: {:?}, bind_values: {:?}",
+                self.bind_count, self.bind_names, self.bind_values
+            )?;
         }
         if self.is_returning {
             write!(f, ", is_returning: true")?;
@@ -790,8 +860,10 @@ pub struct ColumnInfo {
 impl ColumnInfo {
     fn new(stmt: &Statement, idx: usize) -> Result<ColumnInfo> {
         let mut info = Default::default();
-        chkerr!(stmt.conn.ctxt,
-                dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info));
+        chkerr!(
+            stmt.conn.ctxt,
+            dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info)
+        );
         Ok(ColumnInfo {
             name: to_rust_str(info.name, info.nameLength),
             oracle_type: OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)?,
@@ -856,7 +928,9 @@ impl BindIndex for usize {
 impl<'a> BindIndex for &'a str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         let bindname = self.to_uppercase();
-        stmt.bind_names().iter().position(|&name| name == bindname)
+        stmt.bind_names()
+            .iter()
+            .position(|&name| name == bindname)
             .ok_or_else(|| Error::InvalidBindName((*self).to_string()))
     }
 
