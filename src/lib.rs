@@ -462,6 +462,7 @@ impl Default for dpiConnCreateParams {
             numShardingKeyColumns: 0,
             superShardingKeyColumns: ptr::null_mut(),
             numSuperShardingKeyColumns: 0,
+            outNewSession: 0,
         }
     }
 }
@@ -491,6 +492,8 @@ impl Default for dpiPoolCreateParams {
             timeout: 0,
             waitTimeout: 0,
             maxLifetimeSession: 0,
+            plsqlFixupCallback: ptr::null(),
+            plsqlFixupCallbackLength: 0,
         }
     }
 }
