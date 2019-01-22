@@ -345,7 +345,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<<T>::Item>
+    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<T>
     where
         T: RowValue,
     {
@@ -358,7 +358,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<<T>::Item>
+    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<T>
     where
         T: RowValue,
     {

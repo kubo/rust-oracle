@@ -602,7 +602,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item>
+    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<T>
     where
         T: RowValue,
     {
@@ -615,7 +615,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item>
+    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<T>
     where
         T: RowValue,
     {

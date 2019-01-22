@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.0 (xxx)
+
+Incompatible changes:
+
+* Remove the associated type `Item` from `RowValue`.
+
 ## 0.2.0 (2018-10-02)
 
 Incompatible changes:

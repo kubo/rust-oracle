@@ -100,7 +100,7 @@ impl Row {
     /// }
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn get_as<T>(&self) -> Result<<T>::Item>
+    pub fn get_as<T>(&self) -> Result<T>
     where
         T: RowValue,
     {
@@ -167,7 +167,7 @@ impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T>
 where
     T: RowValue,
 {
-    type Item = Result<<T>::Item>;
+    type Item = Result<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.stmt()
@@ -235,7 +235,6 @@ where
 /// }
 ///
 /// impl RowValue for Emp {
-///     type Item = Emp;
 ///     fn get(row: &Row) -> std::result::Result<Emp, Error> {
 ///         Ok(Emp {
 ///             empno: row.get("empno")?,
@@ -260,13 +259,12 @@ where
 /// [Connection.query_row_as]: struct.Connection.html#method.query_row_as
 /// [Connection.query_row_as_named]: struct.Connection.html#method.query_row_as_named
 /// [Row.get_as]: struct.Row.html#method.get_as
-pub trait RowValue {
-    type Item;
-    fn get(row: &Row) -> Result<Self::Item>;
+pub trait RowValue: Sized
+{
+    fn get(row: &Row) -> Result<Self>;
 }
 
 impl RowValue for Row {
-    type Item = Row;
     fn get(row: &Row) -> Result<Row> {
         let num_cols = row.column_values.len();
         let mut column_values = Vec::with_capacity(num_cols);
@@ -281,7 +279,6 @@ impl RowValue for Row {
 }
 
 impl<T: FromSql> RowValue for T {
-    type Item = T;
     fn get(row: &Row) -> Result<T> {
         Ok(row.get::<usize, T>(0)?)
     }
@@ -293,7 +290,6 @@ macro_rules! impl_row_value_for_tuple {
     )+) => {
         $(
             impl<$($T:FromSql,)+> RowValue for ($($T,)+) {
-                type Item = ($($T,)+);
                 fn get(row: &Row) -> Result<($($T,)+)> {
                     Ok((
                         $(row.get::<usize, $T>($idx)?,)+

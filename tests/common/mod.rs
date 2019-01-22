@@ -143,7 +143,6 @@ pub struct TestString {
 }
 
 impl RowValue for TestString {
-    type Item = TestString;
     fn get(row: &Row) -> Result<TestString, Error> {
         Ok(TestString {
             int_col: row.get(0)?,
