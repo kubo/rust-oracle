@@ -92,7 +92,7 @@ impl Row {
     /// let conn = Connection::connect("scott", "tiger", "", &[])?;
     /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
     ///
-    /// for result in &stmt.query(&[])? {
+    /// for result in stmt.query(&[])? {
     ///     let row = result?;
     ///     // Gets a row as `(i32, String)`.
     ///     let (empno, ename) = row.get_as::<(i32, String)>()?;
@@ -163,7 +163,7 @@ where
     }
 }
 
-impl<'a, 'stmt, T> Iterator for &'a ResultSet<'stmt, T>
+impl<'stmt, T> Iterator for ResultSet<'stmt, T>
 where
     T: RowValue,
 {
@@ -248,7 +248,7 @@ where
 /// let mut stmt = conn.prepare("select * from emp", &[])?;
 ///
 /// // Gets rows as Emp
-/// for result in &stmt.query_as::<Emp>(&[])? {
+/// for result in stmt.query_as::<Emp>(&[])? {
 ///     let emp = result?;
 ///     println!("{},{}", emp.empno, emp.ename);
 /// }

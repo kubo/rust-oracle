@@ -326,8 +326,8 @@ impl<'conn> Statement<'conn> {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
-        let rows = self.query(params)?;
-        (&rows).next().unwrap_or(Err(Error::NoDataFound))
+        let mut rows = self.query(params)?;
+        rows.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement using named bind parameters.
@@ -336,8 +336,8 @@ impl<'conn> Statement<'conn> {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
-        let rows = self.query_named(params)?;
-        (&rows).next().unwrap_or(Err(Error::NoDataFound))
+        let mut rows = self.query_named(params)?;
+        rows.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type using positoinal bind parameters.
@@ -349,8 +349,8 @@ impl<'conn> Statement<'conn> {
     where
         T: RowValue,
     {
-        let rows = self.query_as::<T>(params)?;
-        (&rows).next().unwrap_or(Err(Error::NoDataFound))
+        let mut rows = self.query_as::<T>(params)?;
+        rows.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Gets one row from the prepared statement as specified type using named bind parameters.
@@ -362,8 +362,8 @@ impl<'conn> Statement<'conn> {
     where
         T: RowValue,
     {
-        let rows = self.query_as_named::<T>(params)?;
-        (&rows).next().unwrap_or(Err(Error::NoDataFound))
+        let mut rows = self.query_as_named::<T>(params)?;
+        rows.next().unwrap_or(Err(Error::NoDataFound))
     }
 
     /// Binds values by position and executes the statement.
