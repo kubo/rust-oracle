@@ -83,7 +83,7 @@ pub fn test_from_sql<T>(
     let mut stmt = conn
         .prepare(&format!("select {} from dual", column_literal), &[])
         .unwrap();
-    let rows = stmt
+    let mut rows = stmt
         .query_as::<T>(&[])
         .expect(format!("error at {}:{}", file, line).as_str());
     assert_eq!(
@@ -93,7 +93,7 @@ pub fn test_from_sql<T>(
         file,
         line
     );
-    let result = (&rows).next().unwrap().unwrap();
+    let result = rows.next().unwrap().unwrap();
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
 }
 

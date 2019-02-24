@@ -39,7 +39,7 @@ fn main() {
     }
     println!("");
 
-    for row_result in &rows {
+    for row_result in rows {
         // print column values
         for (idx, val) in row_result.unwrap().sql_values().iter().enumerate() {
             if idx != 0 {

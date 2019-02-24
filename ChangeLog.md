@@ -6,6 +6,11 @@ Incompatible changes:
 
 * Remove the associated type `Item` from `RowValue`.
 
+* Iterator for `&ResultSet<T>` was removed and that for `ResultSet<T>`
+  was added again for better ergonomics.
+  Change `for row_result in &result_set {...}` to either `for row_result in result_set {...}` if the `ResultSet` can be consumed
+  or to `for row_result in &mut result_set {...}` otherwise.
+
 ## 0.2.0 (2018-10-02)
 
 Incompatible changes:

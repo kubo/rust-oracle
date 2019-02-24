@@ -448,6 +448,6 @@ fn row_count() {
         .prepare("select * from TestStrings where IntCol >= :1", &[])
         .unwrap();
     assert_eq!(stmt.row_count().unwrap(), 0); // before fetch
-    for _row in &stmt.query(&[&6]).unwrap() {}
+    for _row in stmt.query(&[&6]).unwrap() {}
     assert_eq!(stmt.row_count().unwrap(), 5); // after fetch
 }
