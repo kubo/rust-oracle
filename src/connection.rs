@@ -494,7 +494,7 @@ impl Connection {
     /// // fetch top 10 rows.
     /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
     ///                             &[StmtParam::FetchArraySize(10)])?;
-    /// for row_result in &stmt.query_as::<(i32, String)>(&[])? {
+    /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
     ///     let (empno, ename) = row_result?;
     ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
