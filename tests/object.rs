@@ -234,10 +234,10 @@ fn udt_object() {
 
 #[test]
 fn udt_stringlist() {
-    if client_version().unwrap().major() < 12 {
+    let conn = common::connect().unwrap();
+    if !common::check_oracle_version("udt_stringlist", &conn, 12, 1) {
         return;
     }
-    let conn = common::connect().unwrap();
     let objtype = conn
         .object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST")
         .unwrap();
