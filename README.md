@@ -1,4 +1,5 @@
 # Rust-oracle
+[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=master)](https://travis-ci.org/kubo/rust-oracle)
 
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
