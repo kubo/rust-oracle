@@ -451,3 +451,28 @@ fn row_count() {
     for _row in stmt.query(&[&6]).unwrap() {}
     assert_eq!(stmt.row_count().unwrap(), 5); // after fetch
 }
+
+#[test]
+fn iterate_rows_by_ref_and_check_fused() {
+    let conn = common::connect().unwrap();
+    let mut rows = conn
+        .query_as::<usize>("select IntCol from TestNumbers order by IntCol", &[])
+        .unwrap();
+
+    let mut idx = 0;
+    // fetch 5 rows
+    for row_result in rows.by_ref().take(5) {
+        idx += 1;
+        assert_eq!(row_result.unwrap(), idx);
+    }
+    // fetch all rest rows
+    for row_result in rows.by_ref() {
+        idx += 1;
+        assert_eq!(row_result.unwrap(), idx);
+    }
+    assert_eq!(idx, 10);
+
+    // Ensure that the iterator is fused.
+    assert!(rows.next().is_none());
+    assert!(rows.next().is_none());
+}

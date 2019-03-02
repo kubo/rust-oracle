@@ -9,7 +9,7 @@ Incompatible changes:
 * Iterator for `&ResultSet<T>` was removed and that for `ResultSet<T>`
   was added again for better ergonomics.
   Change `for row_result in &result_set {...}` to either `for row_result in result_set {...}` if the `ResultSet` can be consumed
-  or to `for row_result in &mut result_set {...}` otherwise.
+  or to `for row_result in result_set.by_ref() {...}` otherwise.
 
 Changes:
 
