@@ -11,6 +11,10 @@ Incompatible changes:
   Change `for row_result in &result_set {...}` to either `for row_result in result_set {...}` if the `ResultSet` can be consumed
   or to `for row_result in &mut result_set {...}` otherwise.
 
+Changes:
+
+* Implement `FusedIterator` for `ResultSet`.
+
 ## 0.2.0 (2018-10-02)
 
 Incompatible changes:

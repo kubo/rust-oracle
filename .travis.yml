@@ -3,6 +3,7 @@ sudo: required
 language: rust
 rust:
   - stable
+  - 1.26.0
 
 env:
   global:

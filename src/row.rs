@@ -15,6 +15,7 @@
 
 use std::boxed::Box;
 use std::fmt;
+use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
@@ -176,6 +177,8 @@ where
     }
 }
 
+impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
+
 impl<'stmt, T> fmt::Debug for ResultSet<'stmt, T>
 where
     T: RowValue,
@@ -259,8 +262,7 @@ where
 /// [Connection.query_row_as]: struct.Connection.html#method.query_row_as
 /// [Connection.query_row_as_named]: struct.Connection.html#method.query_row_as_named
 /// [Row.get_as]: struct.Row.html#method.get_as
-pub trait RowValue: Sized
-{
+pub trait RowValue: Sized {
     fn get(row: &Row) -> Result<Self>;
 }
 
