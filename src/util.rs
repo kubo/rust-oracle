@@ -13,13 +13,14 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use sql_type::OracleType;
 use std::fmt;
 use std::result;
 use std::str;
-use Error;
-use ParseOracleTypeError;
-use Result;
+
+use crate::sql_type::OracleType;
+use crate::Error;
+use crate::ParseOracleTypeError;
+use crate::Result;
 
 pub struct Scanner<'a> {
     chars: str::Chars<'a>,

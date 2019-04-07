@@ -13,8 +13,12 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use binding::dpiContext_getError;
-use binding::dpiErrorInfo;
+use crate::binding::dpiContext_getError;
+use crate::binding::dpiErrorInfo;
+use crate::to_rust_str;
+use crate::AssertSend;
+use crate::AssertSync;
+use crate::Context;
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
@@ -22,11 +26,6 @@ use std::num;
 use std::str;
 use std::sync;
 use try_from;
-use AssertSend;
-use AssertSync;
-use Context;
-
-use to_rust_str;
 
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {
@@ -321,22 +320,24 @@ pub(crate) fn error_from_context(ctxt: &Context) -> Error {
     unsafe {
         dpiContext_getError(ctxt.context, &mut err);
     };
-    ::error::error_from_dpi_error(&err)
+    crate::error::error_from_dpi_error(&err)
 }
 
+#[macro_export]
+#[doc(hidden)]
 macro_rules! chkerr {
     ($ctxt:expr, $code:expr) => {{
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
-            return Err(::error::error_from_context($ctxt));
+            return Err($crate::error::error_from_context($ctxt));
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
-            let err = ::error::error_from_context($ctxt);
+            let err = $crate::error::error_from_context($ctxt);
             $cleanup
             return Err(err);
         }

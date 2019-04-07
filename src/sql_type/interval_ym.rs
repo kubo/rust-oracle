@@ -17,10 +17,10 @@ use std::cmp;
 use std::fmt;
 use std::str;
 
-use binding::dpiIntervalYM;
-use sql_type::OracleType;
-use util::Scanner;
-use ParseOracleTypeError;
+use crate::binding::dpiIntervalYM;
+use crate::sql_type::OracleType;
+use crate::util::Scanner;
+use crate::ParseOracleTypeError;
 
 /// Oracle-specific [Interval Year to Month][INTVL_YM] data type.
 ///

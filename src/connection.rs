@@ -20,23 +20,22 @@ use std::ptr;
 use std::rc::Rc;
 use std::sync::Mutex;
 
-use Statement;
-use Version;
-
-use binding::*;
-use sql_type::ObjectType;
-use sql_type::ObjectTypeInternal;
-use sql_type::ToSql;
-use Context;
-use Result;
-use ResultSet;
-use Row;
-use RowValue;
-use StmtParam;
-
-use new_odpi_str;
-use to_odpi_str;
-use to_rust_str;
+use crate::binding::*;
+use crate::chkerr;
+use crate::new_odpi_str;
+use crate::sql_type::ObjectType;
+use crate::sql_type::ObjectTypeInternal;
+use crate::sql_type::ToSql;
+use crate::to_odpi_str;
+use crate::to_rust_str;
+use crate::Context;
+use crate::Result;
+use crate::ResultSet;
+use crate::Row;
+use crate::RowValue;
+use crate::Statement;
+use crate::StmtParam;
+use crate::Version;
 
 /// Database startup mode
 ///

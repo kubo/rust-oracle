@@ -18,27 +18,23 @@ use std::fmt;
 use std::ptr;
 use std::rc::Rc;
 
-#[allow(unused_imports, deprecated)]
-use std::ascii::AsciiExt; // Required when rust verion < 1.23.
-
-use binding::*;
-
-use sql_type::FromSql;
-use sql_type::OracleType;
-use sql_type::ToSql;
-use Connection;
-use Error;
-use Result;
-use ResultSet;
-use Row;
-use RowValue;
-use SqlValue;
-
-use new_odpi_str;
-use private;
-use sql_value::BufferRowIndex;
-use to_odpi_str;
-use to_rust_str;
+use crate::binding::*;
+use crate::chkerr;
+use crate::new_odpi_str;
+use crate::private;
+use crate::sql_type::FromSql;
+use crate::sql_type::OracleType;
+use crate::sql_type::ToSql;
+use crate::sql_value::BufferRowIndex;
+use crate::to_odpi_str;
+use crate::to_rust_str;
+use crate::Connection;
+use crate::Error;
+use crate::Result;
+use crate::ResultSet;
+use crate::Row;
+use crate::RowValue;
+use crate::SqlValue;
 
 // https://docs.oracle.com/en/database/oracle/oracle-database/19/lnoci/handle-and-descriptor-attributes.html#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
@@ -534,7 +530,7 @@ impl<'conn> Statement<'conn> {
             }
         }
         if self.is_returning {
-            for mut val in self.bind_values.iter_mut() {
+            for val in self.bind_values.iter_mut() {
                 val.fix_internal_data()?;
             }
         }
@@ -732,7 +728,7 @@ impl<'conn> Statement<'conn> {
                 None
             }
         } else {
-            Some(Err(::error::error_from_context(self.conn.ctxt)))
+            Some(Err(crate::error::error_from_context(self.conn.ctxt)))
         }
     }
 

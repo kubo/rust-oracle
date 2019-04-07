@@ -13,7 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
 mod common;
 
 use oracle::client_version;

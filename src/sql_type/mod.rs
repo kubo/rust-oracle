@@ -15,10 +15,10 @@
 
 //! SQL data types
 
-use Connection;
-use Error;
-use Result;
-use SqlValue;
+use crate::Connection;
+use crate::Error;
+use crate::Result;
+use crate::SqlValue;
 
 #[cfg(feature = "chrono")]
 mod chrono;
@@ -132,7 +132,7 @@ pub trait FromSql {
 /// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
 /// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 pub trait ToSqlNull {
-    fn oratype_for_null(&Connection) -> Result<OracleType>;
+    fn oratype_for_null(conn: &Connection) -> Result<OracleType>;
 }
 
 /// Conversion from rust values to Oracle values.
@@ -183,7 +183,7 @@ pub trait ToSqlNull {
 /// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 ///
 pub trait ToSql {
-    fn oratype(&self, &Connection) -> Result<OracleType>;
+    fn oratype(&self, conn: &Connection) -> Result<OracleType>;
     fn to_sql(&self, val: &mut SqlValue) -> Result<()>;
 }
 

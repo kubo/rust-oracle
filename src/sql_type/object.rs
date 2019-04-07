@@ -18,18 +18,18 @@ use std::fmt;
 use std::ptr;
 use std::rc::Rc;
 
-use binding::*;
-use sql_type::FromSql;
-use sql_type::OracleType;
-use sql_type::ToSql;
-use Connection;
-use Context;
-use Error;
-use Result;
-use SqlValue;
-
-use to_rust_str;
-use util::write_literal;
+use crate::binding::*;
+use crate::chkerr;
+use crate::sql_type::FromSql;
+use crate::sql_type::OracleType;
+use crate::sql_type::ToSql;
+use crate::to_rust_str;
+use crate::util::write_literal;
+use crate::Connection;
+use crate::Context;
+use crate::Error;
+use crate::Result;
+use crate::SqlValue;
 
 unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
     if data.isNull == 0 {

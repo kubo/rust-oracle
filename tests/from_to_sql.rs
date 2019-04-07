@@ -13,9 +13,8 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
-#[macro_use]
 mod common;
+
 use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
 use oracle::Error;
 
@@ -681,11 +680,12 @@ fn interval_ym_to_sql() {
 
 #[cfg(feature = "chrono")]
 mod chrono {
-    extern crate chrono;
-    use self::chrono::naive::NaiveDate;
-    use self::chrono::prelude::*;
-    use self::chrono::Duration;
-    use common;
+    use super::common;
+    use super::test_from_sql;
+    use super::test_to_sql;
+    use chrono::naive::NaiveDate;
+    use chrono::prelude::*;
+    use chrono::Duration;
     use oracle::sql_type::OracleType;
     use oracle::Error;
 

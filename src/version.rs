@@ -15,7 +15,7 @@
 
 use std::fmt;
 
-use binding::dpiVersionInfo;
+use crate::binding::dpiVersionInfo;
 
 /// Oracle version information
 ///

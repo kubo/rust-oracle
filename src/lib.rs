@@ -271,12 +271,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
 */
 
-#[cfg(feature = "chrono")]
-extern crate chrono;
-#[macro_use]
-extern crate lazy_static;
-extern crate try_from;
-
+use lazy_static::lazy_static;
 use std::os::raw::c_char;
 use std::ptr;
 use std::result;
@@ -287,9 +282,8 @@ use std::slice;
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
 mod binding;
-#[macro_use]
-mod error;
 mod connection;
+mod error;
 mod row;
 pub mod sql_type;
 mod sql_value;
@@ -297,27 +291,27 @@ mod statement;
 mod util;
 mod version;
 
-pub use connection::Connection;
-pub use connection::Connector;
-pub use connection::Privilege;
-pub use connection::ShutdownMode;
-pub use connection::StartupMode;
-pub use error::DbError;
-pub use error::Error;
-pub use error::ParseOracleTypeError;
-pub use row::ResultSet;
-pub use row::Row;
-pub use row::RowValue;
-pub use sql_value::SqlValue;
-pub use statement::BindIndex;
-pub use statement::ColumnIndex;
-pub use statement::ColumnInfo;
-pub use statement::Statement;
-pub use statement::StatementType;
-pub use statement::StmtParam;
-pub use version::Version;
+pub use crate::connection::Connection;
+pub use crate::connection::Connector;
+pub use crate::connection::Privilege;
+pub use crate::connection::ShutdownMode;
+pub use crate::connection::StartupMode;
+pub use crate::error::DbError;
+pub use crate::error::Error;
+pub use crate::error::ParseOracleTypeError;
+pub use crate::row::ResultSet;
+pub use crate::row::Row;
+pub use crate::row::RowValue;
+pub use crate::sql_value::SqlValue;
+pub use crate::statement::BindIndex;
+pub use crate::statement::ColumnIndex;
+pub use crate::statement::ColumnInfo;
+pub use crate::statement::Statement;
+pub use crate::statement::StatementType;
+pub use crate::statement::StmtParam;
+pub use crate::version::Version;
 
-use binding::*;
+use crate::binding::*;
 
 pub type Result<T> = result::Result<T, Error>;
 

@@ -1,5 +1,3 @@
-extern crate oracle;
-#[macro_use]
 mod common;
 
 use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};

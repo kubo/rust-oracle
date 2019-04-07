@@ -17,10 +17,10 @@ use std::cmp;
 use std::fmt;
 use std::str;
 
-use binding::dpiIntervalDS;
-use sql_type::OracleType;
-use util::Scanner;
-use ParseOracleTypeError;
+use crate::binding::dpiIntervalDS;
+use crate::sql_type::OracleType;
+use crate::util::Scanner;
+use crate::ParseOracleTypeError;
 
 /// Oracle-specific [Interval Day to Second][INTVL_DS] data type.
 ///

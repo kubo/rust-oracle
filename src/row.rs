@@ -19,15 +19,15 @@ use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use binding::*;
-
-use sql_type::FromSql;
-use ColumnIndex;
-use ColumnInfo;
-use Connection;
-use Result;
-use SqlValue;
-use Statement;
+use crate::binding::*;
+use crate::chkerr;
+use crate::sql_type::FromSql;
+use crate::ColumnIndex;
+use crate::ColumnInfo;
+use crate::Connection;
+use crate::Result;
+use crate::SqlValue;
+use crate::Statement;
 
 pub struct RowSharedData {
     column_names: Vec<String>,

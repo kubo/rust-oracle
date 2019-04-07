@@ -8,9 +8,10 @@ license = "UPL-1.0/Apache-2.0"
 keywords = ["oracle", "database"]
 readme = "README.md"
 description = "Oracle binding"
+edition = "2018"
 
 [dependencies]
-lazy_static = "0.2"
+lazy_static = "1.3.0"
 try_from = "0.2.2"
 chrono = { version = "0.4", optional = true }
 

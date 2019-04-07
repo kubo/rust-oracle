@@ -74,6 +74,7 @@ pub fn check_oracle_version(test_name: &str, conn: &Connection, major: i32, mino
     }
 }
 
+#[macro_export]
 #[allow(unused_macros)]
 macro_rules! test_from_sql {
     ($conn:expr, $column_literal:expr, $column_type:expr, $expected_result:expr) => {
@@ -116,6 +117,7 @@ pub fn test_from_sql<T>(
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
 }
 
+#[macro_export]
 #[allow(unused_macros)]
 macro_rules! test_to_sql {
     ($conn:expr, $input_data:expr, $input_literal:expr, $expected_result:expr) => {

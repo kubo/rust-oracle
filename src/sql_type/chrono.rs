@@ -15,20 +15,20 @@
 
 use chrono::prelude::*;
 
+use crate::sql_type::FromSql;
+use crate::sql_type::IntervalDS;
+use crate::sql_type::OracleType;
+use crate::sql_type::Timestamp;
+use crate::sql_type::ToSql;
+use crate::sql_type::ToSqlNull;
+use crate::Connection;
+use crate::Error;
+use crate::Result;
+use crate::SqlValue;
 use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
 use chrono::offset::LocalResult;
 use chrono::Duration;
-use sql_type::FromSql;
-use sql_type::IntervalDS;
-use sql_type::OracleType;
-use sql_type::Timestamp;
-use sql_type::ToSql;
-use sql_type::ToSqlNull;
-use Connection;
-use Error;
-use Result;
-use SqlValue;
 
 //
 // chrono::DateTime<Utc>

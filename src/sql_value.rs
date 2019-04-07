@@ -20,27 +20,27 @@ use std::rc::Rc;
 use std::str;
 use try_from::TryInto;
 
-use binding::*;
-use sql_type::Collection;
-use sql_type::FromSql;
-use sql_type::IntervalDS;
-use sql_type::IntervalYM;
-use sql_type::NativeType;
-use sql_type::Object;
-use sql_type::ObjectType;
-use sql_type::OracleType;
-use sql_type::Timestamp;
-use sql_type::ToSql;
-use Connection;
-use Context;
-use Error;
-use Result;
-
-use to_rust_slice;
-use to_rust_str;
-use util::check_number_format;
-use util::parse_str_into_raw;
-use util::set_hex_string;
+use crate::binding::*;
+use crate::chkerr;
+use crate::sql_type::Collection;
+use crate::sql_type::FromSql;
+use crate::sql_type::IntervalDS;
+use crate::sql_type::IntervalYM;
+use crate::sql_type::NativeType;
+use crate::sql_type::Object;
+use crate::sql_type::ObjectType;
+use crate::sql_type::OracleType;
+use crate::sql_type::Timestamp;
+use crate::sql_type::ToSql;
+use crate::to_rust_slice;
+use crate::to_rust_str;
+use crate::util::check_number_format;
+use crate::util::parse_str_into_raw;
+use crate::util::set_hex_string;
+use crate::Connection;
+use crate::Context;
+use crate::Error;
+use crate::Result;
 
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {{
