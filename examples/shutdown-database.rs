@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 extern crate oracle;
-use oracle::{Connection, ConnParam, ShutdownMode};
+use oracle::{ConnParam, Connection, ShutdownMode};
 
 fn main() {
     let username = "sys";

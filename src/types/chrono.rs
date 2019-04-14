@@ -15,6 +15,10 @@
 
 use chrono::prelude::*;
 
+use chrono::naive::NaiveDate;
+use chrono::naive::NaiveDateTime;
+use chrono::offset::LocalResult;
+use chrono::Duration;
 use Error;
 use FromSql;
 use IntervalDS;
@@ -22,12 +26,8 @@ use OracleType;
 use Result;
 use SqlValue;
 use Timestamp;
-use ToSqlNull;
 use ToSql;
-use chrono::Duration;
-use chrono::naive::NaiveDate;
-use chrono::naive::NaiveDateTime;
-use chrono::offset::LocalResult;
+use ToSqlNull;
 
 //
 // chrono::DateTime<Utc>
@@ -35,7 +35,10 @@ use chrono::offset::LocalResult;
 // chrono::DateTime<FixedOffset>
 //
 
-fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>> where Tz: TimeZone {
+fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>>
+where
+    Tz: TimeZone,
+{
     Ok(date_from_sql(tz, ts)?.and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
 }
 
@@ -60,21 +63,33 @@ impl FromSql for DateTime<FixedOffset> {
     }
 }
 
-impl<Tz> ToSqlNull for DateTime<Tz> where Tz: TimeZone {
+impl<Tz> ToSqlNull for DateTime<Tz>
+where
+    Tz: TimeZone,
+{
     fn oratype_for_null() -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(9))
     }
 }
 
-impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
+impl<Tz> ToSql for DateTime<Tz>
+where
+    Tz: TimeZone,
+{
     fn oratype(&self) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(9))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(),
-                                self.hour(), self.minute(), self.second(),
-                                self.nanosecond());
+        let ts = Timestamp::new(
+            self.year(),
+            self.month(),
+            self.day(),
+            self.hour(),
+            self.minute(),
+            self.second(),
+            self.nanosecond(),
+        );
         let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
         val.set_timestamp(&ts)
     }
@@ -86,10 +101,18 @@ impl<Tz> ToSql for DateTime<Tz> where Tz: TimeZone {
 // chrono::Date<FixedOffset>
 //
 
-fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>> where Tz: TimeZone {
+fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>>
+where
+    Tz: TimeZone,
+{
     match tz.ymd_opt(ts.year(), ts.month(), ts.day()) {
         LocalResult::Single(date) => Ok(date),
-        _ => Err(Error::OutOfRange(format!("invalid month and/or day: {}-{}-{}", ts.year(), ts.month(), ts.day()))),
+        _ => Err(Error::OutOfRange(format!(
+            "invalid month and/or day: {}-{}-{}",
+            ts.year(),
+            ts.month(),
+            ts.day()
+        ))),
     }
 }
 
@@ -114,20 +137,25 @@ impl FromSql for Date<FixedOffset> {
     }
 }
 
-impl<Tz> ToSqlNull for Date<Tz> where Tz: TimeZone {
+impl<Tz> ToSqlNull for Date<Tz>
+where
+    Tz: TimeZone,
+{
     fn oratype_for_null() -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(0))
     }
 }
 
-impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
+impl<Tz> ToSql for Date<Tz>
+where
+    Tz: TimeZone,
+{
     fn oratype(&self) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(0))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(),
-                                0, 0, 0, 0);
+        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0);
         let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
         val.set_timestamp(&ts)
     }
@@ -140,25 +168,38 @@ impl<Tz> ToSql for Date<Tz> where Tz: TimeZone {
 impl FromSql for NaiveDateTime {
     fn from_sql(val: &SqlValue) -> Result<NaiveDateTime> {
         let ts = val.to_timestamp()?;
-        Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
+        Ok(
+            NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(
+                ts.hour(),
+                ts.minute(),
+                ts.second(),
+                ts.nanosecond(),
+            ),
+        )
     }
 }
 
-impl ToSqlNull for NaiveDateTime  {
+impl ToSqlNull for NaiveDateTime {
     fn oratype_for_null() -> Result<OracleType> {
         Ok(OracleType::Timestamp(9))
     }
 }
 
-impl ToSql for NaiveDateTime  {
+impl ToSql for NaiveDateTime {
     fn oratype(&self) -> Result<OracleType> {
         Ok(OracleType::Timestamp(9))
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(),
-                                self.hour(), self.minute(), self.second(),
-                                self.nanosecond());
+        let ts = Timestamp::new(
+            self.year(),
+            self.month(),
+            self.day(),
+            self.hour(),
+            self.minute(),
+            self.second(),
+            self.nanosecond(),
+        );
         val.set_timestamp(&ts)
     }
 }
@@ -186,8 +227,7 @@ impl ToSql for NaiveDate {
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(),
-                                0, 0, 0, 0);
+        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0);
         val.set_timestamp(&ts)
     }
 }
@@ -198,14 +238,25 @@ impl ToSql for NaiveDate {
 
 impl FromSql for Duration {
     fn from_sql(val: &SqlValue) -> Result<Duration> {
-        let err = |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it.to_string()));
+        let err =
+            |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it.to_string()));
         let it = val.to_interval_ds()?;
         let d = Duration::milliseconds(0);
-        let d = d.checked_add(&Duration::days(it.days() as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::hours(it.hours() as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::minutes(it.minutes() as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::seconds(it.seconds() as i64)).ok_or(err(it))?;
-        let d = d.checked_add(&Duration::nanoseconds(it.nanoseconds() as i64)).ok_or(err(it))?;
+        let d = d
+            .checked_add(&Duration::days(it.days() as i64))
+            .ok_or(err(it))?;
+        let d = d
+            .checked_add(&Duration::hours(it.hours() as i64))
+            .ok_or(err(it))?;
+        let d = d
+            .checked_add(&Duration::minutes(it.minutes() as i64))
+            .ok_or(err(it))?;
+        let d = d
+            .checked_add(&Duration::seconds(it.seconds() as i64))
+            .ok_or(err(it))?;
+        let d = d
+            .checked_add(&Duration::nanoseconds(it.nanoseconds() as i64))
+            .ok_or(err(it))?;
         Ok(d)
     }
 }
@@ -231,9 +282,18 @@ impl ToSql for Duration {
         let minutes = secs / 60;
         let secs = secs % 60;
         if days.abs() >= 1000000000 {
-            return Err(Error::OutOfRange(format!("too large days: {}", self.to_string())));
+            return Err(Error::OutOfRange(format!(
+                "too large days: {}",
+                self.to_string()
+            )));
         }
-        let it = IntervalDS::new(days as i32, hours as i32, minutes as i32, secs as i32, nsecs as i32);
+        let it = IntervalDS::new(
+            days as i32,
+            hours as i32,
+            minutes as i32,
+            secs as i32,
+            nsecs as i32,
+        );
         val.set_interval_ds(&it)
     }
 }

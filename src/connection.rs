@@ -17,8 +17,8 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 
-use Version;
 use Statement;
+use Version;
 
 use binding::*;
 use Context;
@@ -255,7 +255,6 @@ pub struct Connection {
 }
 
 impl Connection {
-
     /// Connects to an Oracle server
     ///
     /// # Examples
@@ -285,18 +284,37 @@ impl Connection {
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
     ///
-    pub fn connect(username: &str, password: &str, connect_string: &str, params: &[ConnParam]) -> Result<Connection> {
+    pub fn connect(
+        username: &str,
+        password: &str,
+        connect_string: &str,
+        params: &[ConnParam],
+    ) -> Result<Connection> {
         let ctxt = Context::get()?;
-        Connection::connect_internal(ctxt, username, password, connect_string, params, ptr::null_mut())
+        Connection::connect_internal(
+            ctxt,
+            username,
+            password,
+            connect_string,
+            params,
+            ptr::null_mut(),
+        )
     }
 
-    #[deprecated(since="0.0.6", note="use `Connection::connect()` instead")]
+    #[deprecated(since = "0.0.6", note = "use `Connection::connect()` instead")]
     #[doc(hidden)]
     pub fn new(username: &str, password: &str, connect_string: &str) -> Result<Connection> {
         Connection::connect(username, password, connect_string, &[])
     }
 
-    pub(crate) fn connect_internal(ctxt: &'static Context, username: &str, password: &str, connect_string: &str, params: &[ConnParam], pool: *mut dpiPool) -> Result<Connection> {
+    pub(crate) fn connect_internal(
+        ctxt: &'static Context,
+        username: &str,
+        password: &str,
+        connect_string: &str,
+        params: &[ConnParam],
+        pool: *mut dpiPool,
+    ) -> Result<Connection> {
         let mut common_params = ctxt.common_create_params;
         let mut conn_params = ctxt.conn_create_params;
 
@@ -312,82 +330,81 @@ impl Connection {
             match param {
                 &ConnParam::Sysdba => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSDBA;
-                },
+                }
                 &ConnParam::Sysoper => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSOPER;
-                },
+                }
                 &ConnParam::Sysasm => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSASM;
-                },
+                }
                 &ConnParam::Sysbackup => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSBKP;
-                },
+                }
                 &ConnParam::Sysdg => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSDGD;
-                },
+                }
                 &ConnParam::Syskm => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSKMT;
-                },
+                }
                 &ConnParam::Sysrac => {
                     conn_params.authMode |= DPI_MODE_AUTH_SYSRAC;
-                },
+                }
                 &ConnParam::ExternalAuth => {
                     conn_params.externalAuth = 1;
-                },
+                }
                 &ConnParam::PrelimAuth => {
                     conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
-                },
+                }
                 &ConnParam::NewPassword(ref password) => {
                     let s = to_odpi_str(password);
                     conn_params.newPassword = s.ptr;
                     conn_params.newPasswordLength = s.len;
-                },
+                }
                 &ConnParam::PurityNew => {
                     conn_params.purity = DPI_PURITY_NEW;
-                },
+                }
                 &ConnParam::PuritySelf => {
                     conn_params.purity = DPI_PURITY_SELF;
-                },
+                }
                 &ConnParam::ConnectionClass(ref name) => {
                     let s = to_odpi_str(name);
                     conn_params.connectionClass = s.ptr;
                     conn_params.connectionClassLength = s.len;
-                },
+                }
                 &ConnParam::AppContext(ref namespace, ref name, ref value) => {
                     let namespace = to_odpi_str(namespace);
                     let name = to_odpi_str(name);
                     let value = to_odpi_str(value);
-                    app_context.push(
-                        dpiAppContext {
-                            namespaceName: namespace.ptr,
-                            namespaceNameLength: namespace.len,
-                            name: name.ptr,
-                            nameLength: name.len,
-                            value: value.ptr,
-                            valueLength: value.len,
-                        });
-                },
+                    app_context.push(dpiAppContext {
+                        namespaceName: namespace.ptr,
+                        namespaceNameLength: namespace.len,
+                        name: name.ptr,
+                        nameLength: name.len,
+                        value: value.ptr,
+                        valueLength: value.len,
+                    });
+                }
                 &ConnParam::Tag(ref tag) => {
                     let s = to_odpi_str(tag);
                     conn_params.tag = s.ptr;
                     conn_params.tagLength = s.len;
-                },
+                }
                 &ConnParam::MatchAnyTag => {
                     conn_params.matchAnyTag = 1;
-                },
+                }
                 &ConnParam::Events => {
                     common_params.createMode |= DPI_MODE_CREATE_EVENTS;
-                },
+                }
                 &ConnParam::Edition(ref edition) => {
                     let s = to_odpi_str(edition);
                     common_params.edition = s.ptr;
                     common_params.editionLength = s.len;
-                },
+                }
                 &ConnParam::DriverName(ref driver_name) => {
                     let s = to_odpi_str(driver_name);
                     common_params.driverName = s.ptr;
                     common_params.driverNameLength = s.len;
-                },
+                }
             }
         }
         if app_context.len() != 0 {
@@ -400,12 +417,22 @@ impl Connection {
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
         let mut handle = ptr::null_mut();
-        chkerr!(ctxt,
-                dpiConn_create(ctxt.context, username.ptr, username.len,
-                               password.ptr, password.len, connect_string.ptr,
-                               connect_string.len, &common_params,
-                               &mut conn_params, &mut handle));
-        Ok(Connection{
+        chkerr!(
+            ctxt,
+            dpiConn_create(
+                ctxt.context,
+                username.ptr,
+                username.len,
+                password.ptr,
+                password.len,
+                connect_string.ptr,
+                connect_string.len,
+                &common_params,
+                &mut conn_params,
+                &mut handle
+            )
+        );
+        Ok(Connection {
             ctxt: ctxt,
             handle: handle,
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
@@ -486,7 +513,10 @@ impl Connection {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
-        rs.stmt_boxed.as_mut().unwrap().exec(params, true, "query")?;
+        rs.stmt_boxed
+            .as_mut()
+            .unwrap()
+            .exec(params, true, "query")?;
         Ok(rs)
     }
 
@@ -498,7 +528,10 @@ impl Connection {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
-        rs.stmt_boxed.as_mut().unwrap().exec_named(params, true, "query_named")?;
+        rs.stmt_boxed
+            .as_mut()
+            .unwrap()
+            .exec_named(params, true, "query_named")?;
         Ok(rs)
     }
 
@@ -508,9 +541,15 @@ impl Connection {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<T>> where T: RowValue {
+    pub fn query_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<T>>
+    where
+        T: RowValue,
+    {
         let mut rs = ResultSet::from_conn(self, sql)?;
-        rs.stmt_boxed.as_mut().unwrap().exec(params, true, "query_as")?;
+        rs.stmt_boxed
+            .as_mut()
+            .unwrap()
+            .exec(params, true, "query_as")?;
         Ok(rs)
     }
 
@@ -520,9 +559,15 @@ impl Connection {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<T>> where T: RowValue {
+    pub fn query_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<T>>
+    where
+        T: RowValue,
+    {
         let mut rs = ResultSet::from_conn(self, sql)?;
-        rs.stmt_boxed.as_mut().unwrap().exec_named(params, true, "query_as_named")?;
+        rs.stmt_boxed
+            .as_mut()
+            .unwrap()
+            .exec_named(params, true, "query_as_named")?;
         Ok(rs)
     }
 
@@ -534,7 +579,7 @@ impl Connection {
     pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         if let Err(err) = stmt.query_row(params) {
-            return Err(err)
+            return Err(err);
         };
         Ok(mem::replace(&mut stmt.row, None).unwrap())
     }
@@ -547,7 +592,7 @@ impl Connection {
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         if let Err(err) = stmt.query_row_named(params) {
-            return Err(err)
+            return Err(err);
         };
         Ok(mem::replace(&mut stmt.row, None).unwrap())
     }
@@ -557,7 +602,10 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<<T>::Item>
+    where
+        T: RowValue,
+    {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_as::<T>(params)
     }
@@ -567,7 +615,10 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item> where T: RowValue {
+    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<<T>::Item>
+    where
+        T: RowValue,
+    {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         stmt.query_row_as_named::<T>(params)
     }
@@ -589,7 +640,7 @@ impl Connection {
     ///
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute(&self, sql: &str, params: &[&ToSql])-> Result<Statement> {
+    pub fn execute(&self, sql: &str, params: &[&ToSql]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
         stmt.execute(params)?;
         Ok(stmt)
@@ -613,7 +664,7 @@ impl Connection {
     ///
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)])-> Result<Statement> {
+    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
         stmt.execute_named(params)?;
         Ok(stmt)
@@ -621,15 +672,13 @@ impl Connection {
 
     /// Commits the current active transaction
     pub fn commit(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_commit(self.handle));
+        chkerr!(self.ctxt, dpiConn_commit(self.handle));
         Ok(())
     }
 
     /// Rolls back the current active transaction
     pub fn rollback(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_rollback(self.handle));
+        chkerr!(self.ctxt, dpiConn_rollback(self.handle));
         Ok(())
     }
 
@@ -647,8 +696,7 @@ impl Connection {
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_breakExecution(self.handle));
+        chkerr!(self.ctxt, dpiConn_breakExecution(self.handle));
         Ok(())
     }
 
@@ -663,10 +711,14 @@ impl Connection {
     pub fn object_type(&self, name: &str) -> Result<ObjectType> {
         let name = to_odpi_str(name);
         let mut handle = ptr::null_mut();
-        chkerr!(self.ctxt,
-                dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle)
+        );
         let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
-        unsafe { dpiObjectType_release(handle); }
+        unsafe {
+            dpiObjectType_release(handle);
+        }
         res
     }
 
@@ -692,100 +744,124 @@ impl Connection {
     pub fn server_version(&self) -> Result<(Version, String)> {
         let mut s = new_odpi_str();
         let mut dpi_ver = Default::default();
-        chkerr!(self.ctxt,
-                dpiConn_getServerVersion(self.handle, &mut s.ptr, &mut s.len,
-                                         &mut dpi_ver));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getServerVersion(self.handle, &mut s.ptr, &mut s.len, &mut dpi_ver)
+        );
         Ok((Version::new_from_dpi_ver(dpi_ver), s.to_string()))
     }
 
     /// Changes the password for the specified user
-    pub fn change_password(&self, username: &str, old_password: &str, new_password: &str) -> Result<()> {
+    pub fn change_password(
+        &self,
+        username: &str,
+        old_password: &str,
+        new_password: &str,
+    ) -> Result<()> {
         let username = to_odpi_str(username);
         let old_password = to_odpi_str(old_password);
         let new_password = to_odpi_str(new_password);
-        chkerr!(self.ctxt,
-                dpiConn_changePassword(self.handle,
-                                       username.ptr, username.len,
-                                       old_password.ptr, old_password.len,
-                                       new_password.ptr, new_password.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_changePassword(
+                self.handle,
+                username.ptr,
+                username.len,
+                old_password.ptr,
+                old_password.len,
+                new_password.ptr,
+                new_password.len
+            )
+        );
         Ok(())
     }
 
     /// Pings the connection to see if it is still alive
     pub fn ping(&self) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_ping(self.handle));
+        chkerr!(self.ctxt, dpiConn_ping(self.handle));
         Ok(())
     }
 
     /// Gets the statement cache size
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut size = 0u32;
-        chkerr!(self.ctxt,
-                dpiConn_getStmtCacheSize(self.handle, &mut size));
+        chkerr!(self.ctxt, dpiConn_getStmtCacheSize(self.handle, &mut size));
         Ok(size)
     }
 
     /// Sets the statement cache size
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
-        chkerr!(self.ctxt,
-                dpiConn_setStmtCacheSize(self.handle, size));
+        chkerr!(self.ctxt, dpiConn_setStmtCacheSize(self.handle, size));
         Ok(())
     }
 
     /// Gets current schema associated with the connection
     pub fn current_schema(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getCurrentSchema(self.handle, &mut s.ptr, &mut s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getCurrentSchema(self.handle, &mut s.ptr, &mut s.len)
+        );
         Ok(s.to_string())
     }
 
     /// Sets current schema associated with the connection
     pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
         let s = to_odpi_str(current_schema);
-        chkerr!(self.ctxt,
-                dpiConn_setCurrentSchema(self.handle, s.ptr, s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_setCurrentSchema(self.handle, s.ptr, s.len)
+        );
         Ok(())
     }
 
     /// Gets edition associated with the connection
     pub fn edition(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getEdition(self.handle, &mut s.ptr, &mut s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getEdition(self.handle, &mut s.ptr, &mut s.len)
+        );
         Ok(s.to_string())
     }
 
     /// Gets external name associated with the connection
     pub fn external_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getExternalName(self.handle, &mut s.ptr, &mut s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getExternalName(self.handle, &mut s.ptr, &mut s.len)
+        );
         Ok(s.to_string())
     }
 
     /// Sets external name associated with the connection
     pub fn set_external_name(&self, external_name: &str) -> Result<()> {
         let s = to_odpi_str(external_name);
-        chkerr!(self.ctxt,
-                dpiConn_setExternalName(self.handle, s.ptr, s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_setExternalName(self.handle, s.ptr, s.len)
+        );
         Ok(())
     }
 
     /// Gets internal name associated with the connection
     pub fn internal_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
-        chkerr!(self.ctxt,
-                dpiConn_getInternalName(self.handle, &mut s.ptr, &mut s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_getInternalName(self.handle, &mut s.ptr, &mut s.len)
+        );
         Ok(s.to_string())
     }
 
     /// Sets internal name associated with the connection
     pub fn set_internal_name(&self, internal_name: &str) -> Result<()> {
         let s = to_odpi_str(internal_name);
-        chkerr!(self.ctxt,
-                dpiConn_setInternalName(self.handle, s.ptr, s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_setInternalName(self.handle, s.ptr, s.len)
+        );
         Ok(())
     }
 
@@ -798,8 +874,7 @@ impl Connection {
     /// [DBMS_APPLICATION_INFO.SET_MODULE]: https://docs.oracle.com/database/122/ARPLS/DBMS_APPLICATION_INFO.htm#GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30
     pub fn set_module(&self, module: &str) -> Result<()> {
         let s = to_odpi_str(module);
-        chkerr!(self.ctxt,
-                dpiConn_setModule(self.handle, s.ptr, s.len));
+        chkerr!(self.ctxt, dpiConn_setModule(self.handle, s.ptr, s.len));
         Ok(())
     }
 
@@ -812,8 +887,7 @@ impl Connection {
     /// [DBMS_APPLICATION_INFO.SET_ACTION]: https://docs.oracle.com/database/122/ARPLS/DBMS_APPLICATION_INFO.htm#GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26
     pub fn set_action(&self, action: &str) -> Result<()> {
         let s = to_odpi_str(action);
-        chkerr!(self.ctxt,
-                dpiConn_setAction(self.handle, s.ptr, s.len));
+        chkerr!(self.ctxt, dpiConn_setAction(self.handle, s.ptr, s.len));
         Ok(())
     }
 
@@ -826,8 +900,7 @@ impl Connection {
     /// [DBMS_APPLICATION_INFO.SET_CLIENT_INFO]: https://docs.oracle.com/database/122/ARPLS/DBMS_APPLICATION_INFO.htm#GUID-68A3DF04-BE91-46CC-8D2B-97BA0E89956F
     pub fn set_client_info(&self, client_info: &str) -> Result<()> {
         let s = to_odpi_str(client_info);
-        chkerr!(self.ctxt,
-                dpiConn_setClientInfo(self.handle, s.ptr, s.len));
+        chkerr!(self.ctxt, dpiConn_setClientInfo(self.handle, s.ptr, s.len));
         Ok(())
     }
 
@@ -840,8 +913,10 @@ impl Connection {
     /// [DBMS_SESSION.SET_IDENTIFIER]: https://docs.oracle.com/database/122/ARPLS/DBMS_SESSION.htm#GUID-988EA930-BDFE-4205-A806-E54F05333562
     pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
         let s = to_odpi_str(client_identifier);
-        chkerr!(self.ctxt,
-                dpiConn_setClientIdentifier(self.handle, s.ptr, s.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_setClientIdentifier(self.handle, s.ptr, s.len)
+        );
         Ok(())
     }
 
@@ -859,8 +934,7 @@ impl Connection {
     /// [Monitoring Database Operations]: https://docs.oracle.com/database/122/TGSQL/monitoring-database-operations.htm#TGSQL-GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF
     pub fn set_db_op(&self, db_op: &str) -> Result<()> {
         let s = to_odpi_str(db_op);
-        chkerr!(self.ctxt,
-                dpiConn_setDbOp(self.handle, s.ptr, s.len));
+        chkerr!(self.ctxt, dpiConn_setDbOp(self.handle, s.ptr, s.len));
         Ok(())
     }
 
@@ -924,8 +998,7 @@ impl Connection {
                 StartupMode::Restrict => DPI_MODE_STARTUP_RESTRICT,
             };
         }
-        chkerr!(self.ctxt,
-                dpiConn_startupDatabase(self.handle, mode_num));
+        chkerr!(self.ctxt, dpiConn_startupDatabase(self.handle, mode_num));
         Ok(())
     }
 
@@ -992,8 +1065,7 @@ impl Connection {
             ShutdownMode::Abort => DPI_MODE_SHUTDOWN_ABORT,
             ShutdownMode::Final => DPI_MODE_SHUTDOWN_FINAL,
         };
-        chkerr!(self.ctxt,
-                dpiConn_shutdownDatabase(self.handle, mode));
+        chkerr!(self.ctxt, dpiConn_shutdownDatabase(self.handle, mode));
         Ok(())
     }
 
@@ -1009,8 +1081,10 @@ impl Connection {
 
     fn close_internal(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
         let tag = to_odpi_str(tag);
-        chkerr!(self.ctxt,
-                dpiConn_close(self.handle, mode, tag.ptr, tag.len));
+        chkerr!(
+            self.ctxt,
+            dpiConn_close(self.handle, mode, tag.ptr, tag.len)
+        );
         Ok(())
     }
 }

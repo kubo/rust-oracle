@@ -127,7 +127,7 @@ impl IntervalYM {
     pub fn and_prec(&self, precision: u8) -> IntervalYM {
         IntervalYM {
             precision: precision,
-            .. *self
+            ..*self
         }
     }
 
@@ -186,11 +186,11 @@ impl str::FromStr for IntervalYM {
             Some('+') => {
                 s.next();
                 false
-            },
+            }
             Some('-') => {
                 s.next();
                 true
-            },
+            }
             _ => false,
         };
         let years = s.read_digits().ok_or(err())? as i32;
@@ -202,7 +202,7 @@ impl str::FromStr for IntervalYM {
         }
         let months = s.read_digits().ok_or(err())? as i32;
         if s.char().is_some() {
-            return Err(err())
+            return Err(err());
         }
         Ok(IntervalYM {
             years: if minus { -years } else { years },

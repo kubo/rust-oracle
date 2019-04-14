@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 extern crate oracle;
-use oracle::{Connection, ConnParam};
+use oracle::{ConnParam, Connection};
 
 fn main() {
     let username = "sys";
@@ -23,7 +23,7 @@ fn main() {
 
     // connect as sysdba or sysoper with prelim_auth mode
     let params = [
-        ConnParam::Sysdba, // or ConnParam::Sysoper
+        ConnParam::Sysdba,     // or ConnParam::Sysoper
         ConnParam::PrelimAuth, // required to connect to idle database.
     ];
     let conn = Connection::connect(username, password, database, &params).unwrap();

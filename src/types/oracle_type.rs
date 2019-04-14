@@ -43,7 +43,7 @@ pub enum NativeType {
     #[allow(dead_code)]
     Stmt,
     #[allow(dead_code)]
-    Boolean,    // bool in rust
+    Boolean, // bool in rust
     Rowid,
 }
 
@@ -205,8 +205,10 @@ pub enum OracleType {
 }
 
 impl OracleType {
-
-    pub(crate) fn from_type_info(ctxt: &'static Context, info: &dpiDataTypeInfo) -> Result<OracleType> {
+    pub(crate) fn from_type_info(
+        ctxt: &'static Context,
+        info: &dpiDataTypeInfo,
+    ) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::NVarchar2(info.sizeInChars)),
@@ -223,12 +225,15 @@ impl OracleType {
                 } else {
                     Ok(OracleType::Number(info.precision as u8, info.scale))
                 }
-            },
+            }
             DPI_ORACLE_TYPE_DATE => Ok(OracleType::Date),
             DPI_ORACLE_TYPE_TIMESTAMP => Ok(OracleType::Timestamp(info.fsPrecision)),
             DPI_ORACLE_TYPE_TIMESTAMP_TZ => Ok(OracleType::TimestampTZ(info.fsPrecision)),
             DPI_ORACLE_TYPE_TIMESTAMP_LTZ => Ok(OracleType::TimestampLTZ(info.fsPrecision)),
-            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(info.precision as u8, info.fsPrecision)),
+            DPI_ORACLE_TYPE_INTERVAL_DS => Ok(OracleType::IntervalDS(
+                info.precision as u8,
+                info.fsPrecision,
+            )),
             DPI_ORACLE_TYPE_INTERVAL_YM => Ok(OracleType::IntervalYM(info.precision as u8)),
             DPI_ORACLE_TYPE_CLOB => Ok(OracleType::CLOB),
             DPI_ORACLE_TYPE_NCLOB => Ok(OracleType::NCLOB),
@@ -236,10 +241,16 @@ impl OracleType {
             DPI_ORACLE_TYPE_BFILE => Ok(OracleType::BFILE),
             DPI_ORACLE_TYPE_STMT => Ok(OracleType::RefCursor),
             DPI_ORACLE_TYPE_BOOLEAN => Ok(OracleType::Boolean),
-            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpiObjectType(ctxt, info.objectType)?)),
+            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpiObjectType(
+                ctxt,
+                info.objectType,
+            )?)),
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
-            _ => Err(Error::InternalError(format!("Unknown oracle type number: {}", info.oracleTypeNum))),
+            _ => Err(Error::InternalError(format!(
+                "Unknown oracle type number: {}",
+                info.oracleTypeNum
+            ))),
         }
     }
 
@@ -251,61 +262,59 @@ impl OracleType {
         // However I don't want to do it to hide internal information such
         // as dpiNativeTypeNum.
         match *self {
-            OracleType::Varchar2(size) =>
-                Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 0)),
-            OracleType::NVarchar2(size) =>
-                Ok((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, 0)),
-            OracleType::Char(size) =>
-                Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 0)),
-            OracleType::NChar(size) =>
-                Ok((DPI_ORACLE_TYPE_NCHAR, NativeType::Char, size, 0)),
-            OracleType::Rowid =>
-                Ok((DPI_ORACLE_TYPE_ROWID, NativeType::Rowid, 0, 0)),
-            OracleType::Raw(size) =>
-                Ok((DPI_ORACLE_TYPE_RAW, NativeType::Raw, size, 1)),
-            OracleType::BinaryFloat =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_FLOAT, NativeType::Float, 0, 0)),
-            OracleType::BinaryDouble =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, NativeType::Double, 0, 0)),
-            OracleType::Number(_, _) |
-            OracleType::Float(_) =>
-                Ok((DPI_ORACLE_TYPE_NUMBER, NativeType::Number, 0, 0)),
-            OracleType::Date =>
-                Ok((DPI_ORACLE_TYPE_DATE, NativeType::Timestamp, 0, 0)),
-            OracleType::Timestamp(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP, NativeType::Timestamp, 0, 0)),
-            OracleType::TimestampTZ(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP_TZ, NativeType::Timestamp, 0, 0)),
-            OracleType::TimestampLTZ(_) =>
-                Ok((DPI_ORACLE_TYPE_TIMESTAMP_LTZ, NativeType::Timestamp, 0, 0)),
-            OracleType::IntervalDS(_, _) =>
-                Ok((DPI_ORACLE_TYPE_INTERVAL_DS, NativeType::IntervalDS, 0, 0)),
-            OracleType::IntervalYM(_) =>
-                Ok((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, 0, 0)),
-            OracleType::CLOB =>
-                Ok((DPI_ORACLE_TYPE_CLOB, NativeType::CLOB, 0, 0)),
-            OracleType::NCLOB =>
-                Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
-            OracleType::BLOB =>
-                Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
-            OracleType::BFILE =>
-                Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
-//            OracleType::RefCursor =>
-//                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
-//            OracleType::Boolean =>
-//                Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
-            OracleType::Object(ref objtype) =>
-                Ok((DPI_ORACLE_TYPE_OBJECT, NativeType::Object(objtype.clone()), 0, 0)),
-            OracleType::Long =>
-                Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, 0, 0)),
-            OracleType::LongRaw =>
-                Ok((DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw, 0, 0)),
-            OracleType::Int64 =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, 0, 0)),
-            OracleType::UInt64 =>
-                Ok((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, 0, 0)),
-            _ =>
-                Err(Error::InternalError(format!("Unsupported Oracle type {}", self))),
+            OracleType::Varchar2(size) => Ok((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, 0)),
+            OracleType::NVarchar2(size) => {
+                Ok((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, 0))
+            }
+            OracleType::Char(size) => Ok((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, 0)),
+            OracleType::NChar(size) => Ok((DPI_ORACLE_TYPE_NCHAR, NativeType::Char, size, 0)),
+            OracleType::Rowid => Ok((DPI_ORACLE_TYPE_ROWID, NativeType::Rowid, 0, 0)),
+            OracleType::Raw(size) => Ok((DPI_ORACLE_TYPE_RAW, NativeType::Raw, size, 1)),
+            OracleType::BinaryFloat => Ok((DPI_ORACLE_TYPE_NATIVE_FLOAT, NativeType::Float, 0, 0)),
+            OracleType::BinaryDouble => {
+                Ok((DPI_ORACLE_TYPE_NATIVE_DOUBLE, NativeType::Double, 0, 0))
+            }
+            OracleType::Number(_, _) | OracleType::Float(_) => {
+                Ok((DPI_ORACLE_TYPE_NUMBER, NativeType::Number, 0, 0))
+            }
+            OracleType::Date => Ok((DPI_ORACLE_TYPE_DATE, NativeType::Timestamp, 0, 0)),
+            OracleType::Timestamp(_) => {
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP, NativeType::Timestamp, 0, 0))
+            }
+            OracleType::TimestampTZ(_) => {
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP_TZ, NativeType::Timestamp, 0, 0))
+            }
+            OracleType::TimestampLTZ(_) => {
+                Ok((DPI_ORACLE_TYPE_TIMESTAMP_LTZ, NativeType::Timestamp, 0, 0))
+            }
+            OracleType::IntervalDS(_, _) => {
+                Ok((DPI_ORACLE_TYPE_INTERVAL_DS, NativeType::IntervalDS, 0, 0))
+            }
+            OracleType::IntervalYM(_) => {
+                Ok((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, 0, 0))
+            }
+            OracleType::CLOB => Ok((DPI_ORACLE_TYPE_CLOB, NativeType::CLOB, 0, 0)),
+            OracleType::NCLOB => Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
+            OracleType::BLOB => Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
+            OracleType::BFILE => Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
+            //            OracleType::RefCursor =>
+            //                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
+            //            OracleType::Boolean =>
+            //                Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
+            OracleType::Object(ref objtype) => Ok((
+                DPI_ORACLE_TYPE_OBJECT,
+                NativeType::Object(objtype.clone()),
+                0,
+                0,
+            )),
+            OracleType::Long => Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, 0, 0)),
+            OracleType::LongRaw => Ok((DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw, 0, 0)),
+            OracleType::Int64 => Ok((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, 0, 0)),
+            OracleType::UInt64 => Ok((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, 0, 0)),
+            _ => Err(Error::InternalError(format!(
+                "Unsupported Oracle type {}",
+                self
+            ))),
         }
     }
 }
@@ -321,51 +330,58 @@ impl fmt::Display for OracleType {
             OracleType::Raw(size) => write!(f, "RAW({})", size),
             OracleType::BinaryFloat => write!(f, "BINARY_FLOAT"),
             OracleType::BinaryDouble => write!(f, "BINARY_DOUBLE"),
-            OracleType::Number(prec, scale) =>
+            OracleType::Number(prec, scale) => {
                 if prec == 0 {
                     write!(f, "NUMBER")
                 } else if scale == 0 {
                     write!(f, "NUMBER({})", prec)
                 } else {
                     write!(f, "NUMBER({},{})", prec, scale)
-                },
-            OracleType::Float(prec) =>
+                }
+            }
+            OracleType::Float(prec) => {
                 if prec == 126 {
                     write!(f, "FLOAT")
                 } else {
                     write!(f, "FLOAT({})", prec)
-                },
+                }
+            }
             OracleType::Date => write!(f, "DATE"),
-            OracleType::Timestamp(fsprec) =>
+            OracleType::Timestamp(fsprec) => {
                 if fsprec == 6 {
                     write!(f, "TIMESTAMP")
                 } else {
                     write!(f, "TIMESTAMP({})", fsprec)
-                },
-            OracleType::TimestampTZ(fsprec) =>
+                }
+            }
+            OracleType::TimestampTZ(fsprec) => {
                 if fsprec == 6 {
                     write!(f, "TIMESTAMP WITH TIME ZONE")
                 } else {
                     write!(f, "TIMESTAMP({}) WITH TIME ZONE", fsprec)
-                },
-            OracleType::TimestampLTZ(fsprec) =>
+                }
+            }
+            OracleType::TimestampLTZ(fsprec) => {
                 if fsprec == 6 {
                     write!(f, "TIMESTAMP WITH LOCAL TIME ZONE")
                 } else {
                     write!(f, "TIMESTAMP({}) WITH LOCAL TIME ZONE", fsprec)
-                },
-            OracleType::IntervalDS(lfprec, fsprec) =>
+                }
+            }
+            OracleType::IntervalDS(lfprec, fsprec) => {
                 if lfprec == 2 && fsprec == 6 {
                     write!(f, "INTERVAL DAY TO SECOND")
                 } else {
                     write!(f, "INTERVAL DAY({}) TO SECOND({})", lfprec, fsprec)
-                },
-            OracleType::IntervalYM(lfprec) =>
+                }
+            }
+            OracleType::IntervalYM(lfprec) => {
                 if lfprec == 2 {
                     write!(f, "INTERVAL YEAR TO MONTH")
                 } else {
                     write!(f, "INTERVAL YEAR({}) TO MONTH", lfprec)
-                },
+                }
+            }
             OracleType::CLOB => write!(f, "CLOB"),
             OracleType::NCLOB => write!(f, "NCLOB"),
             OracleType::BLOB => write!(f, "BLOB"),
@@ -376,7 +392,7 @@ impl fmt::Display for OracleType {
             OracleType::Long => write!(f, "LONG"),
             OracleType::LongRaw => write!(f, "LONG RAW"),
             OracleType::Int64 => write!(f, "INT64 used internally"),
-            OracleType::UInt64 =>write!(f, "UINT64 used internally"),
+            OracleType::UInt64 => write!(f, "UINT64 used internally"),
         }
     }
 }

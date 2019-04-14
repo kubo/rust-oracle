@@ -16,7 +16,7 @@
 extern crate oracle;
 mod common;
 
-use oracle::{IntervalDS, StmtParam, StatementType, Timestamp};
+use oracle::{IntervalDS, StatementType, StmtParam, Timestamp};
 
 #[test]
 fn statement_type() {
@@ -144,7 +144,9 @@ fn statement_type() {
 fn bind_names() {
     let conn = common::connect().unwrap();
 
-    let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[]).unwrap();
+    let stmt = conn
+        .prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])
+        .unwrap();
     assert_eq!(stmt.bind_count(), 3);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -152,7 +154,9 @@ fn bind_names() {
     assert_eq!(bind_names[1], "VAL2");
     assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
 
-    let stmt = conn.prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual", &[]).unwrap();
+    let stmt = conn
+        .prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual", &[])
+        .unwrap();
     assert_eq!(stmt.bind_count(), 4);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -191,18 +195,30 @@ fn query() {
     }
 
     // fetch the first two columns
-    for (idx, row_result) in stmt.query_as_named::<(usize, String)>(&[("icol", &3)]).unwrap().enumerate() {
+    for (idx, row_result) in stmt
+        .query_as_named::<(usize, String)>(&[("icol", &3)])
+        .unwrap()
+        .enumerate()
+    {
         let (int_col, string_col) = row_result.unwrap();
         assert_eq!(int_col, idx + 3);
         assert_eq!(string_col, format!("String {}", idx + 3));
     }
 
-    for (idx, row_result) in stmt.query_as::<common::TestString>(&[&3]).unwrap().enumerate() {
+    for (idx, row_result) in stmt
+        .query_as::<common::TestString>(&[&3])
+        .unwrap()
+        .enumerate()
+    {
         let row = row_result.unwrap();
         common::assert_test_string_type(idx + 3, &row);
     }
 
-    for (idx, row_result) in stmt.query_as_named::<common::TestStringTuple>(&[("icol", &3)]).unwrap().enumerate() {
+    for (idx, row_result) in stmt
+        .query_as_named::<common::TestStringTuple>(&[("icol", &3)])
+        .unwrap()
+        .enumerate()
+    {
         let row = row_result.unwrap();
         common::assert_test_string_tuple(idx + 3, &row);
     }
@@ -224,7 +240,9 @@ fn query_row() {
     let row = stmt.query_row_as::<common::TestStringTuple>(&[&4]).unwrap();
     common::assert_test_string_tuple(4, &row);
 
-    let row = stmt.query_row_as_named::<common::TestString>(&[("icol", &5)]).unwrap();
+    let row = stmt
+        .query_row_as_named::<common::TestString>(&[("icol", &5)])
+        .unwrap();
     common::assert_test_string_type(5, &row);
 }
 
@@ -269,61 +287,104 @@ fn insert_and_fetch() {
     let timestamp_data: Timestamp = "2017-08-09 10:11:13".parse().unwrap();
     let interval_ds_data: IntervalDS = "+12 03:04:05.6789".parse().unwrap();
 
-    conn.execute("insert into TestNumbers values (:1, :2, :3, :4, :5)",
-                 &[&100, &9.2, &10.14, &7.14, &None::<i32>]).unwrap();
-    let row = conn.query_row_as::<(i32, f64, f64, f64, Option<i32>)>
-        ("select * from TestNumbers where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestNumbers values (:1, :2, :3, :4, :5)",
+        &[&100, &9.2, &10.14, &7.14, &None::<i32>],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, f64, f64, f64, Option<i32>)>(
+            "select * from TestNumbers where IntCol = :1",
+            &[&100],
+        )
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, 9.2);
     assert_eq!(row.2, 10.14);
     assert_eq!(row.3, 7.14);
     assert_eq!(row.4, None);
 
-    conn.execute("insert into TestStrings values (:1, :2, :3, :4, :5)",
-                 &[&100, &char_data, &raw_data.as_ref(), &char_data, &None::<String>]).unwrap();
-    let row = conn.query_row_as::<(i32, String, Vec<u8>, String, Option<String>)>
-        ("select * from TestStrings where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestStrings values (:1, :2, :3, :4, :5)",
+        &[
+            &100,
+            &char_data,
+            &raw_data.as_ref(),
+            &char_data,
+            &None::<String>,
+        ],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, String, Vec<u8>, String, Option<String>)>(
+            "select * from TestStrings where IntCol = :1",
+            &[&100],
+        )
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, char_data);
     assert_eq!(row.2, raw_data);
     assert_eq!(row.3, format!("{:40}", char_data));
     assert_eq!(row.4, None);
 
-    conn.execute("insert into TestUnicodes values (:1, :2, :3, :4)",
-                 &[&100, &nchar_data, &nchar_data, &None::<String>]).unwrap();
-    let row = conn.query_row_as::<(i32, String, String, Option<String>)>
-        ("select * from TestUnicodes where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestUnicodes values (:1, :2, :3, :4)",
+        &[&100, &nchar_data, &nchar_data, &None::<String>],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, String, String, Option<String>)>(
+            "select * from TestUnicodes where IntCol = :1",
+            &[&100],
+        )
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, nchar_data);
     assert_eq!(row.2, format!("{:40}", nchar_data));
     assert_eq!(row.3, None);
 
-    conn.execute("insert into TestDates values (:1, :2, :3)",
-                 &[&100, &timestamp_data, &None::<Timestamp>]).unwrap();
-    let row = conn.query_row_as::<(i32, Timestamp, Option<Timestamp>)>
-        ("select * from TestDates where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestDates values (:1, :2, :3)",
+        &[&100, &timestamp_data, &None::<Timestamp>],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, Timestamp, Option<Timestamp>)>(
+            "select * from TestDates where IntCol = :1",
+            &[&100],
+        )
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, timestamp_data);
     assert_eq!(row.2, None);
 
-    conn.execute("insert into TestCLOBs values (:1, :2)",
-                 &[&100, &char_data]).unwrap();
-    let row = conn.query_row_as::<(i32, String)>
-        ("select * from TestCLOBs where IntCol = :1", &[&100]).unwrap();
+    conn.execute("insert into TestCLOBs values (:1, :2)", &[&100, &char_data])
+        .unwrap();
+    let row = conn
+        .query_row_as::<(i32, String)>("select * from TestCLOBs where IntCol = :1", &[&100])
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, char_data);
 
-    conn.execute("insert into TestNCLOBs values (:1, :2)",
-                 &[&100, &nchar_data]).unwrap();
-    let row = conn.query_row_as::<(i32, String)>
-        ("select * from TestNCLOBs where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestNCLOBs values (:1, :2)",
+        &[&100, &nchar_data],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, String)>("select * from TestNCLOBs where IntCol = :1", &[&100])
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, nchar_data);
 
-    conn.execute("insert into TestBLOBs values (:1, :2)",
-                 &[&100, &raw_data.as_ref()]).unwrap();
-    let row = conn.query_row_as::<(i32, Vec<u8>)>
-        ("select * from TestBLOBs where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestBLOBs values (:1, :2)",
+        &[&100, &raw_data.as_ref()],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, Vec<u8>)>("select * from TestBLOBs where IntCol = :1", &[&100])
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, raw_data);
 
@@ -334,24 +395,36 @@ fn insert_and_fetch() {
     // assert_eq!(row.0, 100);
     // assert_eq!(row.1, ...);
 
-    conn.execute("insert into TestLongs values (:1, :2)",
-                 &[&100, &char_data]).unwrap();
-    let row = conn.query_row_as::<(i32, String)>
-        ("select * from TestLongs where IntCol = :1", &[&100]).unwrap();
+    conn.execute("insert into TestLongs values (:1, :2)", &[&100, &char_data])
+        .unwrap();
+    let row = conn
+        .query_row_as::<(i32, String)>("select * from TestLongs where IntCol = :1", &[&100])
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, char_data);
 
-    conn.execute("insert into TestLongRaws values (:1, :2)",
-                 &[&100, &raw_data.to_vec()]).unwrap();
-    let row = conn.query_row_as::<(i32, Vec<u8>)>
-        ("select * from TestLongRaws where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestLongRaws values (:1, :2)",
+        &[&100, &raw_data.to_vec()],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, Vec<u8>)>("select * from TestLongRaws where IntCol = :1", &[&100])
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, raw_data);
 
-    conn.execute("insert into TestIntervals values (:1, :2, :3)",
-                 &[&100, &interval_ds_data, &None::<IntervalDS>]).unwrap();
-    let row = conn.query_row_as::<(i32, IntervalDS, Option<IntervalDS>)>
-        ("select * from TestIntervals where IntCol = :1", &[&100]).unwrap();
+    conn.execute(
+        "insert into TestIntervals values (:1, :2, :3)",
+        &[&100, &interval_ds_data, &None::<IntervalDS>],
+    )
+    .unwrap();
+    let row = conn
+        .query_row_as::<(i32, IntervalDS, Option<IntervalDS>)>(
+            "select * from TestIntervals where IntCol = :1",
+            &[&100],
+        )
+        .unwrap();
     assert_eq!(row.0, 100);
     assert_eq!(row.1, interval_ds_data);
     assert_eq!(row.2, None);
@@ -362,13 +435,19 @@ fn row_count() {
     let conn = common::connect().unwrap();
 
     // rows affected
-    let stmt = conn.execute("update TestStrings set StringCol = StringCol where IntCol >= :1", &[&6]).unwrap();
+    let stmt = conn
+        .execute(
+            "update TestStrings set StringCol = StringCol where IntCol >= :1",
+            &[&6],
+        )
+        .unwrap();
     assert_eq!(stmt.row_count().unwrap(), 5);
 
     // rows fetched
-    let mut stmt = conn.prepare("select * from TestStrings where IntCol >= :1", &[]).unwrap();
+    let mut stmt = conn
+        .prepare("select * from TestStrings where IntCol >= :1", &[])
+        .unwrap();
     assert_eq!(stmt.row_count().unwrap(), 0); // before fetch
-    for _row in &stmt.query(&[&6]).unwrap() {
-    }
+    for _row in &stmt.query(&[&6]).unwrap() {}
     assert_eq!(stmt.row_count().unwrap(), 5); // after fetch
 }

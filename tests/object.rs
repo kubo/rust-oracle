@@ -34,9 +34,15 @@ fn collection_udt_nestedarray() {
     assert_eq!(obj.exist(1).unwrap(), false);
     assert_eq!(obj.size().unwrap(), 0);
     let err = obj.trim(1).unwrap_err();
-    assert_eq!(err.to_string(), "OCI Error: OCI-22167: given trim size [1] must be less than or equal to [0]");
+    assert_eq!(
+        err.to_string(),
+        "OCI Error: OCI-22167: given trim size [1] must be less than or equal to [0]"
+    );
     let err = obj.remove(0).unwrap_err();
-    assert_eq!(err.to_string(), "OCI Error: OCI-22160: element at index [0] does not exist");
+    assert_eq!(
+        err.to_string(),
+        "OCI Error: OCI-22160: element at index [0] does not exist"
+    );
 
     obj.push(&subobj1).unwrap();
     assert_eq!(obj.exist(0).unwrap(), true);
@@ -54,24 +60,46 @@ fn collection_udt_nestedarray() {
 
     let subobj: Object = obj.get(1).unwrap();
     assert_eq!(subobj.get::<Option<i32>>("SUBNUMBERVALUE").unwrap(), None);
-    assert_eq!(subobj.get::<Option<String>>("SUBSTRINGVALUE").unwrap(), None);
+    assert_eq!(
+        subobj.get::<Option<String>>("SUBSTRINGVALUE").unwrap(),
+        None
+    );
 
-    assert_eq!(objtype.to_string(),
-               format!("{}.UDT_NESTEDARRAY", username));
-    assert_eq!(subobjtype.to_string(),
-               format!("{}.UDT_SUBOBJECT", username));
-    assert_eq!(obj.to_string(),
-               format!("{}.UDT_NESTEDARRAY({}.UDT_SUBOBJECT(1, \"STRVAL:1\"), {}.UDT_SUBOBJECT(NULL, NULL))",
-                       username, username, username));
-    assert_eq!(subobj1.to_string(),
-               format!("{}.UDT_SUBOBJECT(1, \"STRVAL:1\")", username));
-    assert_eq!(subobj2.to_string(),
-               format!("{}.UDT_SUBOBJECT(NULL, NULL)", username));
+    assert_eq!(objtype.to_string(), format!("{}.UDT_NESTEDARRAY", username));
+    assert_eq!(
+        subobjtype.to_string(),
+        format!("{}.UDT_SUBOBJECT", username)
+    );
+    assert_eq!(
+        obj.to_string(),
+        format!(
+            "{}.UDT_NESTEDARRAY({}.UDT_SUBOBJECT(1, \"STRVAL:1\"), {}.UDT_SUBOBJECT(NULL, NULL))",
+            username, username, username
+        )
+    );
+    assert_eq!(
+        subobj1.to_string(),
+        format!("{}.UDT_SUBOBJECT(1, \"STRVAL:1\")", username)
+    );
+    assert_eq!(
+        subobj2.to_string(),
+        format!("{}.UDT_SUBOBJECT(NULL, NULL)", username)
+    );
 
-    assert_eq!(format!("{:?}", objtype),
-               format!("ObjectType({}.UDT_NESTEDARRAY collection of ODPIC.UDT_SUBOBJECT)", username));
-    assert_eq!(format!("{:?}", subobjtype),
-               format!("ObjectType({}.UDT_SUBOBJECT(SUBNUMBERVALUE NUMBER, SUBSTRINGVALUE VARCHAR2(60)))", username));
+    assert_eq!(
+        format!("{:?}", objtype),
+        format!(
+            "ObjectType({}.UDT_NESTEDARRAY collection of ODPIC.UDT_SUBOBJECT)",
+            username
+        )
+    );
+    assert_eq!(
+        format!("{:?}", subobjtype),
+        format!(
+            "ObjectType({}.UDT_SUBOBJECT(SUBNUMBERVALUE NUMBER, SUBSTRINGVALUE VARCHAR2(60)))",
+            username
+        )
+    );
     assert_eq!(format!("{:?}", obj),
                format!("Collection({}.UDT_NESTEDARRAY collection of {}.UDT_SUBOBJECT: {}.UDT_SUBOBJECT(1, \"STRVAL:1\"), {}.UDT_SUBOBJECT(NULL, NULL))", username, username, username, username));
     assert_eq!(format!("{:?}", subobj1),
@@ -145,24 +173,63 @@ fn udt_object() {
     obj.set("NUMBERVALUE", &1).unwrap();
     obj.set("STRINGVALUE", &"STRVAL:1").unwrap();
     obj.set("FIXEDCHARVALUE", &"CHARVAL:1").unwrap();
-    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0)).unwrap();
-    obj.set("TIMESTAMPVALUE", &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)).unwrap();
+    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0))
+        .unwrap();
+    obj.set(
+        "TIMESTAMPVALUE",
+        &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789),
+    )
+    .unwrap();
     obj.set("SUBOBJECTVALUE", &subobj).unwrap();
     obj.set("SUBOBJECTARRAY", &objary).unwrap();
 
     assert_eq!(obj.get::<i32>("NUMBERVALUE").unwrap(), 1);
     assert_eq!(obj.get::<String>("STRINGVALUE").unwrap(), "STRVAL:1");
     assert_eq!(obj.get::<String>("FIXEDCHARVALUE").unwrap(), "CHARVAL:1");
-    assert_eq!(obj.get::<Timestamp>("DATEVALUE").unwrap(), Timestamp::new(2012, 3, 4, 5, 6, 7, 0));
-    assert_eq!(obj.get::<Timestamp>("TIMESTAMPVALUE").unwrap(), Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789));
-    assert_eq!(obj.get::<Object>("SUBOBJECTVALUE").unwrap().get::<i32>("SUBNUMBERVALUE").unwrap(), 12);
-    assert_eq!(obj.get::<Collection>("SUBOBJECTARRAY").unwrap().get::<Object>(0).unwrap().get::<i32>("SUBNUMBERVALUE").unwrap(), 10);
-    assert_eq!(obj.get::<Collection>("SUBOBJECTARRAY").unwrap().get::<Object>(1).unwrap().get::<i32>("SUBNUMBERVALUE").unwrap(), 11);
+    assert_eq!(
+        obj.get::<Timestamp>("DATEVALUE").unwrap(),
+        Timestamp::new(2012, 3, 4, 5, 6, 7, 0)
+    );
+    assert_eq!(
+        obj.get::<Timestamp>("TIMESTAMPVALUE").unwrap(),
+        Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)
+    );
+    assert_eq!(
+        obj.get::<Object>("SUBOBJECTVALUE")
+            .unwrap()
+            .get::<i32>("SUBNUMBERVALUE")
+            .unwrap(),
+        12
+    );
+    assert_eq!(
+        obj.get::<Collection>("SUBOBJECTARRAY")
+            .unwrap()
+            .get::<Object>(0)
+            .unwrap()
+            .get::<i32>("SUBNUMBERVALUE")
+            .unwrap(),
+        10
+    );
+    assert_eq!(
+        obj.get::<Collection>("SUBOBJECTARRAY")
+            .unwrap()
+            .get::<Object>(1)
+            .unwrap()
+            .get::<i32>("SUBNUMBERVALUE")
+            .unwrap(),
+        11
+    );
 
     let err = subobj.get::<Object>("SUBNUMBERVALUE").unwrap_err();
-    assert_eq!(err.to_string(), "invalid type conversion from NUMBER to Object");
+    assert_eq!(
+        err.to_string(),
+        "invalid type conversion from NUMBER to Object"
+    );
     let err = subobj.get::<Collection>("SUBNUMBERVALUE").unwrap_err();
-    assert_eq!(err.to_string(), "invalid type conversion from NUMBER to Collection");
+    assert_eq!(
+        err.to_string(),
+        "invalid type conversion from NUMBER to Collection"
+    );
 }
 
 #[test]
@@ -171,9 +238,13 @@ fn udt_stringlist() {
         return;
     }
     let conn = common::connect().unwrap();
-    let objtype = conn.object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST").unwrap();
+    let objtype = conn
+        .object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST")
+        .unwrap();
 
-    let mut stmt = conn.prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;", &[]).unwrap();
+    let mut stmt = conn
+        .prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;", &[])
+        .unwrap();
     stmt.execute(&[&OracleType::Object(objtype)]).unwrap();
     let obj: Collection = stmt.bind_value(1).unwrap();
 
@@ -230,16 +301,21 @@ fn sdo_geometry() {
         ["SDO_ORDINATES", "MDSYS.SDO_ORDINATE_ARRAY"],
     ];
     for (idx, attr) in objtype.attributes().iter().enumerate() {
-        assert_eq!([attr.name(), &attr.oracle_type().to_string()],
-                   [expectec_attrs[idx][0], expectec_attrs[idx][1]],
-                   "attrs[{}]", idx);
+        assert_eq!(
+            [attr.name(), &attr.oracle_type().to_string()],
+            [expectec_attrs[idx][0], expectec_attrs[idx][1]],
+            "attrs[{}]",
+            idx
+        );
     }
     let oratype = OracleType::Object(objtype);
 
     // 2.7.1 Rectangle
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-9354E585-2B45-43EC-95B3-87A3EAA4BB2E
     let text = "MDSYS.SDO_GEOMETRY(2003, NULL, NULL, MDSYS.SDO_ELEM_INFO_ARRAY(1, 1003, 3), MDSYS.SDO_ORDINATE_ARRAY(1, 1, 5, 7))";
-    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[]).unwrap();
+    let mut stmt = conn
+        .prepare(&format!("begin :1 := {}; end;", text), &[])
+        .unwrap();
     stmt.execute(&[&oratype]).unwrap();
     let obj: Object = stmt.bind_value(1).unwrap();
     assert_eq!(obj.to_string(), text);
@@ -247,7 +323,9 @@ fn sdo_geometry() {
     // 2.7.5 Point
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-990FC1F2-5EA2-468A-82AC-CDA7B6BEA17D
     let text = "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(12, 14, NULL), NULL, NULL)";
-    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[]).unwrap();
+    let mut stmt = conn
+        .prepare(&format!("begin :1 := {}; end;", text), &[])
+        .unwrap();
     stmt.execute(&[&oratype]).unwrap();
     let obj: Object = stmt.bind_value(1).unwrap();
     assert_eq!(obj.to_string(), text);
