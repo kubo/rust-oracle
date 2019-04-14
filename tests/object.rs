@@ -16,6 +16,7 @@
 extern crate oracle;
 mod common;
 use oracle::*;
+use std::iter::Iterator;
 
 #[test]
 fn collection_udt_nestedarray() {
@@ -329,4 +330,177 @@ fn sdo_geometry() {
     stmt.execute(&[&oratype]).unwrap();
     let obj: Object = stmt.bind_value(1).unwrap();
     assert_eq!(obj.to_string(), text);
+}
+
+#[derive(Debug, PartialEq)]
+struct UdtSubObject {
+    sub_number_value: i32,
+    sub_string_value: String,
+}
+
+impl UdtSubObject {
+    fn new(sub_number_value: i32, sub_string_value: String) -> UdtSubObject {
+        UdtSubObject {
+            sub_number_value: sub_number_value,
+            sub_string_value: sub_string_value,
+        }
+    }
+
+    fn from_oracle_object(obj: Object) -> Result<UdtSubObject> {
+        Ok(UdtSubObject {
+            sub_number_value: obj.get("SUBNUMBERVALUE")?,
+            sub_string_value: obj.get("SUBSTRINGVALUE")?,
+        })
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct UdtObject {
+    number_value: i32,
+    string_value: String,
+    fixed_char_value: String,
+    date_value: Timestamp,
+    timestamp_value: Timestamp,
+    sub_object_value: UdtSubObject,
+    sub_object_array: Vec<UdtSubObject>,
+}
+
+impl UdtObject {
+    fn new(
+        number_value: i32,
+        string_value: String,
+        fixed_char_value: String,
+        date_value: Timestamp,
+        timestamp_value: Timestamp,
+        sub_object_value: UdtSubObject,
+        sub_object_array: Vec<UdtSubObject>,
+    ) -> UdtObject {
+        UdtObject {
+            number_value: number_value,
+            string_value: string_value,
+            fixed_char_value: fixed_char_value,
+            date_value: date_value,
+            timestamp_value: timestamp_value,
+            sub_object_value: sub_object_value,
+            sub_object_array: sub_object_array,
+        }
+    }
+
+    fn from_oracle_object(obj: Object) -> Result<UdtObject> {
+        let coll: Collection = obj.get("SUBOBJECTARRAY")?;
+        let mut idx_result = coll.first_index();
+        let mut vec = Vec::new();
+        while let Ok(idx) = idx_result {
+            vec.push(UdtSubObject::from_oracle_object(coll.get(idx)?)?);
+            idx_result = coll.next_index(idx);
+        }
+        Ok(UdtObject {
+            number_value: obj.get("NUMBERVALUE")?,
+            string_value: obj.get("STRINGVALUE")?,
+            fixed_char_value: obj.get("FIXEDCHARVALUE")?,
+            date_value: obj.get("DATEVALUE")?,
+            timestamp_value: obj.get("TIMESTAMPVALUE")?,
+            sub_object_value: UdtSubObject::from_oracle_object(obj.get("SUBOBJECTVALUE")?)?,
+            sub_object_array: vec,
+        })
+    }
+}
+
+impl FromSql for UdtObject {
+    fn from_sql(val: &SqlValue) -> Result<UdtObject> {
+        UdtObject::from_oracle_object(val.get()?)
+    }
+}
+
+#[derive(Debug, PartialEq)]
+struct UdtArray {
+    val: Vec<Option<i32>>,
+}
+
+impl UdtArray {
+    fn new(val: Vec<Option<i32>>) -> UdtArray {
+        UdtArray { val: val }
+    }
+
+    fn from_oracle_object(coll: Collection) -> Result<UdtArray> {
+        let mut idx_result = coll.first_index();
+        let mut vec = Vec::new();
+        while let Ok(idx) = idx_result {
+            vec.push(coll.get(idx)?);
+            idx_result = coll.next_index(idx);
+        }
+        Ok(UdtArray::new(vec))
+    }
+}
+
+impl FromSql for UdtArray {
+    fn from_sql(val: &SqlValue) -> Result<UdtArray> {
+        UdtArray::from_oracle_object(val.get()?)
+    }
+}
+
+#[test]
+fn select_objects() {
+    let conn = common::connect().unwrap();
+    let sql = "select * from TestObjects order by IntCol";
+    let mut stmt = conn.prepare(sql, &[]).unwrap();
+    for (idx, row_result) in stmt
+        .query_as::<(usize, Option<UdtObject>, Option<UdtArray>)>(&[])
+        .unwrap()
+        .enumerate()
+    {
+        let row = row_result.unwrap();
+        assert_eq!(row.0, idx + 1);
+        match row.0 {
+            1 => {
+                assert_eq!(
+                    row.1.unwrap(),
+                    UdtObject::new(
+                        1,
+                        "First row".to_string(),
+                        "First     ".to_string(),
+                        Timestamp::new(2007, 3, 6, 0, 0, 0, 0),
+                        Timestamp::new(2008, 9, 12, 16, 40, 0, 0),
+                        UdtSubObject::new(11, "Sub object 1".to_string()),
+                        vec![
+                            UdtSubObject::new(5, "first element".to_string()),
+                            UdtSubObject::new(6, "second element".to_string())
+                        ]
+                    )
+                );
+                assert_eq!(
+                    row.2.unwrap(),
+                    UdtArray::new(vec![Some(5), Some(10), None, Some(20)])
+                );
+            }
+            2 => {
+                assert!(row.1.is_none());
+                assert_eq!(
+                    row.2.unwrap(),
+                    UdtArray::new(vec![Some(3), None, Some(9), Some(12), Some(15)])
+                );
+            }
+            3 => {
+                assert_eq!(
+                    row.1.unwrap(),
+                    UdtObject::new(
+                        3,
+                        "Third row".to_string(),
+                        "Third     ".to_string(),
+                        Timestamp::new(2007, 6, 21, 0, 0, 0, 0),
+                        Timestamp::new(2007, 12, 13, 7, 30, 45, 0),
+                        UdtSubObject::new(13, "Sub object 3".to_string()),
+                        vec![
+                            UdtSubObject::new(10, "element #1".to_string()),
+                            UdtSubObject::new(20, "element #2".to_string()),
+                            UdtSubObject::new(30, "element #3".to_string()),
+                            UdtSubObject::new(40, "element #4".to_string())
+                        ]
+                    )
+                );
+                assert!(row.2.is_none());
+            }
+            _ => panic!("Unexpected IntCol value: {}", row.0),
+        }
+    }
 }

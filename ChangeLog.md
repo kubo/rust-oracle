@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.2.1 (2019-04-14)
+
+Changes:
+
+* Fix memory corruption when using object and collection data types.
+* Update ODPI-C to version 3.1.3.
+
 ## 0.2.0 (2018-10-02)
 
 Incompatible changes:
