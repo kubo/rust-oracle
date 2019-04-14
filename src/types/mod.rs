@@ -13,6 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+use Connection;
 use Error;
 use IntervalDS;
 use IntervalYM;
@@ -123,7 +124,7 @@ pub trait FromSql {
 /// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
 /// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 pub trait ToSqlNull {
-    fn oratype_for_null() -> Result<OracleType>;
+    fn oratype_for_null(&Connection) -> Result<OracleType>;
 }
 
 /// Conversion from rust values to Oracle values.
@@ -174,7 +175,7 @@ pub trait ToSqlNull {
 /// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
 ///
 pub trait ToSql {
-    fn oratype(&self) -> Result<OracleType>;
+    fn oratype(&self, &Connection) -> Result<OracleType>;
     fn to_sql(&self, val: &mut SqlValue) -> Result<()>;
 }
 
@@ -191,12 +192,12 @@ macro_rules! impl_from_sql {
 macro_rules! impl_to_sql {
     ($type:ty, $func:ident, $oratype:expr) => {
         impl ToSqlNull for $type {
-            fn oratype_for_null() -> Result<OracleType> {
+            fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
                 Ok($oratype)
             }
         }
         impl ToSql for $type {
-            fn oratype(&self) -> Result<OracleType> {
+            fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
                 Ok($oratype)
             }
             fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -255,13 +256,13 @@ impl_from_and_to_sql!(
 );
 
 impl ToSqlNull for String {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(0))
     }
 }
 
 impl ToSql for String {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -270,13 +271,13 @@ impl ToSql for String {
 }
 
 impl ToSqlNull for Vec<u8> {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(0))
     }
 }
 
 impl ToSql for Vec<u8> {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -285,13 +286,13 @@ impl ToSql for Vec<u8> {
 }
 
 impl<'a> ToSqlNull for &'a str {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(0))
     }
 }
 
 impl<'a> ToSql for &'a str {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -300,13 +301,13 @@ impl<'a> ToSql for &'a str {
 }
 
 impl<'a> ToSqlNull for &'a [u8] {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(0))
     }
 }
 
 impl<'a> ToSql for &'a [u8] {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -325,10 +326,10 @@ impl<T: FromSql> FromSql for Option<T> {
 }
 
 impl<T: ToSql + ToSqlNull> ToSql for Option<T> {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, conn: &Connection) -> Result<OracleType> {
         match *self {
-            Some(ref t) => t.oratype(),
-            None => <T>::oratype_for_null(),
+            Some(ref t) => t.oratype(conn),
+            None => <T>::oratype_for_null(conn),
         }
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -340,7 +341,7 @@ impl<T: ToSql + ToSqlNull> ToSql for Option<T> {
 }
 
 impl ToSql for OracleType {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(self.clone())
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -350,7 +351,7 @@ impl ToSql for OracleType {
 }
 
 impl<'a, T: ToSql> ToSql for (&'a T, &'a OracleType) {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(self.1.clone())
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {

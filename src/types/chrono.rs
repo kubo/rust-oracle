@@ -19,6 +19,7 @@ use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
 use chrono::offset::LocalResult;
 use chrono::Duration;
+use Connection;
 use Error;
 use FromSql;
 use IntervalDS;
@@ -67,7 +68,7 @@ impl<Tz> ToSqlNull for DateTime<Tz>
 where
     Tz: TimeZone,
 {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(9))
     }
 }
@@ -76,7 +77,7 @@ impl<Tz> ToSql for DateTime<Tz>
 where
     Tz: TimeZone,
 {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(9))
     }
 
@@ -141,7 +142,7 @@ impl<Tz> ToSqlNull for Date<Tz>
 where
     Tz: TimeZone,
 {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(0))
     }
 }
@@ -150,7 +151,7 @@ impl<Tz> ToSql for Date<Tz>
 where
     Tz: TimeZone,
 {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::TimestampTZ(0))
     }
 
@@ -180,13 +181,13 @@ impl FromSql for NaiveDateTime {
 }
 
 impl ToSqlNull for NaiveDateTime {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Timestamp(9))
     }
 }
 
 impl ToSql for NaiveDateTime {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Timestamp(9))
     }
 
@@ -216,13 +217,13 @@ impl FromSql for NaiveDate {
 }
 
 impl ToSqlNull for NaiveDate {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Timestamp(0))
     }
 }
 
 impl ToSql for NaiveDate {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Timestamp(0))
     }
 
@@ -262,13 +263,13 @@ impl FromSql for Duration {
 }
 
 impl ToSqlNull for Duration {
-    fn oratype_for_null() -> Result<OracleType> {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::IntervalDS(9, 9))
     }
 }
 
 impl ToSql for Duration {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::IntervalDS(9, 9))
     }
 

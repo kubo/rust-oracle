@@ -19,6 +19,7 @@ use std::ptr;
 use std::rc::Rc;
 
 use binding::*;
+use Connection;
 use Context;
 use Error;
 use FromSql;
@@ -262,7 +263,7 @@ impl FromSql for Collection {
 }
 
 impl ToSql for Collection {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Object(self.object_type().clone()))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
@@ -441,7 +442,7 @@ impl FromSql for Object {
 }
 
 impl ToSql for Object {
-    fn oratype(&self) -> Result<OracleType> {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Object(self.object_type().clone()))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {

@@ -4,7 +4,9 @@
 
 Incompatible changes:
 
-* Remove the associated type `Item` from `RowValue`.
+* Remove the associated type `Item` from `RowValue` trait.
+
+* Add `&Connection` argument to trait methods: `ToSql.oratype` and `ToSqlNull.oratype_for_null`.
 
 * Iterator for `&ResultSet<T>` was removed and that for `ResultSet<T>`
   was added again for better ergonomics.

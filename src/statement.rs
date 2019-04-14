@@ -597,7 +597,7 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
     {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
+        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype(self.conn)?, 1)? {
             chkerr!(
                 self.conn.ctxt,
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
