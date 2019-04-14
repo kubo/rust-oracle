@@ -31,6 +31,23 @@ use ToSql;
 use to_rust_str;
 use util::write_literal;
 
+unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
+    if data.isNull == 0 {
+        match native_type_num {
+            DPI_NATIVE_TYPE_LOB => {
+                dpiLob_release(data.value.asLOB);
+            }
+            DPI_NATIVE_TYPE_OBJECT => {
+                dpiObject_release(data.value.asObject);
+            }
+            DPI_NATIVE_TYPE_ROWID => {
+                dpiRowid_release(data.value.asRowid);
+            }
+            _ => (),
+        }
+    }
+}
+
 /// Oracle-specific collection data type
 ///
 /// This type corresponds to varray and nested table data types.
@@ -179,16 +196,14 @@ impl Collection {
             }
         }
         let sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        let native_type_num = sql_value.native_type_num();
         chkerr!(
             self.ctxt,
-            dpiObject_getElementValueByIndex(
-                self.handle,
-                index,
-                sql_value.native_type_num(),
-                &mut data
-            )
+            dpiObject_getElementValueByIndex(self.handle, index, native_type_num, &mut data)
         );
-        sql_value.get()
+        let res = sql_value.get();
+        unsafe { release_dpi_data(&data, native_type_num) };
+        res
     }
 
     /// Sets the value to the element at the specified index.
@@ -383,16 +398,14 @@ impl Object {
             }
         }
         let sql_value = SqlValue::from_oratype(self.ctxt, &attr.oratype, &mut data)?;
+        let native_type_num = sql_value.native_type_num();
         chkerr!(
             self.ctxt,
-            dpiObject_getAttributeValue(
-                self.handle,
-                attr.handle,
-                sql_value.native_type_num(),
-                &mut data
-            )
+            dpiObject_getAttributeValue(self.handle, attr.handle, native_type_num, &mut data)
         );
-        sql_value.get()
+        let res = sql_value.get();
+        unsafe { release_dpi_data(&data, native_type_num) };
+        res
     }
 
     /// Gets an value at the specified attribute.

@@ -545,12 +545,14 @@ impl SqlValue {
     fn get_collection_unchecked(&self, objtype: &ObjectType) -> Result<Collection> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
+        chkerr!(self.ctxt, dpiObject_addRef(dpiobj));
         Ok(Collection::new(self.ctxt, dpiobj, objtype.clone()))
     }
 
     fn get_object_unchecked(&self, objtype: &ObjectType) -> Result<Object> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
+        chkerr!(self.ctxt, dpiObject_addRef(dpiobj));
         Ok(Object::new(self.ctxt, dpiobj, objtype.clone()))
     }
 
