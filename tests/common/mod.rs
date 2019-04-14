@@ -13,7 +13,9 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use oracle::{Connection, Error, FromSql, OracleType, Row, RowValue, ToSql};
+use oracle::{
+    client_version, Connection, Error, FromSql, OracleType, Row, RowValue, ToSql, Version,
+};
 use std::env;
 
 fn env_var_or(env_name: &str, default: &str) -> String {
@@ -53,6 +55,24 @@ pub fn dir_name() -> String {
 #[allow(dead_code)]
 pub fn connect() -> Result<Connection, Error> {
     Connection::connect(&main_user(), &main_password(), &connect_string(), &[])
+}
+
+#[allow(dead_code)]
+pub fn check_oracle_version(test_name: &str, conn: &Connection, major: i32, minor: i32) -> bool {
+    let ver = Version::new(major, minor, 0, 0, 0);
+    let client_ver = client_version().unwrap();
+    let server_ver = conn.server_version().unwrap();
+    if client_ver >= ver && server_ver.0 >= ver {
+        true
+    } else {
+        println!(
+            "Skip {}, which requires an Oracle {}.{} feature.",
+            test_name,
+            ver.major(),
+            ver.minor()
+        );
+        false
+    }
 }
 
 #[allow(unused_macros)]

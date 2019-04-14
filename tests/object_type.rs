@@ -195,10 +195,10 @@ fn udt_array() {
 
 #[test]
 fn pkg_testnumberarrays_udt_numberlist() {
-    if client_version().unwrap().major() < 12 {
+    let conn = common::connect().unwrap();
+    if !common::check_oracle_version("pkg_testnumberarrays_udt_numberlist", &conn, 12, 1) {
         return;
     }
-    let conn = common::connect().unwrap();
     let objtype = conn
         .object_type("PKG_TESTNUMBERARRAYS.UDT_NUMBERLIST")
         .unwrap();
@@ -219,6 +219,9 @@ fn pkg_testnumberarrays_udt_numberlist() {
 #[test]
 fn pkg_testrecords_udt_record() {
     let conn = common::connect().unwrap();
+    if !common::check_oracle_version("pkg_testrecords_udt_record", &conn, 12, 1) {
+        return;
+    }
     let objtype = conn.object_type("PKG_TESTRECORDS.UDT_RECORD").unwrap();
     let username = common::main_user().to_uppercase();
 
