@@ -58,53 +58,34 @@ fn udt_objectdatatypes_in_query() {
 
 fn assert_udt_objectdatatypes(objtype: &ObjectType) {
     let username = common::main_user().to_uppercase();
+    let expected_attrs = [
+        ("STRINGCOL", OracleType::Varchar2(60)),
+        ("UNICODECOL", OracleType::NVarchar2(60)),
+        ("FIXEDCHARCOL", OracleType::Char(30)),
+        ("FIXEDUNICODECOL", OracleType::NChar(30)),
+        ("RAWCOL", OracleType::Raw(30)),
+        ("INTCOL", OracleType::Number(0, -127)),
+        ("NUMBERCOL", OracleType::Number(9, 2)),
+        ("DATECOL", OracleType::Date),
+        ("TIMESTAMPCOL", OracleType::Timestamp(6)),
+        ("TIMESTAMPTZCOL", OracleType::TimestampTZ(6)),
+        ("TIMESTAMPLTZCOL", OracleType::TimestampLTZ(6)),
+        ("BINARYFLTCOL", OracleType::BinaryFloat),
+        ("BINARYDOUBLECOL", OracleType::BinaryDouble),
+        ("SIGNEDINTCOL", OracleType::Int64),
+    ];
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_OBJECTDATATYPES");
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
-    assert_eq!(objtype.num_attributes(), 13);
+    assert_eq!(objtype.num_attributes(), expected_attrs.len());
     let attrs = objtype.attributes();
-    assert_eq!(attrs.len(), 13);
-
-    assert_eq!(attrs[0].name(), "STRINGCOL");
-    assert_eq!(attrs[0].oracle_type(), &OracleType::Varchar2(60));
-
-    assert_eq!(attrs[1].name(), "UNICODECOL");
-    assert_eq!(attrs[1].oracle_type(), &OracleType::NVarchar2(60));
-
-    assert_eq!(attrs[2].name(), "FIXEDCHARCOL");
-    assert_eq!(attrs[2].oracle_type(), &OracleType::Char(30));
-
-    assert_eq!(attrs[3].name(), "FIXEDUNICODECOL");
-    assert_eq!(attrs[3].oracle_type(), &OracleType::NChar(30));
-
-    assert_eq!(attrs[4].name(), "INTCOL");
-    assert_eq!(attrs[4].oracle_type(), &OracleType::Number(0, -127));
-
-    assert_eq!(attrs[5].name(), "NUMBERCOL");
-    assert_eq!(attrs[5].oracle_type(), &OracleType::Number(9, 2));
-
-    assert_eq!(attrs[6].name(), "DATECOL");
-    assert_eq!(attrs[6].oracle_type(), &OracleType::Date);
-
-    assert_eq!(attrs[7].name(), "TIMESTAMPCOL");
-    assert_eq!(attrs[7].oracle_type(), &OracleType::Timestamp(6));
-
-    assert_eq!(attrs[8].name(), "TIMESTAMPTZCOL");
-    assert_eq!(attrs[8].oracle_type(), &OracleType::TimestampTZ(6));
-
-    assert_eq!(attrs[9].name(), "TIMESTAMPLTZCOL");
-    assert_eq!(attrs[9].oracle_type(), &OracleType::TimestampLTZ(6));
-
-    assert_eq!(attrs[10].name(), "BINARYFLTCOL");
-    assert_eq!(attrs[10].oracle_type(), &OracleType::BinaryFloat);
-
-    assert_eq!(attrs[11].name(), "BINARYDOUBLECOL");
-    assert_eq!(attrs[11].oracle_type(), &OracleType::BinaryDouble);
-
-    assert_eq!(attrs[12].name(), "SIGNEDINTCOL");
-    assert_eq!(attrs[12].oracle_type(), &OracleType::Int64);
+    assert_eq!(attrs.len(), expected_attrs.len());
+    for (attr, expected_attr) in attrs.iter().zip(expected_attrs.iter()) {
+        assert_eq!(attr.name(), expected_attr.0);
+        assert_eq!(attr.oracle_type(), &expected_attr.1);
+    }
 }
 
 #[test]
