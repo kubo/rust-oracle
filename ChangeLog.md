@@ -16,6 +16,9 @@ Incompatible changes:
 Changes:
 
 * Implement `FusedIterator` for `ResultSet`.
+* The return value of [`Connection.object_type()`][] is cached in the connection.  
+  When "CREATE TYPE", "ALTER TYPE" or "DROP TYPE" is executed, the cache clears.
+* Add `Connection.clear_object_type_cache()`.
 
 ## 0.2.1 (2019-04-14)
 
@@ -196,6 +199,7 @@ Incompatible changes:
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
 [`Connection.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute_named
+[`Connection.object_type()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.object_type
 [`Connection.prepare()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.prepare
 [`Connection.query()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query
 [`Connection.query_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_named

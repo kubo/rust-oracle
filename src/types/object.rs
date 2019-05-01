@@ -529,7 +529,7 @@ impl fmt::Debug for Object {
 /// ```
 #[derive(Clone)]
 pub struct ObjectType {
-    internal: Rc<ObjectTypeInternal>,
+    pub(crate) internal: Rc<ObjectTypeInternal>,
 }
 
 impl ObjectType {
@@ -720,7 +720,7 @@ impl fmt::Debug for ObjectTypeAttr {
 // ObjectTypeInternal
 //
 
-struct ObjectTypeInternal {
+pub(crate) struct ObjectTypeInternal {
     ctxt: &'static Context,
     handle: *mut dpiObjectType,
     schema: String,

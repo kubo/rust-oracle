@@ -13,14 +13,18 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+use std::collections::HashMap;
 use std::fmt;
 use std::mem;
 use std::ptr;
+use std::rc::Rc;
+use std::sync::Mutex;
 
 use Statement;
 use Version;
 
 use binding::*;
+use types::object::ObjectTypeInternal;
 use Context;
 use ObjectType;
 use Result;
@@ -252,6 +256,7 @@ pub struct Connection {
     tag: String,
     tag_found: bool,
     pub(crate) autocommit: bool,
+    pub(crate) objtype_cache: Mutex<HashMap<String, Rc<ObjectTypeInternal>>>,
 }
 
 impl Connection {
@@ -438,6 +443,7 @@ impl Connection {
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
             tag_found: conn_params.outTagFound != 0,
             autocommit: false,
+            objtype_cache: Mutex::new(HashMap::new()),
         })
     }
 
@@ -708,18 +714,48 @@ impl Connection {
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
+    ///
+    /// Note that the object type is cached in the connection.
+    /// However when "CREATE TYPE", "ALTER TYPE" or "DROP TYPE"
+    /// is executed, the cache clears.
     pub fn object_type(&self, name: &str) -> Result<ObjectType> {
-        let name = to_odpi_str(name);
+        {
+            let guard = self.objtype_cache.lock()?;
+            if let Some(rc_objtype) = guard.get(name) {
+                return Ok(ObjectType {
+                    internal: rc_objtype.clone(),
+                });
+            }
+        }
+        let s = to_odpi_str(name);
         let mut handle = ptr::null_mut();
         chkerr!(
             self.ctxt,
-            dpiConn_getObjectType(self.handle, name.ptr, name.len, &mut handle)
+            dpiConn_getObjectType(self.handle, s.ptr, s.len, &mut handle)
         );
         let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
         unsafe {
             dpiObjectType_release(handle);
         }
+        if let Ok(ref objtype) = res {
+            self.objtype_cache
+                .lock()?
+                .insert(name.to_string(), objtype.internal.clone());
+        };
         res
+    }
+
+    /// Clear the object type cache in the connection.
+    ///
+    /// See also [`object_type`](#method.object_type).
+    pub fn clear_object_type_cache(&self) -> Result<()> {
+        self.objtype_cache.lock()?.clear();
+        Ok(())
+    }
+
+    #[doc(hide)]
+    pub fn object_type_cache_len(&self) -> usize {
+        self.objtype_cache.lock().unwrap().len()
     }
 
     /// Gets information about the server version

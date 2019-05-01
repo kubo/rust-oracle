@@ -20,6 +20,7 @@ use std::ffi::CStr;
 use std::fmt;
 use std::num;
 use std::str;
+use std::sync;
 use try_from;
 use AssertSend;
 use AssertSync;
@@ -283,6 +284,12 @@ impl From<try_from::TryFromIntError> for Error {
 impl From<str::Utf8Error> for Error {
     fn from(err: str::Utf8Error) -> Self {
         Error::ParseError(Box::new(err))
+    }
+}
+
+impl<T> From<sync::PoisonError<T>> for Error {
+    fn from(err: sync::PoisonError<T>) -> Self {
+        Error::InternalError(err.to_string())
     }
 }
 

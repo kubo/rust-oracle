@@ -248,3 +248,50 @@ fn pkg_testrecords_udt_record() {
     assert_eq!(attrs[4].name(), "BOOLEANVALUE");
     assert_eq!(attrs[4].oracle_type(), &OracleType::Boolean);
 }
+
+#[test]
+fn object_type_cache() {
+    let conn = common::connect().unwrap();
+
+    conn.object_type("UDT_OBJECTDATATYPES").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 1);
+
+    conn.object_type("UDT_SUBOBJECT").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 2);
+
+    conn.object_type("UDT_SUBOBJECT").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 2);
+
+    // explicitly clear the cache.
+    conn.clear_object_type_cache().unwrap();
+    assert_eq!(conn.object_type_cache_len(), 0);
+
+    conn.object_type("UDT_SUBOBJECT").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 1);
+
+    // "CREATE TYPE" clears the cache.
+    conn.execute(
+        "create type rust_oracle_test as object (intval number);",
+        &[],
+    )
+    .unwrap();
+    assert_eq!(conn.object_type_cache_len(), 0);
+
+    conn.object_type("RUST_ORACLE_TEST").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 1);
+
+    // "ALTER TYPE" clears the cache.
+    conn.execute(
+        "alter type rust_oracle_test add attribute (strval varchar2(100));",
+        &[],
+    )
+    .unwrap();
+    assert_eq!(conn.object_type_cache_len(), 0);
+
+    conn.object_type("RUST_ORACLE_TEST").unwrap();
+    assert_eq!(conn.object_type_cache_len(), 1);
+
+    // "DROP TYPE" clears the cache.
+    conn.execute("drop type rust_oracle_test", &[]).unwrap();
+    assert_eq!(conn.object_type_cache_len(), 0);
+}

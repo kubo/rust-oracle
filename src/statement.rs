@@ -40,6 +40,11 @@ use sql_value::BufferRowIndex;
 use to_odpi_str;
 use to_rust_str;
 
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/lnoci/handle-and-descriptor-attributes.html#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
+const SQLFNCODE_CREATE_TYPE: u16 = 77;
+const SQLFNCODE_ALTER_TYPE: u16 = 80;
+const SQLFNCODE_DROP_TYPE: u16 = 78;
+
 /// Parameters to prepare Statement.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StmtParam {
@@ -477,6 +482,19 @@ impl<'conn> Statement<'conn> {
             self.conn.ctxt,
             dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns)
         );
+        if self.is_ddl() {
+            let mut fncode = 0;
+            chkerr!(
+                self.conn.ctxt,
+                dpi_ext_dpiStmt_getFnCode(self.handle, &mut fncode)
+            );
+            match fncode {
+                SQLFNCODE_CREATE_TYPE | SQLFNCODE_ALTER_TYPE | SQLFNCODE_DROP_TYPE => {
+                    self.conn.clear_object_type_cache()?
+                }
+                _ => (),
+            }
+        }
         if self.statement_type == StatementType::Select {
             if self.row.is_none() {
                 let num_cols = num_query_columns as usize;

@@ -4722,3 +4722,9 @@ extern "C" {
         numElements: u32,
     ) -> ::std::os::raw::c_int;
 }
+extern "C" {
+    pub fn dpi_ext_dpiStmt_getFnCode(
+        stmt: *mut dpiStmt,
+        sqlfncode: *mut u16,
+    ) -> ::std::os::raw::c_int;
+}
