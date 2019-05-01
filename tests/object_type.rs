@@ -280,16 +280,21 @@ fn object_type_cache() {
     conn.object_type("RUST_ORACLE_TEST").unwrap();
     assert_eq!(conn.object_type_cache_len(), 1);
 
-    // "ALTER TYPE" clears the cache.
-    conn.execute(
-        "alter type rust_oracle_test add attribute (strval varchar2(100));",
-        &[],
-    )
-    .unwrap();
-    assert_eq!(conn.object_type_cache_len(), 0);
+    if common::check_oracle_version("object_type_cache", &conn, 12, 1) {
+        // "ALTER TYPE" clears the cache.
+        conn.execute(
+            "alter type rust_oracle_test add attribute (strval varchar2(100));",
+            &[],
+        )
+        .unwrap();
+        assert_eq!(conn.object_type_cache_len(), 0);
 
-    conn.object_type("RUST_ORACLE_TEST").unwrap();
-    assert_eq!(conn.object_type_cache_len(), 1);
+        // The next line fails with 'ORA-22337: the type of accessed
+        // object has been evolved' when the Oracle client version is
+        // 11.2.
+        conn.object_type("RUST_ORACLE_TEST").unwrap();
+        assert_eq!(conn.object_type_cache_len(), 1);
+    }
 
     // "DROP TYPE" clears the cache.
     conn.execute("drop type rust_oracle_test", &[]).unwrap();
