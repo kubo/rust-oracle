@@ -60,7 +60,7 @@ Executes select statements and get rows:
 # use oracle::*; fn try_main() -> Result<()> {
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
+let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 let sql = "select ename, sal, comm from emp where deptno = :1";
 
@@ -105,7 +105,7 @@ Executes select statements and get the first rows:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
+let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 let sql = "select ename, sal, comm from emp where empno = :1";
 
@@ -138,7 +138,7 @@ Executes non-select statements:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
+let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 conn.execute("create table person (id number(38), name varchar2(40))", &[])?;
 
@@ -172,7 +172,7 @@ Prints column information:
 use oracle::Connection;
 
 // Connect to a database.
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
+let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 let sql = "select ename, sal, comm from emp where 1 = 2";
 let rows = conn.query(sql, &[])?;
@@ -197,7 +197,7 @@ Prepared statement:
 # use oracle::*; fn try_main() -> Result<()> {
 use oracle::Connection;
 
-let conn = Connection::connect("scott", "tiger", "//localhost/XE", &[])?;
+let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 // Create a prepared statement
 let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
@@ -231,7 +231,7 @@ use oracle::Connection;
 
 // The territory is France.
 std::env::set_var("NLS_LANG", "french_france.AL32UTF8");
-let conn = Connection::connect("scott", "tiger", "", &[])?;
+let conn = Connection::connect("scott", "tiger", "")?;
 
 // 10.1 is converted to a string in Oracle and fetched as a string.
 let result = conn.query_row_as::<String>("select to_char(10.1) from dual", &[])?;
@@ -297,8 +297,9 @@ mod statement;
 mod util;
 mod version;
 
-pub use connection::ConnParam;
 pub use connection::Connection;
+pub use connection::Connector;
+pub use connection::Privilege;
 pub use connection::ShutdownMode;
 pub use connection::StartupMode;
 pub use error::DbError;

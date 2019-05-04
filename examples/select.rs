@@ -26,7 +26,7 @@ fn main() {
     let database = "";
     let sql = "select * from emp";
 
-    let conn = Connection::connect(username, password, database, &[]).unwrap();
+    let conn = Connection::connect(username, password, database).unwrap();
     let mut stmt = conn.prepare(sql, &[]).unwrap();
     let rows = stmt.query(&[]).unwrap();
 

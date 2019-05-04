@@ -53,7 +53,7 @@ pub fn dir_name() -> String {
 
 #[allow(dead_code)]
 pub fn connect() -> Result<Connection, Error> {
-    Connection::connect(&main_user(), &main_password(), &connect_string(), &[])
+    Connection::connect(&main_user(), &main_password(), &connect_string())
 }
 
 #[allow(dead_code)]

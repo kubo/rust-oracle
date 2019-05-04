@@ -55,7 +55,7 @@ unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
 /// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY")?;
@@ -330,7 +330,7 @@ impl fmt::Debug for Collection {
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_GEOMETRY
 /// // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/spatl/spatial-datatypes-metadata.html#GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
@@ -507,7 +507,7 @@ impl fmt::Debug for Object {
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
 /// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
@@ -516,7 +516,7 @@ impl fmt::Debug for Object {
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
 /// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;
 /// let rows = stmt.query(&[])?;
@@ -587,7 +587,7 @@ impl ObjectType {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY")?;
     /// for attr in objtype.attributes() {
     ///     println!("{:-20} {}", attr.name(), attr.oracle_type());

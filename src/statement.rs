@@ -380,7 +380,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')", &[])?;
@@ -406,7 +406,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
@@ -548,7 +548,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // SQL statements
     /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[])?;
@@ -571,7 +571,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
     /// assert_eq!(stmt.bind_count(), 3);
@@ -596,7 +596,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
@@ -634,7 +634,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
@@ -670,7 +670,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // create a table using identity column (Oracle 12c feature).
     /// conn.execute("create table people (id number generated as identity, name varchar2(30))", &[])?;
@@ -840,7 +840,7 @@ impl<'conn> fmt::Debug for Statement<'conn> {
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 /// let mut stmt = conn.prepare("select * from emp", &[])?;
 /// let rows = stmt.query(&[])?;
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");

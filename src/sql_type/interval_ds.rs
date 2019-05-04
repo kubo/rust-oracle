@@ -69,7 +69,7 @@ use ParseOracleTypeError;
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalDS
 /// let sql = "select interval '+01 02:03:04.500' day to second(3) from dual";

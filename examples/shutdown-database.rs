@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 extern crate oracle;
-use oracle::{ConnParam, Connection, ShutdownMode};
+use oracle::{Connector, Privilege, ShutdownMode};
 
 fn main() {
     let username = "sys";
@@ -23,10 +23,10 @@ fn main() {
     let shutdown_mode = ShutdownMode::Immediate;
 
     // connect as sysdba or sysoper
-    let params = [
-        ConnParam::Sysdba, // or ConnParam::Sysoper
-    ];
-    let conn = Connection::connect(username, password, database, &params).unwrap();
+    let conn = Connector::new(username, password, database)
+        .privilege(Privilege::Sysdba)
+        .connect()
+        .unwrap();
 
     // begin 'shutdown'
     conn.shutdown_database(shutdown_mode).unwrap();

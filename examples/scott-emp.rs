@@ -19,7 +19,7 @@ use oracle::sql_type::{OracleType, Timestamp};
 use oracle::Connection;
 
 fn main() {
-    let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();
+    let conn = Connection::connect("scott", "tiger", "").unwrap();
     let mut stmt = conn
         .prepare(
             "select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp",

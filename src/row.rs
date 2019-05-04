@@ -90,7 +90,7 @@ impl Row {
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
-    /// let conn = Connection::connect("scott", "tiger", "", &[])?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
     ///
     /// for result in stmt.query(&[])? {
@@ -211,7 +211,7 @@ where
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// let sql = "select * from emp where empno = :1";
 ///
@@ -247,7 +247,7 @@ where
 /// }
 ///
 /// # fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 /// let mut stmt = conn.prepare("select * from emp", &[])?;
 ///
 /// // Gets rows as Emp

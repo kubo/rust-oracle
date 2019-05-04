@@ -16,21 +16,17 @@
 extern crate oracle;
 mod common;
 
-use oracle::{ConnParam, Connection};
+use oracle::Connector;
 
 #[test]
 fn app_context() {
-    let params = [ConnParam::AppContext(
-        "CLIENTCONTEXT".into(),
-        "foo".into(),
-        "bar".into(),
-    )];
-    let conn = Connection::connect(
-        &common::main_user(),
-        &common::main_password(),
-        &common::connect_string(),
-        &params,
+    let conn = Connector::new(
+        common::main_user(),
+        common::main_password(),
+        common::connect_string(),
     )
+    .app_context("CLIENTCONTEXT", "foo", "bar")
+    .connect()
     .unwrap();
     let val = conn
         .query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[])

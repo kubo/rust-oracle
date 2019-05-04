@@ -61,7 +61,7 @@ use ParseOracleTypeError;
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalYM
 /// let sql = "select interval '+02-03' year to month from dual";

@@ -4,6 +4,32 @@
 
 Incompatible changes:
 
+* Remove `ConnParam` enum and add `Connector` struct to use builder pattern.
+  * The fourth argument of `Connection::connect` was removed.  
+    From:
+    ```rust
+    let conn = Connection::connect(username, password, connect_string, &[])?;
+    ```
+    To:
+    ```rust
+    let conn = Connection::connect(username, password, connect_string)?;
+    ```
+  * Use `Connector` to use additional parameters.  
+    From:
+    ```rust
+    let conn = Connection::connect(username, password, connect_string, &[ConnParam::Sysdba])?;
+    ```
+    To:
+    ```rust
+    let conn = Connector::new(username, password, connect_string).privilege(Privilege::Sysdba).connect()?;
+    ```
+    or
+    ```rust
+    let mut connector = Connector::new(username, password, connect_string);
+    connector.privilege(Privilege::Sysdba);
+    let conn = connector.connect().unwrap();
+    ```
+
 * Add a new submodule `sql_value` and move the following structs, enums and traits from the root module to the submodule.
   * `Collection`
   * `IntervalDS`

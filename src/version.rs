@@ -23,7 +23,7 @@ use binding::dpiVersionInfo;
 ///
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
-/// let conn = Connection::connect("scott", "tiger", "", &[])?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 /// let client_version = oracle::client_version()?;
 /// let (server_version, _) = conn.server_version()?;
 ///

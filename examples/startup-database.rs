@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 extern crate oracle;
-use oracle::{ConnParam, Connection};
+use oracle::{Connector, Privilege};
 
 fn main() {
     let username = "sys";
@@ -22,21 +22,21 @@ fn main() {
     let database = "";
 
     // connect as sysdba or sysoper with prelim_auth mode
-    let params = [
-        ConnParam::Sysdba,     // or ConnParam::Sysoper
-        ConnParam::PrelimAuth, // required to connect to idle database.
-    ];
-    let conn = Connection::connect(username, password, database, &params).unwrap();
+    let conn = Connector::new(username, password, database)
+        .privilege(Privilege::Sysdba)
+        .prelim_auth(true)
+        .connect()
+        .unwrap();
 
     // start up database. The database is not mounted at this time.
     conn.startup_database(&[]).unwrap();
     conn.close().unwrap();
 
     // connect as sysdba or sysoper **without** prelim_auth mode
-    let params = [
-        ConnParam::Sysdba, // or ConnParam::Sysoper
-    ];
-    let conn = Connection::connect(username, password, database, &params).unwrap();
+    let conn = Connector::new(username, password, database)
+        .privilege(Privilege::Sysdba)
+        .connect()
+        .unwrap();
 
     // mount and open the database
     conn.execute("alter database mount", &[]).unwrap();
