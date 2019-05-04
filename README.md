@@ -1,7 +1,19 @@
 # Rust-oracle
-[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=master)](https://travis-ci.org/kubo/rust-oracle)
+|[master](https://github.com/kubo/rust-oracle/tree/master)|[0.2.x](https://github.com/kubo/rust-oracle/tree/0.2.x)|
+|---|---|
+|[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=master)](https://travis-ci.org/kubo/rust-oracle/branches)|[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=0.2.x)](https://travis-ci.org/kubo/rust-oracle/branches)|
 
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
+
+Applications using Rust-oracle 0.1.x should use 0.2.x. The incompatibility
+between 0.1.x and 0.2.x is trivial so they will work well without modification.
+The author continues updating 0.2.x to fix bugs as long as it doesn't
+introduce incompatibilities.
+
+New features are added in Rust-oracle 0.3.x or later. There are enormous
+incompatibilities between 0.2.x and 0.3.x. They were introduced to follow
+Rust way. Some parameters were removed and builder data types were added
+instead. Some types were moved to a submodule `sql_type`.
 
 ## Change Log
 
@@ -9,7 +21,8 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 
 ## Build-time Requirements
 
-* Rust 1.26 or later
+* Rust 1.31.0 or later for rust-oracle 0.3.0 and later (not released)
+* Rust 1.19.0 or later for rust-oarcle 0.1.x and 0.2.x.
 * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
 
 ## Run-time Requirements
