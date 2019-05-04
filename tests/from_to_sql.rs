@@ -16,7 +16,8 @@
 extern crate oracle;
 #[macro_use]
 mod common;
-use oracle::*;
+use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
+use oracle::Error;
 
 macro_rules! chk_num_from {
     ($conn:ident, $val_from:expr, $val_to:expr, $(($T:ident, $success:tt)),+) => {
@@ -685,7 +686,8 @@ mod chrono {
     use self::chrono::prelude::*;
     use self::chrono::Duration;
     use common;
-    use oracle::*;
+    use oracle::sql_type::OracleType;
+    use oracle::Error;
 
     //
     // chrono::DateTime<Utc>

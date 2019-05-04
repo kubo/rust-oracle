@@ -24,15 +24,15 @@ use Statement;
 use Version;
 
 use binding::*;
-use types::object::ObjectTypeInternal;
+use sql_type::ObjectType;
+use sql_type::ObjectTypeInternal;
+use sql_type::ToSql;
 use Context;
-use ObjectType;
 use Result;
 use ResultSet;
 use Row;
 use RowValue;
 use StmtParam;
-use ToSql;
 
 use new_odpi_str;
 use to_odpi_str;

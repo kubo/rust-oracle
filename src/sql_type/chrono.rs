@@ -19,16 +19,16 @@ use chrono::naive::NaiveDate;
 use chrono::naive::NaiveDateTime;
 use chrono::offset::LocalResult;
 use chrono::Duration;
+use sql_type::FromSql;
+use sql_type::IntervalDS;
+use sql_type::OracleType;
+use sql_type::Timestamp;
+use sql_type::ToSql;
+use sql_type::ToSqlNull;
 use Connection;
 use Error;
-use FromSql;
-use IntervalDS;
-use OracleType;
 use Result;
 use SqlValue;
-use Timestamp;
-use ToSql;
-use ToSqlNull;
 
 //
 // chrono::DateTime<Utc>

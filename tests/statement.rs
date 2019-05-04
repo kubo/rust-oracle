@@ -16,7 +16,8 @@
 extern crate oracle;
 mod common;
 
-use oracle::{IntervalDS, StatementType, StmtParam, Timestamp};
+use oracle::sql_type::{IntervalDS, Timestamp};
+use oracle::{StatementType, StmtParam};
 
 #[test]
 fn statement_type() {

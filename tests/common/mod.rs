@@ -13,9 +13,8 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use oracle::{
-    client_version, Connection, Error, FromSql, OracleType, Row, RowValue, ToSql, Version,
-};
+use oracle::sql_type::{FromSql, OracleType, ToSql};
+use oracle::{client_version, Connection, Error, Row, RowValue, Version};
 use std::env;
 
 fn env_var_or(env_name: &str, default: &str) -> String {

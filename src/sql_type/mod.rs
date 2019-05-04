@@ -13,23 +13,31 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+//! SQL data types
+
 use Connection;
 use Error;
-use IntervalDS;
-use IntervalYM;
-use OracleType;
 use Result;
 use SqlValue;
-use Timestamp;
 
 #[cfg(feature = "chrono")]
-pub mod chrono;
-pub mod interval_ds;
-pub mod interval_ym;
-pub mod object;
-pub mod oracle_type;
-pub mod timestamp;
-pub mod version;
+mod chrono;
+mod interval_ds;
+mod interval_ym;
+mod object;
+mod oracle_type;
+mod timestamp;
+
+pub use self::interval_ds::IntervalDS;
+pub use self::interval_ym::IntervalYM;
+pub use self::object::Collection;
+pub use self::object::Object;
+pub use self::object::ObjectType;
+pub use self::object::ObjectTypeAttr;
+pub(crate) use self::object::ObjectTypeInternal;
+pub(crate) use self::oracle_type::NativeType;
+pub use self::oracle_type::OracleType;
+pub use self::timestamp::Timestamp;
 
 /// Conversion from Oracle values to rust values.
 ///

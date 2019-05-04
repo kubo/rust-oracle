@@ -16,7 +16,8 @@
 extern crate oracle;
 mod common;
 
-use oracle::{client_version, ObjectType, OracleType};
+use oracle::client_version;
+use oracle::sql_type::{ObjectType, OracleType};
 
 #[test]
 fn invalid_obj() {

@@ -291,10 +291,11 @@ mod binding;
 mod error;
 mod connection;
 mod row;
+pub mod sql_type;
 mod sql_value;
 mod statement;
-mod types;
 mod util;
+mod version;
 
 pub use connection::ConnParam;
 pub use connection::Connection;
@@ -313,21 +314,9 @@ pub use statement::ColumnInfo;
 pub use statement::Statement;
 pub use statement::StatementType;
 pub use statement::StmtParam;
-pub use types::interval_ds::IntervalDS;
-pub use types::interval_ym::IntervalYM;
-pub use types::object::Collection;
-pub use types::object::Object;
-pub use types::object::ObjectType;
-pub use types::object::ObjectTypeAttr;
-pub use types::oracle_type::OracleType;
-pub use types::timestamp::Timestamp;
-pub use types::version::Version;
-pub use types::FromSql;
-pub use types::ToSql;
-pub use types::ToSqlNull;
+pub use version::Version;
 
 use binding::*;
-use types::oracle_type::NativeType;
 
 pub type Result<T> = result::Result<T, Error>;
 

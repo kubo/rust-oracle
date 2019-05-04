@@ -15,7 +15,8 @@
 
 extern crate oracle;
 
-use oracle::{Connection, OracleType, Timestamp};
+use oracle::sql_type::{OracleType, Timestamp};
+use oracle::Connection;
 
 fn main() {
     let conn = Connection::connect("scott", "tiger", "", &[]).unwrap();

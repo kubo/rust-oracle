@@ -15,7 +15,8 @@
 
 extern crate oracle;
 mod common;
-use oracle::*;
+use oracle::sql_type::{Collection, FromSql, Object, OracleType, Timestamp};
+use oracle::{Result, SqlValue};
 use std::iter::Iterator;
 
 #[test]

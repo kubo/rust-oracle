@@ -18,8 +18,8 @@ use std::fmt;
 use std::str;
 
 use binding::dpiIntervalDS;
+use sql_type::OracleType;
 use util::Scanner;
-use OracleType;
 use ParseOracleTypeError;
 
 /// Oracle-specific [Interval Day to Second][INTVL_DS] data type.
@@ -35,8 +35,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; fn try_main() -> Result<()> {
-/// use oracle::IntervalDS;
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 ///
 /// // Create an interval by new().
 /// let intvl1 = IntervalDS::new(1, 2, 3, 4, 500000000);
@@ -69,7 +68,7 @@ use ParseOracleTypeError;
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch IntervalDS

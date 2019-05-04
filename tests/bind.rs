@@ -2,7 +2,7 @@ extern crate oracle;
 #[macro_use]
 mod common;
 
-use oracle::*;
+use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
 
 macro_rules! test_in_out {
     ($stmt:expr, $type:ty, $val:expr) => {

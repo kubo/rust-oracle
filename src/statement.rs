@@ -23,16 +23,16 @@ use std::ascii::AsciiExt; // Required when rust verion < 1.23.
 
 use binding::*;
 
+use sql_type::FromSql;
+use sql_type::OracleType;
+use sql_type::ToSql;
 use Connection;
 use Error;
-use FromSql;
-use OracleType;
 use Result;
 use ResultSet;
 use Row;
 use RowValue;
 use SqlValue;
-use ToSql;
 
 use new_odpi_str;
 use private;
@@ -595,7 +595,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
     /// let conn = Connection::connect("scott", "tiger", "", &[])?;
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
     ///
@@ -633,7 +633,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
     /// let conn = Connection::connect("scott", "tiger", "", &[])?;
     ///
     /// // Prepares "begin :outval := upper(:inval); end;",
@@ -669,7 +669,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
     /// let conn = Connection::connect("scott", "tiger", "", &[])?;
     ///
     /// // create a table using identity column (Oracle 12c feature).

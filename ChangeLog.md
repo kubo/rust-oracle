@@ -4,6 +4,19 @@
 
 Incompatible changes:
 
+* Add a new submodule `sql_value` and move the following structs, enums and traits from the root module to the submodule.
+  * `Collection`
+  * `IntervalDS`
+  * `IntervalYM`
+  * `Object`
+  * `ObjectType`
+  * `ObjectTypeAttr`
+  * `OracleType`
+  * `Timestamp`
+  * `FromSql`
+  * `ToSql`
+  * `ToSqlNull`
+
 * Remove the associated type `Item` from `RowValue` trait.
 
 * Add `&Connection` argument to trait methods: `ToSql.oratype` and `ToSqlNull.oratype_for_null`.

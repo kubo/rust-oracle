@@ -19,14 +19,14 @@ use std::ptr;
 use std::rc::Rc;
 
 use binding::*;
+use sql_type::FromSql;
+use sql_type::OracleType;
+use sql_type::ToSql;
 use Connection;
 use Context;
 use Error;
-use FromSql;
-use OracleType;
 use Result;
 use SqlValue;
-use ToSql;
 
 use to_rust_str;
 use util::write_literal;
@@ -515,7 +515,7 @@ impl fmt::Debug for Object {
 /// Gets object type infomration in query.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "", &[])?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
 /// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;

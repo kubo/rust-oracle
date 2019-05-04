@@ -13,11 +13,11 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+use sql_type::OracleType;
 use std::fmt;
 use std::result;
 use std::str;
 use Error;
-use OracleType;
 use ParseOracleTypeError;
 use Result;
 

@@ -18,8 +18,8 @@ use std::fmt;
 use std::str;
 
 use binding::dpiTimestamp;
+use sql_type::OracleType;
 use util::Scanner;
-use OracleType;
 use ParseOracleTypeError;
 
 /// Oracle-specific [Datetime][] data type
@@ -39,7 +39,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// // Create a timestamp.
 /// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
 ///
@@ -72,7 +72,7 @@ use ParseOracleTypeError;
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch Timestamp

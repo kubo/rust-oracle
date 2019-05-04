@@ -20,8 +20,8 @@ use Error;
 use Result;
 
 use binding::*;
+use sql_type::ObjectType;
 use Context;
-use ObjectType;
 
 // NativeType corresponds to dpiNativeTypeNum in ODPI
 // except Char, Number, Raw, CLOB and BLOB.

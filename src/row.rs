@@ -21,10 +21,10 @@ use std::rc::Rc;
 
 use binding::*;
 
+use sql_type::FromSql;
 use ColumnIndex;
 use ColumnInfo;
 use Connection;
-use FromSql;
 use Result;
 use SqlValue;
 use Statement;

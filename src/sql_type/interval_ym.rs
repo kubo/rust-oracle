@@ -18,8 +18,8 @@ use std::fmt;
 use std::str;
 
 use binding::dpiIntervalYM;
+use sql_type::OracleType;
 use util::Scanner;
-use OracleType;
 use ParseOracleTypeError;
 
 /// Oracle-specific [Interval Year to Month][INTVL_YM] data type.
@@ -29,7 +29,7 @@ use ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// // Create an interval by new().
 /// let intvl1 = IntervalYM::new(2, 3);
 ///
@@ -60,7 +60,7 @@ use ParseOracleTypeError;
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "", &[])?;
 ///
 /// // Fetch IntervalYM
