@@ -15,14 +15,14 @@
 
 mod common;
 
-use oracle::client_version;
 use oracle::sql_type::{ObjectType, OracleType};
+use oracle::Version;
 
 #[test]
 fn invalid_obj() {
     let conn = common::connect().unwrap();
     let err = conn.object_type("DUMMY_OBJECT").unwrap_err();
-    if client_version().unwrap().major() >= 12 {
+    if Version::client().unwrap().major() >= 12 {
         assert_eq!(
             err.to_string(),
             "OCI Error: OCI-22303: type \"\".\"DUMMY_OBJECT\" not found"

@@ -15,7 +15,10 @@
 
 use std::fmt;
 
-use crate::binding::dpiVersionInfo;
+use crate::binding::*;
+use crate::chkerr;
+use crate::Context;
+use crate::Result;
 
 /// Oracle version information
 ///
@@ -24,7 +27,7 @@ use crate::binding::dpiVersionInfo;
 /// ```no_run
 /// # use oracle::*; fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "")?;
-/// let client_version = oracle::client_version()?;
+/// let client_version = Version::client()?;
 /// let (server_version, _) = conn.server_version()?;
 ///
 /// println!("Client version:");
@@ -56,6 +59,23 @@ impl Version {
             patch: patch,
             port_update: port_update,
         }
+    }
+
+    /// Returns the version of Oracle client in use.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// let client_ver = Version::client()?;
+    /// println!("Oracle Client Version: {}", client_ver);
+    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// ```
+    pub fn client() -> Result<Version> {
+        let ctx = Context::get()?;
+        let mut dpi_ver = Default::default();
+        chkerr!(ctx, dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
+        Ok(Version::new_from_dpi_ver(dpi_ver))
     }
 
     pub(crate) fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {

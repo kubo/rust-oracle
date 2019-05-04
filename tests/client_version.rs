@@ -15,9 +15,11 @@
 
 mod common;
 
+use oracle::Version;
+
 #[test]
 fn client_version() {
-    let ver = match oracle::client_version() {
+    let ver = match Version::client() {
         Ok(ver) => ver,
         Err(err) => panic!("Failed to get client version: {}", err),
     };

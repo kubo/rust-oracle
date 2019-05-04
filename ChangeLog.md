@@ -43,6 +43,8 @@ Incompatible changes:
   * `ToSql`
   * `ToSqlNull`
 
+* Remove `client_version()` method and add `Version::client()` method instead.
+
 * Remove the associated type `Item` from `RowValue` trait.
 
 * Add `&Connection` argument to trait methods: `ToSql.oratype` and `ToSqlNull.oratype_for_null`.

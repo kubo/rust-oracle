@@ -326,23 +326,6 @@ use crate::binding::*;
 
 pub type Result<T> = result::Result<T, Error>;
 
-/// Returns Oracle client version
-///
-/// # Examples
-///
-/// ```
-/// # use oracle::*; fn try_main() -> Result<()> {
-/// let client_ver = oracle::client_version()?;
-/// println!("Oracle Client Version: {}", client_ver);
-/// # Ok(())} fn main() { try_main().unwrap(); }
-/// ```
-pub fn client_version() -> Result<Version> {
-    let mut dpi_ver = Default::default();
-    let ctx = Context::get()?;
-    chkerr!(ctx, dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
-    Ok(Version::new_from_dpi_ver(dpi_ver))
-}
-
 //
 // Context
 //

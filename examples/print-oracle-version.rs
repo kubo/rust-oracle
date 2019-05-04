@@ -15,10 +15,10 @@
 
 extern crate oracle;
 
-use oracle::{client_version, Connection};
+use oracle::{Connection, Version};
 
 fn main() {
-    let client_ver = client_version().unwrap();
+    let client_ver = Version::client().unwrap();
     println!("Oracle Client Version: {}", client_ver);
 
     let conn = Connection::connect("scott", "tiger", "").unwrap();

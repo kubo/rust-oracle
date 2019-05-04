@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 use oracle::sql_type::{FromSql, OracleType, ToSql};
-use oracle::{client_version, Connection, Error, Row, RowValue, Version};
+use oracle::{Connection, Error, Row, RowValue, Version};
 use std::env;
 
 fn env_var_or(env_name: &str, default: &str) -> String {
@@ -59,7 +59,7 @@ pub fn connect() -> Result<Connection, Error> {
 #[allow(dead_code)]
 pub fn check_oracle_version(test_name: &str, conn: &Connection, major: i32, minor: i32) -> bool {
     let ver = Version::new(major, minor, 0, 0, 0);
-    let client_ver = client_version().unwrap();
+    let client_ver = Version::client().unwrap();
     let server_ver = conn.server_version().unwrap();
     if client_ver >= ver && server_ver.0 >= ver {
         true
