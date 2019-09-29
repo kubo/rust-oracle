@@ -203,7 +203,7 @@ impl<'conn> Statement<'conn> {
         chkerr!(
             conn.ctxt,
             dpiConn_prepareStmt(
-                conn.handle,
+                conn.handle.raw(),
                 scrollable,
                 sql.ptr,
                 sql.len,
@@ -505,7 +505,7 @@ impl<'conn> Statement<'conn> {
                         }
                         _ => oratype,
                     };
-                    val.init_handle(self.conn.handle, oratype, self.fetch_array_size)?;
+                    val.init_handle(&self.conn.handle, oratype, self.fetch_array_size)?;
                     chkerr!(
                         self.conn.ctxt,
                         dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
@@ -597,7 +597,7 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
     {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(self.conn.handle, &value.oratype()?, 1)? {
+        if self.bind_values[pos].init_handle(&self.conn.handle, &value.oratype()?, 1)? {
             chkerr!(
                 self.conn.ctxt,
                 bindidx.bind(self.handle, self.bind_values[pos].handle)

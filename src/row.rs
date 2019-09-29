@@ -18,11 +18,10 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use binding::*;
-
 use ColumnIndex;
 use ColumnInfo;
 use Connection;
+use DpiConn;
 use FromSql;
 use Result;
 use SqlValue;
@@ -30,15 +29,7 @@ use Statement;
 
 pub struct RowSharedData {
     column_names: Vec<String>,
-    conn_handle: *mut dpiConn,
-}
-
-impl Drop for RowSharedData {
-    fn drop(&mut self) {
-        if !self.conn_handle.is_null() {
-            unsafe { dpiConn_release(self.conn_handle) };
-        }
-    }
+    conn_handle: DpiConn,
 }
 
 /// Row in a result set of a select statement
@@ -53,10 +44,9 @@ impl Row {
         column_names: Vec<String>,
         column_values: Vec<SqlValue>,
     ) -> Result<Row> {
-        chkerr!(conn.ctxt, dpiConn_addRef(conn.handle));
         let shared = RowSharedData {
             column_names: column_names,
-            conn_handle: conn.handle,
+            conn_handle: conn.handle.clone(),
         };
         Ok(Row {
             shared: Rc::new(shared),
@@ -271,7 +261,7 @@ impl RowValue for Row {
         let num_cols = row.column_values.len();
         let mut column_values = Vec::with_capacity(num_cols);
         for val in &row.column_values {
-            column_values.push(val.dup_by_handle(row.shared.conn_handle)?);
+            column_values.push(val.dup_by_handle(&row.shared.conn_handle)?);
         }
         Ok(Row {
             shared: row.shared.clone(),

@@ -331,6 +331,38 @@ use types::oracle_type::NativeType;
 
 pub type Result<T> = result::Result<T, Error>;
 
+struct DpiConn {
+    conn: *mut dpiConn,
+}
+
+impl DpiConn {
+    fn new(conn: *mut dpiConn) -> DpiConn {
+        DpiConn { conn: conn }
+    }
+
+    pub(crate) fn raw(&self) -> *mut dpiConn {
+        self.conn
+    }
+}
+
+impl Clone for DpiConn {
+    fn clone(&self) -> DpiConn {
+        unsafe { dpiConn_addRef(self.raw()) };
+        DpiConn::new(self.raw())
+    }
+}
+
+impl Drop for DpiConn {
+    fn drop(&mut self) {
+        unsafe { dpiConn_release(self.raw()) };
+    }
+}
+
+// dpiConn is created with the DPI_MODE_CREATE_THREADED flag,
+// so that it is suitable for Send and Sync.
+unsafe impl Send for DpiConn {}
+unsafe impl Sync for DpiConn {}
+
 /// Returns Oracle client version
 ///
 /// # Examples
@@ -359,6 +391,9 @@ struct Context {
     pub pool_create_params: dpiPoolCreateParams,
     pub subscr_create_params: dpiSubscrCreateParams,
 }
+
+// Only one instance of Context exists and it is read-only.
+unsafe impl Sync for Context {}
 
 enum ContextResult {
     Ok(Context),

@@ -24,6 +24,7 @@ use binding::*;
 use Collection;
 use Connection;
 use Context;
+use DpiConn;
 use Error;
 use FromSql;
 use IntervalDS;
@@ -207,7 +208,7 @@ impl SqlValue {
 
     pub(crate) fn init_handle(
         &mut self,
-        conn_handle: *mut dpiConn,
+        conn_handle: &DpiConn,
         oratype: &OracleType,
         array_size: u32,
     ) -> Result<bool> {
@@ -226,7 +227,7 @@ impl SqlValue {
         chkerr!(
             self.ctxt,
             dpiConn_newVar(
-                conn_handle,
+                conn_handle.raw(),
                 oratype_num,
                 native_type_num,
                 array_size,
@@ -728,10 +729,10 @@ impl SqlValue {
 
     /// Returns a duplicated value of self.
     pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
-        self.dup_by_handle(conn.handle)
+        self.dup_by_handle(&conn.handle)
     }
 
-    pub(crate) fn dup_by_handle(&self, conn_handle: *mut dpiConn) -> Result<SqlValue> {
+    pub(crate) fn dup_by_handle(&self, conn_handle: &DpiConn) -> Result<SqlValue> {
         let mut val = SqlValue::new(self.ctxt);
         if let Some(ref oratype) = self.oratype {
             val.init_handle(conn_handle, oratype, 1)?;
