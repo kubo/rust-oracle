@@ -326,6 +326,45 @@ use crate::binding::*;
 
 pub type Result<T> = result::Result<T, Error>;
 
+macro_rules! define_dpi_data_with_refcount {
+    ($name:ident) => {
+        paste::item! {
+            struct [<Dpi $name>] {
+                raw: *mut [<dpi $name>],
+            }
+
+            impl [<Dpi $name>] {
+                fn new(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
+                    [<Dpi $name>] { raw: raw }
+                }
+
+                pub(crate) fn raw(&self) -> *mut [<dpi $name>] {
+                    self.raw
+                }
+            }
+
+            impl Clone for [<Dpi $name>] {
+                fn clone(&self) -> [<Dpi $name>] {
+                    unsafe { [<dpi $name _addRef>](self.raw()) };
+                    [<Dpi $name>]::new(self.raw())
+                }
+            }
+
+            impl Drop for [<Dpi $name>] {
+                fn drop(&mut self) {
+                    unsafe { [<dpi $name _release>](self.raw()) };
+                }
+            }
+
+            unsafe impl Send for [<Dpi $name>] {}
+            unsafe impl Sync for [<Dpi $name>] {}
+        }
+    };
+}
+
+// define DpiConn wrapping *mut dpiConn.
+define_dpi_data_with_refcount!(Conn);
+
 //
 // Context
 //
