@@ -338,6 +338,12 @@ macro_rules! define_dpi_data_with_refcount {
                     [<Dpi $name>] { raw: raw }
                 }
 
+                #[allow(dead_code)]
+                fn with_add_ref(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
+                    unsafe { [<dpi $name _addRef>](raw) };
+                    [<Dpi $name>] { raw: raw }
+                }
+
                 pub(crate) fn raw(&self) -> *mut [<dpi $name>] {
                     self.raw
                 }
@@ -364,6 +370,9 @@ macro_rules! define_dpi_data_with_refcount {
 
 // define DpiConn wrapping *mut dpiConn.
 define_dpi_data_with_refcount!(Conn);
+
+// define DpiObjectType wrapping *mut dpiObjectType.
+define_dpi_data_with_refcount!(ObjectType);
 
 //
 // Context

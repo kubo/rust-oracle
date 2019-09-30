@@ -30,6 +30,7 @@ use crate::to_odpi_str;
 use crate::to_rust_str;
 use crate::Context;
 use crate::DpiConn;
+use crate::DpiObjectType;
 use crate::Result;
 use crate::ResultSet;
 use crate::Row;
@@ -808,10 +809,7 @@ impl Connection {
             self.ctxt,
             dpiConn_getObjectType(self.handle.raw(), s.ptr, s.len, &mut handle)
         );
-        let res = ObjectType::from_dpiObjectType(self.ctxt, handle);
-        unsafe {
-            dpiObjectType_release(handle);
-        }
+        let res = ObjectType::from_dpi_object_type(self.ctxt, DpiObjectType::new(handle));
         if let Ok(ref objtype) = res {
             self.objtype_cache
                 .lock()?
