@@ -374,6 +374,9 @@ define_dpi_data_with_refcount!(Conn);
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
 
+// define DpiObjectAttr wrapping *mut dpiObjectAttr.
+define_dpi_data_with_refcount!(ObjectAttr);
+
 //
 // Context
 //
