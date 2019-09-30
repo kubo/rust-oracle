@@ -19,6 +19,7 @@ use std::ptr;
 use crate::binding::*;
 use crate::sql_type::ObjectType;
 use crate::Context;
+use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
 
@@ -68,9 +69,9 @@ impl NativeType {
         }
     }
 
-    pub fn to_object_type_handle(&self) -> *mut dpiObjectType {
+    pub(crate) fn to_object_type_handle(&self) -> *mut dpiObjectType {
         match *self {
-            NativeType::Object(ref objtype) => objtype.handle(),
+            NativeType::Object(ref objtype) => objtype.handle().raw(),
             _ => ptr::null_mut(),
         }
     }
@@ -240,9 +241,9 @@ impl OracleType {
             DPI_ORACLE_TYPE_BFILE => Ok(OracleType::BFILE),
             DPI_ORACLE_TYPE_STMT => Ok(OracleType::RefCursor),
             DPI_ORACLE_TYPE_BOOLEAN => Ok(OracleType::Boolean),
-            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpiObjectType(
+            DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpi_object_type(
                 ctxt,
-                info.objectType,
+                DpiObjectType::with_add_ref(info.objectType),
             )?)),
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),

@@ -16,7 +16,7 @@
 use std::cmp;
 use std::fmt;
 use std::ptr;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::binding::*;
 use crate::chkerr;
@@ -27,6 +27,8 @@ use crate::to_rust_str;
 use crate::util::write_literal;
 use crate::Connection;
 use crate::Context;
+use crate::DpiObjectAttr;
+use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
 use crate::SqlValue;
@@ -401,7 +403,7 @@ impl Object {
         let native_type_num = sql_value.native_type_num();
         chkerr!(
             self.ctxt,
-            dpiObject_getAttributeValue(self.handle, attr.handle, native_type_num, &mut data)
+            dpiObject_getAttributeValue(self.handle, attr.handle.raw(), native_type_num, &mut data)
         );
         let res = sql_value.get();
         unsafe { release_dpi_data(&data, native_type_num) };
@@ -426,7 +428,7 @@ impl Object {
             self.ctxt,
             dpiObject_setAttributeValue(
                 self.handle,
-                attrtype.handle,
+                attrtype.handle.raw(),
                 sql_value.native_type_num(),
                 &mut data
             )
@@ -529,22 +531,21 @@ impl fmt::Debug for Object {
 /// ```
 #[derive(Clone)]
 pub struct ObjectType {
-    pub(crate) internal: Rc<ObjectTypeInternal>,
+    pub(crate) internal: Arc<ObjectTypeInternal>,
 }
 
 impl ObjectType {
-    #[allow(non_snake_case)]
-    pub(crate) fn from_dpiObjectType(
+    pub(crate) fn from_dpi_object_type(
         ctxt: &'static Context,
-        handle: *mut dpiObjectType,
+        handle: DpiObjectType,
     ) -> Result<ObjectType> {
         Ok(ObjectType {
-            internal: Rc::new(ObjectTypeInternal::from_dpiObjectType(ctxt, handle)?),
+            internal: Arc::new(ObjectTypeInternal::from_dpi_object_type(ctxt, handle)?),
         })
     }
 
-    pub(crate) fn handle(&self) -> *mut dpiObjectType {
-        self.internal.handle
+    pub(crate) fn handle(&self) -> &DpiObjectType {
+        &self.internal.handle
     }
 
     /// Gets schema name
@@ -611,7 +612,7 @@ impl ObjectType {
         let mut handle = ptr::null_mut();
         chkerr!(
             ctxt,
-            dpiObjectType_createObject(self.internal.handle, &mut handle)
+            dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
         Ok(Object::new(ctxt, handle, self.clone()))
     }
@@ -629,7 +630,7 @@ impl ObjectType {
         let mut handle = ptr::null_mut();
         chkerr!(
             ctxt,
-            dpiObjectType_createObject(self.internal.handle, &mut handle)
+            dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
         Ok(Collection::new(ctxt, handle, self.clone()))
     }
@@ -658,15 +659,15 @@ impl fmt::Debug for ObjectType {
 /// See [ObjectType.attributes()](struct.ObjectType.html#method.attributes)
 pub struct ObjectTypeAttr {
     ctxt: &'static Context,
-    handle: *mut dpiObjectAttr,
+    handle: DpiObjectAttr,
     name: String,
     oratype: OracleType,
 }
 
 impl ObjectTypeAttr {
-    fn new(ctxt: &'static Context, handle: *mut dpiObjectAttr) -> Result<ObjectTypeAttr> {
+    fn new(ctxt: &'static Context, handle: DpiObjectAttr) -> Result<ObjectTypeAttr> {
         let mut info = Default::default();
-        chkerr!(ctxt, dpiObjectAttr_getInfo(handle, &mut info));
+        chkerr!(ctxt, dpiObjectAttr_getInfo(handle.raw(), &mut info));
         Ok(ObjectTypeAttr {
             ctxt: ctxt,
             handle: handle,
@@ -688,21 +689,12 @@ impl ObjectTypeAttr {
 
 impl Clone for ObjectTypeAttr {
     fn clone(&self) -> ObjectTypeAttr {
-        unsafe { dpiObjectAttr_addRef(self.handle) };
         ObjectTypeAttr {
             ctxt: self.ctxt,
-            handle: self.handle,
+            handle: self.handle.clone(),
             name: self.name.clone(),
             oratype: self.oratype.clone(),
         }
-    }
-}
-
-impl Drop for ObjectTypeAttr {
-    fn drop(&mut self) {
-        unsafe {
-            dpiObjectAttr_release(self.handle);
-        };
     }
 }
 
@@ -711,7 +703,9 @@ impl fmt::Debug for ObjectTypeAttr {
         write!(
             f,
             "ObjectTypeAttr {{ handle: {:?}, name: {:?}, oratype: {:?} }}",
-            self.handle, self.name, self.oratype
+            self.handle.raw(),
+            self.name,
+            self.oratype
         )
     }
 }
@@ -722,7 +716,7 @@ impl fmt::Debug for ObjectTypeAttr {
 
 pub(crate) struct ObjectTypeInternal {
     ctxt: &'static Context,
-    handle: *mut dpiObjectType,
+    handle: DpiObjectType,
     schema: String,
     name: String,
     elem_oratype: Option<OracleType>,
@@ -730,13 +724,12 @@ pub(crate) struct ObjectTypeInternal {
 }
 
 impl ObjectTypeInternal {
-    #[allow(non_snake_case)]
-    fn from_dpiObjectType(
+    fn from_dpi_object_type(
         ctxt: &'static Context,
-        handle: *mut dpiObjectType,
+        handle: DpiObjectType,
     ) -> Result<ObjectTypeInternal> {
         let mut info = Default::default();
-        chkerr!(ctxt, dpiObjectType_getInfo(handle, &mut info));
+        chkerr!(ctxt, dpiObjectType_getInfo(handle.raw(), &mut info));
         let (elem_oratype, attrs) = if info.isCollection != 0 {
             match OracleType::from_type_info(ctxt, &info.elementTypeInfo) {
                 Ok(oratype) => (Some(oratype), Vec::new()),
@@ -747,14 +740,18 @@ impl ObjectTypeInternal {
             let mut attr_handles = vec![ptr::null_mut(); attrnum];
             chkerr!(
                 ctxt,
-                dpiObjectType_getAttributes(handle, info.numAttributes, attr_handles.as_mut_ptr())
+                dpiObjectType_getAttributes(
+                    handle.raw(),
+                    info.numAttributes,
+                    attr_handles.as_mut_ptr()
+                )
             );
             let mut attrs = Vec::with_capacity(attrnum);
             for i in 0..attrnum {
-                match ObjectTypeAttr::new(ctxt, attr_handles[i]) {
+                match ObjectTypeAttr::new(ctxt, DpiObjectAttr::new(attr_handles[i])) {
                     Ok(attr) => attrs.push(attr),
                     Err(err) => {
-                        for j in i..attrnum {
+                        for j in (i + 1)..attrnum {
                             unsafe {
                                 dpiObjectAttr_release(attr_handles[j]);
                             }
@@ -765,9 +762,6 @@ impl ObjectTypeInternal {
             }
             (None, attrs)
         };
-        unsafe {
-            dpiObjectType_addRef(handle);
-        }
         Ok(ObjectTypeInternal {
             ctxt: ctxt,
             handle: handle,
@@ -779,19 +773,9 @@ impl ObjectTypeInternal {
     }
 }
 
-impl Drop for ObjectTypeInternal {
-    fn drop(&mut self) {
-        if !self.handle.is_null() {
-            unsafe {
-                dpiObjectType_release(self.handle);
-            };
-        }
-    }
-}
-
 impl cmp::PartialEq for ObjectTypeInternal {
     fn eq(&self, other: &Self) -> bool {
-        self.handle == other.handle
+        self.handle.raw() == other.handle.raw()
     }
 }
 
