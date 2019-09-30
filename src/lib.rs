@@ -389,6 +389,9 @@ struct Context {
     pub subscr_create_params: dpiSubscrCreateParams,
 }
 
+unsafe impl Sync for Context {}
+unsafe impl Send for Context {}
+
 enum ContextResult {
     Ok(Context),
     Err(dpiErrorInfo),

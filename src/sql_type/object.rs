@@ -16,7 +16,7 @@
 use std::cmp;
 use std::fmt;
 use std::ptr;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::binding::*;
 use crate::chkerr;
@@ -531,7 +531,7 @@ impl fmt::Debug for Object {
 /// ```
 #[derive(Clone)]
 pub struct ObjectType {
-    pub(crate) internal: Rc<ObjectTypeInternal>,
+    pub(crate) internal: Arc<ObjectTypeInternal>,
 }
 
 impl ObjectType {
@@ -540,7 +540,7 @@ impl ObjectType {
         handle: DpiObjectType,
     ) -> Result<ObjectType> {
         Ok(ObjectType {
-            internal: Rc::new(ObjectTypeInternal::from_dpi_object_type(ctxt, handle)?),
+            internal: Arc::new(ObjectTypeInternal::from_dpi_object_type(ctxt, handle)?),
         })
     }
 

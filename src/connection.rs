@@ -17,7 +17,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::mem;
 use std::ptr;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 use crate::binding::*;
@@ -28,6 +28,8 @@ use crate::sql_type::ObjectTypeInternal;
 use crate::sql_type::ToSql;
 use crate::to_odpi_str;
 use crate::to_rust_str;
+use crate::AssertSend;
+use crate::AssertSync;
 use crate::Context;
 use crate::DpiConn;
 use crate::DpiObjectType;
@@ -441,8 +443,11 @@ pub struct Connection {
     tag: String,
     tag_found: bool,
     pub(crate) autocommit: bool,
-    pub(crate) objtype_cache: Mutex<HashMap<String, Rc<ObjectTypeInternal>>>,
+    pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
 }
+
+impl AssertSync for Context {}
+impl AssertSend for Context {}
 
 impl Connection {
     /// Connects to an Oracle server using username, password and connect string.
