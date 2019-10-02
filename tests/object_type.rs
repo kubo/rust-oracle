@@ -72,7 +72,7 @@ fn assert_udt_objectdatatypes(objtype: &ObjectType) {
         ("TIMESTAMPLTZCOL", OracleType::TimestampLTZ(6)),
         ("BINARYFLTCOL", OracleType::BinaryFloat),
         ("BINARYDOUBLECOL", OracleType::BinaryDouble),
-        ("SIGNEDINTCOL", OracleType::Int64),
+        ("SIGNEDINTCOL", OracleType::Number(38, 0)),
     ];
 
     assert_eq!(objtype.schema(), username);

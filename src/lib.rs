@@ -550,6 +550,7 @@ impl Default for dpiSubscrCreateParams {
             groupingClass: 0,
             groupingValue: 0,
             groupingType: 0,
+            outRegId: 0,
         }
     }
 }
