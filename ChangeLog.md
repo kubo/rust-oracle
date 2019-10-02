@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.3.0 (xxx)
+## 0.3.0 (2019-10-02)
 
 Incompatible changes:
 
@@ -60,6 +60,10 @@ Changes:
 * The return value of [`Connection.object_type()`][] is cached in the connection.  
   When "CREATE TYPE", "ALTER TYPE" or "DROP TYPE" is executed, the cache clears.
 * Add `Connection.clear_object_type_cache()`.
+
+## 0.2.2 (2019-09-29)
+
+* Implement `Sync` and `Send` for `Connection`. ([GH-14][])
 
 ## 0.2.1 (2019-04-14)
 
@@ -236,6 +240,7 @@ Incompatible changes:
 
 [GH-3]: https://github.com/kubo/rust-oracle/issues/3
 [GH-6]: https://github.com/kubo/rust-oracle/issues/6
+[GH-14]: https://github.com/kubo/rust-oracle/issues/14
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute

@@ -20,7 +20,7 @@ explains how to use them depending on the context.
   4. <code>fn [query_as_named][sqan]\<'a, T>(&'a mut self, params: &[(&str, &[ToSql][])]) -> Result\<[ResultSet][]\<'a, T>> where T: [RowValue][]</code>
   5. <code>fn [query_row][sqr](&mut self, params: &[&[ToSql][]]) -> Result\<[Row][]></code>
   6. <code>fn [query_row_named][sqrn](&mut self, params: &[(&str, &[ToSql][])]) -> Result\<[Row][]></code>
-  7 <code>fn [query_row_as][sqra]\<T>(&mut self, params: &[&[ToSql][]]) -> Result\<\<T>::Item> where T: [RowValue][]</code>
+  7. <code>fn [query_row_as][sqra]\<T>(&mut self, params: &[&[ToSql][]]) -> Result\<\<T>::Item> where T: [RowValue][]</code>
   8. <code>fn [query_row_as_named][sqran]\<T>(&mut self, params: &[(&str, &[ToSql][])]) -> Result\<\<T>::Item> where T: [RowValue][]</code>
 
 The next table is a brief summary of the following sections.
