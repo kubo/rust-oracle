@@ -209,7 +209,7 @@ impl Collection {
     }
 
     /// Sets the value to the element at the specified index.
-    pub fn set(&mut self, index: i32, value: &ToSql) -> Result<()> {
+    pub fn set(&mut self, index: i32, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
@@ -227,7 +227,7 @@ impl Collection {
     }
 
     /// Appends an element to the end of the collection.
-    pub fn push(&mut self, value: &ToSql) -> Result<()> {
+    pub fn push(&mut self, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
@@ -419,7 +419,7 @@ impl Object {
     }
 
     /// Sets the value to the specified attribute.
-    pub fn set(&mut self, name: &str, value: &ToSql) -> Result<()> {
+    pub fn set(&mut self, name: &str, value: &dyn ToSql) -> Result<()> {
         let attrtype = self.type_attr(name)?;
         let mut data = Default::default();
         let mut sql_value = SqlValue::from_oratype(self.ctxt, &attrtype.oratype, &mut data)?;

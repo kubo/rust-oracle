@@ -274,7 +274,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query(&mut self, params: &[&ToSql]) -> Result<ResultSet<Row>> {
+    pub fn query(&mut self, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
         Ok(ResultSet::<Row>::new(self))
     }
@@ -285,7 +285,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_named(&mut self, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
+    pub fn query_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
         Ok(ResultSet::<Row>::new(self))
     }
@@ -296,7 +296,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as<'a, T>(&'a mut self, params: &[&ToSql]) -> Result<ResultSet<'a, T>>
+    pub fn query_as<'a, T>(&'a mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
     where
         T: RowValue,
     {
@@ -312,7 +312,7 @@ impl<'conn> Statement<'conn> {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as_named<'a, T>(
         &'a mut self,
-        params: &[(&str, &ToSql)],
+        params: &[(&str, &dyn ToSql)],
     ) -> Result<ResultSet<'a, T>>
     where
         T: RowValue,
@@ -326,7 +326,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row(&mut self, params: &[&ToSql]) -> Result<Row> {
+    pub fn query_row(&mut self, params: &[&dyn ToSql]) -> Result<Row> {
         let mut rows = self.query(params)?;
         rows.next().unwrap_or(Err(Error::NoDataFound))
     }
@@ -336,7 +336,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_named(&mut self, params: &[(&str, &ToSql)]) -> Result<Row> {
+    pub fn query_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
         let mut rows = self.query_named(params)?;
         rows.next().unwrap_or(Err(Error::NoDataFound))
     }
@@ -346,7 +346,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&mut self, params: &[&ToSql]) -> Result<T>
+    pub fn query_row_as<T>(&mut self, params: &[&dyn ToSql]) -> Result<T>
     where
         T: RowValue,
     {
@@ -359,7 +359,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &ToSql)]) -> Result<T>
+    pub fn query_row_as_named<T>(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<T>
     where
         T: RowValue,
     {
@@ -389,7 +389,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute(&mut self, params: &[&ToSql]) -> Result<()> {
+    pub fn execute(&mut self, params: &[&dyn ToSql]) -> Result<()> {
         self.exec(params, false, "execute")
     }
 
@@ -412,7 +412,7 @@ impl<'conn> Statement<'conn> {
     ///                      ("name", &"Paul")])?; // execute with other values.
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute_named(&mut self, params: &[(&str, &ToSql)]) -> Result<()> {
+    pub fn execute_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
         self.exec_named(params, false, "execute_named")
     }
 
@@ -440,7 +440,7 @@ impl<'conn> Statement<'conn> {
 
     pub(crate) fn exec(
         &mut self,
-        params: &[&ToSql],
+        params: &[&dyn ToSql],
         must_be_query: bool,
         method_name: &str,
     ) -> Result<()> {
@@ -453,7 +453,7 @@ impl<'conn> Statement<'conn> {
 
     pub(crate) fn exec_named(
         &mut self,
-        params: &[(&str, &ToSql)],
+        params: &[(&str, &dyn ToSql)],
         must_be_query: bool,
         method_name: &str,
     ) -> Result<()> {
@@ -606,7 +606,7 @@ impl<'conn> Statement<'conn> {
     /// assert_eq!(outval, "TO BE UPPER-CASE");
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn bind<I>(&mut self, bindidx: I, value: &ToSql) -> Result<()>
+    pub fn bind<I>(&mut self, bindidx: I, value: &dyn ToSql) -> Result<()>
     where
         I: BindIndex,
     {

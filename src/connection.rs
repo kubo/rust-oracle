@@ -598,7 +598,7 @@ impl Connection {
     ///
     /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<Row>> {
+    pub fn query(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
         rs.stmt_boxed
             .as_mut()
@@ -613,7 +613,7 @@ impl Connection {
     ///
     /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<Row>> {
+    pub fn query_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
         rs.stmt_boxed
             .as_mut()
@@ -628,7 +628,7 @@ impl Connection {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<ResultSet<T>>
+    pub fn query_as<T>(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {
@@ -646,7 +646,11 @@ impl Connection {
     ///
     /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<ResultSet<T>>
+    pub fn query_as_named<T>(
+        &self,
+        sql: &str,
+        params: &[(&str, &dyn ToSql)],
+    ) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {
@@ -663,7 +667,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row(&self, sql: &str, params: &[&ToSql]) -> Result<Row> {
+    pub fn query_row(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         if let Err(err) = stmt.query_row(params) {
             return Err(err);
@@ -676,7 +680,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Row> {
+    pub fn query_row_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
         let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
         if let Err(err) = stmt.query_row_named(params) {
             return Err(err);
@@ -689,7 +693,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as<T>(&self, sql: &str, params: &[&ToSql]) -> Result<T>
+    pub fn query_row_as<T>(&self, sql: &str, params: &[&dyn ToSql]) -> Result<T>
     where
         T: RowValue,
     {
@@ -702,7 +706,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<T>
+    pub fn query_row_as_named<T>(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<T>
     where
         T: RowValue,
     {
@@ -727,7 +731,7 @@ impl Connection {
     ///
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute(&self, sql: &str, params: &[&ToSql]) -> Result<Statement> {
+    pub fn execute(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
         stmt.execute(params)?;
         Ok(stmt)
@@ -751,7 +755,7 @@ impl Connection {
     ///
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
-    pub fn execute_named(&self, sql: &str, params: &[(&str, &ToSql)]) -> Result<Statement> {
+    pub fn execute_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
         stmt.execute_named(params)?;
         Ok(stmt)

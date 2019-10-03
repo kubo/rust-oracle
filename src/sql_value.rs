@@ -306,7 +306,7 @@ impl SqlValue {
     ///    string by `to_string()` if `set(100i64)` is called for `VARCHAR2` columns.
     ///    When the argument is `None::<ToSql>`
     ///    If the conversion fails, various errors are returned.
-    pub fn set(&mut self, val: &ToSql) -> Result<()> {
+    pub fn set(&mut self, val: &dyn ToSql) -> Result<()> {
         val.to_sql(self)
     }
 

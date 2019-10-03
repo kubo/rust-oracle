@@ -40,7 +40,7 @@ pub enum Error {
     NullValue,
 
     /// Error when conversion from a string to an Oracle value fails
-    ParseError(Box<error::Error + Send + Sync>),
+    ParseError(Box<dyn error::Error + Send + Sync>),
 
     /// Error when conversion from a type to another fails due to out-of-range
     OutOfRange(String),
@@ -117,7 +117,7 @@ impl error::Error for ParseOracleTypeError {
         "Oracle type parse error"
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         None
     }
 }
@@ -248,7 +248,7 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::ParseError(ref err) => Some(err.as_ref()),
             _ => None,
