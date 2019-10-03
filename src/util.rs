@@ -130,9 +130,9 @@ pub fn parse_str_into_raw(s: &str) -> result::Result<Vec<u8>, ParseOracleTypeErr
     let mut upper_half = 0u8;
     for chr in s.bytes() {
         let half_byte = match chr {
-            b'0'...b'9' => chr - b'0',
-            b'A'...b'F' => chr - b'A' + 10,
-            b'a'...b'f' => chr - b'a' + 10,
+            b'0'..=b'9' => chr - b'0',
+            b'A'..=b'F' => chr - b'A' + 10,
+            b'a'..=b'f' => chr - b'a' + 10,
             _ => return Err(ParseOracleTypeError::new("raw")),
         };
         if upper {
