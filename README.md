@@ -26,7 +26,7 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 
 ## Build-time Requirements
 
-* Rust 1.31.0 or later for rust-oracle 0.3.0 and later (not released)
+* Rust 1.31.0 or later for rust-oracle 0.3.0 and later.
 * Rust 1.19.0 or later for rust-oarcle 0.1.x and 0.2.x.
 * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
 
@@ -40,7 +40,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.2.0"
+oracle = "0.3.0"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -48,7 +48,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.2.0", features = ["chrono"] }
+oracle = { version = "0.3.0", features = ["chrono"] }
 ```
 
 Then put this in your crate root:
