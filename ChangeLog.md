@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.3.1 (2019-10-05)
+
+Changes:
+
+* Add a new method [`Connection.status()`][] and a new enum [`ConnStatus`][]
+  to get the status of the connection.
+
 ## 0.3.0 (2019-10-02)
 
 Incompatible changes:
@@ -30,7 +37,7 @@ Incompatible changes:
     let conn = connector.connect().unwrap();
     ```
 
-* Add a new submodule `sql_value` and move the following structs, enums and traits from the root module to the submodule.
+* Add a new submodule `sql_type` and move the following structs, enums and traits from the root module to the submodule.
   * `Collection`
   * `IntervalDS`
   * `IntervalYM`
@@ -60,6 +67,7 @@ Changes:
 * The return value of [`Connection.object_type()`][] is cached in the connection.  
   When "CREATE TYPE", "ALTER TYPE" or "DROP TYPE" is executed, the cache clears.
 * Add `Connection.clear_object_type_cache()`.
+* Update ODPI-C to version 3.2.2.
 
 ## 0.2.2 (2019-09-29)
 
@@ -255,19 +263,21 @@ Incompatible changes:
 [`Connection.query_row_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_named
 [`Connection.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as
 [`Connection.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as_named
+[`Connection.status()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.status
 [`Connection.tag()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.tag
-[`ConnParam`]: https://docs.rs/oracle/*/oracle/enum.ConnParam.html
+[`ConnParam`]: https://docs.rs/oracle/0.2.*/oracle/enum.ConnParam.html
+[`ConnStatus`]: https://docs.rs/oracle/*/oracle/enum.ConnStatus.html
 [`DbError.action()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.action
 [`DbError.fn_name()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.fn_name
 [`DbError.message()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.message
 [`Error::NoDataFound`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
-[`ObjectType.attributes()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.attributes
-[`ObjectType.name()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.name
-[`ObjectType.new_collection()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.new_collection
-[`ObjectType.new_object()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.new_object
-[`ObjectType.schema()`]: https://docs.rs/oracle/*/oracle/struct.ObjectType.html#method.schema
-[`ObjectTypeAttr.name()`]: https://docs.rs/oracle/*/oracle/struct.ObjectTypeAttr.html#method.name
+[`ObjectType.attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
+[`ObjectType.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
+[`ObjectType.new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection
+[`ObjectType.new_object()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_object
+[`ObjectType.schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
+[`ObjectTypeAttr.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
 [`ResultSet.column_info()`]: https://docs.rs/oracle/*/oracle/struct.ResultSet.html#method.column_info
 [`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values
 [`Row.get_as()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.get_as
