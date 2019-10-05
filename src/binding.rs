@@ -167,6 +167,8 @@ pub const DPI_SUBSCR_QOS_QUERY: u32 = 8;
 pub const DPI_SUBSCR_QOS_BEST_EFFORT: u32 = 16;
 pub const DPI_VISIBILITY_IMMEDIATE: u32 = 1;
 pub const DPI_VISIBILITY_ON_COMMIT: u32 = 2;
+pub const DPI_OCI_SERVER_NOT_CONNECTED: u32 = 0;
+pub const DPI_OCI_SERVER_NORMAL: u32 = 1;
 pub type dpiAuthMode = u32;
 pub type dpiConnCloseMode = u32;
 pub type dpiCreateMode = u32;
@@ -4833,5 +4835,11 @@ extern "C" {
     pub fn dpi_ext_dpiStmt_getFnCode(
         stmt: *mut dpiStmt,
         sqlfncode: *mut u16,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn dpi_ext_dpiConn_getServerStatus(
+        conn: *mut dpiConn,
+        status: *mut u32,
     ) -> ::std::os::raw::c_int;
 }

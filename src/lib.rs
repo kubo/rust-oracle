@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -307,6 +307,7 @@ mod statement;
 mod util;
 mod version;
 
+pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
 pub use crate::connection::Connector;
 pub use crate::connection::Privilege;

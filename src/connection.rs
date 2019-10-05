@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -22,17 +22,20 @@ use std::sync::Mutex;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::error::error_from_dpi_error;
 use crate::new_odpi_str;
 use crate::sql_type::ObjectType;
 use crate::sql_type::ObjectTypeInternal;
 use crate::sql_type::ToSql;
 use crate::to_odpi_str;
+use crate::to_rust_slice;
 use crate::to_rust_str;
 use crate::AssertSend;
 use crate::AssertSync;
 use crate::Context;
 use crate::DpiConn;
 use crate::DpiObjectType;
+use crate::Error;
 use crate::Result;
 use crate::ResultSet;
 use crate::Row;
@@ -125,6 +128,17 @@ pub enum Purity {
     New,
     /// Reuse a pooled session
     Self_,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+/// Connection status
+pub enum ConnStatus {
+    /// The connection is alive. See [Connection.status](struct.Connection.html#method.status) for details.
+    Normal,
+    /// The connection has been terminated. See [Connection.status](struct.Connection.html#method.status) for details.
+    NotConnected,
+    /// The connection has been closed by [Connection.close](struct.Connection.html#method.close)
+    Closed,
 }
 
 /// Builder data type to create Connection.
@@ -894,10 +908,66 @@ impl Connection {
         Ok(())
     }
 
-    /// Pings the connection to see if it is still alive
+    /// Pings the connection to see if it is still alive.
+    ///
+    /// It checks the connection by making a network round-trip
+    /// between the client and the server.
+    ///
+    /// See also [Connection.status](struct.Connection.html#method.status).
     pub fn ping(&self) -> Result<()> {
         chkerr!(self.ctxt, dpiConn_ping(self.handle.raw()));
         Ok(())
+    }
+
+    /// Gets the status of the connection.
+    ///
+    /// It returns `Ok(ConnStatus::Closed)` when the connection was closed
+    /// by [Connection.close](struct.Connection.html#method.close).
+    /// Otherwise see bellow.
+    ///
+    /// **Oracle client 12.2 and later:**
+    ///
+    /// It checks whether the underlying TCP socket has disconnected
+    /// by the server. There is no guarantee that the server is alive
+    /// and the network between the client and server has no trouble.
+    ///
+    /// For example, it returns `Ok(ConnStatus::NotConnected)` when the
+    /// database on the server-side OS stopped and the client received
+    /// a FIN or RST packet. However it returns `Ok(ConnStatus::Normal)`
+    /// when the server-side OS itself crashes or the network is in
+    /// trouble.
+    ///
+    /// **Oracle client 11.2 and 12.1:**
+    ///
+    /// It returns `Ok(ConnStatus::Normal)` when the last network
+    /// round-trip between the client and server went through. Otherwise,
+    /// `Ok(ConnStatus::NotConnected)`. There is no guarantee that the
+    /// next network round-trip will go through.
+    ///
+    /// See also [Connection.ping](struct.Connection.html#method.ping).
+    pub fn status(&self) -> Result<ConnStatus> {
+        unsafe {
+            let mut status = 0;
+            if dpi_ext_dpiConn_getServerStatus(self.handle.raw(), &mut status) == 0 {
+                match status {
+                    DPI_OCI_SERVER_NOT_CONNECTED => Ok(ConnStatus::NotConnected),
+                    DPI_OCI_SERVER_NORMAL => Ok(ConnStatus::Normal),
+                    _ => Err(Error::InternalError(format!(
+                        "Unexpected server status: {}",
+                        status
+                    ))),
+                }
+            } else {
+                let mut err: dpiErrorInfo = Default::default();
+                dpiContext_getError(self.ctxt.context, &mut err);
+                let message = to_rust_slice(err.message, err.messageLength);
+                if message == b"DPI-1010: not connected" {
+                    Ok(ConnStatus::Closed)
+                } else {
+                    Err(error_from_dpi_error(&err))
+                }
+            }
+        }
     }
 
     /// Gets the statement cache size

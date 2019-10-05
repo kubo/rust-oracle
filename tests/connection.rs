@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -15,7 +15,7 @@
 
 mod common;
 
-use oracle::Connector;
+use oracle::{ConnStatus, Connector};
 
 #[test]
 fn app_context() {
@@ -136,4 +136,12 @@ fn query_row() {
         .query_row_as_named::<common::TestString>(sql, &[("icol", &5)])
         .unwrap();
     common::assert_test_string_type(5, &row);
+}
+
+#[test]
+fn status() {
+    let conn = common::connect().unwrap();
+    assert_eq!(conn.status().unwrap(), ConnStatus::Normal);
+    conn.close().unwrap();
+    assert_eq!(conn.status().unwrap(), ConnStatus::Closed);
 }
