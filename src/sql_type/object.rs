@@ -192,10 +192,11 @@ impl Collection {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = Default::default();
         let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
-        if let OracleType::Number(_, _) = *oratype {
-            unsafe {
+        match oratype {
+            &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
                 dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
-            }
+            },
+            _ => (),
         }
         let sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
         let native_type_num = sql_value.native_type_num();
@@ -394,10 +395,11 @@ impl Object {
     {
         let mut data = Default::default();
         let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
-        if let OracleType::Number(_, _) = attr.oratype {
-            unsafe {
+        match &attr.oratype {
+            &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
                 dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
-            }
+            },
+            _ => (),
         }
         let sql_value = SqlValue::from_oratype(self.ctxt, &attr.oratype, &mut data)?;
         let native_type_num = sql_value.native_type_num();

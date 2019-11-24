@@ -300,3 +300,19 @@ fn object_type_cache() {
     conn.execute("drop type rust_oracle_test", &[]).unwrap();
     assert_eq!(conn.object_type_cache_len(), 0);
 }
+
+#[test]
+fn udt_issue19() {
+    let conn = common::connect().unwrap();
+    let float_val: f64 = 1.25;
+
+    let objtype = conn.object_type("UDT_ISSUE19_OBJ").unwrap();
+    let mut obj = objtype.new_object().unwrap();
+    obj.set("FLOATCOL", &float_val).unwrap();
+    assert_eq!(float_val, obj.get::<f64>("FLOATCOL").unwrap());
+
+    let objtype = conn.object_type("UDT_ISSUE19_COL").unwrap();
+    let mut coll = objtype.new_collection().unwrap();
+    coll.push(&float_val).unwrap();
+    assert_eq!(float_val, coll.get::<f64>(0).unwrap());
+}
