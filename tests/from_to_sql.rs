@@ -23,12 +23,12 @@ macro_rules! chk_num_from {
         let row = $conn.query_row(&format!("select {} from dual", $val_from), &[]).unwrap();
         $(
             chk_num_from!(row, $val_from, $T, $success);
-        )+;
+        )+
 
         let row = $conn.query_row(&format!("select {} from dual", $val_to), &[]).unwrap();
         $(
             chk_num_from!(row, $val_to, $T, $success);
-        )+;
+        )+
     };
     ($row:ident, $val:expr, $T:ident, true) => {
         assert_eq!($val as $T, $row.get_as::<$T>().unwrap());
@@ -1113,8 +1113,7 @@ mod chrono {
             .prepare("begin :out := TO_CHAR(:1); end;", &[])
             .unwrap();
         let bind_result = stmt.bind(2, &d);
-        if let Err(Error::OutOfRange(_)) = bind_result {
-; /* OK */
+        if let Err(Error::OutOfRange(_)) = bind_result { /* OK */
         } else {
             panic!("Duration 1000000000 days should not be converted to interval day to second!");
         }
