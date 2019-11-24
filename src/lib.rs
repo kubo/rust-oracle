@@ -404,6 +404,7 @@ enum ContextResult {
 }
 
 unsafe impl Sync for ContextResult {}
+unsafe impl Send for ContextResult {}
 
 trait AssertSend: Send {}
 trait AssertSync: Sync {}
