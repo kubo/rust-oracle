@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.3.2 (2019-11-14)
+
+Changes:
+
+Fixed bugs:
+
+* Fix SEGV while getting Object type's FLOAT data type attributes. ([GH-19][])
+
+* Add workaround to use with [tracing-core](https://crates.io/crates/tracing-core). ([GH-18][])
+
 ## 0.3.1 (2019-10-05)
 
 Changes:
@@ -249,6 +259,8 @@ Incompatible changes:
 [GH-3]: https://github.com/kubo/rust-oracle/issues/3
 [GH-6]: https://github.com/kubo/rust-oracle/issues/6
 [GH-14]: https://github.com/kubo/rust-oracle/issues/14
+[GH-18]: https://github.com/kubo/rust-oracle/issues/18
+[GH-19]: https://github.com/kubo/rust-oracle/issues/19
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
