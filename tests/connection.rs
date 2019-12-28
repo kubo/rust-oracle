@@ -56,7 +56,7 @@ fn test_autocommit() {
         .unwrap();
     conn.rollback().unwrap();
     let row_count = conn
-        .query_row_as::<(u32)>("select count(*) from TestTempTable", &[])
+        .query_row_as::<u32>("select count(*) from TestTempTable", &[])
         .unwrap();
     assert_eq!(row_count, 1);
     conn.execute("delete TestTempTable where IntCol = 1", &[])
