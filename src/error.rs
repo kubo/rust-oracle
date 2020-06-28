@@ -22,6 +22,7 @@ use crate::Context;
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
+use std::mem::MaybeUninit;
 use std::num;
 use std::str;
 use std::sync;
@@ -316,9 +317,10 @@ pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
 }
 
 pub(crate) fn error_from_context(ctxt: &Context) -> Error {
-    let mut err: dpiErrorInfo = Default::default();
-    unsafe {
-        dpiContext_getError(ctxt.context, &mut err);
+    let err = unsafe {
+        let mut err = MaybeUninit::uninit();
+        dpiContext_getError(ctxt.context, err.as_mut_ptr());
+        err.assume_init()
     };
     crate::error::error_from_dpi_error(&err)
 }

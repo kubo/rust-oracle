@@ -216,10 +216,15 @@ impl<'conn> Statement<'conn> {
                 &mut handle
             )
         );
-        let mut info: dpiStmtInfo = Default::default();
-        chkerr!(conn.ctxt, dpiStmt_getInfo(handle, &mut info), unsafe {
-            dpiStmt_release(handle);
-        });
+        let mut info = MaybeUninit::uninit();
+        chkerr!(
+            conn.ctxt,
+            dpiStmt_getInfo(handle, info.as_mut_ptr()),
+            unsafe {
+                dpiStmt_release(handle);
+            }
+        );
+        let info = unsafe { info.assume_init() };
         let mut num = 0;
         chkerr!(conn.ctxt, dpiStmt_getBindCount(handle, &mut num), unsafe {
             dpiStmt_release(handle);
@@ -878,11 +883,12 @@ pub struct ColumnInfo {
 
 impl ColumnInfo {
     fn new(stmt: &Statement, idx: usize) -> Result<ColumnInfo> {
-        let mut info = Default::default();
+        let mut info = MaybeUninit::uninit();
         chkerr!(
             stmt.conn.ctxt,
-            dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, &mut info)
+            dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, info.as_mut_ptr())
         );
+        let info = unsafe { info.assume_init() };
         Ok(ColumnInfo {
             name: to_rust_str(info.name, info.nameLength),
             oracle_type: OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)?,

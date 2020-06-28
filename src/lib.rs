@@ -288,7 +288,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 */
 
 use lazy_static::lazy_static;
-use std::mem;
+use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
 use std::result;
@@ -412,42 +412,47 @@ trait AssertSync: Sync {}
 
 lazy_static! {
     static ref DPI_CONTEXT: ContextResult = {
-        let mut ctxt = Context {
-            context: ptr::null_mut(),
-            common_create_params: Default::default(),
-            conn_create_params: Default::default(),
-            pool_create_params: Default::default(),
-            subscr_create_params: Default::default(),
-        };
-        let mut err: dpiErrorInfo = Default::default();
+        let mut ctxt = ptr::null_mut();
+        let mut err = MaybeUninit::uninit();
         if unsafe {
             dpiContext_createWithParams(
                 DPI_MAJOR_VERSION,
                 DPI_MINOR_VERSION,
                 ptr::null_mut(),
-                &mut ctxt.context,
-                &mut err,
+                &mut ctxt,
+                err.as_mut_ptr(),
             )
         } == DPI_SUCCESS as i32
         {
+            let mut common_create_params = MaybeUninit::uninit();
+            let mut conn_create_params = MaybeUninit::uninit();
+            let mut pool_create_params = MaybeUninit::uninit();
+            let mut subscr_create_params = MaybeUninit::uninit();
+            let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
+            let driver_name = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
+            let driver_name_ptr = driver_name.as_ptr() as *const c_char;
+            let driver_name_len = driver_name.len() as u32;
             unsafe {
-                let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-                let driver_name = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
-                let driver_name_ptr = driver_name.as_ptr() as *const c_char;
-                let driver_name_len = driver_name.len() as u32;
-                dpiContext_initCommonCreateParams(ctxt.context, &mut ctxt.common_create_params);
-                dpiContext_initConnCreateParams(ctxt.context, &mut ctxt.conn_create_params);
-                dpiContext_initPoolCreateParams(ctxt.context, &mut ctxt.pool_create_params);
-                dpiContext_initSubscrCreateParams(ctxt.context, &mut ctxt.subscr_create_params);
-                ctxt.common_create_params.createMode |= DPI_MODE_CREATE_THREADED;
-                ctxt.common_create_params.encoding = utf8_ptr;
-                ctxt.common_create_params.nencoding = utf8_ptr;
-                ctxt.common_create_params.driverName = driver_name_ptr;
-                ctxt.common_create_params.driverNameLength = driver_name_len;
+                dpiContext_initCommonCreateParams(ctxt, common_create_params.as_mut_ptr());
+                dpiContext_initConnCreateParams(ctxt, conn_create_params.as_mut_ptr());
+                dpiContext_initPoolCreateParams(ctxt, pool_create_params.as_mut_ptr());
+                dpiContext_initSubscrCreateParams(ctxt, subscr_create_params.as_mut_ptr());
             }
+            let mut ctxt = Context {
+                context: ctxt,
+                common_create_params: unsafe { common_create_params.assume_init() },
+                conn_create_params: unsafe { conn_create_params.assume_init() },
+                pool_create_params: unsafe { pool_create_params.assume_init() },
+                subscr_create_params: unsafe { subscr_create_params.assume_init() },
+            };
+            ctxt.common_create_params.createMode |= DPI_MODE_CREATE_THREADED;
+            ctxt.common_create_params.encoding = utf8_ptr;
+            ctxt.common_create_params.nencoding = utf8_ptr;
+            ctxt.common_create_params.driverName = driver_name_ptr;
+            ctxt.common_create_params.driverNameLength = driver_name_len;
             ContextResult::Ok(ctxt)
         } else {
-            ContextResult::Err(err)
+            ContextResult::Err(unsafe { err.assume_init() })
         }
     };
 }
@@ -457,158 +462,6 @@ impl Context {
         match *DPI_CONTEXT {
             ContextResult::Ok(ref ctxt) => Ok(ctxt),
             ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
-        }
-    }
-}
-
-//
-// Default value definitions
-//
-
-impl Default for dpiCommonCreateParams {
-    fn default() -> dpiCommonCreateParams {
-        dpiCommonCreateParams {
-            createMode: DPI_MODE_CREATE_DEFAULT,
-            encoding: ptr::null(),
-            nencoding: ptr::null(),
-            edition: ptr::null(),
-            editionLength: 0,
-            driverName: ptr::null(),
-            driverNameLength: 0,
-        }
-    }
-}
-
-impl Default for dpiConnCreateParams {
-    fn default() -> dpiConnCreateParams {
-        dpiConnCreateParams {
-            authMode: DPI_MODE_AUTH_DEFAULT,
-            connectionClass: ptr::null(),
-            connectionClassLength: 0,
-            purity: 0,
-            newPassword: ptr::null(),
-            newPasswordLength: 0,
-            appContext: ptr::null_mut(),
-            numAppContext: 0,
-            externalAuth: 0,
-            externalHandle: ptr::null_mut(),
-            pool: ptr::null_mut(),
-            tag: ptr::null(),
-            tagLength: 0,
-            matchAnyTag: 0,
-            outTag: ptr::null(),
-            outTagLength: 0,
-            outTagFound: 0,
-            shardingKeyColumns: ptr::null_mut(),
-            numShardingKeyColumns: 0,
-            superShardingKeyColumns: ptr::null_mut(),
-            numSuperShardingKeyColumns: 0,
-            outNewSession: 0,
-        }
-    }
-}
-
-impl Default for dpiData {
-    fn default() -> dpiData {
-        dpiData {
-            isNull: 0,
-            value: dpiDataBuffer { asInt64: 0 },
-        }
-    }
-}
-
-impl Default for dpiPoolCreateParams {
-    fn default() -> dpiPoolCreateParams {
-        unsafe { mem::zeroed() }
-    }
-}
-
-impl Default for dpiSubscrCreateParams {
-    fn default() -> dpiSubscrCreateParams {
-        unsafe { mem::zeroed() }
-    }
-}
-
-impl Default for dpiErrorInfo {
-    fn default() -> dpiErrorInfo {
-        unsafe { mem::zeroed() }
-    }
-}
-
-impl Default for dpiDataTypeInfo {
-    fn default() -> dpiDataTypeInfo {
-        dpiDataTypeInfo {
-            oracleTypeNum: 0,
-            defaultNativeTypeNum: 0,
-            ociTypeCode: 0,
-            dbSizeInBytes: 0,
-            clientSizeInBytes: 0,
-            sizeInChars: 0,
-            precision: 0,
-            scale: 0,
-            fsPrecision: 0,
-            objectType: ptr::null_mut(),
-        }
-    }
-}
-
-impl Default for dpiObjectAttrInfo {
-    fn default() -> dpiObjectAttrInfo {
-        dpiObjectAttrInfo {
-            name: ptr::null(),
-            nameLength: 0,
-            typeInfo: Default::default(),
-        }
-    }
-}
-
-impl Default for dpiObjectTypeInfo {
-    fn default() -> dpiObjectTypeInfo {
-        dpiObjectTypeInfo {
-            schema: ptr::null(),
-            schemaLength: 0,
-            name: ptr::null(),
-            nameLength: 0,
-            isCollection: 0,
-            elementTypeInfo: Default::default(),
-            numAttributes: 0,
-        }
-    }
-}
-
-impl Default for dpiQueryInfo {
-    fn default() -> dpiQueryInfo {
-        dpiQueryInfo {
-            name: ptr::null(),
-            nameLength: 0,
-            typeInfo: Default::default(),
-            nullOk: 0,
-        }
-    }
-}
-
-impl Default for dpiVersionInfo {
-    fn default() -> dpiVersionInfo {
-        dpiVersionInfo {
-            versionNum: 0,
-            releaseNum: 0,
-            updateNum: 0,
-            portReleaseNum: 0,
-            portUpdateNum: 0,
-            fullVersionNum: 0,
-        }
-    }
-}
-
-impl Default for dpiStmtInfo {
-    fn default() -> dpiStmtInfo {
-        dpiStmtInfo {
-            isQuery: 0,
-            isPLSQL: 0,
-            isDDL: 0,
-            isDML: 0,
-            statementType: 0,
-            isReturning: 0,
         }
     }
 }

@@ -15,6 +15,7 @@
 
 use std::cmp;
 use std::fmt;
+use std::mem::{self, MaybeUninit};
 use std::ptr;
 use std::sync::Arc;
 
@@ -190,7 +191,7 @@ impl Collection {
         T: FromSql,
     {
         let oratype = self.objtype.element_oracle_type().unwrap();
-        let mut data = Default::default();
+        let mut data = unsafe { mem::zeroed() };
         let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
         match oratype {
             &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
@@ -212,7 +213,7 @@ impl Collection {
     /// Sets the value to the element at the specified index.
     pub fn set(&mut self, index: i32, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
-        let mut data = Default::default();
+        let mut data = unsafe { mem::zeroed() };
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
@@ -230,7 +231,7 @@ impl Collection {
     /// Appends an element to the end of the collection.
     pub fn push(&mut self, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
-        let mut data = Default::default();
+        let mut data = unsafe { mem::zeroed() };
         let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
@@ -393,7 +394,7 @@ impl Object {
     where
         T: FromSql,
     {
-        let mut data = Default::default();
+        let mut data = unsafe { mem::zeroed() };
         let mut buf = [0i8; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
         match &attr.oratype {
             &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
@@ -423,7 +424,7 @@ impl Object {
     /// Sets the value to the specified attribute.
     pub fn set(&mut self, name: &str, value: &dyn ToSql) -> Result<()> {
         let attrtype = self.type_attr(name)?;
-        let mut data = Default::default();
+        let mut data = unsafe { mem::zeroed() };
         let mut sql_value = SqlValue::from_oratype(self.ctxt, &attrtype.oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
@@ -668,8 +669,9 @@ pub struct ObjectTypeAttr {
 
 impl ObjectTypeAttr {
     fn new(ctxt: &'static Context, handle: DpiObjectAttr) -> Result<ObjectTypeAttr> {
-        let mut info = Default::default();
-        chkerr!(ctxt, dpiObjectAttr_getInfo(handle.raw(), &mut info));
+        let mut info = MaybeUninit::uninit();
+        chkerr!(ctxt, dpiObjectAttr_getInfo(handle.raw(), info.as_mut_ptr()));
+        let info = unsafe { info.assume_init() };
         Ok(ObjectTypeAttr {
             ctxt: ctxt,
             handle: handle,
@@ -730,8 +732,9 @@ impl ObjectTypeInternal {
         ctxt: &'static Context,
         handle: DpiObjectType,
     ) -> Result<ObjectTypeInternal> {
-        let mut info = Default::default();
-        chkerr!(ctxt, dpiObjectType_getInfo(handle.raw(), &mut info));
+        let mut info = MaybeUninit::uninit();
+        chkerr!(ctxt, dpiObjectType_getInfo(handle.raw(), info.as_mut_ptr()));
+        let info = unsafe { info.assume_init() };
         let (elem_oratype, attrs) = if info.isCollection != 0 {
             match OracleType::from_type_info(ctxt, &info.elementTypeInfo) {
                 Ok(oratype) => (Some(oratype), Vec::new()),

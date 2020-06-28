@@ -14,6 +14,7 @@
 //-----------------------------------------------------------------------------
 
 use std::fmt;
+use std::mem::MaybeUninit;
 
 use crate::binding::*;
 use crate::chkerr;
@@ -73,9 +74,12 @@ impl Version {
     /// ```
     pub fn client() -> Result<Version> {
         let ctx = Context::get()?;
-        let mut dpi_ver = Default::default();
-        chkerr!(ctx, dpiContext_getClientVersion(ctx.context, &mut dpi_ver));
-        Ok(Version::new_from_dpi_ver(dpi_ver))
+        let mut ver = MaybeUninit::uninit();
+        chkerr!(
+            ctx,
+            dpiContext_getClientVersion(ctx.context, ver.as_mut_ptr())
+        );
+        Ok(Version::new_from_dpi_ver(unsafe { ver.assume_init() }))
     }
 
     pub(crate) fn new_from_dpi_ver(ver: dpiVersionInfo) -> Version {
