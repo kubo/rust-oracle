@@ -26,7 +26,6 @@ use std::mem::MaybeUninit;
 use std::num;
 use std::str;
 use std::sync;
-use try_from;
 
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {
@@ -275,8 +274,8 @@ impl From<num::ParseFloatError> for Error {
     }
 }
 
-impl From<try_from::TryFromIntError> for Error {
-    fn from(err: try_from::TryFromIntError) -> Self {
+impl From<num::TryFromIntError> for Error {
+    fn from(err: num::TryFromIntError) -> Self {
         Error::ParseError(Box::new(err))
     }
 }

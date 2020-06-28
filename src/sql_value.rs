@@ -14,11 +14,11 @@
 //-----------------------------------------------------------------------------
 
 use std::cell::RefCell;
+use std::convert::TryInto;
 use std::fmt;
 use std::ptr;
 use std::rc::Rc;
 use std::str;
-use try_from::TryInto;
 
 use crate::binding::*;
 use crate::chkerr;
