@@ -1,10 +1,14 @@
 # Change Log
 
-## 0.3.2 (2019-11-14)
+## 0.3.3 (2020-10-25)
 
 Changes:
 
-Fixed bugs:
+* Add new methods [`Connection.call_timeout()`][] and [`Connection.set_call_timeout()`][]
+
+## 0.3.2 (2019-11-14)
+
+Changes:
 
 * Fix SEGV while getting Object type's FLOAT data type attributes. ([GH-19][])
 
@@ -263,6 +267,7 @@ Incompatible changes:
 [GH-19]: https://github.com/kubo/rust-oracle/issues/19
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
+[`Connection.call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.call_timeout
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
 [`Connection.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute_named
 [`Connection.object_type()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.object_type
@@ -276,6 +281,7 @@ Incompatible changes:
 [`Connection.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as
 [`Connection.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as_named
 [`Connection.status()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.status
+[`Connection.set_call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.set_call_timeout
 [`Connection.tag()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.tag
 [`ConnParam`]: https://docs.rs/oracle/0.2.*/oracle/enum.ConnParam.html
 [`ConnStatus`]: https://docs.rs/oracle/*/oracle/enum.ConnStatus.html
