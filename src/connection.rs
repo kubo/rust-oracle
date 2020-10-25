@@ -19,6 +19,7 @@ use std::mem;
 use std::ptr;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::Duration;
 
 use crate::binding::*;
 use crate::chkerr;
@@ -30,6 +31,7 @@ use crate::sql_type::ToSql;
 use crate::to_odpi_str;
 use crate::to_rust_slice;
 use crate::to_rust_str;
+use crate::util::duration_to_msecs;
 use crate::AssertSend;
 use crate::AssertSync;
 use crate::Context;
@@ -983,6 +985,73 @@ impl Connection {
     /// Sets the statement cache size
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
         chkerr!(self.ctxt, dpiConn_setStmtCacheSize(self.handle.raw(), size));
+        Ok(())
+    }
+
+    /// Gets the current call timeout used for round-trips to
+    /// the database made with this connection. `None` means that no timeouts
+    /// will take place.
+    pub fn call_timeout(&self) -> Result<Option<Duration>> {
+        let mut value = 0;
+        chkerr!(
+            self.ctxt,
+            dpiConn_getCallTimeout(self.handle.raw(), &mut value)
+        );
+        if value != 0 {
+            Ok(Some(Duration::from_millis(value.into())))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Sets the call timeout to be used for round-trips to the
+    /// database made with this connection. None means that no timeouts
+    /// will take place.
+    ///
+    /// The call timeout value applies to each database round-trip
+    /// individually, not to the sum of all round-trips. Time spent
+    /// processing in rust-oracle before or after the completion of each
+    /// round-trip is not counted.
+    ///
+    /// - If the time from the start of any one round-trip to the
+    ///   completion of that same round-trip exceeds call timeout,
+    ///   then the operation is halted and an exception occurs.
+    ///
+    /// - In the case where an rust-oracle operation requires more than one
+    ///   round-trip and each round-trip takes less than call timeout,
+    ///   then no timeout will occur, even if the sum of all round-trip
+    ///   calls exceeds call timeout.
+    ///
+    /// - If no round-trip is required, the operation will never be
+    ///   interrupted.
+    ///
+    /// After a timeout is triggered, rust-oracle attempts to clean up the
+    /// internal connection state. The cleanup is allowed to take another
+    /// `duration`.
+    ///
+    /// If the cleanup was successful, an exception DPI-1067 will be
+    /// raised but the application can continue to use the connection.
+    ///
+    /// For small values of call timeout, the connection cleanup may not
+    /// complete successfully within the additional call timeout
+    /// period. In this case an exception ORA-3114 is raised and the
+    /// connection will no longer be usable. It should be closed.
+    pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
+        if let Some(dur) = dur {
+            let msecs = duration_to_msecs(dur).ok_or(Error::OutOfRange(format!(
+                "Too large duration {:?}. It must be less than 49.7 days",
+                dur
+            )))?;
+            if msecs == 0 {
+                return Err(Error::OutOfRange(format!(
+                    "Too short duration {:?}. It must not be submilliseconds",
+                    dur
+                )));
+            }
+            chkerr!(self.ctxt, dpiConn_setCallTimeout(self.handle.raw(), msecs));
+        } else {
+            chkerr!(self.ctxt, dpiConn_setCallTimeout(self.handle.raw(), 0));
+        }
         Ok(())
     }
 
