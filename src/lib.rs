@@ -390,10 +390,6 @@ define_dpi_data_with_refcount!(ObjectAttr);
 
 struct Context {
     pub context: *mut dpiContext,
-    pub common_create_params: dpiCommonCreateParams,
-    pub conn_create_params: dpiConnCreateParams,
-    pub pool_create_params: dpiPoolCreateParams,
-    pub subscr_create_params: dpiSubscrCreateParams,
 }
 
 unsafe impl Sync for Context {}
@@ -424,33 +420,7 @@ lazy_static! {
             )
         } == DPI_SUCCESS as i32
         {
-            let mut common_create_params = MaybeUninit::uninit();
-            let mut conn_create_params = MaybeUninit::uninit();
-            let mut pool_create_params = MaybeUninit::uninit();
-            let mut subscr_create_params = MaybeUninit::uninit();
-            let utf8_ptr = "UTF-8\0".as_ptr() as *const c_char;
-            let driver_name = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
-            let driver_name_ptr = driver_name.as_ptr() as *const c_char;
-            let driver_name_len = driver_name.len() as u32;
-            unsafe {
-                dpiContext_initCommonCreateParams(ctxt, common_create_params.as_mut_ptr());
-                dpiContext_initConnCreateParams(ctxt, conn_create_params.as_mut_ptr());
-                dpiContext_initPoolCreateParams(ctxt, pool_create_params.as_mut_ptr());
-                dpiContext_initSubscrCreateParams(ctxt, subscr_create_params.as_mut_ptr());
-            }
-            let mut ctxt = Context {
-                context: ctxt,
-                common_create_params: unsafe { common_create_params.assume_init() },
-                conn_create_params: unsafe { conn_create_params.assume_init() },
-                pool_create_params: unsafe { pool_create_params.assume_init() },
-                subscr_create_params: unsafe { subscr_create_params.assume_init() },
-            };
-            ctxt.common_create_params.createMode |= DPI_MODE_CREATE_THREADED;
-            ctxt.common_create_params.encoding = utf8_ptr;
-            ctxt.common_create_params.nencoding = utf8_ptr;
-            ctxt.common_create_params.driverName = driver_name_ptr;
-            ctxt.common_create_params.driverNameLength = driver_name_len;
-            ContextResult::Ok(ctxt)
+            ContextResult::Ok(Context { context: ctxt })
         } else {
             ContextResult::Err(unsafe { err.assume_init() })
         }
@@ -462,6 +432,26 @@ impl Context {
         match *DPI_CONTEXT {
             ContextResult::Ok(ref ctxt) => Ok(ctxt),
             ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
+        }
+    }
+
+    pub fn common_create_params(&self) -> dpiCommonCreateParams {
+        let mut params = MaybeUninit::uninit();
+        unsafe {
+            dpiContext_initCommonCreateParams(self.context, params.as_mut_ptr());
+            let mut params = params.assume_init();
+            let driver_name: &'static str = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
+            params.createMode |= DPI_MODE_CREATE_THREADED;
+            params.driverName = driver_name.as_ptr() as *const c_char;
+            params.driverNameLength = driver_name.len() as u32;
+            params
+        }
+    }
+    pub fn conn_create_params(&self) -> dpiConnCreateParams {
+        let mut params = MaybeUninit::uninit();
+        unsafe {
+            dpiContext_initConnCreateParams(self.context, params.as_mut_ptr());
+            params.assume_init()
         }
     }
 }

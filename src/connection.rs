@@ -382,8 +382,8 @@ impl Connector {
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
-        let mut common_params = ctxt.common_create_params;
-        let mut conn_params = ctxt.conn_create_params;
+        let mut common_params = ctxt.common_create_params();
+        let mut conn_params = ctxt.conn_create_params();
 
         if let Some(ref privilege) = self.privilege {
             conn_params.authMode |= match privilege {
@@ -518,8 +518,8 @@ impl Connection {
         conn_params: Option<dpiConnCreateParams>,
     ) -> Result<Connection> {
         let ctxt = Context::get()?;
-        let common_params = common_params.unwrap_or(ctxt.common_create_params);
-        let mut conn_params = conn_params.unwrap_or(ctxt.conn_create_params);
+        let common_params = common_params.unwrap_or(ctxt.common_create_params());
+        let mut conn_params = conn_params.unwrap_or(ctxt.conn_create_params());
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
