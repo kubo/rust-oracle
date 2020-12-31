@@ -1,7 +1,7 @@
 # Rust-oracle
 |[master](https://github.com/kubo/rust-oracle/tree/master)|[0.2.x](https://github.com/kubo/rust-oracle/tree/0.2.x)|
 |---|---|
-|[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=master)](https://travis-ci.org/kubo/rust-oracle/branches)|[![Build Status](https://travis-ci.org/kubo/rust-oracle.svg?branch=0.2.x)](https://travis-ci.org/kubo/rust-oracle/branches)|
+|[![Build Status](https://travis-ci.com/kubo/rust-oracle.svg?branch=master)](https://travis-ci.com/kubo/rust-oracle/branches)|[![Build Status](https://travis-ci.com/kubo/rust-oracle.svg?branch=0.2.x)](https://travis-ci.com/kubo/rust-oracle/branches)|
 
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
