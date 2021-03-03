@@ -851,7 +851,7 @@ impl Connection {
         Ok(())
     }
 
-    #[doc(hide)]
+    #[doc(hidden)]
     pub fn object_type_cache_len(&self) -> usize {
         self.objtype_cache.lock().unwrap().len()
     }
