@@ -12,9 +12,7 @@ fn main() {
 
     cc::Build::new()
         .file("odpi/embed/dpi.c")
-        .file("odpi-ext/dpi-ext.c")
         .include("odpi/include")
-        .include("odpi/src")
         .flag_if_supported("-Wno-unused-parameter")
         .compile("libodpic.a");
 }

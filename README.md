@@ -15,11 +15,6 @@ incompatibilities between 0.2.x and 0.3.x. They were introduced to follow
 Rust way. Some parameters were removed and builder data types were added
 instead. Some types were moved to a submodule `sql_type`.
 
-Rust-oracle 0.4.x will include breaking changes about [query methods](https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md).
-The query methods with `as` may be renamed to and merged into methods
-without `as`. The `params` argument of `Connection.prepare` will be
-replaced with some kind of the builder pattern.
-
 ## Change Log
 
 See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md).

@@ -288,6 +288,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 */
 
 use lazy_static::lazy_static;
+use std::mem;
 use std::os::raw::c_char;
 use std::ptr;
 use std::result;
@@ -420,9 +421,10 @@ lazy_static! {
         };
         let mut err: dpiErrorInfo = Default::default();
         if unsafe {
-            dpiContext_create(
+            dpiContext_createWithParams(
                 DPI_MAJOR_VERSION,
                 DPI_MINOR_VERSION,
+                ptr::null_mut(),
                 &mut ctxt.context,
                 &mut err,
             )
@@ -517,64 +519,19 @@ impl Default for dpiData {
 
 impl Default for dpiPoolCreateParams {
     fn default() -> dpiPoolCreateParams {
-        dpiPoolCreateParams {
-            minSessions: 0,
-            maxSessions: 0,
-            sessionIncrement: 0,
-            pingInterval: 0,
-            pingTimeout: 0,
-            homogeneous: 0,
-            externalAuth: 0,
-            getMode: 0,
-            outPoolName: ptr::null(),
-            outPoolNameLength: 0,
-            timeout: 0,
-            waitTimeout: 0,
-            maxLifetimeSession: 0,
-            plsqlFixupCallback: ptr::null(),
-            plsqlFixupCallbackLength: 0,
-        }
+        unsafe { mem::zeroed() }
     }
 }
 
 impl Default for dpiSubscrCreateParams {
     fn default() -> dpiSubscrCreateParams {
-        dpiSubscrCreateParams {
-            subscrNamespace: 0,
-            protocol: 0,
-            qos: 0,
-            operations: 0,
-            portNumber: 0,
-            timeout: 0,
-            name: ptr::null(),
-            nameLength: 0,
-            callback: None,
-            callbackContext: ptr::null_mut(),
-            recipientName: ptr::null(),
-            recipientNameLength: 0,
-            ipAddress: ptr::null_mut(),
-            ipAddressLength: 0,
-            groupingClass: 0,
-            groupingValue: 0,
-            groupingType: 0,
-            outRegId: 0,
-        }
+        unsafe { mem::zeroed() }
     }
 }
 
 impl Default for dpiErrorInfo {
     fn default() -> dpiErrorInfo {
-        dpiErrorInfo {
-            code: 0,
-            offset: 0,
-            message: ptr::null(),
-            messageLength: 0,
-            encoding: ptr::null(),
-            fnName: ptr::null(),
-            action: ptr::null(),
-            sqlState: ptr::null(),
-            isRecoverable: 0,
-        }
+        unsafe { mem::zeroed() }
     }
 }
 

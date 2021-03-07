@@ -15,6 +15,7 @@
 
 use std::cell::RefCell;
 use std::fmt;
+use std::mem::{self, MaybeUninit};
 use std::ptr;
 use std::rc::Rc;
 
@@ -35,6 +36,8 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::SqlValue;
+
+const OCI_ATTR_SQLFNCODE: u32 = 10;
 
 // https://docs.oracle.com/en/database/oracle/oracle-database/19/lnoci/handle-and-descriptor-attributes.html#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
@@ -479,11 +482,13 @@ impl<'conn> Statement<'conn> {
             dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns)
         );
         if self.is_ddl() {
-            let mut fncode = 0;
+            let mut buf = MaybeUninit::uninit();
+            let mut len = mem::size_of::<u16>() as u32;
             chkerr!(
                 self.conn.ctxt,
-                dpi_ext_dpiStmt_getFnCode(self.handle, &mut fncode)
+                dpiStmt_getOciAttr(self.handle, OCI_ATTR_SQLFNCODE, buf.as_mut_ptr(), &mut len,)
             );
+            let fncode = unsafe { buf.assume_init().asUint16 };
             match fncode {
                 SQLFNCODE_CREATE_TYPE | SQLFNCODE_ALTER_TYPE | SQLFNCODE_DROP_TYPE => {
                     self.conn.clear_object_type_cache()?

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-$HOME/.cargo/bin/bindgen odpi-ext/dpi-ext.h -o src/binding.rs \
+$HOME/.cargo/bin/bindgen odpi/include/dpi.h -o src/binding.rs \
   --distrust-clang-mangling \
   --whitelist-type "^dpi.*" \
   --whitelist-function "^dpi.*" \

@@ -229,9 +229,9 @@ fn pkg_testrecords_udt_record() {
     assert_eq!(objtype.name(), "UDT_RECORD");
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
-    assert_eq!(objtype.num_attributes(), 5);
+    assert_eq!(objtype.num_attributes(), 7);
     let attrs = objtype.attributes();
-    assert_eq!(attrs.len(), 5);
+    assert_eq!(attrs.len(), 7);
 
     assert_eq!(attrs[0].name(), "NUMBERVALUE");
     assert_eq!(attrs[0].oracle_type(), &OracleType::Number(0, -127));
@@ -247,6 +247,12 @@ fn pkg_testrecords_udt_record() {
 
     assert_eq!(attrs[4].name(), "BOOLEANVALUE");
     assert_eq!(attrs[4].oracle_type(), &OracleType::Boolean);
+
+    assert_eq!(attrs[5].name(), "PLSINTEGERVALUE");
+    assert_eq!(attrs[5].oracle_type(), &OracleType::Int64);
+
+    assert_eq!(attrs[6].name(), "BINARYINTEGERVALUE");
+    assert_eq!(attrs[6].oracle_type(), &OracleType::Int64);
 }
 
 #[test]

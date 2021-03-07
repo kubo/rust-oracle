@@ -126,7 +126,7 @@ impl error::Error for ParseOracleTypeError {
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct DbError {
     code: i32,
-    offset: u16,
+    offset: u32,
     message: String,
     fn_name: String,
     action: String,
@@ -135,7 +135,7 @@ pub struct DbError {
 impl DbError {
     pub fn new(
         code: i32,
-        offset: u16,
+        offset: u32,
         message: String,
         fn_name: String,
         action: String,
@@ -155,7 +155,7 @@ impl DbError {
     }
 
     /// ? (used for Batch Errors?)
-    pub fn offset(&self) -> u16 {
+    pub fn offset(&self) -> u32 {
         self.offset
     }
 
