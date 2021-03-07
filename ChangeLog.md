@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.4.0 (2021-03-07)
+
+Changes:
+
+* Based on ODPI-C 4.1.0
+* The return value of [`DbError.offset()`][] was changed from u16 to u32.
+
 ## 0.3.3 (2020-10-25)
 
 Changes:
@@ -288,6 +295,7 @@ Incompatible changes:
 [`DbError.action()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.action
 [`DbError.fn_name()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.fn_name
 [`DbError.message()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.message
+[`DbError.offset()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.offset
 [`Error::NoDataFound`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
 [`ObjectType.attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
