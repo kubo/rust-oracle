@@ -34,6 +34,7 @@ use crate::to_rust_str;
 use crate::util::duration_to_msecs;
 use crate::AssertSend;
 use crate::AssertSync;
+use crate::BatchBuilder;
 use crate::Context;
 use crate::DpiConn;
 use crate::DpiObjectType;
@@ -45,6 +46,9 @@ use crate::RowValue;
 use crate::Statement;
 use crate::StmtParam;
 use crate::Version;
+
+#[allow(unused_imports)] // for links in doc comments
+use crate::Batch;
 
 const OCI_HTYPE_SERVER: u32 = 8;
 const OCI_ATTR_SERVER_STATUS: u32 = 143;
@@ -611,6 +615,17 @@ impl Connection {
     ///
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::new(self, sql, params)
+    }
+
+    /// Creates [BatchBuilder][]
+    ///
+    /// Seee [`Batch`].
+    pub fn batch<'conn, 'sql>(
+        &'conn self,
+        sql: &'sql str,
+        max_batch_size: usize,
+    ) -> BatchBuilder<'conn, 'sql> {
+        BatchBuilder::new(self, sql, max_batch_size)
     }
 
     /// Executes a select statement and returns a result set containing [Row][]s.

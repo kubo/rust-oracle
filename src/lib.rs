@@ -294,6 +294,7 @@ use std::ptr;
 use std::result;
 use std::slice;
 
+mod batch;
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -308,6 +309,8 @@ mod statement;
 mod util;
 mod version;
 
+pub use crate::batch::Batch;
+pub use crate::batch::BatchBuilder;
 pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
 pub use crate::connection::Connector;
@@ -514,4 +517,35 @@ mod private {
 
     impl Sealed for usize {}
     impl<'a> Sealed for &'a str {}
+}
+
+#[allow(dead_code)]
+#[doc(hidden)]
+// #[cfg(doctest)] isn't usable here. See: https://github.com/rust-lang/rust/issues/67295
+pub mod test_util {
+    use super::*;
+    use std::env;
+
+    fn env_var_or(env_name: &str, default: &str) -> String {
+        match env::var_os(env_name) {
+            Some(env_var) => env_var.into_string().unwrap(),
+            None => String::from(default),
+        }
+    }
+
+    pub fn main_user() -> String {
+        env_var_or("ODPIC_TEST_MAIN_USER", "odpic")
+    }
+
+    pub fn main_password() -> String {
+        env_var_or("ODPIC_TEST_MAIN_PASSWORD", "welcome")
+    }
+
+    pub fn connect_string() -> String {
+        env_var_or("ODPIC_TEST_CONNECT_STRING", "localhost/orclpdb")
+    }
+
+    pub fn connect() -> Result<Connection> {
+        Connection::connect(&main_user(), &main_password(), &connect_string())
+    }
 }

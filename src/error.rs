@@ -78,6 +78,8 @@ pub enum Error {
     /// Error when no more rows exist in the SQL.
     NoDataFound,
 
+    BatchErrors(Vec<DbError>),
+
     /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError(String),
 }
@@ -198,6 +200,13 @@ impl fmt::Display for Error {
             Error::InvalidOperation(ref msg) => write!(f, "invalid operation: {}", msg),
             Error::UninitializedBindValue => write!(f, "Try to access uninitialized bind value"),
             Error::NoDataFound => write!(f, "No data found"),
+            Error::BatchErrors(ref errs) => {
+                write!(f, "Batch Error (")?;
+                for err in errs {
+                    write!(f, "{}, ", err)?;
+                }
+                write!(f, ")")
+            }
             Error::InternalError(ref msg) => write!(f, "Internal Error: {}", msg),
         }
     }
@@ -222,6 +231,13 @@ impl fmt::Debug for Error {
             Error::InvalidOperation(ref msg) => write!(f, "InvalidOperation({:?})", msg),
             Error::UninitializedBindValue => write!(f, "UninitializedBindValue"),
             Error::NoDataFound => write!(f, "NoDataFound"),
+            Error::BatchErrors(ref errs) => {
+                write!(f, "BatchErrors(")?;
+                for err in errs {
+                    write!(f, "{:?}, ", err)?;
+                }
+                write!(f, ")")
+            }
             Error::InternalError(ref msg) => write!(f, "InternalError({:?})", msg),
         }
     }
@@ -244,6 +260,7 @@ impl error::Error for Error {
             Error::InvalidOperation(_) => "invalid operation",
             Error::UninitializedBindValue => "uninitialided bind value error",
             Error::NoDataFound => "no data found",
+            Error::BatchErrors(_) => "batch errors",
             Error::InternalError(_) => "internal error",
         }
     }
@@ -253,6 +270,12 @@ impl error::Error for Error {
             Error::ParseError(ref err) => Some(err.as_ref()),
             _ => None,
         }
+    }
+}
+
+impl fmt::Display for DbError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
     }
 }
 
@@ -296,8 +319,8 @@ impl<T> From<sync::PoisonError<T>> for Error {
 // functions to check errors
 //
 
-pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
-    let err = DbError::new(
+pub fn dberror_from_dpi_error(err: &dpiErrorInfo) -> DbError {
+    DbError::new(
         err.code,
         err.offset,
         to_rust_str(err.message, err.messageLength),
@@ -307,7 +330,11 @@ pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
         unsafe { CStr::from_ptr(err.action) }
             .to_string_lossy()
             .into_owned(),
-    );
+    )
+}
+
+pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
+    let err = dberror_from_dpi_error(err);
     if err.message().starts_with("DPI") {
         Error::DpiError(err)
     } else {
