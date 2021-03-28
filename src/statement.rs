@@ -39,7 +39,7 @@ use crate::SqlValue;
 
 const OCI_ATTR_SQLFNCODE: u32 = 10;
 
-// https://docs.oracle.com/en/database/oracle/oracle-database/19/lnoci/handle-and-descriptor-attributes.html#GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
+// https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
 const SQLFNCODE_ALTER_TYPE: u16 = 80;
 const SQLFNCODE_DROP_TYPE: u16 = 78;
@@ -66,7 +66,7 @@ pub enum StmtParam {
     Scrollable,
 }
 
-/// Statement type returned by [Statement.statement_type()](struct.Statement.html#method.statement_type).
+/// Statement type returned by [`Statement.statement_type`](Statement#method.statement_type).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StatementType {
     /// SELECT statement
@@ -83,7 +83,7 @@ pub enum StatementType {
 
     /// [MERGE][] statement
     ///
-    /// [MERGE]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/MERGE.html
+    /// [MERGE]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5692CCB7-24D9-4C0E-81A7-A22436DC968F
     Merge,
 
     /// CREATE statement
@@ -109,12 +109,12 @@ pub enum StatementType {
 
     /// [EXPLAIN PLAN][] statement
     ///
-    /// [EXPLAIN PLAN]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/EXPLAIN-PLAN.html
+    /// [EXPLAIN PLAN]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-FD540872-4ED3-4936-96A2-362539931BA0
     ExplainPlan,
 
     /// [CALL][] statement
     ///
-    /// [CALL]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/CALL.html
+    /// [CALL]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-6CD7B9C4-E5DC-4F3C-9B6A-876AD2C63545
     Call,
 
     /// Unknown statement
@@ -276,33 +276,30 @@ impl<'conn> Statement<'conn> {
         Ok(())
     }
 
-    /// Executes the prepared statement and returns a result set containing [Row][]s.
+    /// Executes the prepared statement and returns a result set containing [`Row`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&mut self, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
         Ok(ResultSet::<Row>::new(self))
     }
 
-    /// Executes the prepared statement using named parameters and returns a result set containing [Row][]s.
+    /// Executes the prepared statement using named parameters and returns a result set containing [`Row`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
         Ok(ResultSet::<Row>::new(self))
     }
 
-    /// Executes the prepared statement and returns a result set containing [RowValue][]s.
+    /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as<'a, T>(&'a mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
     where
@@ -312,11 +309,10 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(self))
     }
 
-    /// Executes the prepared statement using named parameters and returns a result set containing [RowValue][]s.
+    /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as_named<'a, T>(
         &'a mut self,
@@ -378,7 +374,7 @@ impl<'conn> Statement<'conn> {
     /// Binds values by position and executes the statement.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
-    /// See also [Connection.execute](struct.Connection.html#method.execute).
+    /// See also [`Connection.execute`](Connection#method.execute).
     ///
     /// # Examples
     ///
@@ -404,7 +400,7 @@ impl<'conn> Statement<'conn> {
     /// Binds values by name and executes the statement.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
-    /// See also [Connection.execute_named](struct.Connection.html#method.execute_named).
+    /// See also [Connection.execute_named](Connection#method.execute_named).
     ///
     /// # Examples
     ///

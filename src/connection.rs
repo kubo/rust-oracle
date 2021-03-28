@@ -57,7 +57,7 @@ const OCI_SERVER_NORMAL: u32 = 1;
 
 /// Database startup mode
 ///
-/// See [Connection.startup_database](struct.Connection.html#method.startup_database).
+/// See [`Connection.startup_database`](Connection#method.startup_database).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StartupMode {
     /// Shuts down a running instance (if there is any) using ABORT before
@@ -71,7 +71,7 @@ pub enum StartupMode {
 
 /// Database shutdown mode
 ///
-/// See [Connection.shutdown_database](struct.Connection.html#method.shutdown_database).
+/// See [`Connection.shutdown_database`](Connection#method.shutdown_database).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ShutdownMode {
     /// Further connects are prohibited. Waits for users to disconnect from
@@ -100,40 +100,40 @@ pub enum ShutdownMode {
     Abort,
 
     /// Shuts down the database. Should be used only in the second call
-    /// to [shutdown_database](struct.Connection.html#method.shutdown_database) after the database is closed and dismounted.
+    /// to [`shutdown_database`](Connection#method.shutdown_database) after the database is closed and dismounted.
     Final,
 }
 
-/// [Administrative privilege](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-633842B8-4B19-4F96-A757-783BF62825A7)
+/// [Administrative privilege](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-633842B8-4B19-4F96-A757-783BF62825A7)
 ///
 /// See [Connector.privilege](struct.Connector.html#method.privilege).
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Privilege {
-    /// Connects as [SYSDBA](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
+    /// Connects as [SYSDBA](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
     ///
     Sysdba,
 
-    /// Connects as [SYSOPER](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
+    /// Connects as [SYSOPER](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
     Sysoper,
 
-    /// Connects as [SYSASM](https://docs.oracle.com/en/database/oracle/oracle-database/19/ostmg/authenticate-access-asm-instance.html#GUID-7396FD18-628B-4026-AA55-79C6D6205EAE) (Oracle 12c or later)
+    /// Connects as [SYSASM](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-7396FD18-628B-4026-AA55-79C6D6205EAE) (Oracle 12c or later)
     Sysasm,
 
-    /// Connects as [SYSBACKUP](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-BF12E37F-4606-42BB-B8B6-4CDC5A870EE7)
+    /// Connects as [SYSBACKUP](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BF12E37F-4606-42BB-B8B6-4CDC5A870EE7)
     Sysbackup,
 
-    /// Connects as [SYSDG](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
+    /// Connects as [SYSDG](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5798F976-85B2-4973-92F7-DB3F6BC9D497) (Oracle 12c or later)
     Sysdg,
 
-    /// Connects as [SYSKM](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
+    /// Connects as [SYSKM](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-573B5831-E106-4D8C-9101-CF9C1B74A39C) (Oracle 12c or later)
     Syskm,
 
-    /// Connects as [SYSRAC](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
+    /// Connects as [SYSRAC](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
     Sysrac,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-/// [Session Purity](https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/performance-and-scalability.html#GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
+/// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
 pub enum Purity {
     /// Must use a new session
     New,
@@ -144,18 +144,18 @@ pub enum Purity {
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Connection status
 pub enum ConnStatus {
-    /// The connection is alive. See [Connection.status](struct.Connection.html#method.status) for details.
+    /// The connection is alive. See [`Connection.status`](Connection#method.status) for details.
     Normal,
-    /// The connection has been terminated. See [Connection.status](struct.Connection.html#method.status) for details.
+    /// The connection has been terminated. See [`Connection.status`](Connection#method.status) for details.
     NotConnected,
-    /// The connection has been closed by [Connection.close](struct.Connection.html#method.close)
+    /// The connection has been closed by [`Connection.close`](Connection#method.close)
     Closed,
 }
 
 /// Builder data type to create Connection.
 ///
 /// When a connection can be established only with username, password
-/// and connect string, use [Connection.connect] instead.
+/// and connect string, use [`Connection.connect`] instead.
 ///
 /// [Connection.connect]: struct.Connection.html#method.connect
 #[derive(Debug, Clone, PartialEq)]
@@ -204,7 +204,7 @@ impl Connector {
         }
     }
 
-    /// Set [administrative privilege](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-privilege-and-role-authorization.html#GUID-633842B8-4B19-4F96-A757-783BF62825A7).
+    /// Set [administrative privilege](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-633842B8-4B19-4F96-A757-783BF62825A7).
     ///
     /// # Examples
     ///
@@ -233,7 +233,7 @@ impl Connector {
     /// # Ok(())} fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [OS authentication]: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-authentication.html#GUID-37BECE32-58D5-43BF-A098-97936D66968F
+    /// [OS authentication]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-37BECE32-58D5-43BF-A098-97936D66968F
     pub fn external_auth(&mut self, b: bool) -> &mut Connector {
         self.external_auth = b;
         self
@@ -282,7 +282,7 @@ impl Connector {
 
     /// Sets session purity specifying whether an application can reuse a pooled session (`Purity::Self_`) or must use a new session (`Purity::New`) from [DRCP][] pooled sessions.
     ///
-    /// [DRCP]: https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/performance-and-scalability.html#GUID-015CA8C1-2386-4626-855D-CC546DDC1086
+    /// [DRCP]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-015CA8C1-2386-4626-855D-CC546DDC1086
     pub fn purity(&mut self, purity: Purity) -> &mut Connector {
         self.purity = Some(purity);
         self
@@ -292,8 +292,8 @@ impl Connector {
     ///
     /// See [here][] for more detail.
     ///
-    /// [DRCP]: https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/performance-and-scalability.html#GUID-015CA8C1-2386-4626-855D-CC546DDC1086
-    /// [here]: https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/performance-and-scalability.html#GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37
+    /// [DRCP]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-015CA8C1-2386-4626-855D-CC546DDC1086
+    /// [here]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37
     pub fn connection_class<S>(&mut self, connection_class: S) -> &mut Connector
     where
         S: Into<String>,
@@ -304,11 +304,11 @@ impl Connector {
 
     /// Appends an application context.
     ///
-    /// See [Oracle manual](https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/using-application-contexts-to-retrieve-user-information.html#GUID-5841261E-988F-4A56-A2B4-71114AB3D51D)
+    /// See [Oracle manual](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5841261E-988F-4A56-A2B4-71114AB3D51D)
     ///
     /// This is same with [DBMS_SESSION.SET_CONTEXT][] but this can set application contexts before a connection is established.
     ///
-    /// [DBMS_SESSION.SET_CONTEXT]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_SESSION.html#GUID-395C622C-ED79-44CC-9157-6A320934F2A9
+    /// [DBMS_SESSION.SET_CONTEXT]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-395C622C-ED79-44CC-9157-6A320934F2A9
     ///
     /// # Examples
     ///
@@ -359,7 +359,7 @@ impl Connector {
 
     /// Specifies edition of [Edition-Based Redefinition][].
     ///
-    /// [Edition-Based Redefinition]: https://docs.oracle.com/en/database/oracle/oracle-database/19/adfns/editions.html#GUID-58DE05A0-5DEF-4791-8FA8-F04D11964906
+    /// [Edition-Based Redefinition]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-58DE05A0-5DEF-4791-8FA8-F04D11964906
     pub fn edition<S>(&mut self, edition: S) -> &mut Connector
     where
         S: Into<String>,
@@ -374,7 +374,7 @@ impl Connector {
     /// chracters "rust-ora" are displayed when the Oracle server version is
     /// lower than 12.0.1.2.
     ///
-    /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/V-SESSION_CONNECT_INFO.html#GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE
+    /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE
     pub fn driver_name<S>(&mut self, driver_name: S) -> &mut Connector
     where
         S: Into<String>,
@@ -628,11 +628,10 @@ impl Connection {
         BatchBuilder::new(self, sql, max_batch_size)
     }
 
-    /// Executes a select statement and returns a result set containing [Row][]s.
+    /// Executes a select statement and returns a result set containing [`Row`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
@@ -643,11 +642,10 @@ impl Connection {
         Ok(rs)
     }
 
-    /// Executes a select statement using named parameters and returns a result set containing [Row][]s.
+    /// Executes a select statement using named parameters and returns a result set containing [`Row`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [Row]: struct.Row.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
@@ -658,11 +656,10 @@ impl Connection {
         Ok(rs)
     }
 
-    /// Executes a select statement and returns a result set containing [RowValue][]s.
+    /// Executes a select statement and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as<T>(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<T>>
     where
@@ -676,11 +673,10 @@ impl Connection {
         Ok(rs)
     }
 
-    /// Executes a select statement using named parameters and returns a result set containing [RowValue][]s.
+    /// Executes a select statement using named parameters and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
     ///
-    /// [RowValue]: struct.RowValue.html
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_as_named<T>(
         &self,
@@ -1164,7 +1160,7 @@ impl Connection {
     /// without executing a statement. The module name is piggybacked
     /// to the server with the next network round-trip.
     ///
-    /// [DBMS_APPLICATION_INFO.SET_MODULE]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_APPLICATION_INFO.html#GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30
+    /// [DBMS_APPLICATION_INFO.SET_MODULE]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30
     pub fn set_module(&self, module: &str) -> Result<()> {
         let s = to_odpi_str(module);
         chkerr!(
@@ -1180,7 +1176,7 @@ impl Connection {
     /// without executing a statement. The action name is piggybacked
     /// to the server with the next network round-trip.
     ///
-    /// [DBMS_APPLICATION_INFO.SET_ACTION]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_APPLICATION_INFO.html#GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26
+    /// [DBMS_APPLICATION_INFO.SET_ACTION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26
     pub fn set_action(&self, action: &str) -> Result<()> {
         let s = to_odpi_str(action);
         chkerr!(
@@ -1196,7 +1192,7 @@ impl Connection {
     /// without executing a statement. The client info is piggybacked
     /// to the server with the next network round-trip.
     ///
-    /// [DBMS_APPLICATION_INFO.SET_CLIENT_INFO]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_APPLICATION_INFO.html#GUID-68A3DF04-BE91-46CC-8D2B-97BA0E89956F
+    /// [DBMS_APPLICATION_INFO.SET_CLIENT_INFO]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-68A3DF04-BE91-46CC-8D2B-97BA0E89956F
     pub fn set_client_info(&self, client_info: &str) -> Result<()> {
         let s = to_odpi_str(client_info);
         chkerr!(
@@ -1212,7 +1208,7 @@ impl Connection {
     /// without executing a statement. The client identifier is piggybacked
     /// to the server with the next network round-trip.
     ///
-    /// [DBMS_SESSION.SET_IDENTIFIER]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_SESSION.html#GUID-988EA930-BDFE-4205-A806-E54F05333562
+    /// [DBMS_SESSION.SET_IDENTIFIER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-988EA930-BDFE-4205-A806-E54F05333562
     pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
         let s = to_odpi_str(client_identifier);
         chkerr!(
@@ -1231,9 +1227,9 @@ impl Connection {
     ///
     /// See [Monitoring Database Operations][] in Oracle Database SQL Tuning Guide
     ///
-    /// [db_op]: https://docs.oracle.com/en/database/oracle/oracle-database/19/tgsql/glossary.html#GUID-9CE3C342-D210-4690-A7E9-5813EF9D558E
-    /// [DBMS_SQL_MONITOR.BEGIN_OPERATION]: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_SQL_MONITOR.html#GUID-25BE0E79-3A19-4303-9F66-2CFDB87C7F82
-    /// [Monitoring Database Operations]: https://docs.oracle.com/en/database/oracle/oracle-database/19/tgsql/monitoring-database-operations.html#GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF
+    /// [db_op]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-9CE3C342-D210-4690-A7E9-5813EF9D558E
+    /// [DBMS_SQL_MONITOR.BEGIN_OPERATION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-25BE0E79-3A19-4303-9F66-2CFDB87C7F82
+    /// [Monitoring Database Operations]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF
     pub fn set_db_op(&self, db_op: &str) -> Result<()> {
         let s = to_odpi_str(db_op);
         chkerr!(self.ctxt, dpiConn_setDbOp(self.handle.raw(), s.ptr, s.len));
@@ -1309,21 +1305,14 @@ impl Connection {
 
     /// Shuts down a database
     ///
-    /// When this method is called with [ShutdownMode::Default][],
-    /// [ShutdownMode::Transactional][], [ShutdownMode::TransactionalLocal][]
-    /// or [ShutdownMode::Immediate], execute "alter database close normal"
+    /// When this method is called with [`ShutdownMode::Default`],
+    /// [`ShutdownMode::Transactional`], [`ShutdownMode::TransactionalLocal`]
+    /// or [`ShutdownMode::Immediate`], execute "alter database close normal"
     /// and "alter database dismount" and call this method again with
-    /// [ShutdownMode::Final].
+    /// [`ShutdownMode::Final`].
     ///
-    /// When this method is called with [ShutdownMode::Abort][],
+    /// When this method is called with [`ShutdownMode::Abort`],
     /// the database is aborted immediately.
-    ///
-    /// [ShutdownMode::Default]: enum.ShutdownMode.html#variant.Default
-    /// [ShutdownMode::Transactional]: enum.ShutdownMode.html#variant.Transactional
-    /// [ShutdownMode::TransactionalLocal]: enum.ShutdownMode.html#variant.TransactionalLocal
-    /// [ShutdownMode::Immediate]: enum.ShutdownMode.html#variant.Immediate
-    /// [ShutdownMode::Abort]: enum.ShutdownMode.html#variant.Abort
-    /// [ShutdownMode::Final]: enum.ShutdownMode.html#variant.Final
     ///
     /// # Examples
     ///

@@ -24,7 +24,7 @@ use crate::ParseOracleTypeError;
 
 /// Oracle-specific [Datetime][] data type
 ///
-/// [Datetime]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#NLSPG-GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
+/// [Datetime]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
 ///
 /// This struct doesn't have arithmetic methods and they won't be added to avoid
 /// reinventing the wheel. If you need methods such as adding an interval to a

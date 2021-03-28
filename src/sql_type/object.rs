@@ -100,7 +100,7 @@ impl Collection {
     ///
     /// This counts also deleted elements. See "Comments" about [OCICollSize()][].
     ///
-    /// [OCICollSize()]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/lnoci/oci-collection-and-iterator-functions.html#GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
+    /// [OCICollSize()]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
     pub fn size(&self) -> Result<i32> {
         let mut size = 0;
         chkerr!(self.ctxt, dpiObject_getSize(self.handle, &mut size));
@@ -337,7 +337,7 @@ impl fmt::Debug for Collection {
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_GEOMETRY
-/// // https://docs.oracle.com/en/database/oracle/oracle-database/12.2/spatl/spatial-datatypes-metadata.html#GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
+/// // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
 /// let geom_type = conn.object_type("MDSYS.SDO_GEOMETRY")?;
 /// let point_type = conn.object_type("MDSYS.SDO_POINT_TYPE")?;
 ///

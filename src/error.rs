@@ -27,6 +27,11 @@ use std::num;
 use std::str;
 use std::sync;
 
+#[allow(unused_imports)] // for links in doc comments
+use crate::Connection;
+#[allow(unused_imports)] // for links in doc comments
+use crate::Statement;
+
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {
     /// Error from an underlying Oracle client library.
@@ -67,12 +72,9 @@ pub enum Error {
     InvalidOperation(String),
 
     /// Error when an uninitialized bind value is accessed. Bind values
-    /// must be initialized by [Statement.bind][], [Statement.execute][]
-    /// or [Connection.execute][] in advance.
-    ///
-    /// [Statement.bind]: struct.Statement.html#method.bind
-    /// [Statement.execute]: struct.Statement.html#method.execute
-    /// [Connection.execute]: struct.Connection.html#method.execute
+    /// must be initialized by [`Statement.bind`][Statement#method.bind],
+    /// [`Statement.execute`][Statement#method.execute]
+    /// or [`Connection.execute`][Connection#method.execute] in advance.
     UninitializedBindValue,
 
     /// Error when no more rows exist in the SQL.

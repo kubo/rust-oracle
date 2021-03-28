@@ -74,9 +74,7 @@ impl Row {
     ///
     /// Type inference for the return type doesn't work. You need to specify
     /// it explicitly such as `row.get_as::<(i32, String>()`.
-    /// See [RowValue][] for available return types.
-    ///
-    /// [RowValue]: trait.RowValue.html
+    /// See [`RowValue`] for available return types.
     ///
     /// ```no_run
     /// # use oracle::*; fn try_main() -> Result<()> {
@@ -190,13 +188,13 @@ where
 
 /// A trait to get a row as specified type
 ///
-/// This is the return type of [Connection.query_row_as][],
-/// [Connection.query_row_as_named][] and [Row.get_as][].
+/// This is the return type of [`Connection.query_row_as`][Connection#method.query_row_as],
+/// [`Connection.query_row_as_named`][Connection#method.query_row_as_named] and [`Row.get_as`][Row#method.get_as].
 ///
 /// The trait was added to fetch column values as a tuple.
 /// The oracle crate provides implementations for a type
-/// implementing [FromSql][] and tuples of types implementing
-/// [FromSql][]. The number of elements in a tuple should
+/// implementing [`FromSql`] and tuples of types implementing
+/// [`FromSql`]. The number of elements in a tuple should
 ///  be 1 through 50.
 ///
 /// ```no_run
@@ -247,11 +245,6 @@ where
 /// }
 /// # Ok(())} fn main() { try_main().unwrap(); }
 /// ```
-///
-/// [FromSql]: trait.FromSql.html
-/// [Connection.query_row_as]: struct.Connection.html#method.query_row_as
-/// [Connection.query_row_as_named]: struct.Connection.html#method.query_row_as_named
-/// [Row.get_as]: struct.Row.html#method.get_as
 pub trait RowValue: Sized {
     fn get(row: &Row) -> Result<Self>;
 }

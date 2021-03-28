@@ -24,7 +24,7 @@ use crate::ParseOracleTypeError;
 
 /// Oracle-specific [Interval Year to Month][INTVL_YM] data type.
 ///
-/// [INTVL_YM]: https://docs.oracle.com/database/122/NLSPG/datetime-data-types-and-time-zone-support.htm#GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
+/// [INTVL_YM]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-517CEB46-C6FA-4B94-9299-5BBB5A58CF7B
 ///
 /// # Examples
 ///
