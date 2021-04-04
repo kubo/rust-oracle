@@ -73,7 +73,7 @@ extern crate oracle;
 Executes select statements and get rows:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 
 // Connect to a database.
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
@@ -111,13 +111,13 @@ for row_result in rows {
              sal,
              comm.map_or("".to_string(), |v| v.to_string()));
 }
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 Executes select statements and get the first rows:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 use oracle::Connection;
 
 // Connect to a database.
@@ -144,13 +144,13 @@ println!(" {:14}| {:>10}    | {:>10}    |",
          row.0,
          row.1,
          row.2.map_or("".to_string(), |v| v.to_string()));
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 Executes non-select statements:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 use oracle::Connection;
 
 // Connect to a database.
@@ -178,13 +178,13 @@ conn.execute("delete from person", &[])?;
 
 // Rollback the transaction.
 conn.rollback()?;
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 Prints column information:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 use oracle::Connection;
 
 // Connect to a database.
@@ -204,13 +204,13 @@ for info in rows.column_info() {
     print!(" {:14}|", info.oracle_type().to_string());
 }
 println!("");
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 Prepared statement:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 use oracle::Connection;
 
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
@@ -221,7 +221,7 @@ let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
 stmt.execute(&[&1, &"John"])?;
 // Insert another row
 stmt.execute(&[&2, &"Smith"])?;
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 This is more efficient than two `conn.execute()`.
@@ -242,7 +242,7 @@ The territory component specifies numeric format, date format and so on.
 However it affects only conversion in Oracle. See the following example:
 
 ```no_run
-# use oracle::*; fn try_main() -> Result<()> {
+# use oracle::*;
 use oracle::Connection;
 
 // The territory is France.
@@ -256,7 +256,7 @@ assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
 // 10.1 is fetched as a number and converted to a string in rust-oracle
 let result = conn.query_row_as::<String>("select 10.1 from dual", &[])?;
 assert_eq!(result, "10.1"); // The decimal mark is always period(.).
-# Ok(())} fn main() { try_main().unwrap(); }
+# Ok::<(), Error>(())
 ```
 
 Note that NLS_LANG must be set before first rust-oracle function execution if

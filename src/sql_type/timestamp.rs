@@ -39,7 +39,7 @@ use crate::ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// // Create a timestamp.
 /// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
 ///
@@ -66,13 +66,13 @@ use crate::ParseOracleTypeError;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(ts4.precision(), 3);
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch Timestamp
@@ -91,7 +91,7 @@ use crate::ParseOracleTypeError;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
 /// assert_eq!(outval.to_string(), "2017-08-10 13:25:38.000");
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct Timestamp {

@@ -77,7 +77,7 @@ impl Row {
     /// See [`RowValue`] for available return types.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
     ///
@@ -87,7 +87,7 @@ impl Row {
     ///     let (empno, ename) = row.get_as::<(i32, String)>()?;
     ///     println!("{},{}", empno, ename);
     /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn get_as<T>(&self) -> Result<T>
     where
@@ -198,7 +198,7 @@ where
 ///  be 1 through 50.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// let sql = "select * from emp where empno = :1";
@@ -210,7 +210,7 @@ where
 /// // Gets the first two column values in a row.
 /// // Values after the third column are ignored.
 /// let tuple_of_empno_and_ename = conn.query_row_as::<(i32, String)>(sql, &[&7499])?;
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// You can implement the trait for your own types. For example
@@ -234,7 +234,6 @@ where
 ///     }
 /// }
 ///
-/// # fn try_main() -> Result<()> {
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// let mut stmt = conn.prepare("select * from emp", &[])?;
 ///
@@ -243,7 +242,7 @@ where
 ///     let emp = result?;
 ///     println!("{},{}", emp.empno, emp.ename);
 /// }
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 pub trait RowValue: Sized {
     fn get(row: &Row) -> Result<Self>;

@@ -26,7 +26,7 @@ use crate::Result;
 /// # Examples
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// let client_version = Version::client()?;
 /// let (server_version, _) = conn.server_version()?;
@@ -39,7 +39,7 @@ use crate::Result;
 /// println!("  5th part: {}", client_version.port_update());
 ///
 /// println!("Server version: {}", server_version);
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Version {
@@ -67,10 +67,10 @@ impl Version {
     /// # Examples
     ///
     /// ```
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let client_ver = Version::client()?;
     /// println!("Oracle Client Version: {}", client_ver);
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn client() -> Result<Version> {
         let ctx = Context::get()?;

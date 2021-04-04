@@ -35,7 +35,7 @@ use crate::ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 ///
 /// // Create an interval by new().
 /// let intvl1 = IntervalDS::new(1, 2, 3, 4, 500000000);
@@ -62,13 +62,13 @@ use crate::ParseOracleTypeError;
 /// // The precisions are determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.lfprec(), 1);
 /// assert_eq!(intvl4.fsprec(), 2);
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalDS
@@ -87,7 +87,7 @@ use crate::ParseOracleTypeError;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (1 day, 2 hours, 3 minutes and 4.5 seconds)
 /// assert_eq!(outval.to_string(), "2017-08-10 02:03:04.500");
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {

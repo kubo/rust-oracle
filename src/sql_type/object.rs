@@ -57,7 +57,7 @@ unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
 /// See [Oracle manual](https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm).
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
@@ -68,7 +68,7 @@ unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
 /// obj.push(&1);
 /// obj.push(&3);
 /// assert_eq!(obj.to_string(), "MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)");
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Note: Methods in the type may be changed in future.
@@ -333,7 +333,7 @@ impl fmt::Debug for Collection {
 /// Oracle-specific object data type
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_GEOMETRY
@@ -353,7 +353,7 @@ impl fmt::Debug for Collection {
 /// // Gets an attribute value.
 /// let gtype: i32 = obj.get("SDO_GTYPE")?;
 /// assert_eq!(gtype, 2001);
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Note: Methods in the type may be changed in future.
@@ -511,16 +511,16 @@ impl fmt::Debug for Object {
 /// Gets MDSYS.SDO_GEOMETRY object type information.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Gets object type infomration in query.
 ///
 /// ```no_run
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
 /// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;
@@ -530,7 +530,7 @@ impl fmt::Debug for Object {
 /// } else {
 ///     panic!("Not an object type")
 /// };
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 #[derive(Clone)]
 pub struct ObjectType {
@@ -590,13 +590,13 @@ impl ObjectType {
     /// Prints attribute information of `MDSYS.SDO_GEOMETRY`.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY")?;
     /// for attr in objtype.attributes() {
     ///     println!("{:-20} {}", attr.name(), attr.oracle_type());
     /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn attributes(&self) -> &[ObjectTypeAttr] {
         &self.internal.attrs

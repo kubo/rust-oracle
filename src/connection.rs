@@ -209,12 +209,12 @@ impl Connector {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// // connect system/manager as sysdba
     /// let conn = Connector::new("system", "manager", "")
     ///     .privilege(Privilege::Sysdba)
     ///     .connect()?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn privilege(&mut self, privilege: Privilege) -> &mut Connector {
         self.privilege = Some(privilege);
@@ -226,11 +226,11 @@ impl Connector {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connector::new("", "", "")
     ///     .external_auth(true)
     ///     .connect()?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// [OS authentication]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-37BECE32-58D5-43BF-A098-97936D66968F
@@ -259,18 +259,18 @@ impl Connector {
     /// is expired, set a new password `jaguar`.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = match Connection::connect("scott", "tiger", "") {
     ///     Ok(conn) => conn,
-    ///     Err(Error::OciError(ref dberr)) if dberr.code() == 28001 => {
+    ///     Err(Error::OciError(dberr)) if dberr.code() == 28001 => {
     ///         // ORA-28001: the password has expired
     ///         Connector::new("scott", "tiger", "")
     ///             .new_password("jaguar")
     ///             .connect()?
-    ///     },
-    ///     Err(err) => panic!(err.to_string()),
+    ///     }
+    ///     Err(err) => return Err(err),
     /// };
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn new_password<P>(&mut self, password: P) -> &mut Connector
     where
@@ -313,7 +313,7 @@ impl Connector {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connector::new("scott", "tiger", "")
     ///               .app_context("CLIENTCONTEXT", "foo", "bar")
     ///               .app_context("CLIENTCONTEXT", "baz", "qux")
@@ -322,7 +322,7 @@ impl Connector {
     /// assert_eq!(val, "bar");
     /// let val = conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'baz') from dual", &[])?;
     /// assert_eq!(val, "qux");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn app_context<T1, T2, T3>(&mut self, namespace: T1, name: T2, value: T3) -> &mut Connector
     where
@@ -486,18 +486,18 @@ impl Connection {
     /// Connect to a local database.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// Connect to a remote database specified by easy connect naming.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger",
     ///                                "server_name:1521/service_name")?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn connect<U, P, C>(username: U, password: P, connect_string: C) -> Result<Connection>
     where
@@ -567,7 +567,7 @@ impl Connection {
     /// Executes a SQL statement with different parameters.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
     ///
@@ -592,7 +592,7 @@ impl Connection {
     /// for emp in &emp_list {
     ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
     /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
@@ -601,7 +601,7 @@ impl Connection {
     /// to customize it.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
     /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
@@ -610,7 +610,7 @@ impl Connection {
     ///     let (empno, ename) = row_result?;
     ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
@@ -752,7 +752,7 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
@@ -761,7 +761,7 @@ impl Connection {
     /// // execute a statement with binding parameters by position
     /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &[&114, &"Smith"])?;
     ///
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn execute(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
@@ -777,7 +777,7 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
@@ -785,7 +785,7 @@ impl Connection {
     ///                    &[("id", &114),
     ///                      ("name", &"Smith")])?;
     ///
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn execute_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Statement> {
         let mut stmt = self.prepare(sql, &[])?;
@@ -826,10 +826,10 @@ impl Connection {
     /// Gets an object type information from name
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// Note that the object type is cached in the connection.
@@ -882,14 +882,14 @@ impl Connection {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let (version, banner) = conn.server_version()?;
     /// println!("Oracle Version: {}", version);
     /// println!("--- Version Banner ---");
     /// println!("{}", banner);
     /// println!("---------------------");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn server_version(&self) -> Result<(Version, String)> {
         let mut s = new_odpi_str();
@@ -1250,7 +1250,7 @@ impl Connection {
     /// Connect to an idle instance as sysdba and start up a database
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// // connect as sysdba with prelim_auth mode
     /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba)
@@ -1269,7 +1269,7 @@ impl Connection {
     /// // mount and open a database
     /// conn.execute("alter database mount", &[])?;
     /// conn.execute("alter database open", &[])?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// Start up a database in restricted mode
@@ -1319,7 +1319,7 @@ impl Connection {
     /// Same with `shutdown immediate` on sqlplus.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// // connect as sysdba
     /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba)
@@ -1334,13 +1334,13 @@ impl Connection {
     ///
     /// // finish shutdown
     /// conn.shutdown_database(ShutdownMode::Final)?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// Same with `shutdown abort` on sqlplus.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// // connect as sysdba
     /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba).connect()?;
@@ -1349,7 +1349,7 @@ impl Connection {
     /// conn.shutdown_database(ShutdownMode::Abort)?;
     ///
     /// // The database is aborted here.
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn shutdown_database(&self, mode: ShutdownMode) -> Result<()> {
         let mode = match mode {

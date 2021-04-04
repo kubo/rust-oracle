@@ -29,7 +29,7 @@ use crate::ParseOracleTypeError;
 /// # Examples
 ///
 /// ```
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// // Create an interval by new().
 /// let intvl1 = IntervalYM::new(2, 3);
 ///
@@ -54,13 +54,13 @@ use crate::ParseOracleTypeError;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.precision(), 3);
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Fetch and bind interval values.
 ///
 /// ```no_run
-/// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+/// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalYM
@@ -79,7 +79,7 @@ use crate::ParseOracleTypeError;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (2 years and 3 months)
 /// assert_eq!(outval.to_string(), "2019-11-09 00:00:00");
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {

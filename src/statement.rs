@@ -379,7 +379,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
@@ -391,7 +391,7 @@ impl<'conn> Statement<'conn> {
     /// stmt.execute(&[&114, &"Smith"])?;
     /// stmt.execute(&[&115, &"Paul"])?;  // execute with other values.
     ///
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn execute(&mut self, params: &[&dyn ToSql]) -> Result<()> {
         self.exec(params, false, "execute")
@@ -405,7 +405,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
@@ -414,7 +414,7 @@ impl<'conn> Statement<'conn> {
     ///                      ("name", &"Smith")])?;
     /// stmt.execute_named(&[("id", &115),
     ///                      ("name", &"Paul")])?; // execute with other values.
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn execute_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
         self.exec_named(params, false, "execute_named")
@@ -549,7 +549,7 @@ impl<'conn> Statement<'conn> {
     /// PL/SQL statements this is the count of the **unique** bind variables.
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // SQL statements
@@ -559,7 +559,7 @@ impl<'conn> Statement<'conn> {
     /// // PL/SQL statements
     /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[])?;
     /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn bind_count(&self) -> usize {
         self.bind_count
@@ -572,7 +572,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; fn try_main() -> Result<()> {
+    /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
@@ -582,7 +582,7 @@ impl<'conn> Statement<'conn> {
     /// assert_eq!(bind_names[0], "VAL1");
     /// assert_eq!(bind_names[1], "VAL2");
     /// assert_eq!(bind_names[2], "AÀÁÂÃÄÅ");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn bind_names(&self) -> Vec<&str> {
         self.bind_names.iter().map(|name| name.as_str()).collect()
@@ -597,7 +597,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
     ///
@@ -610,7 +610,7 @@ impl<'conn> Statement<'conn> {
     /// stmt.execute(&[])?;
     /// let outval: String = stmt.bind_value(1)?;
     /// assert_eq!(outval, "TO BE UPPER-CASE");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn bind<I>(&mut self, bindidx: I, value: &dyn ToSql) -> Result<()>
     where
@@ -635,7 +635,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // Prepares "begin :outval := upper(:inval); end;",
@@ -652,7 +652,7 @@ impl<'conn> Statement<'conn> {
     /// // Get the first bind value by name.
     /// let outval: String = stmt.bind_value("outval")?;
     /// assert_eq!(outval, "TO BE UPPER-CASE");
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     pub fn bind_value<I, T>(&self, bindidx: I) -> Result<T>
     where
@@ -671,7 +671,7 @@ impl<'conn> Statement<'conn> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use oracle::*; use oracle::sql_type::*; fn try_main() -> Result<()> {
+    /// # use oracle::*; use oracle::sql_type::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // create a table using identity column (Oracle 12c feature).
@@ -696,7 +696,7 @@ impl<'conn> Statement<'conn> {
     ///
     /// // cleanup
     /// conn.execute("drop table people purge", &[])?;
-    /// # Ok(())} fn main() { try_main().unwrap(); }
+    /// # Ok::<(), Error>(())
     /// ```
     ///
     /// [Statement.bind_value()]: #method.bind_value
@@ -841,7 +841,7 @@ impl<'conn> fmt::Debug for Statement<'conn> {
 /// Print column information of `emp` table.
 ///
 /// ```no_run
-/// # use oracle::*; fn try_main() -> Result<()> {
+/// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// let mut stmt = conn.prepare("select * from emp", &[])?;
 /// let rows = stmt.query(&[])?;
@@ -853,7 +853,7 @@ impl<'conn> fmt::Debug for Statement<'conn> {
 ///             if info.nullable() {""} else {"NOT NULL"},
 ///             info.oracle_type());
 /// }
-/// # Ok(())} fn main() { try_main().unwrap(); }
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// The output is:
