@@ -229,6 +229,7 @@ required.
 * Scrollable cursors
 * Batch DML
 * Better Oracle object type support
+* [JSON data type](https://oracle-base.com/articles/21c/json-data-type-21c)
 
 ## License
 

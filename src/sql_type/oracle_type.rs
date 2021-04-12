@@ -197,6 +197,9 @@ pub enum OracleType {
     /// LONG RAW
     LongRaw,
 
+    /// JSON data type introduced in Oracle 21c
+    Json,
+
     /// Integer type in Oracle object type attributes. This will be renamed to Integer in future.
     Int64,
 
@@ -247,6 +250,7 @@ impl OracleType {
             )?)),
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
+            DPI_ORACLE_TYPE_JSON => Ok(OracleType::Json),
             _ => Err(Error::InternalError(format!(
                 "Unknown oracle type number: {}",
                 info.oracleTypeNum
@@ -391,6 +395,7 @@ impl fmt::Display for OracleType {
             OracleType::Object(ref ty) => write!(f, "{}.{}", ty.schema(), ty.name()),
             OracleType::Long => write!(f, "LONG"),
             OracleType::LongRaw => write!(f, "LONG RAW"),
+            OracleType::Json => write!(f, "JSON"),
             OracleType::Int64 => write!(f, "INT64 used internally"),
             OracleType::UInt64 => write!(f, "UINT64 used internally"),
         }
