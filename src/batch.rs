@@ -45,6 +45,7 @@ use crate::Result;
 use crate::SqlValue;
 use crate::StatementType;
 use std::convert::TryFrom;
+use std::fmt;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::slice;
@@ -135,11 +136,13 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         }
     }
 
+    /// See ["Error Handling"](Batch#error-handling)
     pub fn with_batch_errors<'a>(&'a mut self) -> &'a mut BatchBuilder<'conn, 'sql> {
         self.with_batch_errors = true;
         self
     }
 
+    /// See ["Affected Rows"](Batch#affected-rows)
     pub fn with_row_counts<'a>(&'a mut self) -> &'a mut BatchBuilder<'conn, 'sql> {
         self.with_row_counts = true;
         self
@@ -234,7 +237,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// 1. [`conn.batch(sql_stmt, batch_size).build()`][Connection#method.batch] to create [`Batch`].
 /// 2. [`append_row()`](#method.append_row) for each row. Rows in the batch are sent to
 ///    the server when the number of appended rows reaches the batch size.  
-///    **Note:** This behavior is changed by "batch errors" option mentioned later.
+///    **Note:** The "batch errors" option mentioned later changes this behavior.
 /// 3. [`execute()`](#method.execute) in the end to send rows which
 ///    have not been sent by `append_rows()`.
 ///
@@ -265,8 +268,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// ## Default Erorr Handling
 ///
 /// `append_row()` and `execute()` stop executions at the first failure and return
-/// the error information. This is useful when all affected rows should be reverted
-/// on failure.
+/// the error information. There are no ways to know which row fails.
 ///
 /// ```
 /// # use oracle::Error;
@@ -301,14 +303,12 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// ## Error Handling with batch errors
 ///
-/// [`BatchBuilder.with_batch_errors`][BatchBuilder#method.with_batch_errors] changes
+/// [`BatchBuilder.with_batch_errors`][] changes
 /// the behavior of `Batch` as follows:
 /// * `execute()` executes all rows in the batch and return an array of the error information
 ///   with row positions in the batch when the errors are caused by invalid data.
 /// * `append_row()` doesn't send rows internally when the number of appended rows reaches
 ///   the batch size. It returns an error when the number exceeds the size instead.
-///
-/// This is useful when failed rows should be handled in some way.
 ///
 /// ```
 /// # use oracle::Error;
@@ -347,6 +347,71 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// assert_eq!(stmt.query_row_as::<i32>(&[&4])?, 1);
 /// # Ok::<(), Error>(())
 /// ```
+///
+/// # Affected Rows
+///
+/// Use [`BatchBuilder.with_row_counts`][] and [`Batch.row_counts`][] to get affected rows
+/// for each input row.
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::sql_type::OracleType;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// # conn.execute("delete from TestTempTable", &[])?;
+/// # let sql_stmt = "insert into TestTempTable values(:1, :2)";
+/// # let batch_size = 10;
+/// # let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// # batch.set_type(1, &OracleType::Int64)?;
+/// # batch.set_type(2, &OracleType::Varchar2(1))?;
+/// # for i in 0..10 {
+/// #    batch.append_row(&[&i]);
+/// # }
+/// # batch.execute()?;
+/// let sql_stmt = "update TestTempTable set stringCol = :stringCol where intCol >= :intCol";
+/// let mut batch = conn.batch(sql_stmt, 3).with_row_counts().build()?;
+/// batch.append_row_named(&[("stringCol", &"a"), ("intCol", &9)])?; // update 1 row
+/// batch.append_row_named(&[("stringCol", &"b"), ("intCol", &7)])?; // update 3 rows
+/// batch.append_row_named(&[("stringCol", &"c"), ("intCol", &5)])?; // update 5 rows
+/// batch.execute()?;
+/// assert_eq!(batch.row_counts()?, &[1, 3, 5]);
+/// # Ok::<(), Error>(())
+/// ```
+///
+/// # Bind Parameter Types
+///
+/// Parameter types are decided by the value of [`Batch.append_row`][], [`Batch.append_row_named`][]
+/// or [`Batch.set`][]; or by the type specified by [`Batch.set_type`][]. Once the
+/// type is determined, there are no ways to change it except the following case.
+///
+/// For user's convenience, when the length of character data types is too short,
+/// the length is extended automatically. For example:
+/// ```no_run
+/// # use oracle::Error;
+/// # use oracle::sql_type::OracleType;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// # let sql_stmt = "dummy";
+/// # let batch_size = 10;
+/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// batch.append_row(&[&"first row"])?; // allocate 64 bytes for each row
+/// batch.append_row(&[&"second row"])?;
+/// //....
+/// // The following line extends the internal buffer length for each row.
+/// batch.append_row(&[&"assume that data lenght is over 64 bytes"])?;
+/// # Ok::<(), Error>(())
+/// ```
+/// Note that extending the internal buffer needs memory copy from existing buffer
+/// to newly allocated buffer. If you know the maximum data length, it is better
+/// to set the size by [`Batch.set_type`][].
+///
+/// [`BatchBuilder.with_batch_errors`]: BatchBuilder#method.with_batch_errors
+/// [`BatchBuilder.with_row_counts`]: BatchBuilder#method.with_row_counts
+/// [`Batch.append_row`]: Batch#method.append_row
+/// [`Batch.append_row_named`]: Batch#method.append_row_named
+/// [`Batch.row_counts`]: Batch#method.row_counts
+/// [`Batch.set`]: Batch#method.set
+/// [`Batch.set_type`]: Batch#method.set_type
 pub struct Batch<'conn> {
     pub(crate) conn: &'conn Connection,
     handle: *mut dpiStmt,
@@ -362,17 +427,123 @@ pub struct Batch<'conn> {
 }
 
 impl<'conn> Batch<'conn> {
-    /// Closes the batch before the end of lifetime.
+    /// Closes the batch before the end of its lifetime.
     pub fn close(&mut self) -> Result<()> {
         chkerr!(self.conn.ctxt, dpiStmt_close(self.handle, ptr::null(), 0));
         self.handle = ptr::null_mut();
         Ok(())
     }
 
+    pub fn append_row(&mut self, params: &[&dyn ToSql]) -> Result<()> {
+        self.check_batch_index()?;
+        for i in 0..params.len() {
+            self.bind_internal(i + 1, params[i])?;
+        }
+        self.append_row_common()
+    }
+
+    pub fn append_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
+        self.check_batch_index()?;
+        for i in 0..params.len() {
+            self.bind_internal(params[i].0, params[i].1)?;
+        }
+        self.append_row_common()
+    }
+
+    fn append_row_common(&mut self) -> Result<()> {
+        if self.with_batch_errors {
+            self.set_batch_index(self.batch_index + 1);
+        } else {
+            self.set_batch_index(self.batch_index + 1);
+            if self.batch_index == self.batch_size {
+                self.execute()?;
+            }
+        }
+        Ok(())
+    }
+
+    pub fn execute(&mut self) -> Result<()> {
+        let result = self.execute_sub();
+        // reset all values to null regardless of the result
+        let num_rows = self.batch_index;
+        self.batch_index = 0;
+        for bind_value in &mut self.bind_values {
+            for i in 0..num_rows {
+                bind_value.buffer_row_index = BufferRowIndex::Owned(i);
+                bind_value.set_null()?;
+            }
+            bind_value.buffer_row_index = BufferRowIndex::Owned(0);
+        }
+        result
+    }
+
+    fn execute_sub(&mut self) -> Result<()> {
+        if self.batch_index == 0 {
+            return Ok(());
+        }
+        let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
+        if self.conn.autocommit {
+            exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
+        }
+        if self.with_batch_errors {
+            exec_mode |= DPI_MODE_EXEC_BATCH_ERRORS;
+        }
+        if self.with_row_counts {
+            exec_mode |= DPI_MODE_EXEC_ARRAY_DML_ROWCOUNTS;
+        }
+        chkerr!(
+            self.conn.ctxt,
+            dpiStmt_executeMany(self.handle, exec_mode, self.batch_index)
+        );
+        if self.with_batch_errors {
+            let mut errnum = 0;
+            chkerr!(
+                self.conn.ctxt,
+                dpiStmt_getBatchErrorCount(self.handle, &mut errnum)
+            );
+            if errnum != 0 {
+                let mut errs = Vec::with_capacity(errnum as usize);
+                chkerr!(
+                    self.conn.ctxt,
+                    dpiStmt_getBatchErrors(self.handle, errnum, errs.as_mut_ptr())
+                );
+                unsafe { errs.set_len(errnum as usize) };
+                return Err(Error::BatchErrors(
+                    errs.iter().map(|err| dberror_from_dpi_error(err)).collect(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Returns the number of bind parameters
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestTempTable", &[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// assert_eq!(batch.bind_count(), 2);
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn bind_count(&self) -> usize {
         self.bind_count
     }
 
+    /// Returns an array of bind parameter names
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestTempTable", &[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
+    /// let batch = conn.batch(sql_stmt, 100).build()?;
+    /// assert_eq!(batch.bind_names(), &["INTCOL", "STRINGCOL"]);
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn bind_names(&self) -> Vec<&str> {
         self.bind_names.iter().map(|name| name.as_str()).collect()
     }
@@ -388,12 +559,69 @@ impl<'conn> Batch<'conn> {
         }
     }
 
-    pub fn bind<I>(&mut self, bindidx: I, value: &dyn ToSql) -> Result<()>
+    /// Set the data type of a bind parameter
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use oracle::sql_type::OracleType;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestTempTable", &[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// batch.set_type(1, &OracleType::Int64)?;
+    /// batch.set_type(2, &OracleType::Varchar2(10))?;
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn set_type<I>(&mut self, bindidx: I, oratype: &OracleType) -> Result<()>
+    where
+        I: BatchBindIndex,
+    {
+        let pos = bindidx.idx(&self)?;
+        if self.bind_types[pos].is_some() {
+            return Err(Error::InvalidOperation(format!(
+                "The bind parameter type at {} has been specified already.",
+                bindidx
+            )));
+        }
+        self.bind_values[pos].init_handle(&self.conn.handle, oratype, self.batch_size)?;
+        chkerr!(
+            self.conn.ctxt,
+            bindidx.bind(self.handle, self.bind_values[pos].handle)
+        );
+        self.bind_types[pos] = Some(BindType::new(oratype));
+        Ok(())
+    }
+
+    /// Set a parameter value
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestTempTable", &[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// // The below three lines are same with `batch.append_row(&[&100, &"hundred"])?`.
+    /// batch.set(1, &100)?; // set by position 1
+    /// batch.set(2, &"hundred")?; // set at position 2
+    /// batch.append_row(&[])?;
+    /// // The below three lines are same with `batch.append_row(&[("intCol", &101), ("stringCol", &"hundred one")])?`
+    /// batch.set("intCol", &101)?; // set by name "intCol"
+    /// batch.set("stringCol", &"hundred one")?; // set by name "stringCol"
+    /// batch.append_row(&[])?;
+    /// batch.execute()?;
+    /// let sql_stmt = "select * from TestTempTable where intCol = :1";
+    /// assert_eq!(conn.query_row_as::<(i32, String)>(sql_stmt, &[&100])?, (100, "hundred".to_string()));
+    /// assert_eq!(conn.query_row_as::<(i32, String)>(sql_stmt, &[&101])?, (101, "hundred one".to_string()));
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn set<I>(&mut self, index: I, value: &dyn ToSql) -> Result<()>
     where
         I: BatchBindIndex,
     {
         self.check_batch_index()?;
-        self.bind_internal(bindidx, value)
+        self.bind_internal(index, value)
     }
 
     fn bind_internal<I>(&mut self, bindidx: I, value: &dyn ToSql) -> Result<()>
@@ -402,6 +630,8 @@ impl<'conn> Batch<'conn> {
     {
         let pos = bindidx.idx(&self)?;
         if self.bind_types[pos].is_none() {
+            // When the parameter type has not bee specified yet,
+            // assume the type from the value
             let oratype = value.oratype(self.conn)?;
             let bind_type = BindType::new(&oratype);
             self.bind_values[pos].init_handle(
@@ -456,82 +686,16 @@ impl<'conn> Batch<'conn> {
         }
     }
 
-    pub fn append_row(&mut self, params: &[&dyn ToSql]) -> Result<()> {
-        self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(i + 1, params[i])?;
-        }
-        self.append_row_common()
-    }
-
-    pub fn append_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
-        self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(params[i].0, params[i].1)?;
-        }
-        self.append_row_common()
-    }
-
-    fn append_row_common(&mut self) -> Result<()> {
-        if self.with_batch_errors {
-            self.set_batch_index(self.batch_index + 1);
-        } else {
-            self.set_batch_index(self.batch_index + 1);
-            if self.batch_index == self.batch_size {
-                self.execute()?;
-            }
-        }
-        Ok(())
-    }
-
     fn set_batch_index(&mut self, batch_index: u32) {
         self.batch_index = batch_index;
-        for i in 0..self.bind_values.len() {
-            self.bind_values[i].buffer_row_index = BufferRowIndex::Owned(batch_index);
+        for bind_value in &mut self.bind_values {
+            bind_value.buffer_row_index = BufferRowIndex::Owned(batch_index);
         }
     }
 
-    pub fn execute(&mut self) -> Result<()> {
-        if self.batch_index == 0 {
-            return Ok(());
-        }
-        let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
-        if self.conn.autocommit {
-            exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
-        }
-        if self.with_batch_errors {
-            exec_mode |= DPI_MODE_EXEC_BATCH_ERRORS;
-        }
-        if self.with_row_counts {
-            exec_mode |= DPI_MODE_EXEC_ARRAY_DML_ROWCOUNTS;
-        }
-        let num_row = self.batch_index;
-        self.set_batch_index(0);
-        chkerr!(
-            self.conn.ctxt,
-            dpiStmt_executeMany(self.handle, exec_mode, num_row)
-        );
-        if self.with_batch_errors {
-            let mut errnum = 0;
-            chkerr!(
-                self.conn.ctxt,
-                dpiStmt_getBatchErrorCount(self.handle, &mut errnum)
-            );
-            if errnum != 0 {
-                let mut errs = Vec::with_capacity(errnum as usize);
-                chkerr!(
-                    self.conn.ctxt,
-                    dpiStmt_getBatchErrors(self.handle, errnum, errs.as_mut_ptr())
-                );
-                unsafe { errs.set_len(errnum as usize) };
-                return Err(Error::BatchErrors(
-                    errs.iter().map(|err| dberror_from_dpi_error(err)).collect(),
-                ));
-            }
-        }
-        Ok(())
-    }
-
+    /// Returns the number of affected rows
+    ///
+    /// See ["Affected Rows"](Batch#affected-rows)
     pub fn row_counts(&self) -> Result<Vec<u64>> {
         let mut num_row_counts = 0;
         let mut row_counts = ptr::null_mut();
@@ -576,7 +740,7 @@ impl<'conn> Drop for Batch<'conn> {
 /// A trait implemented by types that can index into bind values of a batch
 ///
 /// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.
-pub trait BatchBindIndex: private::Sealed {
+pub trait BatchBindIndex: private::Sealed + fmt::Display {
     /// Returns the index of the bind value specified by `self`.
     #[doc(hidden)]
     fn idx(&self, batch: &Batch) -> Result<usize>;

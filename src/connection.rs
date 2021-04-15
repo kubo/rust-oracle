@@ -619,7 +619,7 @@ impl Connection {
 
     /// Creates [BatchBuilder][]
     ///
-    /// Seee [`Batch`].
+    /// See [`Batch`].
     pub fn batch<'conn, 'sql>(
         &'conn self,
         sql: &'sql str,
