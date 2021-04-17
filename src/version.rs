@@ -13,13 +13,15 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::fmt;
-use std::mem::MaybeUninit;
-
 use crate::binding::*;
 use crate::chkerr;
 use crate::Context;
 use crate::Result;
+use std::fmt;
+use std::mem::MaybeUninit;
+use std::num::ParseIntError;
+use std::result;
+use std::str::FromStr;
 
 /// Oracle version information
 ///
@@ -125,5 +127,62 @@ impl fmt::Display for Version {
             "{}.{}.{}.{}.{}",
             self.major, self.minor, self.update, self.patch, self.port_update
         )
+    }
+}
+
+impl FromStr for Version {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> result::Result<Self, Self::Err> {
+        let mut iter = s.split('.').fuse();
+        let major = iter.next().map_or(Ok(0), |s| s.parse::<i32>())?;
+        let minor = iter.next().map_or(Ok(0), |s| s.parse::<i32>())?;
+        let update = iter.next().map_or(Ok(0), |s| s.parse::<i32>())?;
+        let patch = iter.next().map_or(Ok(0), |s| s.parse::<i32>())?;
+        let port_update = iter.next().map_or(Ok(0), |s| s.parse::<i32>())?;
+        Ok(Version::new(major, minor, update, patch, port_update))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_util;
+
+    #[test]
+    fn to_string() {
+        assert_eq!(Version::new(12, 1, 2, 3, 4).to_string(), "12.1.2.3.4");
+    }
+
+    #[test]
+    fn from_str() {
+        assert_eq!(
+            "12".parse::<Version>().unwrap(),
+            Version::new(12, 0, 0, 0, 0)
+        );
+        assert_eq!(
+            "12.1".parse::<Version>().unwrap(),
+            Version::new(12, 1, 0, 0, 0)
+        );
+        assert_eq!(
+            "12.1.2".parse::<Version>().unwrap(),
+            Version::new(12, 1, 2, 0, 0)
+        );
+        assert_eq!(
+            "12.1.2.3".parse::<Version>().unwrap(),
+            Version::new(12, 1, 2, 3, 0)
+        );
+        assert_eq!(
+            "12.1.2.3.4".parse::<Version>().unwrap(),
+            Version::new(12, 1, 2, 3, 4)
+        );
+    }
+
+    #[test]
+    fn client_version() {
+        let ver = Version::client().unwrap();
+        let conn = test_util::connect().unwrap();
+        let ver_from_query = conn.query_row_as::<String>("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')", &[]).unwrap();
+        assert_eq!(ver.to_string(), ver_from_query);
     }
 }
