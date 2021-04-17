@@ -249,10 +249,11 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// let batch_size = 100;
 /// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
-/// for i in 0..1234 {
+/// for i in 0..1234 { // iterate 1234 times.
+///     // send rows internally every 100 iterations.
 ///     batch.append_row(&[&i, &format!("value {}", i)])?;
 /// }
-/// batch.execute()?;
+/// batch.execute()?; // send the rest 34 rows.
 /// // Check the number of inserted rows.
 /// assert_eq!(conn.query_row_as::<i32>("select count(*) from TestTempTable", &[])?, 1234);
 /// # Ok::<(), Error>(())
@@ -265,7 +266,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// 1. Stop executions at the first failure and return the error information.
 /// 2. Execute all rows in the batch and return an array of the error information.
 ///
-/// ## Default Erorr Handling
+/// ## Default Error Handling
 ///
 /// `append_row()` and `execute()` stop executions at the first failure and return
 /// the error information. There are no ways to know which row fails.
@@ -302,6 +303,8 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// ```
 ///
 /// ## Error Handling with batch errors
+///
+/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
 ///
 /// [`BatchBuilder.with_batch_errors`][] changes
 /// the behavior of `Batch` as follows:
@@ -350,6 +353,8 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// # Affected Rows
 ///
+/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
+///
 /// Use [`BatchBuilder.with_row_counts`][] and [`Batch.row_counts`][] to get affected rows
 /// for each input row.
 ///
@@ -365,7 +370,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// # batch.set_type(1, &OracleType::Int64)?;
 /// # batch.set_type(2, &OracleType::Varchar2(1))?;
 /// # for i in 0..10 {
-/// #    batch.append_row(&[&i]);
+/// #    batch.append_row(&[&i])?;
 /// # }
 /// # batch.execute()?;
 /// let sql_stmt = "update TestTempTable set stringCol = :stringCol where intCol >= :intCol";
@@ -398,7 +403,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// batch.append_row(&[&"second row"])?;
 /// //....
 /// // The following line extends the internal buffer length for each row.
-/// batch.append_row(&[&"assume that data lenght is over 64 bytes"])?;
+/// batch.append_row(&[&"assume that data length is over 64 bytes"])?;
 /// # Ok::<(), Error>(())
 /// ```
 /// Note that extending the internal buffer needs memory copy from existing buffer
