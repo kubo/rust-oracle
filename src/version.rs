@@ -52,7 +52,7 @@ pub struct Version {
 
 impl Version {
     /// Creates a new version information
-    pub fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
+    pub const fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
         Version {
             major: major,
             minor: minor,

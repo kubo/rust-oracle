@@ -315,8 +315,11 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// ```
 /// # use oracle::Error;
-/// # use oracle::test_util;
+/// # use oracle::test_util::{self, check_version, VER12_1};
 /// # let conn = test_util::connect()?;
+/// # if !check_version(&conn, &VER12_1, &VER12_1)? {
+/// #     return Ok(()); // skip this test
+/// # }
 /// # conn.execute("delete from TestTempTable", &[])?;
 /// let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// let batch_size = 10;
@@ -361,8 +364,11 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// ```
 /// # use oracle::Error;
 /// # use oracle::sql_type::OracleType;
-/// # use oracle::test_util;
+/// # use oracle::test_util::{self, check_version, VER12_1};
 /// # let conn = test_util::connect()?;
+/// # if !check_version(&conn, &VER12_1, &VER12_1)? {
+/// #     return Ok(()); // skip this test
+/// # }
 /// # conn.execute("delete from TestTempTable", &[])?;
 /// # let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// # let batch_size = 10;

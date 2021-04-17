@@ -526,6 +526,8 @@ pub mod test_util {
     use super::*;
     use std::env;
 
+    pub const VER12_1: Version = Version::new(12, 1, 0, 0, 0);
+
     fn env_var_or(env_name: &str, default: &str) -> String {
         match env::var_os(env_name) {
             Some(env_var) => env_var.into_string().unwrap(),
@@ -547,5 +549,13 @@ pub mod test_util {
 
     pub fn connect() -> Result<Connection> {
         Connection::connect(&main_user(), &main_password(), &connect_string())
+    }
+
+    pub fn check_version(
+        conn: &Connection,
+        client_ver: &Version,
+        server_ver: &Version,
+    ) -> Result<bool> {
+        Ok(&Version::client()? >= client_ver && &conn.server_version()?.0 >= server_ver)
     }
 }
