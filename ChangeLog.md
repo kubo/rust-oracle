@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.0 (2021-04-18)
+
+* Add [Batch DML][`Batch`] feature ([GH-29][])
+* Implement `FromStr` for `Version`.
+* Add `OracleType::Json` variant. (Note: JSON data type has not been supported yet.)
+
 ## 0.4.0 (2021-03-07)
 
 Changes:
@@ -272,6 +278,8 @@ Incompatible changes:
 [GH-14]: https://github.com/kubo/rust-oracle/issues/14
 [GH-18]: https://github.com/kubo/rust-oracle/issues/18
 [GH-19]: https://github.com/kubo/rust-oracle/issues/19
+[GH-29]: https://github.com/kubo/rust-oracle/issues/29
+[`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.call_timeout
