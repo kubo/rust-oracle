@@ -311,6 +311,7 @@ mod version;
 
 pub use crate::batch::Batch;
 pub use crate::batch::BatchBuilder;
+pub use crate::batch::BatchBindIndex;
 pub use crate::connection::ConnStatus;
 pub use crate::connection::Connection;
 pub use crate::connection::Connector;
