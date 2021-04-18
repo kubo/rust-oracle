@@ -16,29 +16,12 @@
 /*!
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
-Applications using Rust-oracle 0.1.x should use 0.2.x. The incompatibility
-between 0.1.x and 0.2.x is trivial so they will work well without modification.
-The author continues updating 0.2.x to fix bugs as long as it doesn't
-introduce incompatibilities.
-
-New features are added in Rust-oracle 0.3.x or later. There are enormous
-incompatibilities between 0.2.x and 0.3.x. They were introduced to follow
-Rust way. Some parameters were removed and builder data types were added
-instead. Some types were moved to a new module `sql_type`.
-
-Rust-oracle 0.4.x will include breaking changes about [query methods](https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md).
-The query methods with `as` may be renamed to and merged into methods
-without `as`. The `params` argument of `Connection.prepare` will be
-replaced with some kind of the builder pattern.
-
 ## Change Log
 
 See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md).
 
 ## Build-time Requirements
 
-* Rust 1.31.0 or later for rust-oracle 0.3.0 and later.
-* Rust 1.19.0 or later for rust-oarcle 0.1.x and 0.2.x.
 * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
 
 ## Run-time Requirements
@@ -51,7 +34,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.3.0"
+oracle = "0.5"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -59,13 +42,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.3.0", features = ["chrono"] }
-```
-
-Then put this in your crate root:
-
-```rust
-extern crate oracle;
+oracle = { version = "0.5", features = ["chrono"] }
 ```
 
 ## Examples

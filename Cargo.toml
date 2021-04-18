@@ -1,6 +1,6 @@
 [package]
 name = "oracle"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Kubo Takehiro <kubo@jiubao.org>"]
 build = "build.rs"
 repository = "https://github.com/kubo/rust-oracle"

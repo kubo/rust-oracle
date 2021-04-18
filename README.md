@@ -21,7 +21,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.3.0"
+oracle = "0.5"
 ```
 
 When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
@@ -29,13 +29,7 @@ data types, enable `chrono` feature:
 
 ```text
 [dependencies]
-oracle = { version = "0.3.0", features = ["chrono"] }
-```
-
-Then put this in your crate root:
-
-```rust
-extern crate oracle;
+oracle = { version = "0.5", features = ["chrono"] }
 ```
 
 ## Examples
