@@ -239,7 +239,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///    the server when the number of appended rows reaches the batch size.  
 ///    **Note:** The "batch errors" option mentioned later changes this behavior.
 /// 3. [`execute()`](#method.execute) in the end to send rows which
-///    have not been sent by `append_rows()`.
+///    have not been sent by `append_row()`.
 ///
 /// ```
 /// # use oracle::Error;
