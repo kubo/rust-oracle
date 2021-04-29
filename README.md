@@ -217,11 +217,10 @@ required.
 
 ## TODO
 
-* Connection pooling
+* Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * Read and write LOB as stream
 * REF CURSOR, BOOLEAN
 * Scrollable cursors
-* Batch DML
 * Better Oracle object type support
 * [JSON data type](https://oracle-base.com/articles/21c/json-data-type-21c)
 
@@ -239,3 +238,5 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
 [language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
 [territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
+[ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
+[r2d2-oracle]: https://crates.io/crates/r2d2-oracle
