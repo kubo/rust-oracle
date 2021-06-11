@@ -870,8 +870,13 @@ impl SqlValue {
                     Ok(self.get_object_unchecked(objtype)?.to_string())
                 }
             }
+            NativeType::Boolean => Ok(if self.get_bool_unchecked()? {
+                "TRUE".into()
+            } else {
+                "FALSE".into()
+            }),
             NativeType::Rowid => self.get_rowid_as_string_unchecked(),
-            _ => self.invalid_conversion_to_rust_type("string"),
+            NativeType::Stmt => self.invalid_conversion_to_rust_type("string"),
         }
     }
 

@@ -303,8 +303,7 @@ impl OracleType {
             OracleType::BFILE => Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
             //            OracleType::RefCursor =>
             //                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
-            //            OracleType::Boolean =>
-            //                Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
+            OracleType::Boolean => Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
             OracleType::Object(ref objtype) => Ok((
                 DPI_ORACLE_TYPE_OBJECT,
                 NativeType::Object(objtype.clone()),
