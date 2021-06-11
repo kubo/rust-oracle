@@ -1,6 +1,12 @@
 # Change Log
 
-## 0.5.0 (2021-04-18)
+## 0.5.2 (2021-06-11)
+
+* Update ODPI-C to 4.2.1. (see ODPI-C release notes: [4.2.0](https://oracle.github.io/odpi/doc/releasenotes.html#version-4-2-may-18-2021) and [4.2.1](https://oracle.github.io/odpi/doc/releasenotes.html#version-4-2-1-june-1-2021))
+* Make it possible to get rowid as string ([GH-36][])
+* Make it possible to bind boolean values (PL/SQL only)
+
+## 0.5.1 (2021-04-18)
 
 * Add [Batch DML][`Batch`] feature ([GH-29][])
 * Implement `FromStr` for `Version`.
@@ -279,6 +285,7 @@ Incompatible changes:
 [GH-18]: https://github.com/kubo/rust-oracle/issues/18
 [GH-19]: https://github.com/kubo/rust-oracle/issues/19
 [GH-29]: https://github.com/kubo/rust-oracle/issues/29
+[GH-36]: https://github.com/kubo/rust-oracle/issues/36
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
