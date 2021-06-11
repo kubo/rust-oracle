@@ -155,23 +155,25 @@ fn string_from_sql() {
     );
 
     // Get boolean as bool and string
-    let mut stmt = conn
-        .prepare("declare b boolean; begin :1 := TRUE; end;", &[])
-        .unwrap();
-    stmt.execute(&[&None::<bool>]).unwrap();
-    let val: bool = stmt.bind_value(1).unwrap();
-    assert_eq!(val, true);
-    let val: String = stmt.bind_value(1).unwrap();
-    assert_eq!(val, "TRUE".to_string());
+    if common::check_oracle_version("bind boolean", &conn, 12, 1) {
+        let mut stmt = conn
+            .prepare("declare b boolean; begin :1 := TRUE; end;", &[])
+            .unwrap();
+        stmt.execute(&[&None::<bool>]).unwrap();
+        let val: bool = stmt.bind_value(1).unwrap();
+        assert_eq!(val, true);
+        let val: String = stmt.bind_value(1).unwrap();
+        assert_eq!(val, "TRUE".to_string());
 
-    let mut stmt = conn
-        .prepare("declare b boolean; begin :1 := FALSE; end;", &[])
-        .unwrap();
-    stmt.execute(&[&None::<bool>]).unwrap();
-    let val: bool = stmt.bind_value(1).unwrap();
-    assert_eq!(val, false);
-    let val: String = stmt.bind_value(1).unwrap();
-    assert_eq!(val, "FALSE".to_string());
+        let mut stmt = conn
+            .prepare("declare b boolean; begin :1 := FALSE; end;", &[])
+            .unwrap();
+        stmt.execute(&[&None::<bool>]).unwrap();
+        let val: bool = stmt.bind_value(1).unwrap();
+        assert_eq!(val, false);
+        let val: String = stmt.bind_value(1).unwrap();
+        assert_eq!(val, "FALSE".to_string());
+    }
 }
 
 #[test]

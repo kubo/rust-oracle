@@ -67,7 +67,7 @@ pub use self::timestamp::Timestamp;
 /// | [Oracle collection] | [Collection][] |
 /// | " | String |
 /// | rowid | String |
-/// | boolean (PL/SQL only) | bool |
+/// | boolean (PL/SQL only) | bool (Oracle client version >= 12.1) |
 ///
 /// When `chrono` feature is enabled, the followings are added.
 ///
