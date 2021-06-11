@@ -43,6 +43,116 @@ macro_rules! chk_num_from {
 }
 
 #[test]
+fn string_from_sql() {
+    let conn = common::connect().unwrap();
+
+    // Get number as string
+    test_from_sql!(&conn, "10", &OracleType::Number(0, -127), &"10".to_string());
+
+    // Get binary_float as string
+    test_from_sql!(
+        &conn,
+        "10.5f",
+        &OracleType::BinaryFloat,
+        &"10.5".to_string()
+    );
+
+    // Get binary_double as string
+    test_from_sql!(
+        &conn,
+        "10.5d",
+        &OracleType::BinaryDouble,
+        &"10.5".to_string()
+    );
+
+    // Get raw as string
+    test_from_sql!(
+        &conn,
+        "hextoraw('48656c6c6f20576f726c64')",
+        &OracleType::Raw(11),
+        &"48656C6C6F20576F726C64".to_string()
+    );
+
+    // Get date as string
+    test_from_sql!(
+        &conn,
+        "DATE '2012-03-04'",
+        &OracleType::Date,
+        &"2012-03-04 00:00:00".to_string()
+    );
+
+    // Get timestamp as string
+    test_from_sql!(
+        &conn,
+        "TIMESTAMP '1997-01-31 09:26:50.124'",
+        &OracleType::Timestamp(9),
+        &"1997-01-31 09:26:50.124000000".to_string()
+    );
+
+    // Get timestamp with time zone as string
+    test_from_sql!(
+        &conn,
+        "TIMESTAMP '1997-01-31 09:26:56.66 +02:00'",
+        &OracleType::TimestampTZ(9),
+        &"1997-01-31 09:26:56.660000000 +02:00".to_string()
+    );
+
+    // Get interval day to second as string
+    test_from_sql!(
+        &conn,
+        "INTERVAL '4 5:12:10.222' DAY TO SECOND(3)",
+        &OracleType::IntervalDS(2, 3),
+        &"+04 05:12:10.222".to_string()
+    );
+
+    // Get interval year to month as string
+    test_from_sql!(
+        &conn,
+        "INTERVAL '123-2' YEAR(3) TO MONTH",
+        &OracleType::IntervalYM(3),
+        &"+123-02".to_string()
+    );
+
+    // Get CLOB as string
+    conn.execute("insert into TestCLOBs values (1, 'CLOB DATA')", &[])
+        .unwrap();
+    assert_eq!(
+        conn.query_row_as::<String>("select CLOBCol from TestCLOBs where IntCol = 1", &[])
+            .unwrap(),
+        "CLOB DATA".to_string()
+    );
+    conn.rollback().unwrap();
+
+    // Get BLOB as string
+    conn.execute(
+        "insert into TestBLOBs values (1, '424C4F422044415441')",
+        &[],
+    )
+    .unwrap();
+    assert_eq!(
+        conn.query_row_as::<String>("select BLOBCol from TestBLOBs where IntCol = 1", &[])
+            .unwrap(),
+        "424C4F422044415441".to_string()
+    );
+    conn.rollback().unwrap();
+
+    // Get object type as string
+    assert_eq!(
+        conn.query_row_as::<String>("select udt_SubObject(1, '10') from dual", &[])
+            .unwrap(),
+        format!(
+            r#"{}.UDT_SUBOBJECT(1, "10")"#, //  TODO: fix "10" -> '10'
+            common::main_user().to_uppercase()
+        )
+    );
+
+    // Get rowid as string (unsupported)
+    assert!(conn
+        .query_row_as::<String>("select rowid from dual", &[])
+        .is_err());
+}
+
+#[test]
 fn numeric_from_sql() {
     let conn = common::connect().unwrap();
 
