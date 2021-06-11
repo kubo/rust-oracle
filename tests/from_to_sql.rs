@@ -146,10 +146,13 @@ fn string_from_sql() {
         )
     );
 
-    // Get rowid as string (unsupported)
-    assert!(conn
-        .query_row_as::<String>("select rowid from dual", &[])
-        .is_err());
+    // Get rowid as string
+    assert_eq!(
+        conn.query_row_as::<String>("select rowid from dual", &[])
+            .unwrap(),
+        conn.query_row_as::<String>("select rowidtochar(rowid) from dual", &[])
+            .unwrap()
+    );
 }
 
 #[test]

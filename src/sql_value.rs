@@ -557,6 +557,17 @@ impl SqlValue {
         unsafe { Ok(dpiData_getBool(self.data()) != 0) }
     }
 
+    fn get_rowid_as_string_unchecked(&self) -> Result<String> {
+        self.check_not_null()?;
+        let mut ptr = ptr::null();
+        let mut len = 0;
+        chkerr!(
+            self.ctxt,
+            dpiRowid_getStringValue((*self.data()).value.asRowid, &mut ptr, &mut len)
+        );
+        Ok(to_rust_str(ptr, len))
+    }
+
     //
     // set_TYPE_unchecked methods
     //
@@ -859,6 +870,7 @@ impl SqlValue {
                     Ok(self.get_object_unchecked(objtype)?.to_string())
                 }
             }
+            NativeType::Rowid => self.get_rowid_as_string_unchecked(),
             _ => self.invalid_conversion_to_rust_type("string"),
         }
     }
