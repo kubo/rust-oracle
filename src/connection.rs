@@ -613,6 +613,24 @@ impl Connection {
     /// # Ok::<(), Error>(())
     /// ```
     ///
+    /// By default, a maximum of 2 rows are returned when the query is first
+    /// executed. To modify this, use `StmtParam::PrefetchRows(u32)` to customize
+    /// it. For more information on the difference between this and `FetchArraySize`,
+    /// see [this writeup](https://blog.dbi-services.com/arraysize-or-rowprefetch-in-sqlplus/).
+    ///
+    /// ```no_run
+    /// # use oracle::*;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// // fetch top 10 rows.
+    /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
+    ///                             &[StmtParam::PrefetchRows(10)])?;
+    /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
+    ///     let (empno, ename) = row_result?;
+    ///     println!("empno: {}, ename: {}", empno, ename);
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
+    ///
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::new(self, sql, params)
     }

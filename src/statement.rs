@@ -59,6 +59,17 @@ pub enum StmtParam {
     /// `StmtParam::FetchArraySize(1)`.
     FetchArraySize(u32),
 
+    /// The number of rows that will be prefetched by the Oracle Client
+    /// ibrary when a query is executed. The default value is
+    /// DPI_DEFAULT_PREFETCH_ROWS (2). Increasing this value may reduce
+    /// the number of round-trips to the database that are required in
+    /// order to fetch rows, but at the cost of increasing memory
+    /// requirements.
+    /// Setting this value to 0 will disable prefetch completely,
+    /// which may be useful when the timing for fetching rows must be
+    /// controlled by the caller.
+    PrefetchRows(u32),
+
     /// Reserved for when statement caching is supported.
     Tag(String),
 
@@ -178,6 +189,7 @@ pub struct Statement<'conn> {
     bind_names: Vec<String>,
     bind_values: Vec<SqlValue>,
     fetch_array_size: u32,
+    prefetch_rows: u32,
 }
 
 impl<'conn> Statement<'conn> {
@@ -188,12 +200,16 @@ impl<'conn> Statement<'conn> {
     ) -> Result<Statement<'conn>> {
         let sql = to_odpi_str(sql);
         let mut fetch_array_size = DPI_DEFAULT_FETCH_ARRAY_SIZE;
+        let mut prefetch_rows = DPI_DEFAULT_PREFETCH_ROWS;
         let mut scrollable = 0;
         let mut tag = new_odpi_str();
         for param in params {
             match param {
                 &StmtParam::FetchArraySize(size) => {
                     fetch_array_size = size;
+                }
+                &StmtParam::PrefetchRows(rows) => {
+                    prefetch_rows = rows;
                 }
                 &StmtParam::Scrollable => {
                     scrollable = 1;
@@ -260,6 +276,7 @@ impl<'conn> Statement<'conn> {
             bind_names: bind_names,
             bind_values: bind_values,
             fetch_array_size: fetch_array_size,
+            prefetch_rows: prefetch_rows,
         })
     }
 
@@ -477,6 +494,10 @@ impl<'conn> Statement<'conn> {
         chkerr!(
             self.conn.ctxt,
             dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size)
+        );
+        chkerr!(
+            self.conn.ctxt,
+            dpiStmt_setPrefetchRows(self.handle, self.prefetch_rows)
         );
         chkerr!(
             self.conn.ctxt,
