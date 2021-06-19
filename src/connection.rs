@@ -616,7 +616,8 @@ impl Connection {
     /// By default, a maximum of 2 rows are returned when the query is first
     /// executed. To modify this, use `StmtParam::PrefetchRows(u32)` to customize
     /// it. For more information on the difference between this and `FetchArraySize`,
-    /// see [this writeup](https://blog.dbi-services.com/arraysize-or-rowprefetch-in-sqlplus/).
+    /// see [this writeup](https://blog.dbi-services.com/arraysize-or-rowprefetch-in-sqlplus/)
+    /// or [this description](https://oracle.github.io/node-oracledb/doc/api.html#rowfetching).
     ///
     /// ```no_run
     /// # use oracle::*;

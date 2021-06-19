@@ -60,7 +60,7 @@ pub enum StmtParam {
     FetchArraySize(u32),
 
     /// The number of rows that will be prefetched by the Oracle Client
-    /// ibrary when a query is executed. The default value is
+    /// library when a query is executed. The default value is
     /// DPI_DEFAULT_PREFETCH_ROWS (2). Increasing this value may reduce
     /// the number of round-trips to the database that are required in
     /// order to fetch rows, but at the cost of increasing memory
