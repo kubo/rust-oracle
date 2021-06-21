@@ -16,6 +16,8 @@
 use oracle::sql_type::{FromSql, OracleType, ToSql};
 use oracle::{Connection, Error, Row, RowValue, Version};
 use std::env;
+use std::thread::sleep;
+use std::time;
 
 fn env_var_or(env_name: &str, default: &str) -> String {
     match env::var_os(env_name) {
@@ -278,4 +280,21 @@ pub fn assert_test_string_tuple(idx: usize, row: &TestStringTuple) {
     assert_eq!(row.2, VALUES_IN_TEST_STRINGS[idx].2);
     assert_eq!(row.3, VALUES_IN_TEST_STRINGS[idx].3);
     assert_eq!(row.4, VALUES_IN_TEST_STRINGS[idx].4.map(|s| s.to_string()));
+}
+
+#[allow(dead_code)]
+pub fn truncate_table(conn: &Connection, table_name: &str) -> Result<(), Error> {
+    let sql = format!("truncate table {}", table_name);
+    let mut retry_count = 0;
+    loop {
+        match conn.execute(&sql, &[]) {
+            Ok(_) => return Ok(()),
+            Err(Error::OciError(err)) if retry_count < 3 && err.code() == 54 => {
+                // ORA-00054: resource busy and acquire with NOWAIT specified or timeout expired
+                sleep(time::Duration::from_secs(1));
+                retry_count += 1;
+            }
+            Err(err) => return Err(err),
+        }
+    }
 }

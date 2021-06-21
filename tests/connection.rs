@@ -37,7 +37,7 @@ fn app_context() {
 fn test_autocommit() {
     let mut conn = common::connect().unwrap();
 
-    conn.execute("truncate table TestTempTable", &[]).unwrap();
+    common::truncate_table(&conn, "TestTempTable").unwrap();
 
     // Autocommit is disabled by default.
     assert_eq!(conn.autocommit(), false);
