@@ -47,25 +47,26 @@ pub use self::timestamp::Timestamp;
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
 /// | character data types | String |
-/// | " | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f64, f32 by using `String.parse()` |
-/// | " | Vec\<u8> (The Oracle value must be in hexadecimal.) |
-/// | " | [Timestamp][] by `String.parse()` |
-/// | " | [IntervalDS][] by `String.parse()` |
-/// | " | [IntervalYM][] by `String.parse()` |
+/// |     " | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f64, f32 by using `String.parse()` |
+/// |     " | Vec\<u8> (The Oracle value must be in hexadecimal.) |
+/// |     " | [Timestamp][] by `String.parse()` |
+/// |     " | [IntervalDS][] by `String.parse()` |
+/// |     " | [IntervalYM][] by `String.parse()` |
 /// | numeric data types | i8, i16, i32, i64, isize, u8, u16, u32, u64, usize, f64, f32 |
-/// | " | String |
+/// |     " | String |
 /// | raw | Vec\<u8> |
-/// | " | String (The Oracle value is converted to characters in hexadecimal.) |
+/// |     " | String (The Oracle value is converted to characters in hexadecimal.) |
 /// | timestamp data types | [Timestamp][] |
-/// | " | String |
-/// | interval day to month | [IntervalDS][] |
-/// | " | String |
+/// |     " | String |
+/// | interval day to second | [IntervalDS][] |
+/// |     " | [`std::time::Duration`][] (conversion error for negative durations) |
+/// |     " | String |
 /// | interval year to month | [IntervalYM][] |
-/// | " | String |
+/// |     " | String |
 /// | [Oracle object] except [Oracle collection] | [Object][] |
-/// | " | String |
+/// |     " | String |
 /// | [Oracle collection] | [Collection][] |
-/// | " | String |
+/// |     " | String |
 /// | rowid | String |
 /// | boolean (PL/SQL only) | bool (Oracle client version >= 12.1) |
 ///
@@ -74,9 +75,9 @@ pub use self::timestamp::Timestamp;
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
 /// | timestamp data types | [chrono::DateTime][] |
-/// | " | [chrono::Date] |
-/// | " | [chrono::naive::NaiveDateTime][] |
-/// | " | [chrono::naive::NaiveDate][] |
+/// |     " | [chrono::Date] |
+/// |     " | [chrono::naive::NaiveDateTime][] |
+/// |     " | [chrono::naive::NaiveDate][] |
 /// | interval day to second | [chrono::Duration][] |
 ///
 /// This conversion is used also to get values from output parameters.
