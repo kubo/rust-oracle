@@ -261,6 +261,6 @@ other considerations; [library cache][], [cursor sharing][],
 [RowValue]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [ToSql]: https://docs.rs/oracle/*/oracle/trait.ToSql.html
-[library cache]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/cncpt/memory-architecture.html#GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0
-[cursor sharing]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/tgsql/improving-rwp-cursor-sharing.html#GUID-971F4652-3950-4662-82DE-713DDEED317C
-[client statement cache]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/lnoci/more-oci-advanced-topics.html#GUID-75169FE4-DE2C-431F-BBA7-3691C7C33360
+[library cache]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0
+[cursor sharing]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-971F4652-3950-4662-82DE-713DDEED317C
+[client statement cache]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-75169FE4-DE2C-431F-BBA7-3691C7C33360

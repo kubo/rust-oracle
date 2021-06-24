@@ -191,7 +191,7 @@ When a prepared statement is used, step 1 is called only once.
 
 ## NLS_LANG parameter
 
-[NLS_LANG][] consists of three components: [language][], [territory][] and
+[NLS_LANG][] consists of three components: language, territory and
 charset. However the charset component is ignored and UTF-8(AL32UTF8) is used
 as charset because rust characters are UTF-8.
 
@@ -221,9 +221,10 @@ required.
 
 * Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * Read and write LOB as stream
-* REF CURSOR, BOOLEAN
+* REF CURSOR
 * Scrollable cursors
 * Better Oracle object type support
+* XML data type
 * [JSON data type](https://oracle-base.com/articles/21c/json-data-type-21c)
 
 ## License
@@ -231,14 +232,12 @@ required.
 Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
-2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
+2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 [Rust]:                 https://www.rust-lang.org/
 [ODPI-C]:               https://oracle.github.io/odpi/
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
-[NLS_LANG]: http://www.oracle.com/technetwork/products/globalization/nls-lang-099431.html
-[language]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410559
-[territory]: http://www.oracle.com/technetwork/database/database-technologies/globalization/nls-lang-099431.html#_Toc110410560
+[NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
 [ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
 [r2d2-oracle]: https://crates.io/crates/r2d2-oracle

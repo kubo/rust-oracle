@@ -42,7 +42,7 @@ pub use self::timestamp::Timestamp;
 /// Conversion from Oracle values to rust values.
 ///
 /// Values in Oracle are converted to Rust type as possible as it can.
-/// The following table indicates supported conversion.
+/// The following table indicates supported conversions.
 ///
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
@@ -70,7 +70,7 @@ pub use self::timestamp::Timestamp;
 /// | rowid | String |
 /// | boolean (PL/SQL only) | bool (Oracle client version >= 12.1) |
 ///
-/// When `chrono` feature is enabled, the followings are added.
+/// When `chrono` feature is enabled, the following conversions are added.
 ///
 /// | Oracle Type | Rust Type |
 /// | --- | --- |
@@ -82,8 +82,8 @@ pub use self::timestamp::Timestamp;
 ///
 /// This conversion is used also to get values from output parameters.
 ///
-/// [Oracle object]: https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adobj/about-oracle-objects.html
-/// [Oracle collection]: https://docs.oracle.com/database/122/ADOBJ/collection-data-types.htm
+/// [Oracle object]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-8F0BA083-FA6D-4373-B440-50FDDA4D6E90
+/// [Oracle collection]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-1200DD46-95C0-4776-90BB-0ED0CD61267E
 /// [Timestamp]: struct.Timestamp.html
 /// [IntervalDS]: struct.IntervalDS.html
 /// [IntervalYM]: struct.IntervalYM.html
@@ -92,8 +92,6 @@ pub use self::timestamp::Timestamp;
 /// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
 /// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
 /// [chrono::Duration]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
-/// [Collection]: struct.Collection.html
-/// [Object]: struct.Object.html
 pub trait FromSql {
     fn from_sql(val: &SqlValue) -> Result<Self>
     where
