@@ -44,6 +44,7 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::Statement;
+use crate::StatementBuilder;
 use crate::StmtParam;
 use crate::Version;
 
@@ -560,7 +561,71 @@ impl Connection {
         self.close_internal(DPI_MODE_CONN_CLOSE_DEFAULT, "")
     }
 
-    /// Prepares a statement
+    /// Creates [`StatementBuilder`][] to create a [`Statement`][]
+    ///
+    /// # Examples
+    ///
+    /// Executes a SQL statement with different parameters.
+    ///
+    /// ```no_run
+    /// # use oracle::*;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// let mut stmt = conn.statement("insert into emp(empno, ename) values (:id, :name)").build()?;
+    ///
+    /// let emp_list = [
+    ///     (7369, "Smith"),
+    ///     (7499, "Allen"),
+    ///     (7521, "Ward"),
+    /// ];
+    ///
+    /// // insert rows using positional parameters
+    /// for emp in &emp_list {
+    ///    stmt.execute(&[&emp.0, &emp.1])?;
+    /// }
+    ///
+    /// let emp_list = [
+    ///     (7566, "Jones"),
+    ///     (7654, "Martin"),
+    ///     (7698, "Blake"),
+    /// ];
+    ///
+    /// // insert rows using named parameters
+    /// for emp in &emp_list {
+    ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
+    ///
+    /// Query methods in Connection allocate memory for 100 rows by default
+    /// to reduce the number of network round trips in case that many rows are
+    /// fetched. When 100 isn't preferable, use [`StatementBuilder.fetch_array_size`][StatementBuilder#method.fetch_array_size]
+    /// to customize it.
+    ///
+    /// ```no_run
+    /// # use oracle::*;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// // fetch top 10 rows.
+    /// let mut stmt = conn
+    ///     .statement("select empno, ename from emp order by empno fetch first 10 rows only")
+    ///     .fetch_array_size(10)
+    ///     .build()?;
+    /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
+    ///     let (empno, ename) = row_result?;
+    ///     println!("empno: {}, ename: {}", empno, ename);
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
+    ///
+    pub fn statement<'conn, 'sql>(&'conn self, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
+        StatementBuilder::new(self, sql)
+    }
+
+    /// Creates a [`Statement`][] with parameters
+    ///
+    /// This will be marked as [deprecated][] at version 0.6.x. Please use [`statement(sql).build()`](#method.statement)
+    /// instead. The `statement()` method was added to follow [this API guideline](https://rust-lang.github.io/api-guidelines/type-safety.html#c-builder).
+    ///
+    /// [deprecated]: https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html
     ///
     /// # Examples
     ///
@@ -614,7 +679,7 @@ impl Connection {
     /// ```
     ///
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
-        Statement::new(self, sql, params)
+        Statement::from_params(self, sql, params)
     }
 
     /// Creates [BatchBuilder][]
@@ -700,7 +765,7 @@ impl Connection {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Row> {
-        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
+        let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         if let Err(err) = stmt.query_row(params) {
             return Err(err);
         };
@@ -713,7 +778,7 @@ impl Connection {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
-        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
+        let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         if let Err(err) = stmt.query_row_named(params) {
             return Err(err);
         };
@@ -729,7 +794,7 @@ impl Connection {
     where
         T: RowValue,
     {
-        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
+        let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         stmt.query_row_as::<T>(params)
     }
 
@@ -742,11 +807,11 @@ impl Connection {
     where
         T: RowValue,
     {
-        let mut stmt = self.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
+        let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         stmt.query_row_as_named::<T>(params)
     }
 
-    /// Prepares a statement, binds values by position and executes it in one call.
+    /// Creates a statement, binds values by position and executes it in one call.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// # Examples
@@ -764,12 +829,12 @@ impl Connection {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn execute(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Statement> {
-        let mut stmt = self.prepare(sql, &[])?;
+        let mut stmt = self.statement(sql).build()?;
         stmt.execute(params)?;
         Ok(stmt)
     }
 
-    /// Prepares a statement, binds values by name and executes it in one call.
+    /// Creates a statement, binds values by name and executes it in one call.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
     /// The bind variable names are compared case-insensitively.
@@ -788,7 +853,7 @@ impl Connection {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn execute_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Statement> {
-        let mut stmt = self.prepare(sql, &[])?;
+        let mut stmt = self.statement(sql).build()?;
         stmt.execute_named(params)?;
         Ok(stmt)
     }

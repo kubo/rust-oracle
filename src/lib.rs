@@ -308,6 +308,7 @@ pub use crate::statement::BindIndex;
 pub use crate::statement::ColumnIndex;
 pub use crate::statement::ColumnInfo;
 pub use crate::statement::Statement;
+pub use crate::statement::StatementBuilder;
 pub use crate::statement::StatementType;
 pub use crate::statement::StmtParam;
 pub use crate::version::Version;

@@ -22,7 +22,6 @@ use std::rc::Rc;
 use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
-use crate::new_odpi_str;
 use crate::private;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
@@ -45,7 +44,79 @@ const SQLFNCODE_CREATE_TYPE: u16 = 77;
 const SQLFNCODE_ALTER_TYPE: u16 = 80;
 const SQLFNCODE_DROP_TYPE: u16 = 78;
 
-/// Parameters to prepare Statement.
+/// A builder to create a [`Statement`][] with various configuration
+pub struct StatementBuilder<'conn, 'sql> {
+    conn: &'conn Connection,
+    sql: &'sql str,
+    fetch_array_size: u32,
+    scrollable: bool,
+    tag: String,
+}
+
+impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
+    pub(crate) fn new(conn: &'conn Connection, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
+        StatementBuilder {
+            conn: conn,
+            sql: sql,
+            fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
+            scrollable: false,
+            tag: "".into(),
+        }
+    }
+
+    /// Changes the array size used for performing fetches.
+    ///
+    /// This specifies the number of rows allocated before performing
+    /// fetches. The default value is 100. Higher value reduces
+    /// the number of network round trips to fetch rows but requires
+    /// more memory. The preferable value depends on the query and
+    /// the environment.
+    ///
+    /// If the query returns only onw row, it is better to change
+    /// size to one.
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let mut stmt = conn
+    ///     .statement("select StringCol from TestStrings where IntCol = :1")
+    ///     .fetch_array_size(1)
+    ///     .build()?;
+    /// assert_eq!(stmt.query_row_as::<String>(&[&1])?, "String 1");
+    /// assert_eq!(stmt.query_row_as::<String>(&[&2])?, "String 2");
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn fetch_array_size<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
+        self.fetch_array_size = size;
+        self
+    }
+
+    // make the visibility public when scrollable cursors is supported.
+    fn scrollable<'a>(&'a mut self, scrollable: bool) -> &'a mut StatementBuilder<'conn, 'sql> {
+        self.scrollable = scrollable;
+        self
+    }
+
+    // make the visibility public when statement caching is supported.
+    fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
+    where
+        T: Into<String>,
+    {
+        self.tag = tag_name.into();
+        self
+    }
+
+    pub fn build(&self) -> Result<Statement<'conn>> {
+        Statement::new(self)
+    }
+}
+
+/// Parameters of [`Connection.prepare()`][Connection#method.prepare]
+///
+/// No new variants are added to this enum in the future. That's because
+/// a new variant causes breaking changes. New configuration parameters
+/// are set via [`StatementBuilder`][] instead.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StmtParam {
     /// The array size used for performing fetches.
@@ -182,34 +253,38 @@ pub struct Statement<'conn> {
 }
 
 impl<'conn> Statement<'conn> {
-    pub(crate) fn new(
+    pub(crate) fn from_params(
         conn: &'conn Connection,
         sql: &str,
         params: &[StmtParam],
     ) -> Result<Statement<'conn>> {
-        let sql = to_odpi_str(sql);
-        let mut fetch_array_size = DPI_DEFAULT_FETCH_ARRAY_SIZE;
-        let mut scrollable = 0;
-        let mut tag = new_odpi_str();
+        let mut builder = conn.statement(sql);
         for param in params {
             match param {
                 &StmtParam::FetchArraySize(size) => {
-                    fetch_array_size = size;
+                    builder.fetch_array_size(size);
                 }
                 &StmtParam::Scrollable => {
-                    scrollable = 1;
+                    builder.scrollable(true);
                 }
                 &StmtParam::Tag(ref name) => {
-                    tag = to_odpi_str(name);
+                    builder.tag(name);
                 }
             }
         }
+        builder.build()
+    }
+
+    fn new<'sql>(builder: &StatementBuilder<'conn, 'sql>) -> Result<Statement<'conn>> {
+        let conn = builder.conn;
+        let sql = to_odpi_str(builder.sql);
+        let tag = to_odpi_str(&builder.tag);
         let mut handle: *mut dpiStmt = ptr::null_mut();
         chkerr!(
             conn.ctxt,
             dpiConn_prepareStmt(
                 conn.handle.raw(),
-                scrollable,
+                if builder.scrollable { 1 } else { 0 },
                 sql.ptr,
                 sql.len,
                 tag.ptr,
@@ -260,7 +335,7 @@ impl<'conn> Statement<'conn> {
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: bind_values,
-            fetch_array_size: fetch_array_size,
+            fetch_array_size: builder.fetch_array_size,
         })
     }
 
