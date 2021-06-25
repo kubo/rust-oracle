@@ -278,6 +278,7 @@ mod batch;
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
 mod binding;
+mod binding_impl;
 mod connection;
 mod error;
 mod row;

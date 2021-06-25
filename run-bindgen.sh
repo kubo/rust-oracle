@@ -12,3 +12,8 @@ $HOME/.cargo/bin/bindgen odpi/include/dpi.h -o src/binding.rs \
   --no-prepend-enum-name \
   --rust-target 1.19 \
   -- -Iodpi/include
+
+$HOME/.cargo/bin/bindgen odpi/src/dpiImpl.h -o src/binding_impl.rs \
+  --whitelist-var "DPI_MAX_BASIC_BUFFER_SIZE" \
+  --rust-target 1.19 \
+  -- -Iodpi/include
