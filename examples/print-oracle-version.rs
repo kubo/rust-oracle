@@ -13,18 +13,17 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
+use oracle::{Connection, Result, Version};
 
-use oracle::{Connection, Version};
-
-fn main() {
-    let client_ver = Version::client().unwrap();
+fn main() -> Result<()> {
+    let client_ver = Version::client()?;
     println!("Oracle Client Version: {}", client_ver);
 
-    let conn = Connection::connect("scott", "tiger", "").unwrap();
-    let (server_ver, banner) = conn.server_version().unwrap();
+    let conn = Connection::connect("scott", "tiger", "")?;
+    let (server_ver, banner) = conn.server_version()?;
     println!("Oracle Server Version: {}", server_ver);
     println!("--- Server Version Banner ---");
     println!("{}", banner);
     println!("-----------------------------");
+    Ok(())
 }

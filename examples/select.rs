@@ -13,22 +13,20 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
-
-use oracle::Connection;
+use oracle::{Connection, Result};
 
 // Select a table and print column types and values as CSV.
 // The CSV format isn't valid if data include double quotation
 // marks, commas or return codes.
-fn main() {
+fn main() -> Result<()> {
     let username = "scott";
     let password = "tiger";
     let database = "";
     let sql = "select * from emp";
 
-    let conn = Connection::connect(username, password, database).unwrap();
-    let mut stmt = conn.prepare(sql, &[]).unwrap();
-    let rows = stmt.query(&[]).unwrap();
+    let conn = Connection::connect(username, password, database)?;
+    let mut stmt = conn.prepare(sql, &[])?;
+    let rows = stmt.query(&[])?;
 
     // print column types
     for (idx, info) in rows.column_info().iter().enumerate() {
@@ -41,7 +39,7 @@ fn main() {
 
     for row_result in rows {
         // print column values
-        for (idx, val) in row_result.unwrap().sql_values().iter().enumerate() {
+        for (idx, val) in row_result?.sql_values().iter().enumerate() {
             if idx != 0 {
                 print!(",");
             }
@@ -49,4 +47,5 @@ fn main() {
         }
         println!("");
     }
+    Ok(())
 }

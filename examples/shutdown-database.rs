@@ -13,10 +13,9 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
-use oracle::{Connector, Privilege, ShutdownMode};
+use oracle::{Connector, Privilege, Result, ShutdownMode};
 
-fn main() {
+fn main() -> Result<()> {
     let username = "sys";
     let password = "change_on_install";
     let database = "";
@@ -25,22 +24,22 @@ fn main() {
     // connect as sysdba or sysoper
     let conn = Connector::new(username, password, database)
         .privilege(Privilege::Sysdba)
-        .connect()
-        .unwrap();
+        .connect()?;
 
     // begin 'shutdown'
-    conn.shutdown_database(shutdown_mode).unwrap();
+    conn.shutdown_database(shutdown_mode)?;
 
     // close the database
-    conn.execute("alter database close normal", &[]).unwrap();
+    conn.execute("alter database close normal", &[])?;
     println!("Database closed.");
 
     // dismount the database
-    conn.execute("alter database dismount", &[]).unwrap();
+    conn.execute("alter database dismount", &[])?;
     println!("Database dismounted.");
 
     // finish 'shutdown'
-    conn.shutdown_database(ShutdownMode::Final).unwrap();
+    conn.shutdown_database(ShutdownMode::Final)?;
     println!("ORACLE instance shut down.");
-    conn.close().unwrap();
+    conn.close()?;
+    Ok(())
 }

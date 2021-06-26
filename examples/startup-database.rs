@@ -13,10 +13,9 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-extern crate oracle;
-use oracle::{Connector, Privilege};
+use oracle::{Connector, Privilege, Result};
 
-fn main() {
+fn main() -> Result<()> {
     let username = "sys";
     let password = "change_on_install";
     let database = "";
@@ -25,23 +24,22 @@ fn main() {
     let conn = Connector::new(username, password, database)
         .privilege(Privilege::Sysdba)
         .prelim_auth(true)
-        .connect()
-        .unwrap();
+        .connect()?;
 
     // start up database. The database is not mounted at this time.
-    conn.startup_database(&[]).unwrap();
-    conn.close().unwrap();
+    conn.startup_database(&[])?;
+    conn.close()?;
 
     // connect as sysdba or sysoper **without** prelim_auth mode
     let conn = Connector::new(username, password, database)
         .privilege(Privilege::Sysdba)
-        .connect()
-        .unwrap();
+        .connect()?;
 
     // mount and open the database
-    conn.execute("alter database mount", &[]).unwrap();
+    conn.execute("alter database mount", &[])?;
     println!("Database mounted.");
-    conn.execute("alter database open", &[]).unwrap();
+    conn.execute("alter database open", &[])?;
     println!("Database opened.");
-    conn.close().unwrap();
+    conn.close()?;
+    Ok(())
 }
