@@ -17,6 +17,7 @@ mod common;
 
 use oracle::sql_type::{IntervalDS, Timestamp};
 use oracle::{StatementType, StmtParam};
+use std::{thread, time};
 
 #[test]
 fn statement_type() {
@@ -248,6 +249,10 @@ fn query_row() {
 
 #[test]
 fn dml_returning() {
+    // magic spell to prevent "ORA-00060: deadlock detected while waiting for resource' in this test.
+    // I'm not sure why.
+    thread::sleep(time::Duration::from_millis(500));
+
     let conn = common::connect().unwrap();
     let sql = "update TestStrings set StringCol = StringCol where IntCol >= :1 returning IntCol into :icol";
 
@@ -432,6 +437,10 @@ fn insert_and_fetch() {
 
 #[test]
 fn row_count() {
+    // magic spell to prevent "ORA-00060: deadlock detected while waiting for resource' in this test.
+    // I'm not sure why.
+    thread::sleep(time::Duration::from_millis(500));
+
     let conn = common::connect().unwrap();
 
     // rows affected
