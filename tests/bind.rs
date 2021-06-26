@@ -1,28 +1,29 @@
 mod common;
 
 use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
+use oracle::Result;
 
 macro_rules! test_in_out {
     ($stmt:expr, $type:ty, $val:expr) => {
         $stmt
             .execute(&[&None::<$type>, &$val])
             .expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let outval: $type = $stmt.bind_value(1).unwrap();
+        let outval: $type = $stmt.bind_value(1)?;
         assert_eq!(outval, $val);
     };
     ($stmt:expr, $type:ty, $val:expr, $outtype:expr) => {
         $stmt
             .execute(&[$outtype, &$val])
             .expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let outval: $type = $stmt.bind_value(1).unwrap();
+        let outval: $type = $stmt.bind_value(1)?;
         assert_eq!(outval, $val);
     };
 }
 
 #[test]
-fn in_out_same_values() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
+fn in_out_same_values() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
 
     test_in_out!(stmt, i8, -123i8);
     test_in_out!(stmt, i16, -12345i16);
@@ -50,6 +51,7 @@ fn in_out_same_values() {
     );
     test_in_out!(stmt, IntervalDS, IntervalDS::new(1, 2, 3, 4, 123456789));
     test_in_out!(stmt, IntervalYM, IntervalYM::new(10, 2));
+    Ok(())
 }
 
 macro_rules! test_to_string {
@@ -62,38 +64,36 @@ macro_rules! test_to_string {
         assert_eq!(v1, v2);
     };
     ($stmt:expr, $val:expr, out: raw) => {
-        $stmt.bind(1, &OracleType::Raw(4000)).unwrap();
-        $stmt.bind(2, $val).unwrap();
+        $stmt.bind(1, &OracleType::Raw(4000))?;
+        $stmt.bind(2, $val)?;
         $stmt.execute(&[]).expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v1: String = $stmt.bind_value(1).unwrap(); // convert $val to string in Oracle
-        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust-oracle
+        let v1: String = $stmt.bind_value(1)?; // convert $val to string in Oracle
+        let v2: String = $stmt.bind_value(2)?; // convert $val to string in rust-oracle
         assert_eq!(v1, v2);
     };
     ($stmt:expr, $val:expr, $expected_str:expr) => {
-        $stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
-        $stmt.bind(2, $val).unwrap();
+        $stmt.bind(1, &OracleType::Varchar2(4000))?;
+        $stmt.bind(2, $val)?;
         $stmt.execute(&[]).expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v2: String = $stmt.bind_value(2).unwrap(); // convert $val to string in rust-oracle
+        let v2: String = $stmt.bind_value(2)?; // convert $val to string in rust-oracle
         assert_eq!(v2, $expected_str);
     };
 }
 
 #[test]
-fn to_string_in_rust_oracle() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
+fn to_string_in_rust_oracle() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
     let raw_data = vec![0x01u8, 0x19u8, 0x9au8, 0xafu8, 0xf0u8];
 
     conn.execute(
         "alter session set nls_timestamp_format = 'yyyy-mm-dd hh24:mi:ss.ff9'",
         &[],
-    )
-    .unwrap();
+    )?;
     conn.execute(
         "alter session set nls_timestamp_tz_format = 'yyyy-mm-dd hh24:mi:ss.ff9 tzh:tzm'",
         &[],
-    )
-    .unwrap();
+    )?;
 
     test_to_string!(stmt, &-123i8);
     test_to_string!(stmt, &-12345i16);
@@ -122,47 +122,46 @@ fn to_string_in_rust_oracle() {
         &(&123456789123.5f64, &OracleType::BinaryDouble),
         "123456789123.5"
     );
+    Ok(())
 }
 
 macro_rules! test_from_string {
     ($stmt:expr, $val_type:ty, $val:expr) => {
-        $stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
-        $stmt.bind(2, &$val).unwrap();
+        $stmt.bind(1, &OracleType::Varchar2(4000))?;
+        $stmt.bind(2, &$val)?;
         $stmt
             .execute(&[])
             .expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v1: String = $stmt.bind_value(1).unwrap(); // convert $val to string in Oracle
-        let v2: $val_type = $stmt.bind_value(2).unwrap(); // convert v1 to $val_type in rust-oracle
+        let v1: String = $stmt.bind_value(1)?; // convert $val to string in Oracle
+        let v2: $val_type = $stmt.bind_value(2)?; // convert v1 to $val_type in rust-oracle
         assert_eq!($val, v2, "in conversion from {}", v1);
     };
 
     ($stmt:expr, $val_type:ty, $val:expr, $bind_value:expr) => {
-        $stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
-        $stmt.bind(2, $bind_value).unwrap();
+        $stmt.bind(1, &OracleType::Varchar2(4000))?;
+        $stmt.bind(2, $bind_value)?;
         $stmt
             .execute(&[])
             .expect(format!("error at {}:{}", file!(), line!()).as_str());
-        let v1: String = $stmt.bind_value(1).unwrap(); // convert $val to string in Oracle
-        let v2: $val_type = $stmt.bind_value(2).unwrap(); // convert v1 to $val_type in rust-oracle
+        let v1: String = $stmt.bind_value(1)?; // convert $val to string in Oracle
+        let v2: $val_type = $stmt.bind_value(2)?; // convert v1 to $val_type in rust-oracle
         assert_eq!($val, v2, "in converion from {}", v1);
     };
 }
 
 #[test]
-fn from_string_in_rust_oracle() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[]).unwrap();
+fn from_string_in_rust_oracle() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
 
     conn.execute(
         "alter session set nls_timestamp_format = 'yyyy-mm-dd hh24:mi:ss.ff9'",
         &[],
-    )
-    .unwrap();
+    )?;
     conn.execute(
         "alter session set nls_timestamp_tz_format = 'yyyy-mm-dd hh24:mi:ss.ff9 tzh:tzm'",
         &[],
-    )
-    .unwrap();
+    )?;
 
     test_from_string!(stmt, i8, -123i8);
     test_from_string!(stmt, i16, -12345i16);
@@ -196,30 +195,28 @@ fn from_string_in_rust_oracle() {
         123456789123.5f64,
         &(&123456789123.5f64, &OracleType::BinaryDouble)
     );
+    Ok(())
 }
 
 #[test]
-fn bind_named() {
-    let conn = common::connect().unwrap();
-    let stmt = conn
-        .execute_named(
-            "begin :out := :in; end;",
-            &[("out", &OracleType::Varchar2(10)), ("in", &"12345")],
-        )
-        .unwrap();
-    let outval: String = stmt.bind_value("out").unwrap();
+fn bind_named() -> Result<()> {
+    let conn = common::connect()?;
+    let stmt = conn.execute_named(
+        "begin :out := :in; end;",
+        &[("out", &OracleType::Varchar2(10)), ("in", &"12345")],
+    )?;
+    let outval: String = stmt.bind_value("out")?;
     assert_eq!(outval, "12345");
 
-    let mut stmt = conn.prepare("begin :out := :in; end;", &[]).unwrap();
+    let mut stmt = conn.prepare("begin :out := :in; end;", &[])?;
     let inval: Option<&str> = Some("12345");
-    stmt.execute_named(&[("out", &OracleType::Varchar2(10)), ("in", &inval)])
-        .unwrap();
-    let outval: Option<String> = stmt.bind_value("out").unwrap();
+    stmt.execute_named(&[("out", &OracleType::Varchar2(10)), ("in", &inval)])?;
+    let outval: Option<String> = stmt.bind_value("out")?;
     assert_eq!(outval, Some("12345".to_string()));
 
     let inval: Option<&str> = None;
-    stmt.execute_named(&[("out", &OracleType::Varchar2(10)), ("in", &inval)])
-        .unwrap();
-    let outval: Option<String> = stmt.bind_value("out").unwrap();
+    stmt.execute_named(&[("out", &OracleType::Varchar2(10)), ("in", &inval)])?;
+    let outval: Option<String> = stmt.bind_value("out")?;
     assert_eq!(outval, None);
+    Ok(())
 }

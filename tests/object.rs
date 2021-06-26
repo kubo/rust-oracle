@@ -19,21 +19,21 @@ use oracle::{Result, SqlValue};
 use std::iter::Iterator;
 
 #[test]
-fn collection_udt_nestedarray() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_NESTEDARRAY").unwrap();
-    let subobjtype = conn.object_type("UDT_SUBOBJECT").unwrap();
-    let mut obj = objtype.new_collection().unwrap();
-    let mut subobj1 = subobjtype.new_object().unwrap();
-    let subobj2 = subobjtype.new_object().unwrap();
+fn collection_udt_nestedarray() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_NESTEDARRAY")?;
+    let subobjtype = conn.object_type("UDT_SUBOBJECT")?;
+    let mut obj = objtype.new_collection()?;
+    let mut subobj1 = subobjtype.new_object()?;
+    let subobj2 = subobjtype.new_object()?;
     let username = common::main_user().to_uppercase();
 
-    subobj1.set("SUBNUMBERVALUE", &1).unwrap();
-    subobj1.set("SUBSTRINGVALUE", &"STRVAL:1").unwrap();
+    subobj1.set("SUBNUMBERVALUE", &1)?;
+    subobj1.set("SUBSTRINGVALUE", &"STRVAL:1")?;
 
-    assert_eq!(obj.exist(0).unwrap(), false);
-    assert_eq!(obj.exist(1).unwrap(), false);
-    assert_eq!(obj.size().unwrap(), 0);
+    assert_eq!(obj.exist(0)?, false);
+    assert_eq!(obj.exist(1)?, false);
+    assert_eq!(obj.size()?, 0);
     let err = obj.trim(1).unwrap_err();
     assert_eq!(
         err.to_string(),
@@ -45,26 +45,23 @@ fn collection_udt_nestedarray() {
         "OCI Error: OCI-22160: element at index [0] does not exist"
     );
 
-    obj.push(&subobj1).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), true);
-    assert_eq!(obj.exist(1).unwrap(), false);
-    assert_eq!(obj.size().unwrap(), 1);
+    obj.push(&subobj1)?;
+    assert_eq!(obj.exist(0)?, true);
+    assert_eq!(obj.exist(1)?, false);
+    assert_eq!(obj.size()?, 1);
 
-    obj.push(&subobj2).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), true);
-    assert_eq!(obj.exist(1).unwrap(), true);
-    assert_eq!(obj.size().unwrap(), 2);
+    obj.push(&subobj2)?;
+    assert_eq!(obj.exist(0)?, true);
+    assert_eq!(obj.exist(1)?, true);
+    assert_eq!(obj.size()?, 2);
 
-    let subobj: Object = obj.get(0).unwrap();
-    assert_eq!(subobj.get::<i32>("SUBNUMBERVALUE").unwrap(), 1);
-    assert_eq!(subobj.get::<String>("SUBSTRINGVALUE").unwrap(), "STRVAL:1");
+    let subobj: Object = obj.get(0)?;
+    assert_eq!(subobj.get::<i32>("SUBNUMBERVALUE")?, 1);
+    assert_eq!(subobj.get::<String>("SUBSTRINGVALUE")?, "STRVAL:1");
 
-    let subobj: Object = obj.get(1).unwrap();
-    assert_eq!(subobj.get::<Option<i32>>("SUBNUMBERVALUE").unwrap(), None);
-    assert_eq!(
-        subobj.get::<Option<String>>("SUBSTRINGVALUE").unwrap(),
-        None
-    );
+    let subobj: Object = obj.get(1)?;
+    assert_eq!(subobj.get::<Option<i32>>("SUBNUMBERVALUE")?, None);
+    assert_eq!(subobj.get::<Option<String>>("SUBSTRINGVALUE")?, None);
 
     assert_eq!(objtype.to_string(), format!("{}.UDT_NESTEDARRAY", username));
     assert_eq!(
@@ -108,116 +105,108 @@ fn collection_udt_nestedarray() {
     assert_eq!(format!("{:?}", subobj2),
                format!("Object({}.UDT_SUBOBJECT(SUBNUMBERVALUE(NUMBER): NULL, SUBSTRINGVALUE(VARCHAR2(60)): NULL))", username));
 
-    obj.remove(0).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), false);
-    assert_eq!(obj.exist(1).unwrap(), true);
-    assert_eq!(obj.size().unwrap(), 2); // This counts also deleted elements. See "Comments" about OCICollSize() in OCI manual.
+    obj.remove(0)?;
+    assert_eq!(obj.exist(0)?, false);
+    assert_eq!(obj.exist(1)?, true);
+    assert_eq!(obj.size()?, 2); // This counts also deleted elements. See "Comments" about OCICollSize() in OCI manual.
 
-    obj.trim(1).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), false);
-    assert_eq!(obj.exist(1).unwrap(), false);
-    assert_eq!(obj.size().unwrap(), 1);
+    obj.trim(1)?;
+    assert_eq!(obj.exist(0)?, false);
+    assert_eq!(obj.exist(1)?, false);
+    assert_eq!(obj.size()?, 1);
 
-    obj.trim(1).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), false);
-    assert_eq!(obj.exist(1).unwrap(), false);
-    assert_eq!(obj.size().unwrap(), 0);
+    obj.trim(1)?;
+    assert_eq!(obj.exist(0)?, false);
+    assert_eq!(obj.exist(1)?, false);
+    assert_eq!(obj.size()?, 0);
 
-    let mut obj = objtype.new_collection().unwrap();
-    let mut subobj = subobjtype.new_object().unwrap();
-    subobj.set("SUBNUMBERVALUE", &1234.5679999f64).unwrap();
-    subobj.set("SUBSTRINGVALUE", &"Test String").unwrap();
-    obj.push(&subobj).unwrap();
-    assert_eq!(obj.size().unwrap(), 1);
+    let mut obj = objtype.new_collection()?;
+    let mut subobj = subobjtype.new_object()?;
+    subobj.set("SUBNUMBERVALUE", &1234.5679999f64)?;
+    subobj.set("SUBSTRINGVALUE", &"Test String")?;
+    obj.push(&subobj)?;
+    assert_eq!(obj.size()?, 1);
     let mut obj2 = obj.clone(); // shallow copy
-    obj2.push(&subobj).unwrap(); // When obj2 is changed,
-    assert_eq!(obj.size().unwrap(), 2); // obj is also changed.
-    assert_eq!(obj2.size().unwrap(), 2);
+    obj2.push(&subobj)?; // When obj2 is changed,
+    assert_eq!(obj.size()?, 2); // obj is also changed.
+    assert_eq!(obj2.size()?, 2);
+    Ok(())
 }
 
 #[test]
-fn udt_array() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_ARRAY").unwrap();
-    let mut obj = objtype.new_collection().unwrap();
+fn udt_array() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_ARRAY")?;
+    let mut obj = objtype.new_collection()?;
 
-    assert_eq!(obj.size().unwrap(), 0);
-    obj.push(&10).unwrap();
-    assert_eq!(obj.get::<i32>(0).unwrap(), 10);
-    obj.push(&11).unwrap();
-    assert_eq!(obj.exist(0).unwrap(), true);
-    assert_eq!(obj.exist(1).unwrap(), true);
-    assert_eq!(obj.exist(2).unwrap(), false);
-    obj.set(0, &12).unwrap();
-    assert_eq!(obj.get::<i32>(0).unwrap(), 12);
+    assert_eq!(obj.size()?, 0);
+    obj.push(&10)?;
+    assert_eq!(obj.get::<i32>(0)?, 10);
+    obj.push(&11)?;
+    assert_eq!(obj.exist(0)?, true);
+    assert_eq!(obj.exist(1)?, true);
+    assert_eq!(obj.exist(2)?, false);
+    obj.set(0, &12)?;
+    assert_eq!(obj.get::<i32>(0)?, 12);
+    Ok(())
 }
 
 #[test]
-fn udt_object() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_OBJECT").unwrap();
-    let subobjtype = conn.object_type("UDT_SUBOBJECT").unwrap();
-    let objarytype = conn.object_type("UDT_OBJECTARRAY").unwrap();
-    let mut obj = objtype.new_object().unwrap();
-    let mut subobj = subobjtype.new_object().unwrap();
-    let mut objary = objarytype.new_collection().unwrap();
+fn udt_object() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_OBJECT")?;
+    let subobjtype = conn.object_type("UDT_SUBOBJECT")?;
+    let objarytype = conn.object_type("UDT_OBJECTARRAY")?;
+    let mut obj = objtype.new_object()?;
+    let mut subobj = subobjtype.new_object()?;
+    let mut objary = objarytype.new_collection()?;
 
-    subobj.set("SUBNUMBERVALUE", &10).unwrap();
-    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:10").unwrap();
-    objary.push(&subobj).unwrap();
-    subobj.set("SUBNUMBERVALUE", &11).unwrap();
-    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:11").unwrap();
-    objary.push(&subobj).unwrap();
-    subobj.set("SUBNUMBERVALUE", &12).unwrap();
-    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:12").unwrap();
+    subobj.set("SUBNUMBERVALUE", &10)?;
+    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:10")?;
+    objary.push(&subobj)?;
+    subobj.set("SUBNUMBERVALUE", &11)?;
+    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:11")?;
+    objary.push(&subobj)?;
+    subobj.set("SUBNUMBERVALUE", &12)?;
+    subobj.set("SUBSTRINGVALUE", &"SUBSTRVAL:12")?;
 
-    obj.set("NUMBERVALUE", &1).unwrap();
-    obj.set("STRINGVALUE", &"STRVAL:1").unwrap();
-    obj.set("FIXEDCHARVALUE", &"CHARVAL:1").unwrap();
-    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0))
-        .unwrap();
+    obj.set("NUMBERVALUE", &1)?;
+    obj.set("STRINGVALUE", &"STRVAL:1")?;
+    obj.set("FIXEDCHARVALUE", &"CHARVAL:1")?;
+    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0))?;
     obj.set(
         "TIMESTAMPVALUE",
         &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789),
-    )
-    .unwrap();
-    obj.set("SUBOBJECTVALUE", &subobj).unwrap();
-    obj.set("SUBOBJECTARRAY", &objary).unwrap();
+    )?;
+    obj.set("SUBOBJECTVALUE", &subobj)?;
+    obj.set("SUBOBJECTARRAY", &objary)?;
 
-    assert_eq!(obj.get::<i32>("NUMBERVALUE").unwrap(), 1);
-    assert_eq!(obj.get::<String>("STRINGVALUE").unwrap(), "STRVAL:1");
-    assert_eq!(obj.get::<String>("FIXEDCHARVALUE").unwrap(), "CHARVAL:1");
+    assert_eq!(obj.get::<i32>("NUMBERVALUE")?, 1);
+    assert_eq!(obj.get::<String>("STRINGVALUE")?, "STRVAL:1");
+    assert_eq!(obj.get::<String>("FIXEDCHARVALUE")?, "CHARVAL:1");
     assert_eq!(
-        obj.get::<Timestamp>("DATEVALUE").unwrap(),
+        obj.get::<Timestamp>("DATEVALUE")?,
         Timestamp::new(2012, 3, 4, 5, 6, 7, 0)
     );
     assert_eq!(
-        obj.get::<Timestamp>("TIMESTAMPVALUE").unwrap(),
+        obj.get::<Timestamp>("TIMESTAMPVALUE")?,
         Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)
     );
     assert_eq!(
-        obj.get::<Object>("SUBOBJECTVALUE")
-            .unwrap()
-            .get::<i32>("SUBNUMBERVALUE")
-            .unwrap(),
+        obj.get::<Object>("SUBOBJECTVALUE")?
+            .get::<i32>("SUBNUMBERVALUE")?,
         12
     );
     assert_eq!(
-        obj.get::<Collection>("SUBOBJECTARRAY")
-            .unwrap()
-            .get::<Object>(0)
-            .unwrap()
-            .get::<i32>("SUBNUMBERVALUE")
-            .unwrap(),
+        obj.get::<Collection>("SUBOBJECTARRAY")?
+            .get::<Object>(0)?
+            .get::<i32>("SUBNUMBERVALUE")?,
         10
     );
     assert_eq!(
-        obj.get::<Collection>("SUBOBJECTARRAY")
-            .unwrap()
-            .get::<Object>(1)
-            .unwrap()
-            .get::<i32>("SUBNUMBERVALUE")
-            .unwrap(),
+        obj.get::<Collection>("SUBOBJECTARRAY")?
+            .get::<Object>(1)?
+            .get::<i32>("SUBNUMBERVALUE")?,
         11
     );
 
@@ -231,46 +220,43 @@ fn udt_object() {
         err.to_string(),
         "invalid type conversion from NUMBER to Collection"
     );
+    Ok(())
 }
 
 #[test]
-fn udt_stringlist() {
-    let conn = common::connect().unwrap();
-    if !common::check_oracle_version("udt_stringlist", &conn, 12, 1) {
-        return;
+fn udt_stringlist() -> Result<()> {
+    let conn = common::connect()?;
+    if !common::check_oracle_version("udt_stringlist", &conn, 12, 1)? {
+        return Ok(());
     }
-    let objtype = conn
-        .object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST")
-        .unwrap();
+    let objtype = conn.object_type("PKG_TESTSTRINGARRAYS.UDT_STRINGLIST")?;
 
-    let mut stmt = conn
-        .prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;", &[])
-        .unwrap();
-    stmt.execute(&[&OracleType::Object(objtype)]).unwrap();
-    let obj: Collection = stmt.bind_value(1).unwrap();
+    let mut stmt = conn.prepare("begin pkg_TestStringArrays.TestIndexBy(:1); end;", &[])?;
+    stmt.execute(&[&OracleType::Object(objtype)])?;
+    let obj: Collection = stmt.bind_value(1)?;
 
     // first index
-    let idx = obj.first_index().unwrap();
+    let idx = obj.first_index()?;
     assert_eq!(idx, -1048576);
-    let val: String = obj.get(idx).unwrap();
+    let val: String = obj.get(idx)?;
     assert_eq!(val, "First element");
 
     // second index
-    let idx = obj.next_index(idx).unwrap();
+    let idx = obj.next_index(idx)?;
     assert_eq!(idx, -576);
-    let val: String = obj.get(idx).unwrap();
+    let val: String = obj.get(idx)?;
     assert_eq!(val, "Second element");
 
     // third index
-    let idx = obj.next_index(idx).unwrap();
+    let idx = obj.next_index(idx)?;
     assert_eq!(idx, 284);
-    let val: String = obj.get(idx).unwrap();
+    let val: String = obj.get(idx)?;
     assert_eq!(val, "Third element");
 
     // fourth index
-    let idx = obj.next_index(idx).unwrap();
+    let idx = obj.next_index(idx)?;
     assert_eq!(idx, 8388608);
-    let val: String = obj.get(idx).unwrap();
+    let val: String = obj.get(idx)?;
     assert_eq!(val, "Fourth element");
 
     // out of index
@@ -278,22 +264,23 @@ fn udt_stringlist() {
     assert_eq!(err.to_string(), "No data found");
 
     // previous indexes from last
-    let idx = obj.last_index().unwrap();
+    let idx = obj.last_index()?;
     assert_eq!(idx, 8388608);
-    let idx = obj.prev_index(idx).unwrap();
+    let idx = obj.prev_index(idx)?;
     assert_eq!(idx, 284);
-    let idx = obj.prev_index(idx).unwrap();
+    let idx = obj.prev_index(idx)?;
     assert_eq!(idx, -576);
-    let idx = obj.prev_index(idx).unwrap();
+    let idx = obj.prev_index(idx)?;
     assert_eq!(idx, -1048576);
     let err = obj.prev_index(idx).unwrap_err();
     assert_eq!(err.to_string(), "No data found");
+    Ok(())
 }
 
 #[test]
-fn sdo_geometry() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("MDSYS.SDO_GEOMETRY").unwrap();
+fn sdo_geometry() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("MDSYS.SDO_GEOMETRY")?;
     let expectec_attrs = [
         ["SDO_GTYPE", "NUMBER"],
         ["SDO_SRID", "NUMBER"],
@@ -314,22 +301,19 @@ fn sdo_geometry() {
     // 2.7.1 Rectangle
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-9354E585-2B45-43EC-95B3-87A3EAA4BB2E
     let text = "MDSYS.SDO_GEOMETRY(2003, NULL, NULL, MDSYS.SDO_ELEM_INFO_ARRAY(1, 1003, 3), MDSYS.SDO_ORDINATE_ARRAY(1, 1, 5, 7))";
-    let mut stmt = conn
-        .prepare(&format!("begin :1 := {}; end;", text), &[])
-        .unwrap();
-    stmt.execute(&[&oratype]).unwrap();
-    let obj: Object = stmt.bind_value(1).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[])?;
+    stmt.execute(&[&oratype])?;
+    let obj: Object = stmt.bind_value(1)?;
     assert_eq!(obj.to_string(), text);
 
     // 2.7.5 Point
     // https://docs.oracle.com/database/122/SPATL/spatial-datatypes-metadata.htm#GUID-990FC1F2-5EA2-468A-82AC-CDA7B6BEA17D
     let text = "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(12, 14, NULL), NULL, NULL)";
-    let mut stmt = conn
-        .prepare(&format!("begin :1 := {}; end;", text), &[])
-        .unwrap();
-    stmt.execute(&[&oratype]).unwrap();
-    let obj: Object = stmt.bind_value(1).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :1 := {}; end;", text), &[])?;
+    stmt.execute(&[&oratype])?;
+    let obj: Object = stmt.bind_value(1)?;
     assert_eq!(obj.to_string(), text);
+    Ok(())
 }
 
 #[derive(Debug, PartialEq)]
@@ -440,16 +424,15 @@ impl FromSql for UdtArray {
 }
 
 #[test]
-fn select_objects() {
-    let conn = common::connect().unwrap();
+fn select_objects() -> Result<()> {
+    let conn = common::connect()?;
     let sql = "select * from TestObjects order by IntCol";
-    let mut stmt = conn.prepare(sql, &[]).unwrap();
+    let mut stmt = conn.prepare(sql, &[])?;
     for (idx, row_result) in stmt
-        .query_as::<(usize, Option<UdtObject>, Option<UdtArray>)>(&[])
-        .unwrap()
+        .query_as::<(usize, Option<UdtObject>, Option<UdtArray>)>(&[])?
         .enumerate()
     {
-        let row = row_result.unwrap();
+        let row = row_result?;
         assert_eq!(row.0, idx + 1);
         match row.0 {
             1 => {
@@ -503,4 +486,5 @@ fn select_objects() {
             _ => panic!("Unexpected IntCol value: {}", row.0),
         }
     }
+    Ok(())
 }

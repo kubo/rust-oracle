@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 use oracle::sql_type::{FromSql, OracleType, ToSql};
-use oracle::{Connection, Error, Row, RowValue, Version};
+use oracle::{Connection, Error, Result, Row, RowValue, Version};
 use std::env;
 use std::thread::sleep;
 use std::time;
@@ -54,17 +54,22 @@ pub fn dir_name() -> String {
 }
 
 #[allow(dead_code)]
-pub fn connect() -> Result<Connection, Error> {
+pub fn connect() -> Result<Connection> {
     Connection::connect(&main_user(), &main_password(), &connect_string())
 }
 
 #[allow(dead_code)]
-pub fn check_oracle_version(test_name: &str, conn: &Connection, major: i32, minor: i32) -> bool {
+pub fn check_oracle_version(
+    test_name: &str,
+    conn: &Connection,
+    major: i32,
+    minor: i32,
+) -> Result<bool> {
     let ver = Version::new(major, minor, 0, 0, 0);
-    let client_ver = Version::client().unwrap();
-    let server_ver = conn.server_version().unwrap();
+    let client_ver = Version::client()?;
+    let server_ver = conn.server_version()?;
     if client_ver >= ver && server_ver.0 >= ver {
-        true
+        Ok(true)
     } else {
         println!(
             "Skip {}, which requires an Oracle {}.{} feature.",
@@ -72,7 +77,7 @@ pub fn check_oracle_version(test_name: &str, conn: &Connection, major: i32, mino
             ver.major(),
             ver.minor()
         );
-        false
+        Ok(false)
     }
 }
 
@@ -87,7 +92,7 @@ macro_rules! test_from_sql {
             $expected_result,
             file!(),
             line!(),
-        );
+        )?;
     };
 }
 
@@ -99,12 +104,11 @@ pub fn test_from_sql<T>(
     expected_result: &T,
     file: &str,
     line: u32,
-) where
+) -> Result<()>
+where
     T: FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq,
 {
-    let mut stmt = conn
-        .prepare(&format!("select {} from dual", column_literal), &[])
-        .unwrap();
+    let mut stmt = conn.prepare(&format!("select {} from dual", column_literal), &[])?;
     let mut rows = stmt
         .query_as::<T>(&[])
         .expect(format!("error at {}:{}", file, line).as_str());
@@ -115,8 +119,9 @@ pub fn test_from_sql<T>(
         file,
         line
     );
-    let result = rows.next().unwrap().unwrap();
+    let result = rows.next().unwrap()?;
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
+    Ok(())
 }
 
 #[macro_export]
@@ -130,7 +135,7 @@ macro_rules! test_to_sql {
             $expected_result,
             file!(),
             line!(),
-        );
+        )?;
     };
 }
 
@@ -142,18 +147,18 @@ pub fn test_to_sql<T>(
     expected_result: &str,
     file: &str,
     line: u32,
-) where
+) -> Result<()>
+where
     T: ToSql,
 {
-    let mut stmt = conn
-        .prepare(&format!("begin :out := {}; end;", input_literal), &[])
-        .unwrap();
-    stmt.bind(1, &OracleType::Varchar2(4000)).unwrap();
-    stmt.bind(2, input_data).unwrap();
+    let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal), &[])?;
+    stmt.bind(1, &OracleType::Varchar2(4000))?;
+    stmt.bind(2, input_data)?;
     stmt.execute(&[])
         .expect(format!("error at {}:{}", file, line).as_str());
-    let result: String = stmt.bind_value(1).unwrap();
+    let result: String = stmt.bind_value(1)?;
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
+    Ok(())
 }
 
 #[allow(dead_code)]
@@ -166,7 +171,7 @@ pub struct TestString {
 }
 
 impl RowValue for TestString {
-    fn get(row: &Row) -> Result<TestString, Error> {
+    fn get(row: &Row) -> Result<TestString> {
         Ok(TestString {
             int_col: row.get(0)?,
             string_col: row.get(1)?,
@@ -283,7 +288,7 @@ pub fn assert_test_string_tuple(idx: usize, row: &TestStringTuple) {
 }
 
 #[allow(dead_code)]
-pub fn truncate_table(conn: &Connection, table_name: &str) -> Result<(), Error> {
+pub fn truncate_table(conn: &Connection, table_name: &str) -> Result<()> {
     let sql = format!("truncate table {}", table_name);
     let mut retry_count = 0;
     loop {

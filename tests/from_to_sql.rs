@@ -16,22 +16,22 @@
 mod common;
 
 use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
-use oracle::Error;
+use oracle::{Error, Result};
 
 macro_rules! chk_num_from {
     ($conn:ident, $val_from:expr, $val_to:expr, $(($T:ident, $success:tt)),+) => {
-        let row = $conn.query_row(&format!("select {} from dual", $val_from), &[]).unwrap();
+        let row = $conn.query_row(&format!("select {} from dual", $val_from), &[])?;
         $(
             chk_num_from!(row, $val_from, $T, $success);
         )+
 
-        let row = $conn.query_row(&format!("select {} from dual", $val_to), &[]).unwrap();
+        let row = $conn.query_row(&format!("select {} from dual", $val_to), &[])?;
         $(
             chk_num_from!(row, $val_to, $T, $success);
         )+
     };
     ($row:ident, $val:expr, $T:ident, true) => {
-        assert_eq!($val as $T, $row.get_as::<$T>().unwrap());
+        assert_eq!($val as $T, $row.get_as::<$T>()?);
     };
     ($row:ident, $val:expr, $T:ident, false) => {
         let err = $row.get_as::<$T>().unwrap_err();
@@ -43,8 +43,8 @@ macro_rules! chk_num_from {
 }
 
 #[test]
-fn string_from_sql() {
-    let conn = common::connect().unwrap();
+fn string_from_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     // Get number as string
     test_from_sql!(&conn, "10", &OracleType::Number(0, -127), &"10".to_string());
@@ -114,32 +114,27 @@ fn string_from_sql() {
     );
 
     // Get CLOB as string
-    conn.execute("insert into TestCLOBs values (1, 'CLOB DATA')", &[])
-        .unwrap();
+    conn.execute("insert into TestCLOBs values (1, 'CLOB DATA')", &[])?;
     assert_eq!(
-        conn.query_row_as::<String>("select CLOBCol from TestCLOBs where IntCol = 1", &[])
-            .unwrap(),
+        conn.query_row_as::<String>("select CLOBCol from TestCLOBs where IntCol = 1", &[])?,
         "CLOB DATA".to_string()
     );
-    conn.rollback().unwrap();
+    conn.rollback()?;
 
     // Get BLOB as string
     conn.execute(
         "insert into TestBLOBs values (1, '424C4F422044415441')",
         &[],
-    )
-    .unwrap();
+    )?;
     assert_eq!(
-        conn.query_row_as::<String>("select BLOBCol from TestBLOBs where IntCol = 1", &[])
-            .unwrap(),
+        conn.query_row_as::<String>("select BLOBCol from TestBLOBs where IntCol = 1", &[])?,
         "424C4F422044415441".to_string()
     );
-    conn.rollback().unwrap();
+    conn.rollback()?;
 
     // Get object type as string
     assert_eq!(
-        conn.query_row_as::<String>("select udt_SubObject(1, '10') from dual", &[])
-            .unwrap(),
+        conn.query_row_as::<String>("select udt_SubObject(1, '10') from dual", &[])?,
         format!(
             r#"{}.UDT_SUBOBJECT(1, "10")"#, //  TODO: fix "10" -> '10'
             common::main_user().to_uppercase()
@@ -148,37 +143,32 @@ fn string_from_sql() {
 
     // Get rowid as string
     assert_eq!(
-        conn.query_row_as::<String>("select rowid from dual", &[])
-            .unwrap(),
-        conn.query_row_as::<String>("select rowidtochar(rowid) from dual", &[])
-            .unwrap()
+        conn.query_row_as::<String>("select rowid from dual", &[])?,
+        conn.query_row_as::<String>("select rowidtochar(rowid) from dual", &[])?
     );
 
     // Get boolean as bool and string
-    if common::check_oracle_version("bind boolean", &conn, 12, 1) {
-        let mut stmt = conn
-            .prepare("declare b boolean; begin :1 := TRUE; end;", &[])
-            .unwrap();
-        stmt.execute(&[&None::<bool>]).unwrap();
-        let val: bool = stmt.bind_value(1).unwrap();
+    if common::check_oracle_version("bind boolean", &conn, 12, 1)? {
+        let mut stmt = conn.prepare("declare b boolean; begin :1 := TRUE; end;", &[])?;
+        stmt.execute(&[&None::<bool>])?;
+        let val: bool = stmt.bind_value(1)?;
         assert_eq!(val, true);
-        let val: String = stmt.bind_value(1).unwrap();
+        let val: String = stmt.bind_value(1)?;
         assert_eq!(val, "TRUE".to_string());
 
-        let mut stmt = conn
-            .prepare("declare b boolean; begin :1 := FALSE; end;", &[])
-            .unwrap();
-        stmt.execute(&[&None::<bool>]).unwrap();
-        let val: bool = stmt.bind_value(1).unwrap();
+        let mut stmt = conn.prepare("declare b boolean; begin :1 := FALSE; end;", &[])?;
+        stmt.execute(&[&None::<bool>])?;
+        let val: bool = stmt.bind_value(1)?;
         assert_eq!(val, false);
-        let val: String = stmt.bind_value(1).unwrap();
+        let val: String = stmt.bind_value(1)?;
         assert_eq!(val, "FALSE".to_string());
     }
+    Ok(())
 }
 
 #[test]
-fn numeric_from_sql() {
-    let conn = common::connect().unwrap();
+fn numeric_from_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     chk_num_from!(
         conn,
@@ -427,32 +417,27 @@ fn numeric_from_sql() {
             (usize, false)
         );
     }
+    Ok(())
 }
 
 macro_rules! chk_num_to {
     ($stmt:expr, $typ:ident) => {
         let min_val = $typ::min_value();
-        $stmt
-            .execute(&[&OracleType::Varchar2(20), &min_val])
-            .unwrap();
-        let v: String = $stmt.bind_value(1).unwrap();
+        $stmt.execute(&[&OracleType::Varchar2(20), &min_val])?;
+        let v: String = $stmt.bind_value(1)?;
         assert_eq!(v, min_val.to_string());
 
         let max_val = $typ::min_value();
-        $stmt
-            .execute(&[&OracleType::Varchar2(20), &max_val])
-            .unwrap();
-        let v: String = $stmt.bind_value(1).unwrap();
+        $stmt.execute(&[&OracleType::Varchar2(20), &max_val])?;
+        let v: String = $stmt.bind_value(1)?;
         assert_eq!(v, max_val.to_string());
     };
 }
 
 #[test]
-fn numeric_to_sql() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn
-        .prepare("begin :out := to_char(:in); end;", &[])
-        .unwrap();
+fn numeric_to_sql() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("begin :out := to_char(:in); end;", &[])?;
     chk_num_to!(stmt, i8);
     chk_num_to!(stmt, i16);
     chk_num_to!(stmt, i32);
@@ -463,11 +448,12 @@ fn numeric_to_sql() {
     chk_num_to!(stmt, u32);
     chk_num_to!(stmt, u64);
     chk_num_to!(stmt, usize);
+    Ok(())
 }
 
 #[test]
-fn raw_from_to_sql() {
-    let conn = common::connect().unwrap();
+fn raw_from_to_sql() -> Result<()> {
+    let conn = common::connect()?;
     let raw = b"0123456789".to_vec();
     let hex = "30313233343536373839";
 
@@ -479,6 +465,7 @@ fn raw_from_to_sql() {
     );
 
     test_to_sql!(&conn, &raw, "rawtohex(:1)", hex);
+    Ok(())
 }
 
 //
@@ -486,8 +473,8 @@ fn raw_from_to_sql() {
 //
 
 #[test]
-fn timestamp_from_sql() {
-    let conn = common::connect().unwrap();
+fn timestamp_from_sql() -> Result<()> {
+    let conn = common::connect()?;
     let ts = Timestamp::new(2012, 3, 4, 0, 0, 0, 0);
 
     test_from_sql!(&conn, "DATE '2012-03-04'", &OracleType::Date, &ts);
@@ -575,11 +562,12 @@ fn timestamp_from_sql() {
         &OracleType::TimestampTZ(9),
         &ts
     );
+    Ok(())
 }
 
 #[test]
-fn timestamp_to_sql() {
-    let conn = common::connect().unwrap();
+fn timestamp_to_sql() -> Result<()> {
+    let conn = common::connect()?;
     let ts = Timestamp::new(2012, 3, 4, 0, 0, 0, 0);
 
     test_to_sql!(
@@ -673,6 +661,7 @@ fn timestamp_to_sql() {
         "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS TZH:TZM')",
         "2012-03-04 05:06:07 -08:45"
     );
+    Ok(())
 }
 
 //
@@ -680,8 +669,8 @@ fn timestamp_to_sql() {
 //
 
 #[test]
-fn interval_ds_from_sql() {
-    let conn = common::connect().unwrap();
+fn interval_ds_from_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     let it = IntervalDS::new(1, 2, 3, 4, 0);
     test_from_sql!(
@@ -730,11 +719,12 @@ fn interval_ds_from_sql() {
         &OracleType::IntervalDS(9, 9),
         &it
     );
+    Ok(())
 }
 
 #[test]
-fn interval_ds_to_sql() {
-    let conn = common::connect().unwrap();
+fn interval_ds_to_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     let it = IntervalDS::new(1, 2, 3, 4, 0);
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+000000001 02:03:04.000000000");
@@ -753,6 +743,7 @@ fn interval_ds_to_sql() {
 
     let it = IntervalDS::new(-123456789, -2, -3, -4, -123456789);
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-123456789 02:03:04.123456789");
+    Ok(())
 }
 
 //
@@ -760,8 +751,8 @@ fn interval_ds_to_sql() {
 //
 
 #[test]
-fn interval_ym_from_sql() {
-    let conn = common::connect().unwrap();
+fn interval_ym_from_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     let it = IntervalYM::new(1, 2);
     test_from_sql!(
@@ -794,11 +785,12 @@ fn interval_ym_from_sql() {
         &OracleType::IntervalYM(9),
         &it
     );
+    Ok(())
 }
 
 #[test]
-fn interval_ym_to_sql() {
-    let conn = common::connect().unwrap();
+fn interval_ym_to_sql() -> Result<()> {
+    let conn = common::connect()?;
 
     let it = IntervalYM::new(1, 2);
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+000000001-02");
@@ -810,6 +802,7 @@ fn interval_ym_to_sql() {
 
     let it = IntervalYM::new(-123456789, -2);
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-123456789-02");
+    Ok(())
 }
 
 #[cfg(feature = "chrono")]
@@ -821,7 +814,7 @@ mod chrono {
     use chrono::prelude::*;
     use chrono::Duration;
     use oracle::sql_type::OracleType;
-    use oracle::Error;
+    use oracle::{Error, Result};
 
     //
     // chrono::DateTime<Utc>
@@ -830,8 +823,8 @@ mod chrono {
     //
 
     #[test]
-    fn datetime_from_sql() {
-        let conn = common::connect().unwrap();
+    fn datetime_from_sql() -> Result<()> {
+        let conn = common::connect()?;
         let fixed_utc = FixedOffset::east(0);
         let fixed_cet = FixedOffset::east(3600);
 
@@ -906,11 +899,12 @@ mod chrono {
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
+        Ok(())
     }
 
     #[test]
-    fn datetime_to_sql() {
-        let conn = common::connect().unwrap();
+    fn datetime_to_sql() -> Result<()> {
+        let conn = common::connect()?;
         let dttm_utc = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
         let dttm_local = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
         let dttm_fixed_cet = FixedOffset::east(3600)
@@ -947,6 +941,7 @@ mod chrono {
             "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
             "2012-03-04 05:06:07.123456789 +01:00"
         );
+        Ok(())
     }
 
     //
@@ -956,8 +951,8 @@ mod chrono {
     //
 
     #[test]
-    fn date_from_sql() {
-        let conn = common::connect().unwrap();
+    fn date_from_sql() -> Result<()> {
+        let conn = common::connect()?;
         let fixed_utc = FixedOffset::east(0);
         let fixed_cet = FixedOffset::east(3600);
 
@@ -1032,11 +1027,12 @@ mod chrono {
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
+        Ok(())
     }
 
     #[test]
-    fn date_to_sql() {
-        let conn = common::connect().unwrap();
+    fn date_to_sql() -> Result<()> {
+        let conn = common::connect()?;
         let dttm_utc = Utc.ymd(2012, 3, 4);
         let dttm_local = Local.ymd(2012, 3, 4);
         let dttm_fixed_cet = FixedOffset::east(3600).ymd(2012, 3, 4);
@@ -1071,6 +1067,7 @@ mod chrono {
             "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
             "2012-03-04 00:00:00.000000000 +01:00"
         );
+        Ok(())
     }
 
     //
@@ -1078,8 +1075,8 @@ mod chrono {
     //
 
     #[test]
-    fn naive_datetime_from_sql() {
-        let conn = common::connect().unwrap();
+    fn naive_datetime_from_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // DATE -> NaiveDateTime
         let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms(5, 6, 7);
@@ -1104,11 +1101,12 @@ mod chrono {
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
+        Ok(())
     }
 
     #[test]
-    fn naive_datetime_to_sql() {
-        let conn = common::connect().unwrap();
+    fn naive_datetime_to_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // NaiveDateTime -> TIMESTAMP
         let dttm = NaiveDate::from_ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
@@ -1118,6 +1116,7 @@ mod chrono {
             "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
             "2012-03-04 05:06:07.123456789"
         );
+        Ok(())
     }
 
     //
@@ -1125,8 +1124,8 @@ mod chrono {
     //
 
     #[test]
-    fn naive_date_from_sql() {
-        let conn = common::connect().unwrap();
+    fn naive_date_from_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // DATE -> NaiveDate
         let dttm = NaiveDate::from_ymd(2012, 3, 4);
@@ -1151,11 +1150,12 @@ mod chrono {
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
+        Ok(())
     }
 
     #[test]
-    fn naive_date_to_sql() {
-        let conn = common::connect().unwrap();
+    fn naive_date_to_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // NaiveDate -> TIMESTAMP
         let dttm = NaiveDate::from_ymd(2012, 3, 4);
@@ -1165,6 +1165,7 @@ mod chrono {
             "TO_CHAR(:1, 'YYYY-MM-DD HH24:MI:SS.FF9')",
             "2012-03-04 00:00:00.000000000"
         );
+        Ok(())
     }
 
     //
@@ -1172,8 +1173,8 @@ mod chrono {
     //
 
     #[test]
-    fn duration_from_sql() {
-        let conn = common::connect().unwrap();
+    fn duration_from_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // INTERVAL DAY TO SECOND -> Duration
         let d = Duration::days(1)
@@ -1214,11 +1215,12 @@ mod chrono {
             &OracleType::IntervalDS(9, 9),
             &d
         );
+        Ok(())
     }
 
     #[test]
-    fn duration_to_sql() {
-        let conn = common::connect().unwrap();
+    fn duration_to_sql() -> Result<()> {
+        let conn = common::connect()?;
 
         // Duration -> INTERVAL DAY TO SECOND
         let d = Duration::days(1)
@@ -1243,13 +1245,12 @@ mod chrono {
 
         // Overflow
         let d = Duration::days(1000000000);
-        let mut stmt = conn
-            .prepare("begin :out := TO_CHAR(:1); end;", &[])
-            .unwrap();
+        let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;", &[])?;
         let bind_result = stmt.bind(2, &d);
         if let Err(Error::OutOfRange(_)) = bind_result { /* OK */
         } else {
             panic!("Duration 1000000000 days should not be converted to interval day to second!");
         }
+        Ok(())
     }
 }

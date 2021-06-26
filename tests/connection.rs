@@ -15,133 +15,121 @@
 
 mod common;
 
-use oracle::{ConnStatus, Connector};
+use oracle::{ConnStatus, Connector, Result};
 
 #[test]
-fn app_context() {
+fn app_context() -> Result<()> {
     let conn = Connector::new(
         common::main_user(),
         common::main_password(),
         common::connect_string(),
     )
     .app_context("CLIENTCONTEXT", "foo", "bar")
-    .connect()
-    .unwrap();
-    let val = conn
-        .query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[])
-        .unwrap();
+    .connect()?;
+    let val =
+        conn.query_row_as::<String>("select sys_context('CLIENTCONTEXT', 'foo') from dual", &[])?;
     assert_eq!(val, "bar");
+    Ok(())
 }
 
 #[test]
-fn test_autocommit() {
-    let mut conn = common::connect().unwrap();
+fn test_autocommit() -> Result<()> {
+    let mut conn = common::connect()?;
 
-    common::truncate_table(&conn, "TestTempTable").unwrap();
+    common::truncate_table(&conn, "TestTempTable")?;
 
     // Autocommit is disabled by default.
     assert_eq!(conn.autocommit(), false);
-    conn.execute("insert into TestTempTable values(1, '1')", &[])
-        .unwrap();
-    conn.rollback().unwrap();
-    let (row_count,) = conn
-        .query_row_as::<(u32,)>("select count(*) from TestTempTable", &[])
-        .unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])?;
+    conn.rollback()?;
+    let (row_count,) = conn.query_row_as::<(u32,)>("select count(*) from TestTempTable", &[])?;
     assert_eq!(row_count, 0);
 
     // Enable autocommit
     conn.set_autocommit(true);
     assert_eq!(conn.autocommit(), true);
-    conn.execute("insert into TestTempTable values(1, '1')", &[])
-        .unwrap();
-    conn.rollback().unwrap();
-    let row_count = conn
-        .query_row_as::<u32>("select count(*) from TestTempTable", &[])
-        .unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])?;
+    conn.rollback()?;
+    let row_count = conn.query_row_as::<u32>("select count(*) from TestTempTable", &[])?;
     assert_eq!(row_count, 1);
-    conn.execute("delete TestTempTable where IntCol = 1", &[])
-        .unwrap();
+    conn.execute("delete TestTempTable where IntCol = 1", &[])?;
 
     // Disable autocommit
     conn.set_autocommit(false);
     assert_eq!(conn.autocommit(), false);
-    conn.execute("insert into TestTempTable values(1, '1')", &[])
-        .unwrap();
-    conn.rollback().unwrap();
-    let row_count = conn
-        .query_row_as::<u32>("select count(*) from TestTempTable", &[])
-        .unwrap();
+    conn.execute("insert into TestTempTable values(1, '1')", &[])?;
+    conn.rollback()?;
+    let row_count = conn.query_row_as::<u32>("select count(*) from TestTempTable", &[])?;
     assert_eq!(row_count, 0);
+    Ok(())
 }
 
 #[test]
-fn execute() {
-    let conn = common::connect().unwrap();
+fn execute() -> Result<()> {
+    let conn = common::connect()?;
 
-    conn.execute("delete from TestTempTable", &[]).unwrap();
+    conn.execute("delete from TestTempTable", &[])?;
     if conn.execute("select * from TestTempTable", &[]).is_ok() {
         panic!("No error for select statements");
     }
+    Ok(())
 }
 
 #[test]
-fn query() {
-    let conn = common::connect().unwrap();
+fn query() -> Result<()> {
+    let conn = common::connect()?;
     let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
 
-    let rows = conn.query(sql, &[&2]).unwrap();
+    let rows = conn.query(sql, &[&2])?;
     for (idx, row_result) in rows.enumerate() {
-        let row = row_result.unwrap();
+        let row = row_result?;
         common::assert_test_string_row(idx + 2, &row);
     }
 
-    let rows = conn.query_named(sql, &[("icol", &3)]).unwrap();
+    let rows = conn.query_named(sql, &[("icol", &3)])?;
     for (idx, row_result) in rows.enumerate() {
-        let row = row_result.unwrap();
+        let row = row_result?;
         common::assert_test_string_row(idx + 3, &row);
     }
 
-    let rows = conn.query_as::<common::TestString>(sql, &[&4]).unwrap();
+    let rows = conn.query_as::<common::TestString>(sql, &[&4])?;
     for (idx, row_result) in rows.enumerate() {
-        let row = row_result.unwrap();
+        let row = row_result?;
         common::assert_test_string_type(idx + 4, &row);
     }
 
-    let rows = conn
-        .query_as_named::<common::TestStringTuple>(sql, &[("icol", &5)])
-        .unwrap();
+    let rows = conn.query_as_named::<common::TestStringTuple>(sql, &[("icol", &5)])?;
     for (idx, row_result) in rows.enumerate() {
-        let row = row_result.unwrap();
+        let row = row_result?;
         common::assert_test_string_tuple(idx + 5, &row);
     }
+    Ok(())
 }
 
 #[test]
-fn query_row() {
-    let conn = common::connect().unwrap();
+fn query_row() -> Result<()> {
+    let conn = common::connect()?;
     let sql = "select * from TestStrings where IntCol = :icol";
 
-    let row = conn.query_row(sql, &[&2]).unwrap();
+    let row = conn.query_row(sql, &[&2])?;
     common::assert_test_string_row(2, &row);
 
-    let row = conn.query_row_named(sql, &[("icol", &3)]).unwrap();
+    let row = conn.query_row_named(sql, &[("icol", &3)])?;
     common::assert_test_string_row(3, &row);
 
-    let row = conn
-        .query_row_as::<common::TestStringTuple>(sql, &[&4])
-        .unwrap();
+    let row = conn.query_row_as::<common::TestStringTuple>(sql, &[&4])?;
     common::assert_test_string_tuple(4, &row);
 
-    let row = conn
-        .query_row_as_named::<common::TestString>(sql, &[("icol", &5)])
-        .unwrap();
+    let row = conn.query_row_as_named::<common::TestString>(sql, &[("icol", &5)])?;
     common::assert_test_string_type(5, &row);
+    Ok(())
 }
 
 #[test]
-fn status() {
-    let conn = common::connect().unwrap();
-    assert_eq!(conn.status().unwrap(), ConnStatus::Normal);
-    conn.close().unwrap();
-    assert_eq!(conn.status().unwrap(), ConnStatus::Closed);
+fn status() -> Result<()> {
+    let conn = common::connect()?;
+    assert_eq!(conn.status()?, ConnStatus::Normal);
+    conn.close()?;
+    assert_eq!(conn.status()?, ConnStatus::Closed);
+    Ok(())
 }

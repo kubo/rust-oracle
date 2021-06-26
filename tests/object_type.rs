@@ -16,13 +16,13 @@
 mod common;
 
 use oracle::sql_type::{ObjectType, OracleType};
-use oracle::Version;
+use oracle::{Result, Version};
 
 #[test]
-fn invalid_obj() {
-    let conn = common::connect().unwrap();
+fn invalid_obj() -> Result<()> {
+    let conn = common::connect()?;
     let err = conn.object_type("DUMMY_OBJECT").unwrap_err();
-    if Version::client().unwrap().major() >= 12 {
+    if Version::client()?.major() >= 12 {
         assert_eq!(
             err.to_string(),
             "OCI Error: OCI-22303: type \"\".\"DUMMY_OBJECT\" not found"
@@ -33,27 +33,28 @@ fn invalid_obj() {
             "OCI Error: ORA-04043: object DUMMY_OBJECT does not exist"
         );
     }
+    Ok(())
 }
 
 #[test]
-fn udt_objectdatatypes() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_OBJECTDATATYPES").unwrap();
+fn udt_objectdatatypes() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_OBJECTDATATYPES")?;
 
     assert_udt_objectdatatypes(&objtype);
+    Ok(())
 }
 
 #[test]
-fn udt_objectdatatypes_in_query() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn
-        .prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[])
-        .unwrap();
-    let rows = stmt.query(&[]).unwrap();
+fn udt_objectdatatypes_in_query() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[])?;
+    let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_objectdatatypes(objtype),
         _ => assert!(false),
     }
+    Ok(())
 }
 
 fn assert_udt_objectdatatypes(objtype: &ObjectType) {
@@ -89,23 +90,23 @@ fn assert_udt_objectdatatypes(objtype: &ObjectType) {
 }
 
 #[test]
-fn udt_object() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_OBJECT").unwrap();
+fn udt_object() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_OBJECT")?;
     assert_udt_object(&objtype);
+    Ok(())
 }
 
 #[test]
-fn udt_object_in_query() {
-    let conn = common::connect().unwrap();
-    let mut stmt = conn
-        .prepare("select ObjectCol from TestObjects where 1 = 0", &[])
-        .unwrap();
-    let rows = stmt.query(&[]).unwrap();
+fn udt_object_in_query() -> Result<()> {
+    let conn = common::connect()?;
+    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0", &[])?;
+    let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_object(objtype),
         _ => assert!(false),
     }
+    Ok(())
 }
 
 fn assert_udt_object(objtype: &ObjectType) {
@@ -176,9 +177,9 @@ fn assert_udt_subobject(oratype: &OracleType) {
 }
 
 #[test]
-fn udt_array() {
-    let conn = common::connect().unwrap();
-    let objtype = conn.object_type("UDT_ARRAY").unwrap();
+fn udt_array() -> Result<()> {
+    let conn = common::connect()?;
+    let objtype = conn.object_type("UDT_ARRAY")?;
     let username = common::main_user().to_uppercase();
 
     assert_eq!(objtype.schema(), username);
@@ -191,17 +192,16 @@ fn udt_array() {
     assert_eq!(objtype.num_attributes(), 0);
     let attrs = objtype.attributes();
     assert_eq!(attrs.len(), 0);
+    Ok(())
 }
 
 #[test]
-fn pkg_testnumberarrays_udt_numberlist() {
-    let conn = common::connect().unwrap();
-    if !common::check_oracle_version("pkg_testnumberarrays_udt_numberlist", &conn, 12, 1) {
-        return;
+fn pkg_testnumberarrays_udt_numberlist() -> Result<()> {
+    let conn = common::connect()?;
+    if !common::check_oracle_version("pkg_testnumberarrays_udt_numberlist", &conn, 12, 1)? {
+        return Ok(());
     }
-    let objtype = conn
-        .object_type("PKG_TESTNUMBERARRAYS.UDT_NUMBERLIST")
-        .unwrap();
+    let objtype = conn.object_type("PKG_TESTNUMBERARRAYS.UDT_NUMBERLIST")?;
     let username = common::main_user().to_uppercase();
 
     assert_eq!(objtype.schema(), username);
@@ -214,15 +214,16 @@ fn pkg_testnumberarrays_udt_numberlist() {
     assert_eq!(objtype.num_attributes(), 0);
     let attrs = objtype.attributes();
     assert_eq!(attrs.len(), 0);
+    Ok(())
 }
 
 #[test]
-fn pkg_testrecords_udt_record() {
-    let conn = common::connect().unwrap();
-    if !common::check_oracle_version("pkg_testrecords_udt_record", &conn, 12, 1) {
-        return;
+fn pkg_testrecords_udt_record() -> Result<()> {
+    let conn = common::connect()?;
+    if !common::check_oracle_version("pkg_testrecords_udt_record", &conn, 12, 1)? {
+        return Ok(());
     }
-    let objtype = conn.object_type("PKG_TESTRECORDS.UDT_RECORD").unwrap();
+    let objtype = conn.object_type("PKG_TESTRECORDS.UDT_RECORD")?;
     let username = common::main_user().to_uppercase();
 
     assert_eq!(objtype.schema(), username);
@@ -253,72 +254,73 @@ fn pkg_testrecords_udt_record() {
 
     assert_eq!(attrs[6].name(), "BINARYINTEGERVALUE");
     assert_eq!(attrs[6].oracle_type(), &OracleType::Int64);
+    Ok(())
 }
 
 #[test]
-fn object_type_cache() {
-    let conn = common::connect().unwrap();
+fn object_type_cache() -> Result<()> {
+    let conn = common::connect()?;
 
-    conn.object_type("UDT_OBJECTDATATYPES").unwrap();
+    conn.object_type("UDT_OBJECTDATATYPES")?;
     assert_eq!(conn.object_type_cache_len(), 1);
 
-    conn.object_type("UDT_SUBOBJECT").unwrap();
+    conn.object_type("UDT_SUBOBJECT")?;
     assert_eq!(conn.object_type_cache_len(), 2);
 
-    conn.object_type("UDT_SUBOBJECT").unwrap();
+    conn.object_type("UDT_SUBOBJECT")?;
     assert_eq!(conn.object_type_cache_len(), 2);
 
     // explicitly clear the cache.
-    conn.clear_object_type_cache().unwrap();
+    conn.clear_object_type_cache()?;
     assert_eq!(conn.object_type_cache_len(), 0);
 
-    conn.object_type("UDT_SUBOBJECT").unwrap();
+    conn.object_type("UDT_SUBOBJECT")?;
     assert_eq!(conn.object_type_cache_len(), 1);
 
     // "CREATE TYPE" clears the cache.
     conn.execute(
         "create type rust_oracle_test as object (intval number);",
         &[],
-    )
-    .unwrap();
+    )?;
     assert_eq!(conn.object_type_cache_len(), 0);
 
-    conn.object_type("RUST_ORACLE_TEST").unwrap();
+    conn.object_type("RUST_ORACLE_TEST")?;
     assert_eq!(conn.object_type_cache_len(), 1);
 
-    if common::check_oracle_version("object_type_cache", &conn, 12, 1) {
+    if common::check_oracle_version("object_type_cache", &conn, 12, 1)? {
         // "ALTER TYPE" clears the cache.
         conn.execute(
             "alter type rust_oracle_test add attribute (strval varchar2(100));",
             &[],
-        )
-        .unwrap();
+        )?;
         assert_eq!(conn.object_type_cache_len(), 0);
 
         // The next line fails with 'ORA-22337: the type of accessed
         // object has been evolved' when the Oracle client version is
         // 11.2.
-        conn.object_type("RUST_ORACLE_TEST").unwrap();
+        conn.object_type("RUST_ORACLE_TEST")?;
         assert_eq!(conn.object_type_cache_len(), 1);
     }
 
     // "DROP TYPE" clears the cache.
-    conn.execute("drop type rust_oracle_test", &[]).unwrap();
+    conn.execute("drop type rust_oracle_test", &[])?;
     assert_eq!(conn.object_type_cache_len(), 0);
+    Ok(())
 }
 
 #[test]
-fn udt_issue19() {
-    let conn = common::connect().unwrap();
+fn udt_issue19() -> Result<()> {
+    let conn = common::connect()?;
     let float_val: f64 = 1.25;
 
-    let objtype = conn.object_type("UDT_ISSUE19_OBJ").unwrap();
-    let mut obj = objtype.new_object().unwrap();
-    obj.set("FLOATCOL", &float_val).unwrap();
-    assert_eq!(float_val, obj.get::<f64>("FLOATCOL").unwrap());
+    let objtype = conn.object_type("UDT_ISSUE19_OBJ")?;
+    let mut obj = objtype.new_object()?;
+    obj.set("FLOATCOL", &float_val)?;
+    assert_eq!(float_val, obj.get::<f64>("FLOATCOL")?);
 
-    let objtype = conn.object_type("UDT_ISSUE19_COL").unwrap();
-    let mut coll = objtype.new_collection().unwrap();
-    coll.push(&float_val).unwrap();
-    assert_eq!(float_val, coll.get::<f64>(0).unwrap());
+    let objtype = conn.object_type("UDT_ISSUE19_COL")?;
+    let mut coll = objtype.new_collection()?;
+    coll.push(&float_val)?;
+    assert_eq!(float_val, coll.get::<f64>(0)?);
+    Ok(())
 }
