@@ -277,8 +277,8 @@ mod batch;
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
-#[allow(unknown_lints)]  // See: https://github.com/rust-lang/rust-bindgen/issues/1651#issuecomment-848479168
-#[allow(deref_nullptr)]  // ditto
+#[allow(unknown_lints)] // See: https://github.com/rust-lang/rust-bindgen/issues/1651#issuecomment-848479168
+#[allow(deref_nullptr)] // ditto
 mod binding;
 mod binding_impl;
 mod connection;
