@@ -23,6 +23,7 @@ use std::str;
 use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
+use crate::connection::Conn;
 use crate::sql_type::Blob;
 use crate::sql_type::Clob;
 use crate::sql_type::Collection;
@@ -125,7 +126,7 @@ pub enum BufferRowIndex {
 /// When this is a bind value in a SQL statement, the Oracle type is determined
 /// by [`ToSql.oratype`][ToSql#method.oratype].
 pub struct SqlValue {
-    ctxt: &'static Context,
+    conn: Conn,
     pub(crate) handle: *mut dpiVar,
     data: *mut dpiData,
     native_type: NativeType,
@@ -139,13 +140,13 @@ pub struct SqlValue {
 
 impl SqlValue {
     // for column and bind values
-    pub(crate) fn new(ctxt: &'static Context) -> SqlValue {
-        SqlValue::with_lob_type(ctxt, false)
+    pub(crate) fn new(conn: Conn) -> SqlValue {
+        SqlValue::with_lob_type(conn, false)
     }
 
-    pub(crate) fn with_lob_type(ctxt: &'static Context, lob_as_bytes: bool) -> SqlValue {
+    pub(crate) fn with_lob_type(conn: Conn, lob_as_bytes: bool) -> SqlValue {
         SqlValue {
-            ctxt: ctxt,
+            conn: conn,
             handle: ptr::null_mut(),
             data: ptr::null_mut(),
             native_type: NativeType::Int64,
@@ -160,13 +161,13 @@ impl SqlValue {
 
     // for object type
     pub(crate) fn from_oratype(
-        ctxt: &'static Context,
+        conn: Conn,
         oratype: &OracleType,
         data: &mut dpiData,
     ) -> Result<SqlValue> {
         let (_, native_type, _, _) = oratype.var_create_param()?;
         Ok(SqlValue {
-            ctxt: ctxt,
+            conn: conn,
             handle: ptr::null_mut(),
             data: data as *mut dpiData,
             native_type: native_type,
@@ -177,6 +178,10 @@ impl SqlValue {
             keep_dpiobj: ptr::null_mut(),
             lob_as_bytes: false,
         })
+    }
+
+    pub(crate) fn ctxt(&self) -> &'static Context {
+        self.conn.ctxt
     }
 
     fn handle_is_reusable(&self, oratype: &OracleType, array_size: u32) -> Result<bool> {
@@ -241,7 +246,7 @@ impl SqlValue {
         let native_type_num = native_type.to_native_type_num();
         let object_type_handle = native_type.to_object_type_handle();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiConn_newVar(
                 conn_handle.raw(),
                 oratype_num,
@@ -277,7 +282,7 @@ impl SqlValue {
         let mut num = 0;
         let mut data = ptr::null_mut();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiVar_getReturnedData(self.handle, 0, &mut num, &mut data)
         );
         if num != 0 {
@@ -522,7 +527,7 @@ impl SqlValue {
         while offset <= total_char_size {
             let mut read_len = bufsiz;
             chkerr!(
-                self.ctxt,
+                self.ctxt(),
                 dpiLob_readBytes(lob, offset, READ_CHAR_SIZE, bufptr, &mut read_len)
             );
             result.push_str(str::from_utf8(&buf[..(read_len as usize)])?);
@@ -541,7 +546,7 @@ impl SqlValue {
         let mut result: Vec<u8> = Vec::with_capacity(total_size as usize);
         let mut read_len = total_size;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_readBytes(
                 lob,
                 1,
@@ -572,7 +577,7 @@ impl SqlValue {
         while offset <= total_size {
             let mut read_len = READ_SIZE;
             chkerr!(
-                self.ctxt,
+                self.ctxt(),
                 dpiLob_readBytes(lob, offset, READ_SIZE, bufptr, &mut read_len)
             );
             set_hex_string(&mut result, &buf[..(read_len as usize)]);
@@ -584,15 +589,15 @@ impl SqlValue {
     fn get_collection_unchecked(&self, objtype: &ObjectType) -> Result<Collection> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
-        chkerr!(self.ctxt, dpiObject_addRef(dpiobj));
-        Ok(Collection::new(self.ctxt, dpiobj, objtype.clone()))
+        chkerr!(self.ctxt(), dpiObject_addRef(dpiobj));
+        Ok(Collection::new(self.conn.clone(), dpiobj, objtype.clone()))
     }
 
     fn get_object_unchecked(&self, objtype: &ObjectType) -> Result<Object> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
-        chkerr!(self.ctxt, dpiObject_addRef(dpiobj));
-        Ok(Object::new(self.ctxt, dpiobj, objtype.clone()))
+        chkerr!(self.ctxt(), dpiObject_addRef(dpiobj));
+        Ok(Object::new(self.conn.clone(), dpiobj, objtype.clone()))
     }
 
     /// Gets the SQL value as bool. The native_type must be
@@ -607,7 +612,7 @@ impl SqlValue {
         let mut ptr = ptr::null();
         let mut len = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiRowid_getStringValue((*self.data()).value.asRowid, &mut ptr, &mut len)
         );
         Ok(to_rust_str(ptr, len))
@@ -663,7 +668,7 @@ impl SqlValue {
             }
         } else {
             chkerr!(
-                self.ctxt,
+                self.ctxt(),
                 dpiVar_setFromBytes(
                     self.handle,
                     self.buffer_row_index(),
@@ -735,8 +740,8 @@ impl SqlValue {
         let ptr = val.as_ptr() as *const i8;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
-        chkerr!(self.ctxt, dpiLob_trim(lob, 0));
-        chkerr!(self.ctxt, dpiLob_writeBytes(lob, 1, ptr, len));
+        chkerr!(self.ctxt(), dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt(), dpiLob_writeBytes(lob, 1, ptr, len));
         unsafe {
             (*self.data()).isNull = 0;
         }
@@ -747,8 +752,8 @@ impl SqlValue {
         let ptr = val.as_ptr() as *const i8;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
-        chkerr!(self.ctxt, dpiLob_trim(lob, 0));
-        chkerr!(self.ctxt, dpiLob_writeBytes(lob, 1, ptr, len));
+        chkerr!(self.ctxt(), dpiLob_trim(lob, 0));
+        chkerr!(self.ctxt(), dpiLob_writeBytes(lob, 1, ptr, len));
         unsafe {
             (*self.data()).isNull = 0;
         }
@@ -767,7 +772,7 @@ impl SqlValue {
             self.keep_dpiobj = obj;
         } else {
             chkerr!(
-                self.ctxt,
+                self.ctxt(),
                 dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj)
             );
         }
@@ -783,7 +788,7 @@ impl SqlValue {
 
     fn set_lob_unchecked(&mut self, lob: *mut dpiLob) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiVar_setFromLob(self.handle, self.buffer_row_index(), lob)
         );
         Ok(())
@@ -791,15 +796,15 @@ impl SqlValue {
 
     /// Returns a duplicated value of self.
     pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
-        self.dup_by_handle(&conn.handle)
+        self.dup_by_handle(&conn.conn.handle)
     }
 
     pub(crate) fn dup_by_handle(&self, conn_handle: &DpiConn) -> Result<SqlValue> {
-        let mut val = SqlValue::with_lob_type(self.ctxt, self.lob_as_bytes);
+        let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
         if let Some(ref oratype) = self.oratype {
             val.init_handle(conn_handle, oratype, 1)?;
             chkerr!(
-                self.ctxt,
+                self.ctxt(),
                 dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
                 unsafe {
                     dpiVar_release(val.handle);
@@ -1015,7 +1020,7 @@ impl SqlValue {
 
     pub(crate) fn to_blob(&self) -> Result<Blob> {
         match self.native_type {
-            NativeType::BLOB => Ok(Blob::from_raw(self.ctxt, self.get_lob_unchecked()?)?),
+            NativeType::BLOB => Ok(Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?),
             NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
             _ => self.invalid_conversion_to_rust_type("Blob"),
         }
@@ -1023,7 +1028,7 @@ impl SqlValue {
 
     pub(crate) fn to_clob(&self) -> Result<Clob> {
         match self.native_type {
-            NativeType::CLOB => Ok(Clob::from_raw(self.ctxt, self.get_lob_unchecked()?)?),
+            NativeType::CLOB => Ok(Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?),
             NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
             _ => self.invalid_conversion_to_rust_type("Clob"),
         }
@@ -1185,7 +1190,7 @@ impl SqlValue {
     /// Otherwise it may cause access violation.
     pub(crate) fn unsafely_clone(&self) -> SqlValue {
         SqlValue {
-            ctxt: self.ctxt,
+            conn: self.conn.clone(),
             handle: ptr::null_mut(),
             data: self.data,
             native_type: self.native_type.clone(),

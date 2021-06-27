@@ -30,7 +30,7 @@ use crate::Statement;
 
 pub struct RowSharedData {
     column_names: Vec<String>,
-    conn_handle: DpiConn,
+    dconn: DpiConn,
 }
 
 /// Row in a result set of a select statement
@@ -47,7 +47,7 @@ impl Row {
     ) -> Result<Row> {
         let shared = RowSharedData {
             column_names: column_names,
-            conn_handle: conn.handle.clone(),
+            dconn: conn.conn.handle.clone(),
         };
         Ok(Row {
             shared: Rc::new(shared),
@@ -253,7 +253,7 @@ impl RowValue for Row {
         let num_cols = row.column_values.len();
         let mut column_values = Vec::with_capacity(num_cols);
         for val in &row.column_values {
-            column_values.push(val.dup_by_handle(&row.shared.conn_handle)?);
+            column_values.push(val.dup_by_handle(&row.shared.dconn)?);
         }
         Ok(Row {
             shared: row.shared.clone(),

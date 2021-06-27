@@ -17,8 +17,8 @@ use std::fmt;
 use std::ptr;
 
 use crate::binding::*;
+use crate::connection::Conn;
 use crate::sql_type::ObjectType;
-use crate::Context;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
@@ -208,10 +208,7 @@ pub enum OracleType {
 }
 
 impl OracleType {
-    pub(crate) fn from_type_info(
-        ctxt: &'static Context,
-        info: &dpiDataTypeInfo,
-    ) -> Result<OracleType> {
+    pub(crate) fn from_type_info(conn: &Conn, info: &dpiDataTypeInfo) -> Result<OracleType> {
         match info.oracleTypeNum {
             DPI_ORACLE_TYPE_VARCHAR => Ok(OracleType::Varchar2(info.dbSizeInBytes)),
             DPI_ORACLE_TYPE_NVARCHAR => Ok(OracleType::NVarchar2(info.sizeInChars)),
@@ -245,7 +242,7 @@ impl OracleType {
             DPI_ORACLE_TYPE_STMT => Ok(OracleType::RefCursor),
             DPI_ORACLE_TYPE_BOOLEAN => Ok(OracleType::Boolean),
             DPI_ORACLE_TYPE_OBJECT => Ok(OracleType::Object(ObjectType::from_dpi_object_type(
-                ctxt,
+                conn.clone(),
                 DpiObjectType::with_add_ref(info.objectType),
             )?)),
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),

@@ -47,15 +47,15 @@ pub struct AttrValue {
 impl AttrValue {
     pub(crate) fn from_conn(conn: &Connection, handle_type: u32, attr_num: u32) -> AttrValue {
         AttrValue {
-            ctxt: conn.ctxt,
-            handle: Handle::Conn(conn.handle.raw(), handle_type),
+            ctxt: conn.ctxt(),
+            handle: Handle::Conn(conn.handle(), handle_type),
             attr_num: attr_num,
         }
     }
 
     pub(crate) fn from_stmt(stmt: &Statement, attr_num: u32) -> AttrValue {
         AttrValue {
-            ctxt: stmt.conn.ctxt,
+            ctxt: stmt.conn.ctxt(),
             handle: Handle::Stmt(stmt.handle),
             attr_num: attr_num,
         }

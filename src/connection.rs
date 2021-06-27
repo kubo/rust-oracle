@@ -473,14 +473,64 @@ impl Connector {
     }
 }
 
-/// Connection to an Oracle database
-pub struct Connection {
+pub(crate) type Conn = Arc<InnerConn>;
+
+pub(crate) struct InnerConn {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: DpiConn,
+    pub(crate) autocommit: Mutex<bool>,
+    pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
     tag_found: bool,
-    pub(crate) autocommit: bool,
-    pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
+}
+
+impl InnerConn {
+    pub fn new(
+        ctxt: &'static Context,
+        conn: DpiConn,
+        conn_params: &dpiConnCreateParams,
+    ) -> InnerConn {
+        InnerConn {
+            ctxt: ctxt,
+            handle: conn,
+            autocommit: Mutex::new(false),
+            objtype_cache: Mutex::new(HashMap::new()),
+            tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
+            tag_found: conn_params.outTagFound != 0,
+        }
+    }
+
+    pub fn autocommit(&self) -> bool {
+        *self.autocommit.lock().unwrap()
+    }
+
+    pub fn clear_object_type_cache(&self) -> Result<()> {
+        self.objtype_cache.lock()?.clear();
+        Ok(())
+    }
+}
+
+impl fmt::Debug for InnerConn {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Conn {{ handle: {:?}, autocommit: {:?}",
+            self.handle.raw(),
+            self.autocommit,
+        )?;
+        if self.tag.len() != 0 {
+            write!(f, ", tag: {:?}", self.tag)?;
+        }
+        if self.tag_found {
+            write!(f, ", tag_found: {:?}", self.tag_found)?;
+        }
+        write!(f, " }}")
+    }
+}
+
+/// Connection to an Oracle database
+pub struct Connection {
+    pub(crate) conn: Conn,
 }
 
 impl AssertSync for Context {}
@@ -556,13 +606,16 @@ impl Connection {
             )
         );
         Ok(Connection {
-            ctxt: ctxt,
-            handle: DpiConn::new(handle),
-            tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
-            tag_found: conn_params.outTagFound != 0,
-            autocommit: false,
-            objtype_cache: Mutex::new(HashMap::new()),
+            conn: Arc::new(InnerConn::new(ctxt, DpiConn::new(handle), &conn_params)),
         })
+    }
+
+    pub(crate) fn ctxt(&self) -> &'static Context {
+        self.conn.ctxt
+    }
+
+    pub(crate) fn handle(&self) -> *mut dpiConn {
+        self.conn.handle.raw()
     }
 
     /// Closes the connection before the end of lifetime.
@@ -891,31 +944,31 @@ impl Connection {
 
     /// Commits the current active transaction
     pub fn commit(&self) -> Result<()> {
-        chkerr!(self.ctxt, dpiConn_commit(self.handle.raw()));
+        chkerr!(self.ctxt(), dpiConn_commit(self.handle()));
         Ok(())
     }
 
     /// Rolls back the current active transaction
     pub fn rollback(&self) -> Result<()> {
-        chkerr!(self.ctxt, dpiConn_rollback(self.handle.raw()));
+        chkerr!(self.ctxt(), dpiConn_rollback(self.handle()));
         Ok(())
     }
 
     /// Gets autocommit mode.
     /// It is false by default.
     pub fn autocommit(&self) -> bool {
-        self.autocommit
+        self.conn.autocommit()
     }
 
     /// Enables or disables autocommit mode.
     /// It is disabled by default.
     pub fn set_autocommit(&mut self, autocommit: bool) {
-        self.autocommit = autocommit;
+        *self.conn.autocommit.lock().unwrap() = autocommit;
     }
 
     /// Cancels execution of running statements in the connection
     pub fn break_execution(&self) -> Result<()> {
-        chkerr!(self.ctxt, dpiConn_breakExecution(self.handle.raw()));
+        chkerr!(self.ctxt(), dpiConn_breakExecution(self.handle()));
         Ok(())
     }
 
@@ -933,7 +986,7 @@ impl Connection {
     /// is executed, the cache clears.
     pub fn object_type(&self, name: &str) -> Result<ObjectType> {
         {
-            let guard = self.objtype_cache.lock()?;
+            let guard = self.conn.objtype_cache.lock()?;
             if let Some(rc_objtype) = guard.get(name) {
                 return Ok(ObjectType {
                     internal: rc_objtype.clone(),
@@ -943,12 +996,13 @@ impl Connection {
         let s = to_odpi_str(name);
         let mut handle = ptr::null_mut();
         chkerr!(
-            self.ctxt,
-            dpiConn_getObjectType(self.handle.raw(), s.ptr, s.len, &mut handle)
+            self.ctxt(),
+            dpiConn_getObjectType(self.handle(), s.ptr, s.len, &mut handle)
         );
-        let res = ObjectType::from_dpi_object_type(self.ctxt, DpiObjectType::new(handle));
+        let res = ObjectType::from_dpi_object_type(self.conn.clone(), DpiObjectType::new(handle));
         if let Ok(ref objtype) = res {
-            self.objtype_cache
+            self.conn
+                .objtype_cache
                 .lock()?
                 .insert(name.to_string(), objtype.internal.clone());
         };
@@ -959,13 +1013,12 @@ impl Connection {
     ///
     /// See also [`object_type`](#method.object_type).
     pub fn clear_object_type_cache(&self) -> Result<()> {
-        self.objtype_cache.lock()?.clear();
-        Ok(())
+        self.conn.clear_object_type_cache()
     }
 
     #[doc(hidden)]
     pub fn object_type_cache_len(&self) -> usize {
-        self.objtype_cache.lock().unwrap().len()
+        self.conn.objtype_cache.lock().unwrap().len()
     }
 
     /// Gets information about the server version
@@ -991,8 +1044,8 @@ impl Connection {
         let mut s = new_odpi_str();
         let mut ver = MaybeUninit::uninit();
         chkerr!(
-            self.ctxt,
-            dpiConn_getServerVersion(self.handle.raw(), &mut s.ptr, &mut s.len, ver.as_mut_ptr())
+            self.ctxt(),
+            dpiConn_getServerVersion(self.handle(), &mut s.ptr, &mut s.len, ver.as_mut_ptr())
         );
         Ok((
             Version::new_from_dpi_ver(unsafe { ver.assume_init() }),
@@ -1011,9 +1064,9 @@ impl Connection {
         let old_password = to_odpi_str(old_password);
         let new_password = to_odpi_str(new_password);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiConn_changePassword(
-                self.handle.raw(),
+                self.handle(),
                 username.ptr,
                 username.len,
                 old_password.ptr,
@@ -1032,7 +1085,7 @@ impl Connection {
     ///
     /// See also [Connection.status](struct.Connection.html#method.status).
     pub fn ping(&self) -> Result<()> {
-        chkerr!(self.ctxt, dpiConn_ping(self.handle.raw()));
+        chkerr!(self.ctxt(), dpiConn_ping(self.handle()));
         Ok(())
     }
 
@@ -1083,15 +1136,15 @@ impl Connection {
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut size = 0u32;
         chkerr!(
-            self.ctxt,
-            dpiConn_getStmtCacheSize(self.handle.raw(), &mut size)
+            self.ctxt(),
+            dpiConn_getStmtCacheSize(self.handle(), &mut size)
         );
         Ok(size)
     }
 
     /// Sets the statement cache size
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
-        chkerr!(self.ctxt, dpiConn_setStmtCacheSize(self.handle.raw(), size));
+        chkerr!(self.ctxt(), dpiConn_setStmtCacheSize(self.handle(), size));
         Ok(())
     }
 
@@ -1101,8 +1154,8 @@ impl Connection {
     pub fn call_timeout(&self) -> Result<Option<Duration>> {
         let mut value = 0;
         chkerr!(
-            self.ctxt,
-            dpiConn_getCallTimeout(self.handle.raw(), &mut value)
+            self.ctxt(),
+            dpiConn_getCallTimeout(self.handle(), &mut value)
         );
         if value != 0 {
             Ok(Some(Duration::from_millis(value.into())))
@@ -1155,9 +1208,9 @@ impl Connection {
                     dur
                 )));
             }
-            chkerr!(self.ctxt, dpiConn_setCallTimeout(self.handle.raw(), msecs));
+            chkerr!(self.ctxt(), dpiConn_setCallTimeout(self.handle(), msecs));
         } else {
-            chkerr!(self.ctxt, dpiConn_setCallTimeout(self.handle.raw(), 0));
+            chkerr!(self.ctxt(), dpiConn_setCallTimeout(self.handle(), 0));
         }
         Ok(())
     }
@@ -1166,8 +1219,8 @@ impl Connection {
     pub fn current_schema(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
-            dpiConn_getCurrentSchema(self.handle.raw(), &mut s.ptr, &mut s.len)
+            self.ctxt(),
+            dpiConn_getCurrentSchema(self.handle(), &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
     }
@@ -1176,8 +1229,8 @@ impl Connection {
     pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
         let s = to_odpi_str(current_schema);
         chkerr!(
-            self.ctxt,
-            dpiConn_setCurrentSchema(self.handle.raw(), s.ptr, s.len)
+            self.ctxt(),
+            dpiConn_setCurrentSchema(self.handle(), s.ptr, s.len)
         );
         Ok(())
     }
@@ -1186,8 +1239,8 @@ impl Connection {
     pub fn edition(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
-            dpiConn_getEdition(self.handle.raw(), &mut s.ptr, &mut s.len)
+            self.ctxt(),
+            dpiConn_getEdition(self.handle(), &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
     }
@@ -1196,8 +1249,8 @@ impl Connection {
     pub fn external_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
-            dpiConn_getExternalName(self.handle.raw(), &mut s.ptr, &mut s.len)
+            self.ctxt(),
+            dpiConn_getExternalName(self.handle(), &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
     }
@@ -1206,8 +1259,8 @@ impl Connection {
     pub fn set_external_name(&self, external_name: &str) -> Result<()> {
         let s = to_odpi_str(external_name);
         chkerr!(
-            self.ctxt,
-            dpiConn_setExternalName(self.handle.raw(), s.ptr, s.len)
+            self.ctxt(),
+            dpiConn_setExternalName(self.handle(), s.ptr, s.len)
         );
         Ok(())
     }
@@ -1216,8 +1269,8 @@ impl Connection {
     pub fn internal_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
-            dpiConn_getInternalName(self.handle.raw(), &mut s.ptr, &mut s.len)
+            self.ctxt(),
+            dpiConn_getInternalName(self.handle(), &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
     }
@@ -1226,8 +1279,8 @@ impl Connection {
     pub fn set_internal_name(&self, internal_name: &str) -> Result<()> {
         let s = to_odpi_str(internal_name);
         chkerr!(
-            self.ctxt,
-            dpiConn_setInternalName(self.handle.raw(), s.ptr, s.len)
+            self.ctxt(),
+            dpiConn_setInternalName(self.handle(), s.ptr, s.len)
         );
         Ok(())
     }
@@ -1241,10 +1294,7 @@ impl Connection {
     /// [DBMS_APPLICATION_INFO.SET_MODULE]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30
     pub fn set_module(&self, module: &str) -> Result<()> {
         let s = to_odpi_str(module);
-        chkerr!(
-            self.ctxt,
-            dpiConn_setModule(self.handle.raw(), s.ptr, s.len)
-        );
+        chkerr!(self.ctxt(), dpiConn_setModule(self.handle(), s.ptr, s.len));
         Ok(())
     }
 
@@ -1257,10 +1307,7 @@ impl Connection {
     /// [DBMS_APPLICATION_INFO.SET_ACTION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26
     pub fn set_action(&self, action: &str) -> Result<()> {
         let s = to_odpi_str(action);
-        chkerr!(
-            self.ctxt,
-            dpiConn_setAction(self.handle.raw(), s.ptr, s.len)
-        );
+        chkerr!(self.ctxt(), dpiConn_setAction(self.handle(), s.ptr, s.len));
         Ok(())
     }
 
@@ -1274,8 +1321,8 @@ impl Connection {
     pub fn set_client_info(&self, client_info: &str) -> Result<()> {
         let s = to_odpi_str(client_info);
         chkerr!(
-            self.ctxt,
-            dpiConn_setClientInfo(self.handle.raw(), s.ptr, s.len)
+            self.ctxt(),
+            dpiConn_setClientInfo(self.handle(), s.ptr, s.len)
         );
         Ok(())
     }
@@ -1290,8 +1337,8 @@ impl Connection {
     pub fn set_client_identifier(&self, client_identifier: &str) -> Result<()> {
         let s = to_odpi_str(client_identifier);
         chkerr!(
-            self.ctxt,
-            dpiConn_setClientIdentifier(self.handle.raw(), s.ptr, s.len)
+            self.ctxt(),
+            dpiConn_setClientIdentifier(self.handle(), s.ptr, s.len)
         );
         Ok(())
     }
@@ -1310,7 +1357,7 @@ impl Connection {
     /// [Monitoring Database Operations]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF
     pub fn set_db_op(&self, db_op: &str) -> Result<()> {
         let s = to_odpi_str(db_op);
-        chkerr!(self.ctxt, dpiConn_setDbOp(self.handle.raw(), s.ptr, s.len));
+        chkerr!(self.ctxt(), dpiConn_setDbOp(self.handle(), s.ptr, s.len));
         Ok(())
     }
 
@@ -1375,8 +1422,8 @@ impl Connection {
             };
         }
         chkerr!(
-            self.ctxt,
-            dpiConn_startupDatabase(self.handle.raw(), mode_num)
+            self.ctxt(),
+            dpiConn_startupDatabase(self.handle(), mode_num)
         );
         Ok(())
     }
@@ -1438,25 +1485,25 @@ impl Connection {
             ShutdownMode::Abort => DPI_MODE_SHUTDOWN_ABORT,
             ShutdownMode::Final => DPI_MODE_SHUTDOWN_FINAL,
         };
-        chkerr!(self.ctxt, dpiConn_shutdownDatabase(self.handle.raw(), mode));
+        chkerr!(self.ctxt(), dpiConn_shutdownDatabase(self.handle(), mode));
         Ok(())
     }
 
     #[doc(hidden)] // hiden until connection pooling is supported.
     pub fn tag(&self) -> &str {
-        &self.tag
+        &self.conn.tag
     }
 
     #[doc(hidden)] // hiden until connection pooling is supported.
     pub fn tag_found(&self) -> bool {
-        self.tag_found
+        self.conn.tag_found
     }
 
     fn close_internal(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
         let tag = to_odpi_str(tag);
         chkerr!(
-            self.ctxt,
-            dpiConn_close(self.handle.raw(), mode, tag.ptr, tag.len)
+            self.ctxt(),
+            dpiConn_close(self.handle(), mode, tag.ptr, tag.len)
         );
         Ok(())
     }
@@ -1489,13 +1536,6 @@ impl Connection {
 
 impl fmt::Debug for Connection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Connection {{ handle: {:?}", self.handle.raw())?;
-        if self.tag.len() != 0 {
-            write!(f, ", tag: {:?}", self.tag)?;
-        }
-        if self.tag_found {
-            write!(f, ", tag_found: {:?}", self.tag_found)?;
-        }
-        write!(f, ", autocommit: {:?} }}", self.autocommit)
+        write!(f, "Connection {{ conn: {:?}", self.conn)
     }
 }

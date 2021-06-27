@@ -302,10 +302,10 @@ impl Blob {
     pub fn new(conn: &Connection) -> Result<Blob> {
         let mut handle = ptr::null_mut();
         chkerr!(
-            conn.ctxt,
-            dpiConn_newTempLob(conn.handle.raw(), DPI_ORACLE_TYPE_BLOB, &mut handle)
+            conn.ctxt(),
+            dpiConn_newTempLob(conn.handle(), DPI_ORACLE_TYPE_BLOB, &mut handle)
         );
-        Blob::from_raw(conn.ctxt, handle)
+        Blob::from_raw(conn.ctxt(), handle)
     }
 
     /// Closes the LOB.
@@ -486,10 +486,10 @@ impl Clob {
         };
         let mut handle = ptr::null_mut();
         chkerr!(
-            conn.ctxt,
-            dpiConn_newTempLob(conn.handle.raw(), lob_type, &mut handle)
+            conn.ctxt(),
+            dpiConn_newTempLob(conn.handle(), lob_type, &mut handle)
         );
-        Clob::from_raw(conn.ctxt, handle)
+        Clob::from_raw(conn.ctxt(), handle)
     }
 
     /// Closes the LOB.

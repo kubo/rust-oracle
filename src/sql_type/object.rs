@@ -21,6 +21,7 @@ use std::sync::Arc;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::connection::Conn;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
@@ -73,22 +74,22 @@ unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
 ///
 /// Note: Methods in the type may be changed in future.
 pub struct Collection {
-    ctxt: &'static Context,
+    conn: Conn,
     pub(crate) handle: *mut dpiObject,
     objtype: ObjectType,
 }
 
 impl Collection {
-    pub(crate) fn new(
-        ctxt: &'static Context,
-        handle: *mut dpiObject,
-        objtype: ObjectType,
-    ) -> Collection {
+    pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Collection {
         Collection {
-            ctxt: ctxt,
+            conn: conn,
             handle: handle,
             objtype: objtype,
         }
+    }
+
+    pub(crate) fn ctxt(&self) -> &Context {
+        self.conn.ctxt
     }
 
     /// Returns type information.
@@ -103,7 +104,7 @@ impl Collection {
     /// [OCICollSize()]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
     pub fn size(&self) -> Result<i32> {
         let mut size = 0;
-        chkerr!(self.ctxt, dpiObject_getSize(self.handle, &mut size));
+        chkerr!(self.ctxt(), dpiObject_getSize(self.handle, &mut size));
         Ok(size)
     }
 
@@ -114,7 +115,7 @@ impl Collection {
         let mut index = 0;
         let mut exists = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getFirstIndex(self.handle, &mut index, &mut exists)
         );
         if exists != 0 {
@@ -131,7 +132,7 @@ impl Collection {
         let mut index = 0;
         let mut exists = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getLastIndex(self.handle, &mut index, &mut exists)
         );
         if exists != 0 {
@@ -148,7 +149,7 @@ impl Collection {
         let mut next = 0;
         let mut exists = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getNextIndex(self.handle, index, &mut next, &mut exists)
         );
         if exists != 0 {
@@ -165,7 +166,7 @@ impl Collection {
         let mut prev = 0;
         let mut exists = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getPrevIndex(self.handle, index, &mut prev, &mut exists)
         );
         if exists != 0 {
@@ -179,7 +180,7 @@ impl Collection {
     pub fn exist(&self, index: i32) -> Result<bool> {
         let mut exists = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getElementExistsByIndex(self.handle, index, &mut exists)
         );
         Ok(exists != 0)
@@ -199,10 +200,10 @@ impl Collection {
             },
             _ => (),
         }
-        let sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        let sql_value = SqlValue::from_oratype(self.conn.clone(), oratype, &mut data)?;
         let native_type_num = sql_value.native_type_num();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getElementValueByIndex(self.handle, index, native_type_num, &mut data)
         );
         let res = sql_value.get();
@@ -214,10 +215,10 @@ impl Collection {
     pub fn set(&mut self, index: i32, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = unsafe { mem::zeroed() };
-        let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        let mut sql_value = SqlValue::from_oratype(self.conn.clone(), oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_setElementValueByIndex(
                 self.handle,
                 index,
@@ -232,10 +233,10 @@ impl Collection {
     pub fn push(&mut self, value: &dyn ToSql) -> Result<()> {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = unsafe { mem::zeroed() };
-        let mut sql_value = SqlValue::from_oratype(self.ctxt, oratype, &mut data)?;
+        let mut sql_value = SqlValue::from_oratype(self.conn.clone(), oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_appendElement(self.handle, sql_value.native_type_num(), &mut data)
         );
         Ok(())
@@ -246,7 +247,7 @@ impl Collection {
     /// The operation creates **holes** in the collection.
     pub fn remove(&mut self, index: i32) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_deleteElementByIndex(self.handle, index)
         );
         Ok(())
@@ -257,7 +258,7 @@ impl Collection {
     /// If the number of of elements to trim exceeds the current size
     /// of the collection an error is returned.
     pub fn trim(&mut self, len: usize) -> Result<()> {
-        chkerr!(self.ctxt, dpiObject_trim(self.handle, len as u32));
+        chkerr!(self.ctxt(), dpiObject_trim(self.handle, len as u32));
         Ok(())
     }
 }
@@ -265,7 +266,7 @@ impl Collection {
 impl Clone for Collection {
     fn clone(&self) -> Collection {
         unsafe { dpiObject_addRef(self.handle) };
-        Collection::new(self.ctxt, self.handle, self.objtype.clone())
+        Collection::new(self.conn.clone(), self.handle, self.objtype.clone())
     }
 }
 
@@ -358,22 +359,22 @@ impl fmt::Debug for Collection {
 ///
 /// Note: Methods in the type may be changed in future.
 pub struct Object {
-    ctxt: &'static Context,
+    conn: Conn,
     pub(crate) handle: *mut dpiObject,
     objtype: ObjectType,
 }
 
 impl Object {
-    pub(crate) fn new(
-        ctxt: &'static Context,
-        handle: *mut dpiObject,
-        objtype: ObjectType,
-    ) -> Object {
+    pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Object {
         Object {
-            ctxt: ctxt,
+            conn: conn,
             handle: handle,
             objtype: objtype,
         }
+    }
+
+    pub(crate) fn ctxt(&self) -> &Context {
+        self.conn.ctxt
     }
 
     /// Returns type information.
@@ -402,10 +403,10 @@ impl Object {
             },
             _ => (),
         }
-        let sql_value = SqlValue::from_oratype(self.ctxt, &attr.oratype, &mut data)?;
+        let sql_value = SqlValue::from_oratype(self.conn.clone(), &attr.oratype, &mut data)?;
         let native_type_num = sql_value.native_type_num();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_getAttributeValue(self.handle, attr.handle.raw(), native_type_num, &mut data)
         );
         let res = sql_value.get();
@@ -425,10 +426,11 @@ impl Object {
     pub fn set(&mut self, name: &str, value: &dyn ToSql) -> Result<()> {
         let attrtype = self.type_attr(name)?;
         let mut data = unsafe { mem::zeroed() };
-        let mut sql_value = SqlValue::from_oratype(self.ctxt, &attrtype.oratype, &mut data)?;
+        let mut sql_value =
+            SqlValue::from_oratype(self.conn.clone(), &attrtype.oratype, &mut data)?;
         sql_value.set(value)?;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiObject_setAttributeValue(
                 self.handle,
                 attrtype.handle.raw(),
@@ -443,7 +445,7 @@ impl Object {
 impl Clone for Object {
     fn clone(&self) -> Object {
         unsafe { dpiObject_addRef(self.handle) };
-        Object::new(self.ctxt, self.handle, self.objtype.clone())
+        Object::new(self.conn.clone(), self.handle, self.objtype.clone())
     }
 }
 
@@ -538,12 +540,9 @@ pub struct ObjectType {
 }
 
 impl ObjectType {
-    pub(crate) fn from_dpi_object_type(
-        ctxt: &'static Context,
-        handle: DpiObjectType,
-    ) -> Result<ObjectType> {
+    pub(crate) fn from_dpi_object_type(conn: Conn, handle: DpiObjectType) -> Result<ObjectType> {
         Ok(ObjectType {
-            internal: Arc::new(ObjectTypeInternal::from_dpi_object_type(ctxt, handle)?),
+            internal: Arc::new(ObjectTypeInternal::from_dpi_object_type(conn, handle)?),
         })
     }
 
@@ -611,13 +610,13 @@ impl ObjectType {
                 self.name()
             )));
         }
-        let ctxt = self.internal.ctxt;
+        let conn = &self.internal.conn;
         let mut handle = ptr::null_mut();
         chkerr!(
-            ctxt,
+            conn.ctxt,
             dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
-        Ok(Object::new(ctxt, handle, self.clone()))
+        Ok(Object::new(conn.clone(), handle, self.clone()))
     }
 
     /// Create a new collection.
@@ -629,13 +628,13 @@ impl ObjectType {
                 self.name()
             )));
         }
-        let ctxt = self.internal.ctxt;
+        let conn = &self.internal.conn;
         let mut handle = ptr::null_mut();
         chkerr!(
-            ctxt,
+            conn.ctxt,
             dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
-        Ok(Collection::new(ctxt, handle, self.clone()))
+        Ok(Collection::new(conn.clone(), handle, self.clone()))
     }
 }
 
@@ -661,22 +660,25 @@ impl fmt::Debug for ObjectType {
 ///
 /// See [ObjectType.attributes()](struct.ObjectType.html#method.attributes)
 pub struct ObjectTypeAttr {
-    ctxt: &'static Context,
+    conn: Conn,
     handle: DpiObjectAttr,
     name: String,
     oratype: OracleType,
 }
 
 impl ObjectTypeAttr {
-    fn new(ctxt: &'static Context, handle: DpiObjectAttr) -> Result<ObjectTypeAttr> {
+    fn new(conn: Conn, handle: DpiObjectAttr) -> Result<ObjectTypeAttr> {
         let mut info = MaybeUninit::uninit();
-        chkerr!(ctxt, dpiObjectAttr_getInfo(handle.raw(), info.as_mut_ptr()));
+        chkerr!(
+            conn.ctxt,
+            dpiObjectAttr_getInfo(handle.raw(), info.as_mut_ptr())
+        );
         let info = unsafe { info.assume_init() };
         Ok(ObjectTypeAttr {
-            ctxt: ctxt,
+            oratype: OracleType::from_type_info(&conn, &info.typeInfo)?,
+            conn: conn,
             handle: handle,
             name: to_rust_str(info.name, info.nameLength),
-            oratype: OracleType::from_type_info(ctxt, &info.typeInfo)?,
         })
     }
 
@@ -694,7 +696,7 @@ impl ObjectTypeAttr {
 impl Clone for ObjectTypeAttr {
     fn clone(&self) -> ObjectTypeAttr {
         ObjectTypeAttr {
-            ctxt: self.ctxt,
+            conn: self.conn.clone(),
             handle: self.handle.clone(),
             name: self.name.clone(),
             oratype: self.oratype.clone(),
@@ -719,7 +721,7 @@ impl fmt::Debug for ObjectTypeAttr {
 //
 
 pub(crate) struct ObjectTypeInternal {
-    ctxt: &'static Context,
+    conn: Conn,
     handle: DpiObjectType,
     schema: String,
     name: String,
@@ -728,15 +730,15 @@ pub(crate) struct ObjectTypeInternal {
 }
 
 impl ObjectTypeInternal {
-    fn from_dpi_object_type(
-        ctxt: &'static Context,
-        handle: DpiObjectType,
-    ) -> Result<ObjectTypeInternal> {
+    fn from_dpi_object_type(conn: Conn, handle: DpiObjectType) -> Result<ObjectTypeInternal> {
         let mut info = MaybeUninit::uninit();
-        chkerr!(ctxt, dpiObjectType_getInfo(handle.raw(), info.as_mut_ptr()));
+        chkerr!(
+            conn.ctxt,
+            dpiObjectType_getInfo(handle.raw(), info.as_mut_ptr())
+        );
         let info = unsafe { info.assume_init() };
         let (elem_oratype, attrs) = if info.isCollection != 0 {
-            match OracleType::from_type_info(ctxt, &info.elementTypeInfo) {
+            match OracleType::from_type_info(&conn, &info.elementTypeInfo) {
                 Ok(oratype) => (Some(oratype), Vec::new()),
                 Err(err) => return Err(err),
             }
@@ -744,7 +746,7 @@ impl ObjectTypeInternal {
             let attrnum = info.numAttributes as usize;
             let mut attr_handles = vec![ptr::null_mut(); attrnum];
             chkerr!(
-                ctxt,
+                conn.ctxt,
                 dpiObjectType_getAttributes(
                     handle.raw(),
                     info.numAttributes,
@@ -753,7 +755,7 @@ impl ObjectTypeInternal {
             );
             let mut attrs = Vec::with_capacity(attrnum);
             for i in 0..attrnum {
-                match ObjectTypeAttr::new(ctxt, DpiObjectAttr::new(attr_handles[i])) {
+                match ObjectTypeAttr::new(conn.clone(), DpiObjectAttr::new(attr_handles[i])) {
                     Ok(attr) => attrs.push(attr),
                     Err(err) => {
                         for j in (i + 1)..attrnum {
@@ -768,7 +770,7 @@ impl ObjectTypeInternal {
             (None, attrs)
         };
         Ok(ObjectTypeInternal {
-            ctxt: ctxt,
+            conn: conn,
             handle: handle,
             schema: to_rust_str(info.schema, info.schemaLength),
             name: to_rust_str(info.name, info.nameLength),

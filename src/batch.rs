@@ -155,9 +155,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         let sql = to_odpi_str(self.sql);
         let mut handle: *mut dpiStmt = ptr::null_mut();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiConn_prepareStmt(
-                conn.handle.raw(),
+                conn.handle(),
                 0,
                 sql.ptr,
                 sql.len,
@@ -168,7 +168,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         );
         let mut info = MaybeUninit::uninit();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiStmt_getInfo(handle, info.as_mut_ptr()),
             unsafe {
                 dpiStmt_release(handle);
@@ -186,9 +186,13 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             return Err(Error::InvalidOperation(msg));
         };
         let mut num = 0;
-        chkerr!(conn.ctxt, dpiStmt_getBindCount(handle, &mut num), unsafe {
-            dpiStmt_release(handle);
-        });
+        chkerr!(
+            conn.ctxt(),
+            dpiStmt_getBindCount(handle, &mut num),
+            unsafe {
+                dpiStmt_release(handle);
+            }
+        );
         let bind_count = num as usize;
         let mut bind_names = Vec::with_capacity(bind_count);
         let mut bind_values = Vec::with_capacity(bind_count);
@@ -196,7 +200,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             let mut names: Vec<*const i8> = vec![ptr::null_mut(); bind_count];
             let mut lengths = vec![0; bind_count];
             chkerr!(
-                conn.ctxt,
+                conn.ctxt(),
                 dpiStmt_getBindNames(handle, &mut num, names.as_mut_ptr(), lengths.as_mut_ptr()),
                 unsafe {
                     dpiStmt_release(handle);
@@ -205,7 +209,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
                 bind_names.push(to_rust_str(names[i], lengths[i]));
-                bind_values.push(SqlValue::new(conn.ctxt));
+                bind_values.push(SqlValue::new(conn.conn.clone()));
             }
         };
         Ok(Batch {
@@ -440,7 +444,7 @@ pub struct Batch<'conn> {
 impl<'conn> Batch<'conn> {
     /// Closes the batch before the end of its lifetime.
     pub fn close(&mut self) -> Result<()> {
-        chkerr!(self.conn.ctxt, dpiStmt_close(self.handle, ptr::null(), 0));
+        chkerr!(self.conn.ctxt(), dpiStmt_close(self.handle, ptr::null(), 0));
         self.handle = ptr::null_mut();
         Ok(())
     }
@@ -493,7 +497,7 @@ impl<'conn> Batch<'conn> {
             return Ok(());
         }
         let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
-        if self.conn.autocommit {
+        if self.conn.autocommit() {
             exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
         }
         if self.with_batch_errors {
@@ -503,19 +507,19 @@ impl<'conn> Batch<'conn> {
             exec_mode |= DPI_MODE_EXEC_ARRAY_DML_ROWCOUNTS;
         }
         chkerr!(
-            self.conn.ctxt,
+            self.conn.ctxt(),
             dpiStmt_executeMany(self.handle, exec_mode, self.batch_index)
         );
         if self.with_batch_errors {
             let mut errnum = 0;
             chkerr!(
-                self.conn.ctxt,
+                self.conn.ctxt(),
                 dpiStmt_getBatchErrorCount(self.handle, &mut errnum)
             );
             if errnum != 0 {
                 let mut errs = Vec::with_capacity(errnum as usize);
                 chkerr!(
-                    self.conn.ctxt,
+                    self.conn.ctxt(),
                     dpiStmt_getBatchErrors(self.handle, errnum, errs.as_mut_ptr())
                 );
                 unsafe { errs.set_len(errnum as usize) };
@@ -595,9 +599,9 @@ impl<'conn> Batch<'conn> {
                 bindidx
             )));
         }
-        self.bind_values[pos].init_handle(&self.conn.handle, oratype, self.batch_size)?;
+        self.bind_values[pos].init_handle(&self.conn.conn.handle, oratype, self.batch_size)?;
         chkerr!(
-            self.conn.ctxt,
+            self.conn.ctxt(),
             bindidx.bind(self.handle, self.bind_values[pos].handle)
         );
         self.bind_types[pos] = Some(BindType::new(oratype));
@@ -646,12 +650,12 @@ impl<'conn> Batch<'conn> {
             let oratype = value.oratype(self.conn)?;
             let bind_type = BindType::new(&oratype);
             self.bind_values[pos].init_handle(
-                &self.conn.handle,
+                &self.conn.conn.handle,
                 bind_type.as_oratype().unwrap_or(&oratype),
                 self.batch_size,
             )?;
             chkerr!(
-                self.conn.ctxt,
+                self.conn.ctxt(),
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
             );
             self.bind_types[pos] = Some(bind_type);
@@ -666,16 +670,16 @@ impl<'conn> Batch<'conn> {
                 let new_size = oratype_size(&new_oratype).ok_or(Error::DpiError(dberr))?;
                 bind_type.reset_size(new_size);
                 // allocate new bind handle.
-                let mut new_sql_value = SqlValue::new(self.conn.ctxt);
+                let mut new_sql_value = SqlValue::new(self.conn.conn.clone());
                 new_sql_value.init_handle(
-                    &self.conn.handle,
+                    &self.conn.conn.handle,
                     bind_type.as_oratype().unwrap(),
                     self.batch_size,
                 )?;
                 // copy values in old to new.
                 for idx in 0..self.batch_index {
                     chkerr!(
-                        self.conn.ctxt,
+                        self.conn.ctxt(),
                         dpiVar_copyData(
                             new_sql_value.handle,
                             idx,
@@ -687,7 +691,7 @@ impl<'conn> Batch<'conn> {
                 new_sql_value.buffer_row_index = BufferRowIndex::Owned(self.batch_index);
                 new_sql_value.set(value)?;
                 chkerr!(
-                    self.conn.ctxt,
+                    self.conn.ctxt(),
                     bindidx.bind(self.handle, new_sql_value.handle)
                 );
                 self.bind_values[pos] = new_sql_value;
@@ -711,7 +715,7 @@ impl<'conn> Batch<'conn> {
         let mut num_row_counts = 0;
         let mut row_counts = ptr::null_mut();
         chkerr!(
-            self.conn.ctxt,
+            self.conn.ctxt(),
             dpiStmt_getRowCounts(self.handle, &mut num_row_counts, &mut row_counts)
         );
         Ok(unsafe { slice::from_raw_parts(row_counts, num_row_counts as usize) }.to_vec())
