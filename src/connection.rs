@@ -616,6 +616,26 @@ impl Connection {
     /// # Ok::<(), Error>(())
     /// ```
     ///
+    /// By default, a maximum of 2 rows are returned when the query is first
+    /// executed. To modify this, use [`StatementBuilder.prefetch_rows`][StatementBuilder#method.prefetch_rows] to customize
+    /// it. For more information on the difference between this and `fetch_array_size`,
+    /// see [this writeup](https://blog.dbi-services.com/arraysize-or-rowprefetch-in-sqlplus/)
+    /// or [this description](https://oracle.github.io/node-oracledb/doc/api.html#rowfetching).
+    ///
+    /// ```no_run
+    /// # use oracle::*;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// // fetch top 10 rows.
+    /// let mut stmt = conn
+    ///     .statement("select empno, ename from emp order by empno fetch first 10 rows only")
+    ///     .prefetch_rows(10)
+    ///     .build()?;
+    /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
+    ///     let (empno, ename) = row_result?;
+    ///     println!("empno: {}, ename: {}", empno, ename);
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn statement<'conn, 'sql>(&'conn self, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
         StatementBuilder::new(self, sql)
     }
