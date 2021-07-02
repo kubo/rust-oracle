@@ -1097,3 +1097,92 @@ impl<'a> ColumnIndex for &'a str {
         Err(Error::InvalidColumnName((*self).to_string()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_util;
+
+    #[test]
+    fn column_info() -> Result<()> {
+        let conn = test_util::connect()?;
+        let mut stmt = conn.statement("select * from TestDataTypes").build()?;
+        let rows = stmt.query(&[])?;
+        let colinfo = rows.column_info();
+        assert_eq!(colinfo[0].name(), "STRINGCOL");
+        assert_eq!(colinfo[0].oracle_type(), &OracleType::Varchar2(100));
+        assert_eq!(colinfo[1].name(), "UNICODECOL");
+        assert_eq!(colinfo[1].oracle_type(), &OracleType::NVarchar2(100));
+        assert_eq!(colinfo[2].name(), "FIXEDCHARCOL");
+        assert_eq!(colinfo[2].oracle_type(), &OracleType::Char(100));
+        assert_eq!(colinfo[3].name(), "FIXEDUNICODECOL");
+        assert_eq!(colinfo[3].oracle_type(), &OracleType::NChar(100));
+        assert_eq!(colinfo[4].name(), "RAWCOL");
+        assert_eq!(colinfo[4].oracle_type(), &OracleType::Raw(30));
+        assert_eq!(colinfo[5].name(), "FLOATCOL");
+        assert_eq!(colinfo[5].oracle_type(), &OracleType::Float(126));
+        assert_eq!(colinfo[6].name(), "DOUBLEPRECCOL");
+        assert_eq!(colinfo[6].oracle_type(), &OracleType::Float(126));
+        assert_eq!(colinfo[7].name(), "INTCOL");
+        assert_eq!(colinfo[7].oracle_type(), &OracleType::Number(9, 0));
+        assert_eq!(colinfo[8].name(), "NUMBERCOL");
+        assert_eq!(colinfo[8].oracle_type(), &OracleType::Number(9, 2));
+        assert_eq!(colinfo[9].name(), "DATECOL");
+        assert_eq!(colinfo[9].oracle_type(), &OracleType::Date);
+        assert_eq!(colinfo[10].name(), "TIMESTAMPCOL");
+        assert_eq!(colinfo[10].oracle_type(), &OracleType::Timestamp(6));
+        assert_eq!(colinfo[11].name(), "TIMESTAMPTZCOL");
+        assert_eq!(colinfo[11].oracle_type(), &OracleType::TimestampTZ(6));
+        assert_eq!(colinfo[12].name(), "TIMESTAMPLTZCOL");
+        assert_eq!(colinfo[12].oracle_type(), &OracleType::TimestampLTZ(6));
+        assert_eq!(colinfo[13].name(), "INTERVALDSCOL");
+        assert_eq!(colinfo[13].oracle_type(), &OracleType::IntervalDS(2, 6));
+        assert_eq!(colinfo[14].name(), "INTERVALYMCOL");
+        assert_eq!(colinfo[14].oracle_type(), &OracleType::IntervalYM(2));
+        assert_eq!(colinfo[15].name(), "BINARYFLTCOL");
+        assert_eq!(colinfo[15].oracle_type(), &OracleType::BinaryFloat);
+        assert_eq!(colinfo[16].name(), "BINARYDOUBLECOL");
+        assert_eq!(colinfo[16].oracle_type(), &OracleType::BinaryDouble);
+        assert_eq!(colinfo[17].name(), "CLOBCOL");
+        assert_eq!(colinfo[17].oracle_type(), &OracleType::CLOB);
+        assert_eq!(colinfo[18].name(), "NCLOBCOL");
+        assert_eq!(colinfo[18].oracle_type(), &OracleType::NCLOB);
+        assert_eq!(colinfo[19].name(), "BLOBCOL");
+        assert_eq!(colinfo[19].oracle_type(), &OracleType::BLOB);
+        assert_eq!(colinfo[20].name(), "BFILECOL");
+        assert_eq!(colinfo[20].oracle_type(), &OracleType::BFILE);
+        assert_eq!(colinfo[21].name(), "LONGCOL");
+        assert_eq!(colinfo[21].oracle_type(), &OracleType::Long);
+        assert_eq!(colinfo[22].name(), "UNCONSTRAINEDCOL");
+        assert_eq!(colinfo[22].oracle_type(), &OracleType::Number(0, -127));
+        assert_eq!(colinfo[23].name(), "SIGNEDINTCOL");
+        assert_eq!(colinfo[23].oracle_type(), &OracleType::Number(38, 0));
+        assert_eq!(colinfo[24].name(), "SUBOBJECTCOL");
+        assert_eq!(
+            colinfo[24].oracle_type().to_string(),
+            OracleType::Object(conn.object_type("UDT_SUBOBJECT")?).to_string()
+        );
+        assert_eq!(colinfo.len(), 25);
+
+        let mut stmt = conn.statement("select * from TestLongRaws").build()?;
+        let rows = stmt.query(&[])?;
+        let colinfo = rows.column_info();
+        assert_eq!(colinfo[0].name(), "INTCOL");
+        assert_eq!(colinfo[0].oracle_type(), &OracleType::Number(9, 0));
+        assert_eq!(colinfo[1].name(), "LONGRAWCOL");
+        assert_eq!(colinfo[1].oracle_type(), &OracleType::LongRaw);
+        assert_eq!(colinfo.len(), 2);
+
+        let mut stmt = conn.statement("select * from TestXml").build()?;
+        let rows = stmt.query(&[])?;
+        let colinfo = rows.column_info();
+        assert_eq!(colinfo[0].name(), "INTCOL");
+        assert_eq!(colinfo[0].oracle_type(), &OracleType::Number(9, 0));
+        assert_eq!(colinfo[1].name(), "XMLCOL");
+        // xmltype is reported as long. (https://github.com/oracle/odpi/commit/d51e9c496381427dd09f7fb0cbaab3e152667026)
+        assert_eq!(colinfo[1].oracle_type(), &OracleType::Long);
+        assert_eq!(colinfo.len(), 2);
+
+        Ok(())
+    }
+}
