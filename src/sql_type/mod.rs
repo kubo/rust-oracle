@@ -323,6 +323,15 @@ impl<'a> ToSql for &'a [u8] {
     }
 }
 
+impl<'a, const N: usize> ToSql for &'a [u8; N] {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
+        Ok(OracleType::Raw(self.len() as u32))
+    }
+    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+        val.set_bytes(*self)
+    }
+}
+
 impl<T: FromSql> FromSql for Option<T> {
     fn from_sql(val: &SqlValue) -> Result<Option<T>> {
         match <T>::from_sql(val) {
