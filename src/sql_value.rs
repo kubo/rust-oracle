@@ -132,11 +132,16 @@ pub struct SqlValue {
     pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
     keep_dpiobj: *mut dpiObject,
+    lob_as_bytes: bool,
 }
 
 impl SqlValue {
     // for column and bind values
     pub(crate) fn new(ctxt: &'static Context) -> SqlValue {
+        SqlValue::with_lob_type(ctxt, false)
+    }
+
+    pub(crate) fn with_lob_type(ctxt: &'static Context, lob_as_bytes: bool) -> SqlValue {
         SqlValue {
             ctxt: ctxt,
             handle: ptr::null_mut(),
@@ -147,6 +152,7 @@ impl SqlValue {
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
+            lob_as_bytes: lob_as_bytes,
         }
     }
 
@@ -167,6 +173,7 @@ impl SqlValue {
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
+            lob_as_bytes: false,
         })
     }
 
@@ -213,16 +220,20 @@ impl SqlValue {
         self.handle = ptr::null_mut();
         let mut handle: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
-        let (oratype_num, native_type, size, size_is_byte) = match oratype {
-            &OracleType::CLOB => &OracleType::Long,
-            &OracleType::NCLOB => {
-                // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
-                // a dynamic buffer instead of a fixed-size buffer.
-                &OracleType::NVarchar2(DPI_MAX_BASIC_BUFFER_SIZE + 1)
+        let (oratype_num, native_type, size, size_is_byte) = if self.lob_as_bytes {
+            match oratype {
+                &OracleType::CLOB => &OracleType::Long,
+                &OracleType::NCLOB => {
+                    // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
+                    // a dynamic buffer instead of a fixed-size buffer.
+                    &OracleType::NVarchar2(DPI_MAX_BASIC_BUFFER_SIZE + 1)
+                }
+                &OracleType::BLOB => &OracleType::LongRaw,
+                &OracleType::BFILE => &OracleType::LongRaw,
+                _ => oratype,
             }
-            &OracleType::BLOB => &OracleType::LongRaw,
-            &OracleType::BFILE => &OracleType::LongRaw,
-            _ => oratype,
+        } else {
+            oratype
         }
         .var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
@@ -749,7 +760,7 @@ impl SqlValue {
     }
 
     pub(crate) fn dup_by_handle(&self, conn_handle: &DpiConn) -> Result<SqlValue> {
-        let mut val = SqlValue::new(self.ctxt);
+        let mut val = SqlValue::with_lob_type(self.ctxt, self.lob_as_bytes);
         if let Some(ref oratype) = self.oratype {
             val.init_handle(conn_handle, oratype, 1)?;
             chkerr!(
@@ -1116,6 +1127,7 @@ impl SqlValue {
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
+            lob_as_bytes: self.lob_as_bytes,
         }
     }
 }

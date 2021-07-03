@@ -49,6 +49,7 @@ pub struct StatementBuilder<'conn, 'sql> {
     sql: &'sql str,
     fetch_array_size: u32,
     prefetch_rows: u32,
+    lob_as_bytes: bool,
     scrollable: bool,
     tag: String,
 }
@@ -60,6 +61,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
             sql: sql,
             fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
             prefetch_rows: DPI_DEFAULT_PREFETCH_ROWS,
+            lob_as_bytes: true, // fetch LOB column data as string or binary by default
             scrollable: false,
             tag: "".into(),
         }
@@ -104,6 +106,11 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// controlled by the caller.
     pub fn prefetch_rows<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
         self.prefetch_rows = size;
+        self
+    }
+
+    pub fn lob_locator<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
+        self.lob_as_bytes = false;
         self
     }
 
@@ -266,6 +273,7 @@ pub struct Statement<'conn> {
     bind_values: Vec<SqlValue>,
     fetch_array_size: u32,
     prefetch_rows: u32,
+    lob_as_bytes: bool,
 }
 
 impl<'conn> Statement<'conn> {
@@ -353,6 +361,7 @@ impl<'conn> Statement<'conn> {
             bind_values: bind_values,
             fetch_array_size: builder.fetch_array_size,
             prefetch_rows: builder.prefetch_rows,
+            lob_as_bytes: builder.lob_as_bytes,
         })
     }
 
@@ -607,7 +616,7 @@ impl<'conn> Statement<'conn> {
                     column_names.push(ci.name.clone());
                     self.column_info.push(ci);
                     // setup column value
-                    let mut val = SqlValue::new(self.conn.ctxt);
+                    let mut val = SqlValue::with_lob_type(self.conn.ctxt, self.lob_as_bytes);
                     val.buffer_row_index =
                         BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
                     let oratype = self.column_info[i].oracle_type();
