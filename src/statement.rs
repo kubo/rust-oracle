@@ -20,7 +20,6 @@ use std::ptr;
 use std::rc::Rc;
 
 use crate::binding::*;
-use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
 use crate::private;
 use crate::sql_type::FromSql;
@@ -983,17 +982,9 @@ impl ColumnInfo {
             dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, info.as_mut_ptr())
         );
         let info = unsafe { info.assume_init() };
-        let oratype = match OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)? {
-            OracleType::CLOB => OracleType::Long,
-            // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
-            // a dynamic buffer instead of a fixed-size buffer.
-            OracleType::NCLOB => OracleType::NVarchar2(DPI_MAX_BASIC_BUFFER_SIZE + 1),
-            OracleType::BLOB | OracleType::BFILE => OracleType::LongRaw,
-            x => x,
-        };
         Ok(ColumnInfo {
             name: to_rust_str(info.name, info.nameLength),
-            oracle_type: oratype,
+            oracle_type: OracleType::from_type_info(stmt.conn.ctxt, &info.typeInfo)?,
             nullable: info.nullOk != 0,
         })
     }

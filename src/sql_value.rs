@@ -21,6 +21,7 @@ use std::rc::Rc;
 use std::str;
 
 use crate::binding::*;
+use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
 use crate::sql_type::Collection;
 use crate::sql_type::FromSql;
@@ -212,7 +213,18 @@ impl SqlValue {
         self.handle = ptr::null_mut();
         let mut handle: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
-        let (oratype_num, native_type, size, size_is_byte) = oratype.var_create_param()?;
+        let (oratype_num, native_type, size, size_is_byte) = match oratype {
+            &OracleType::CLOB => &OracleType::Long,
+            &OracleType::NCLOB => {
+                // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
+                // a dynamic buffer instead of a fixed-size buffer.
+                &OracleType::NVarchar2(DPI_MAX_BASIC_BUFFER_SIZE + 1)
+            }
+            &OracleType::BLOB => &OracleType::LongRaw,
+            &OracleType::BFILE => &OracleType::LongRaw,
+            _ => oratype,
+        }
+        .var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
         let object_type_handle = native_type.to_object_type_handle();
         chkerr!(
