@@ -283,6 +283,7 @@ mod binding_impl;
 mod connection;
 mod error;
 pub mod io;
+pub mod oci_attr;
 mod row;
 pub mod sql_type;
 mod sql_value;
@@ -496,9 +497,19 @@ fn to_rust_slice<'a>(ptr: *const c_char, len: u32) -> &'a [u8] {
 }
 
 mod private {
+    use std::os::raw::c_void;
+
     pub trait Sealed {}
 
+    impl Sealed for u8 {}
+    impl Sealed for u16 {}
+    impl Sealed for u32 {}
+    impl Sealed for u64 {}
     impl Sealed for usize {}
+    impl Sealed for bool {}
+    impl Sealed for str {}
+    impl Sealed for [u8] {}
+    impl Sealed for *mut c_void {}
     impl<'a> Sealed for &'a str {}
 }
 
@@ -509,7 +520,9 @@ pub mod test_util {
     use super::*;
     use std::env;
 
+    pub const VER11_2: Version = Version::new(11, 2, 0, 0, 0);
     pub const VER12_1: Version = Version::new(12, 1, 0, 0, 0);
+    pub const VER18: Version = Version::new(18, 0, 0, 0, 0);
 
     fn env_var_or(env_name: &str, default: &str) -> String {
         match env::var_os(env_name) {

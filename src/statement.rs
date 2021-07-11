@@ -13,14 +13,18 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+use std::borrow::ToOwned;
 use std::cell::RefCell;
 use std::fmt;
-use std::mem::{self, MaybeUninit};
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::rc::Rc;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::oci_attr::data_type::{AttrValue, DataType};
+use crate::oci_attr::mode::{ReadMode, WriteMode};
+use crate::oci_attr::{self, OciAttr, SqlFnCode};
 use crate::private;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
@@ -35,8 +39,6 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::SqlValue;
-
-const OCI_ATTR_SQLFNCODE: u32 = 10;
 
 // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
@@ -262,7 +264,7 @@ impl fmt::Display for StatementType {
 /// Statement
 pub struct Statement<'conn> {
     pub(crate) conn: &'conn Connection,
-    handle: *mut dpiStmt,
+    pub(crate) handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
@@ -589,13 +591,7 @@ impl<'conn> Statement<'conn> {
             dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns)
         );
         if self.is_ddl() {
-            let mut buf = MaybeUninit::uninit();
-            let mut len = mem::size_of::<u16>() as u32;
-            chkerr!(
-                self.conn.ctxt,
-                dpiStmt_getOciAttr(self.handle, OCI_ATTR_SQLFNCODE, buf.as_mut_ptr(), &mut len,)
-            );
-            let fncode = unsafe { buf.assume_init().asUint16 };
+            let fncode = self.oci_attr::<SqlFnCode>()?;
             match fncode {
                 SQLFNCODE_CREATE_TYPE | SQLFNCODE_ALTER_TYPE | SQLFNCODE_DROP_TYPE => {
                     self.conn.clear_object_type_cache()?
@@ -892,6 +888,28 @@ impl<'conn> Statement<'conn> {
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
     pub fn is_returning(&self) -> bool {
         self.is_returning
+    }
+
+    /// Gets an OCI handle attribute corresponding to the specified type parameter
+    /// See the [`oci_attr` module][crate::oci_attr] for details.
+    pub fn oci_attr<T>(&self) -> Result<<<T::DataType as DataType>::Type as ToOwned>::Owned>
+    where
+        T: OciAttr<HandleType = oci_attr::handle::Stmt>,
+        T::Mode: ReadMode,
+    {
+        let attr_value = AttrValue::from_stmt(self, <T>::ATTR_NUM);
+        unsafe { <T::DataType>::get(attr_value) }
+    }
+
+    /// Sets an OCI handle attribute corresponding to the specified type parameter
+    /// See the [`oci_attr` module][crate::oci_attr] for details.
+    pub fn set_oci_attr<T>(&mut self, value: &<T::DataType as DataType>::Type) -> Result<()>
+    where
+        T: OciAttr<HandleType = oci_attr::handle::Stmt>,
+        T::Mode: WriteMode,
+    {
+        let mut attr_value = AttrValue::from_stmt(self, <T>::ATTR_NUM);
+        unsafe { <T::DataType>::set(&mut attr_value, value) }
     }
 }
 

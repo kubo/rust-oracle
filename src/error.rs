@@ -34,6 +34,7 @@ use crate::Statement;
 
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {
+    // TODO: add #[non_exhaustive] at timing when incompatible changes are introduced.
     /// Error from an underlying Oracle client library.
     OciError(DbError),
 
@@ -357,6 +358,7 @@ pub(crate) fn error_from_context(ctxt: &Context) -> Error {
 #[doc(hidden)]
 macro_rules! chkerr {
     ($ctxt:expr, $code:expr) => {{
+        #[allow(unused_unsafe)]
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
@@ -364,6 +366,7 @@ macro_rules! chkerr {
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
+        #[allow(unused_unsafe)]
         if unsafe { $code } == DPI_SUCCESS as i32 {
             ()
         } else {
