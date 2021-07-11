@@ -43,7 +43,6 @@ use crate::util::parse_str_into_raw;
 use crate::util::set_hex_string;
 use crate::Connection;
 use crate::Context;
-use crate::DpiConn;
 use crate::Error;
 use crate::Result;
 
@@ -212,12 +211,7 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn init_handle(
-        &mut self,
-        conn_handle: &DpiConn,
-        oratype: &OracleType,
-        array_size: u32,
-    ) -> Result<bool> {
+    pub(crate) fn init_handle(&mut self, oratype: &OracleType, array_size: u32) -> Result<bool> {
         if self.handle_is_reusable(oratype, array_size)? {
             return Ok(false);
         }
@@ -248,7 +242,7 @@ impl SqlValue {
         chkerr!(
             self.ctxt(),
             dpiConn_newVar(
-                conn_handle.raw(),
+                self.conn.handle,
                 oratype_num,
                 native_type_num,
                 array_size,
@@ -795,14 +789,14 @@ impl SqlValue {
     }
 
     /// Returns a duplicated value of self.
-    pub fn dup(&self, conn: &Connection) -> Result<SqlValue> {
-        self.dup_by_handle(&conn.conn.handle)
+    pub fn dup(&self, _conn: &Connection) -> Result<SqlValue> {
+        self.dup_by_handle()
     }
 
-    pub(crate) fn dup_by_handle(&self, conn_handle: &DpiConn) -> Result<SqlValue> {
+    pub(crate) fn dup_by_handle(&self) -> Result<SqlValue> {
         let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
         if let Some(ref oratype) = self.oratype {
-            val.init_handle(conn_handle, oratype, 1)?;
+            val.init_handle(oratype, 1)?;
             chkerr!(
                 self.ctxt(),
                 dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),

@@ -41,7 +41,6 @@ use crate::AssertSend;
 use crate::AssertSync;
 use crate::BatchBuilder;
 use crate::Context;
-use crate::DpiConn;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
@@ -477,7 +476,7 @@ pub(crate) type Conn = Arc<InnerConn>;
 
 pub(crate) struct InnerConn {
     pub(crate) ctxt: &'static Context,
-    pub(crate) handle: DpiConn,
+    pub(crate) handle: *mut dpiConn,
     pub(crate) autocommit: Mutex<bool>,
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
@@ -487,12 +486,12 @@ pub(crate) struct InnerConn {
 impl InnerConn {
     pub fn new(
         ctxt: &'static Context,
-        conn: DpiConn,
+        handle: *mut dpiConn,
         conn_params: &dpiConnCreateParams,
     ) -> InnerConn {
         InnerConn {
             ctxt: ctxt,
-            handle: conn,
+            handle: handle,
             autocommit: Mutex::new(false),
             objtype_cache: Mutex::new(HashMap::new()),
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
@@ -510,13 +509,18 @@ impl InnerConn {
     }
 }
 
+impl Drop for InnerConn {
+    fn drop(&mut self) {
+        unsafe { dpiConn_release(self.handle) };
+    }
+}
+
 impl fmt::Debug for InnerConn {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "Conn {{ handle: {:?}, autocommit: {:?}",
-            self.handle.raw(),
-            self.autocommit,
+            self.handle, self.autocommit,
         )?;
         if self.tag.len() != 0 {
             write!(f, ", tag: {:?}", self.tag)?;
@@ -606,7 +610,7 @@ impl Connection {
             )
         );
         Ok(Connection {
-            conn: Arc::new(InnerConn::new(ctxt, DpiConn::new(handle), &conn_params)),
+            conn: Arc::new(InnerConn::new(ctxt, handle, &conn_params)),
         })
     }
 
@@ -615,7 +619,7 @@ impl Connection {
     }
 
     pub(crate) fn handle(&self) -> *mut dpiConn {
-        self.conn.handle.raw()
+        self.conn.handle
     }
 
     /// Closes the connection before the end of lifetime.

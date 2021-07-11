@@ -599,7 +599,7 @@ impl<'conn> Batch<'conn> {
                 bindidx
             )));
         }
-        self.bind_values[pos].init_handle(&self.conn.conn.handle, oratype, self.batch_size)?;
+        self.bind_values[pos].init_handle(oratype, self.batch_size)?;
         chkerr!(
             self.conn.ctxt(),
             bindidx.bind(self.handle, self.bind_values[pos].handle)
@@ -649,11 +649,8 @@ impl<'conn> Batch<'conn> {
             // assume the type from the value
             let oratype = value.oratype(self.conn)?;
             let bind_type = BindType::new(&oratype);
-            self.bind_values[pos].init_handle(
-                &self.conn.conn.handle,
-                bind_type.as_oratype().unwrap_or(&oratype),
-                self.batch_size,
-            )?;
+            self.bind_values[pos]
+                .init_handle(bind_type.as_oratype().unwrap_or(&oratype), self.batch_size)?;
             chkerr!(
                 self.conn.ctxt(),
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
@@ -671,11 +668,7 @@ impl<'conn> Batch<'conn> {
                 bind_type.reset_size(new_size);
                 // allocate new bind handle.
                 let mut new_sql_value = SqlValue::new(self.conn.conn.clone());
-                new_sql_value.init_handle(
-                    &self.conn.conn.handle,
-                    bind_type.as_oratype().unwrap(),
-                    self.batch_size,
-                )?;
+                new_sql_value.init_handle(bind_type.as_oratype().unwrap(), self.batch_size)?;
                 // copy values in old to new.
                 for idx in 0..self.batch_index {
                     chkerr!(

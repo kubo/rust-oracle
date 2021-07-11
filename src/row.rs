@@ -23,14 +23,12 @@ use crate::sql_type::FromSql;
 use crate::ColumnIndex;
 use crate::ColumnInfo;
 use crate::Connection;
-use crate::DpiConn;
 use crate::Result;
 use crate::SqlValue;
 use crate::Statement;
 
 pub struct RowSharedData {
     column_names: Vec<String>,
-    dconn: DpiConn,
 }
 
 /// Row in a result set of a select statement
@@ -40,14 +38,9 @@ pub struct Row {
 }
 
 impl Row {
-    pub(crate) fn new(
-        conn: &Connection,
-        column_names: Vec<String>,
-        column_values: Vec<SqlValue>,
-    ) -> Result<Row> {
+    pub(crate) fn new(column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
         let shared = RowSharedData {
             column_names: column_names,
-            dconn: conn.conn.handle.clone(),
         };
         Ok(Row {
             shared: Rc::new(shared),
@@ -253,7 +246,7 @@ impl RowValue for Row {
         let num_cols = row.column_values.len();
         let mut column_values = Vec::with_capacity(num_cols);
         for val in &row.column_values {
-            column_values.push(val.dup_by_handle(&row.shared.dconn)?);
+            column_values.push(val.dup_by_handle()?);
         }
         Ok(Row {
             shared: row.shared.clone(),

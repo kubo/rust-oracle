@@ -362,9 +362,6 @@ macro_rules! define_dpi_data_with_refcount {
     };
 }
 
-// define DpiConn wrapping *mut dpiConn.
-define_dpi_data_with_refcount!(Conn);
-
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
 

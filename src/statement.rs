@@ -637,14 +637,14 @@ impl<'conn> Statement<'conn> {
                         }
                         _ => oratype,
                     };
-                    val.init_handle(&self.conn.conn.handle, oratype, self.fetch_array_size)?;
+                    val.init_handle(oratype, self.fetch_array_size)?;
                     chkerr!(
                         self.ctxt(),
                         dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
                     );
                     column_values.push(val);
                 }
-                self.row = Some(Row::new(self.conn, column_names, column_values)?);
+                self.row = Some(Row::new(column_names, column_values)?);
             }
         }
         if self.is_returning {
@@ -729,11 +729,7 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
     {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(
-            &self.conn.conn.handle,
-            &value.oratype(self.conn)?,
-            1,
-        )? {
+        if self.bind_values[pos].init_handle(&value.oratype(self.conn)?, 1)? {
             chkerr!(
                 self.ctxt(),
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
