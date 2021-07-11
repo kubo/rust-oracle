@@ -16,12 +16,14 @@
 use std::borrow::ToOwned;
 use std::cell::RefCell;
 use std::fmt;
+use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::rc::Rc;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::connection::Conn;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::mode::{ReadMode, WriteMode};
 use crate::oci_attr::{self, OciAttr, SqlFnCode};
@@ -264,7 +266,7 @@ impl fmt::Display for StatementType {
 
 /// Statement
 pub struct Statement<'conn> {
-    pub(crate) conn: &'conn Connection,
+    pub(crate) conn: Conn,
     pub(crate) handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
@@ -277,6 +279,7 @@ pub struct Statement<'conn> {
     fetch_array_size: u32,
     prefetch_rows: u32,
     lob_as_bytes: bool,
+    phantom: PhantomData<&'conn ()>,
 }
 
 impl<'conn> Statement<'conn> {
@@ -356,7 +359,7 @@ impl<'conn> Statement<'conn> {
             }
         };
         Ok(Statement {
-            conn: conn,
+            conn: conn.conn.clone(),
             handle: handle,
             column_info: Vec::new(),
             row: None,
@@ -369,6 +372,7 @@ impl<'conn> Statement<'conn> {
             fetch_array_size: builder.fetch_array_size,
             prefetch_rows: builder.prefetch_rows,
             lob_as_bytes: builder.lob_as_bytes,
+            phantom: PhantomData,
         })
     }
 
@@ -386,7 +390,7 @@ impl<'conn> Statement<'conn> {
     }
 
     pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt()
+        self.conn.ctxt
     }
 
     /// Executes the prepared statement and returns a result set containing [`Row`]s.
@@ -621,8 +625,7 @@ impl<'conn> Statement<'conn> {
                     column_names.push(ci.name.clone());
                     self.column_info.push(ci);
                     // setup column value
-                    let mut val =
-                        SqlValue::with_lob_type(self.conn.conn.clone(), self.lob_as_bytes);
+                    let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
                     val.buffer_row_index =
                         BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
                     let oratype = self.column_info[i].oracle_type();
@@ -729,7 +732,8 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
     {
         let pos = bindidx.idx(&self)?;
-        if self.bind_values[pos].init_handle(&value.oratype(self.conn)?, 1)? {
+        let conn = Connection::from_conn(self.conn.clone());
+        if self.bind_values[pos].init_handle(&value.oratype(&conn)?, 1)? {
             chkerr!(
                 self.ctxt(),
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
@@ -1021,7 +1025,7 @@ impl ColumnInfo {
         let info = unsafe { info.assume_init() };
         Ok(ColumnInfo {
             name: to_rust_str(info.name, info.nameLength),
-            oracle_type: OracleType::from_type_info(&stmt.conn.conn, &info.typeInfo)?,
+            oracle_type: OracleType::from_type_info(&stmt.conn, &info.typeInfo)?,
             nullable: info.nullOk != 0,
         })
     }

@@ -614,6 +614,10 @@ impl Connection {
         })
     }
 
+    pub(crate) fn from_conn(conn: Conn) -> Connection {
+        Connection { conn: conn }
+    }
+
     pub(crate) fn ctxt(&self) -> &'static Context {
         self.conn.ctxt
     }
