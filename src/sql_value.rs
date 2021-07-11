@@ -23,6 +23,7 @@ use std::str;
 use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
+use crate::sql_type::Blob;
 use crate::sql_type::Collection;
 use crate::sql_type::FromSql;
 use crate::sql_type::IntervalDS;
@@ -261,6 +262,16 @@ impl SqlValue {
         Ok(true)
     }
 
+    fn is_lob_type(&self) -> bool {
+        match &self.oratype {
+            &Some(OracleType::CLOB)
+            | &Some(OracleType::NCLOB)
+            | &Some(OracleType::BLOB)
+            | &Some(OracleType::BFILE) => true,
+            _ => false,
+        }
+    }
+
     pub(crate) fn fix_internal_data(&mut self) -> Result<()> {
         let mut num = 0;
         let mut data = ptr::null_mut();
@@ -342,6 +353,16 @@ impl SqlValue {
                 from_type.to_string(),
                 oratype.to_string(),
             )),
+            None => Err(Error::UninitializedBindValue),
+        }
+    }
+
+    fn lob_locator_is_not_set<T>(&self, to_type: &str) -> Result<T> {
+        match self.oratype {
+            Some(_) => Err(Error::InvalidOperation(format!(
+                "Please use StatementBuilder.lob_locator() to fetch LOB data as {}",
+                to_type
+            ))),
             None => Err(Error::UninitializedBindValue),
         }
     }
@@ -591,6 +612,11 @@ impl SqlValue {
         Ok(to_rust_str(ptr, len))
     }
 
+    fn get_lob_unchecked(&self) -> Result<*mut dpiLob> {
+        self.check_not_null()?;
+        unsafe { Ok(dpiData_getLOB(self.data())) }
+    }
+
     //
     // set_TYPE_unchecked methods
     //
@@ -751,6 +777,14 @@ impl SqlValue {
     /// NativeType::Boolean. Otherwise, this may cause access violation.
     fn set_bool_unchecked(&mut self, val: bool) -> Result<()> {
         unsafe { dpiData_setBool(self.data(), if val { 1 } else { 0 }) }
+        Ok(())
+    }
+
+    fn set_lob_unchecked(&mut self, lob: *mut dpiLob) -> Result<()> {
+        chkerr!(
+            self.ctxt,
+            dpiVar_setFromLob(self.handle, self.buffer_row_index(), lob)
+        );
         Ok(())
     }
 
@@ -978,6 +1012,14 @@ impl SqlValue {
         }
     }
 
+    pub(crate) fn to_blob(&self) -> Result<Blob> {
+        match self.native_type {
+            NativeType::BLOB => Ok(Blob::from_raw(self.ctxt, self.get_lob_unchecked()?)?),
+            NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
+            _ => self.invalid_conversion_to_rust_type("Blob"),
+        }
+    }
+
     //
     // set_TYPE methods
     //
@@ -1111,6 +1153,14 @@ impl SqlValue {
         match self.native_type {
             NativeType::Boolean => self.set_bool_unchecked(*val),
             _ => self.invalid_conversion_from_rust_type("bool"),
+        }
+    }
+
+    pub(crate) fn set_blob(&mut self, val: &Blob) -> Result<()> {
+        match self.native_type {
+            NativeType::BLOB => self.set_lob_unchecked(val.lob.handle),
+            NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
+            _ => self.invalid_conversion_from_rust_type("Blob"),
         }
     }
 

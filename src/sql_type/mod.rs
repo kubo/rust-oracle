@@ -24,12 +24,14 @@ use crate::SqlValue;
 mod chrono;
 mod interval_ds;
 mod interval_ym;
+mod lob;
 mod object;
 mod oracle_type;
 mod timestamp;
 
 pub use self::interval_ds::IntervalDS;
 pub use self::interval_ym::IntervalYM;
+pub use self::lob::Blob;
 pub use self::object::Collection;
 pub use self::object::Object;
 pub use self::object::ObjectType;
