@@ -25,6 +25,7 @@ use crate::Connection;
 use crate::Context;
 use crate::Result;
 use crate::SqlValue;
+use std::cmp;
 use std::convert::TryInto;
 use std::fmt;
 use std::io::{self, Read, Seek, Write};
@@ -545,11 +546,38 @@ fn utf16_len(s: &[u8]) -> io::Result<usize> {
     Ok(s.chars().fold(0, |acc, c| acc + c.len_utf16()))
 }
 
+#[cfg(not(test))]
+const MIN_READ_SIZE: usize = 400;
+
+#[cfg(test)]
+const MIN_READ_SIZE: usize = 20;
+
 impl Read for Clob {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        let len = map_to_io_error(self.lob.read_bytes(buf.len(), buf))?;
-        self.lob.pos += utf16_len(&buf[0..len])? as u64;
-        Ok(len)
+        if buf.len() > MIN_READ_SIZE {
+            let len = map_to_io_error(self.lob.read_bytes(buf.len(), buf))?;
+            self.lob.pos += utf16_len(&buf[0..len])? as u64;
+            Ok(len)
+        } else {
+            let mut tmp = [0u8; MIN_READ_SIZE];
+            let buf_len = if buf.len() == 1 { 2 } else { buf.len() };
+            let len = map_to_io_error(self.lob.read_bytes(buf_len, &mut tmp))?;
+            let len = cmp::min(len, buf.len());
+            let s = match str::from_utf8(&tmp[0..len]) {
+                Ok(s) => s,
+                Err(err) if err.error_len().is_some() => return map_to_io_error(Err(err)),
+                Err(err) if err.valid_up_to() == 0 => {
+                    return Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        "too small buffer to read characters",
+                    ));
+                }
+                Err(err) => unsafe { str::from_utf8_unchecked(&tmp[0..err.valid_up_to()]) },
+            };
+            buf[0..s.len()].copy_from_slice(s.as_bytes());
+            self.lob.pos += s.chars().fold(0, |acc, c| acc + c.len_utf16()) as u64;
+            Ok(s.len())
+        }
     }
 
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
@@ -750,6 +778,41 @@ mod tests {
         lob.write(&"🦀".as_bytes()[0..2]).unwrap_err();
         lob.write(&"🦀".as_bytes()[0..3]).unwrap_err();
         lob.write(&"🦀".as_bytes()[0..4])?;
+
+        lob.seek_in_chars(io::SeekFrom::Current(-2))?;
+        lob.read(&mut buf[0..1]).unwrap_err(); // one byte buffer for four byte UTF-8
+        lob.read(&mut buf[0..2]).unwrap_err(); // two bytes buffer for four byte UTF-8
+        lob.read(&mut buf[0..3]).unwrap_err(); // three bytes buffer for four byte UTF-8
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..4])?, 4);
+        assert_eq!(&buf[0..4], "🦀".as_bytes());
+        lob.seek_in_chars(io::SeekFrom::Current(-2))?;
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..5])?, 4);
+        assert_eq!(&buf[0..4], "🦀".as_bytes());
+
+        lob.seek_in_chars(io::SeekFrom::Current(-3))?;
+        lob.read(&mut buf[0..1]).unwrap_err(); // one byte buffer for two byte UTF-8
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..2])?, 2);
+        assert_eq!(&buf[0..2], "б".as_bytes());
+        lob.seek_in_chars(io::SeekFrom::Current(-1))?;
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..3])?, 2);
+        assert_eq!(&buf[0..2], "б".as_bytes());
+        lob.seek_in_chars(io::SeekFrom::Current(-1))?;
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..4])?, 2);
+        assert_eq!(&buf[0..2], "б".as_bytes());
+        lob.seek_in_chars(io::SeekFrom::Current(-1))?;
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..5])?, 2);
+        assert_eq!(&buf[0..2], "б".as_bytes());
+        lob.seek_in_chars(io::SeekFrom::Current(-1))?;
+        buf.fill(0);
+        assert_eq!(lob.read(&mut buf[0..6])?, 6);
+        assert_eq!(&buf[0..6], "б🦀".as_bytes());
+
         Ok(())
     }
 }
