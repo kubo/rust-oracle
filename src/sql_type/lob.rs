@@ -23,6 +23,7 @@ use crate::sql_type::ToSqlNull;
 use crate::to_odpi_str;
 use crate::Connection;
 use crate::Context;
+use crate::Error;
 use crate::Result;
 use crate::SqlValue;
 use std::cmp;
@@ -30,6 +31,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::io::{self, Read, Seek, Write};
 use std::os::raw::c_char;
+use std::ptr;
 use std::str;
 
 fn map_to_io_error<T, E>(res: std::result::Result<T, E>) -> io::Result<T>
@@ -295,6 +297,17 @@ impl Blob {
         })
     }
 
+    /// Returns a reference to a new temporary LOB which may subsequently be
+    /// written and bound to a statement.
+    pub fn new(conn: &Connection) -> Result<Blob> {
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            conn.ctxt,
+            dpiConn_newTempLob(conn.handle.raw(), DPI_ORACLE_TYPE_BLOB, &mut handle)
+        );
+        Blob::from_raw(conn.ctxt, handle)
+    }
+
     /// Closes the LOB.
     pub fn close(&mut self) -> Result<()> {
         self.lob.close()
@@ -459,6 +472,24 @@ impl Clob {
         Ok(Clob {
             lob: LobLocator::from_raw(ctxt, handle)?,
         })
+    }
+
+    /// Returns a reference to a new temporary CLOB or NCLOB which may subsequently be
+    /// written and bound to a statement.
+    ///
+    /// The `oratype` argument must be either `&OracleType::CLOB` or `&OracleType::NCLOB`.
+    pub fn new(conn: &Connection, oratype: &OracleType) -> Result<Clob> {
+        let lob_type = match oratype {
+            &OracleType::CLOB => DPI_ORACLE_TYPE_CLOB,
+            &OracleType::NCLOB => DPI_ORACLE_TYPE_NCLOB,
+            _ => return Err(Error::InvalidOperation(format!("The oratype argument must be either OracleType::CLOB or OracleType::NCLOB but {:?}", oratype))),
+        };
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            conn.ctxt,
+            dpiConn_newTempLob(conn.handle.raw(), lob_type, &mut handle)
+        );
+        Clob::from_raw(conn.ctxt, handle)
     }
 
     /// Closes the LOB.
@@ -665,25 +696,10 @@ mod tests {
         };
     }
 
-    fn get_lob<T>(lob_type: &str, constructor: &str) -> Result<T>
-    where
-        T: ToSql + ToSqlNull + FromSql,
-    {
-        let conn = test_util::connect()?;
-        let mut stmt = conn.prepare(
-            &format!(
-                "insert into Test{0}s values (1, {1}) returning {0}Col into :lob",
-                lob_type, constructor
-            ),
-            &[],
-        )?;
-        stmt.execute(&[&None::<T>])?;
-        Ok(stmt.returned_values::<usize, T>(1)?.remove(0))
-    }
-
     #[test]
     fn read_write_blob() -> Result<()> {
-        let mut lob: Blob = get_lob("BLOB", "EMPTY_BLOB()")?;
+        let conn = test_util::connect()?;
+        let mut lob = Blob::new(&conn)?;
         assert_eq!(lob.seek(io::SeekFrom::Current(0)).unwrap(), 0);
         lob.write(TEST_DATA.as_bytes()).unwrap();
         assert_eq!(
@@ -716,12 +732,11 @@ mod tests {
     }
 
     #[test]
-    fn query_blob() -> Result<()> {
+    fn query_blob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
         let conn = test_util::connect()?;
-        conn.execute(
-            "insert into TestBLOBs values (1, UTL_RAW.CAST_TO_RAW('BLOB DATA'))",
-            &[],
-        )?;
+        let mut lob = Blob::new(&conn)?;
+        lob.write(b"BLOB DATA")?;
+        conn.execute("insert into TestBLOBs values (1, :1)", &[&lob])?;
         let sql = "select BLOBCol from TestBLOBs where IntCol = 1";
 
         // query blob as binary
@@ -744,7 +759,8 @@ mod tests {
 
     #[test]
     fn read_write_clob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
-        let mut lob: Clob = get_lob("CLOB", "EMPTY_CLOB()")?;
+        let conn = test_util::connect()?;
+        let mut lob = Clob::new(&conn, &OracleType::CLOB)?;
         let test_data_len = utf16_len(TEST_DATA.as_bytes())? as u64;
         assert_eq!(lob.seek_in_chars(io::SeekFrom::Current(0))?, 0);
         assert_eq!(lob.write(TEST_DATA.as_bytes())?, TEST_DATA.len());
