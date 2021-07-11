@@ -264,21 +264,115 @@ impl fmt::Display for StatementType {
     }
 }
 
-/// Statement
-pub struct Statement<'conn> {
+#[derive(Debug)]
+pub(crate) struct Stmt {
     pub(crate) conn: Conn,
     pub(crate) handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
+    fetch_array_size: u32,
+    lob_as_bytes: bool,
+}
+
+impl Stmt {
+    pub(crate) fn ctxt(&self) -> &'static Context {
+        self.conn.ctxt
+    }
+
+    pub(crate) fn conn(&self) -> &Conn {
+        &self.conn
+    }
+
+    pub(crate) fn handle(&self) -> *mut dpiStmt {
+        self.handle
+    }
+
+    fn close(&mut self) -> Result<()> {
+        self.close_internal("")
+    }
+
+    fn close_internal(&mut self, tag: &str) -> Result<()> {
+        let tag = to_odpi_str(tag);
+
+        chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
+        self.handle = ptr::null_mut();
+        Ok(())
+    }
+
+    fn init_row(&mut self, num_cols: usize) -> Result<()> {
+        let mut column_names = Vec::with_capacity(num_cols);
+        let mut column_values = Vec::with_capacity(num_cols);
+        self.column_info = Vec::with_capacity(num_cols);
+
+        for i in 0..num_cols {
+            // set column info
+            let ci = ColumnInfo::new(self, i)?;
+            column_names.push(ci.name.clone());
+            self.column_info.push(ci);
+            // setup column value
+            let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
+            val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
+            let oratype = self.column_info[i].oracle_type();
+            let oratype_i64 = OracleType::Int64;
+            let oratype = match *oratype {
+                // When the column type is number whose prec is less than 18
+                // and the scale is zero, define it as int64.
+                OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 => {
+                    &oratype_i64
+                }
+                _ => oratype,
+            };
+            val.init_handle(oratype, self.fetch_array_size)?;
+            chkerr!(
+                self.ctxt(),
+                dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
+            );
+            column_values.push(val);
+        }
+        self.row = Some(Row::new(column_names, column_values)?);
+        Ok(())
+    }
+
+    pub fn next(&self) -> Option<Result<&Row>> {
+        let mut found = 0;
+        let mut buffer_row_index = 0;
+        if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
+            if found != 0 {
+                *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
+                // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
+                Some(Ok(self.row.as_ref().unwrap()))
+            } else {
+                None
+            }
+        } else {
+            Some(Err(crate::error::error_from_context(self.ctxt())))
+        }
+    }
+
+    pub fn row_count(&self) -> Result<u64> {
+        let mut count = 0;
+        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle, &mut count));
+        Ok(count)
+    }
+}
+
+impl Drop for Stmt {
+    fn drop(&mut self) {
+        unsafe { dpiStmt_release(self.handle) };
+    }
+}
+
+/// Statement
+#[derive(Debug)]
+pub struct Statement<'conn> {
+    pub(crate) stmt: Stmt,
     statement_type: StatementType,
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec<String>,
     bind_values: Vec<SqlValue>,
-    fetch_array_size: u32,
     prefetch_rows: u32,
-    lob_as_bytes: bool,
     phantom: PhantomData<&'conn ()>,
 }
 
@@ -359,38 +453,40 @@ impl<'conn> Statement<'conn> {
             }
         };
         Ok(Statement {
-            conn: conn.conn.clone(),
-            handle: handle,
-            column_info: Vec::new(),
-            row: None,
-            shared_buffer_row_index: Rc::new(RefCell::new(0)),
+            stmt: Stmt {
+                conn: conn.conn.clone(),
+                handle: handle,
+                column_info: Vec::new(),
+                row: None,
+                shared_buffer_row_index: Rc::new(RefCell::new(0)),
+                fetch_array_size: builder.fetch_array_size,
+                lob_as_bytes: builder.lob_as_bytes,
+            },
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: bind_values,
-            fetch_array_size: builder.fetch_array_size,
             prefetch_rows: builder.prefetch_rows,
-            lob_as_bytes: builder.lob_as_bytes,
             phantom: PhantomData,
         })
     }
 
     /// Closes the statement before the end of lifetime.
     pub fn close(&mut self) -> Result<()> {
-        self.close_internal("")
-    }
-
-    fn close_internal(&mut self, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-
-        chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
-        self.handle = ptr::null_mut();
-        Ok(())
+        self.stmt.close()
     }
 
     pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt
+        self.conn().ctxt
+    }
+
+    pub(crate) fn conn(&self) -> &Conn {
+        &self.stmt.conn
+    }
+
+    pub(crate) fn handle(&self) -> *mut dpiStmt {
+        self.stmt.handle
     }
 
     /// Executes the prepared statement and returns a result set containing [`Row`]s.
@@ -588,66 +684,33 @@ impl<'conn> Statement<'conn> {
     fn exec_common(&mut self) -> Result<()> {
         let mut num_query_columns = 0;
         let mut exec_mode = DPI_MODE_EXEC_DEFAULT;
-        if self.conn.autocommit() {
+        if self.conn().autocommit() {
             exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
         }
         chkerr!(
             self.ctxt(),
-            dpiStmt_setFetchArraySize(self.handle, self.fetch_array_size)
+            dpiStmt_setFetchArraySize(self.handle(), self.stmt.fetch_array_size)
         );
         chkerr!(
             self.ctxt(),
-            dpiStmt_setPrefetchRows(self.handle, self.prefetch_rows)
+            dpiStmt_setPrefetchRows(self.handle(), self.prefetch_rows)
         );
         chkerr!(
             self.ctxt(),
-            dpiStmt_execute(self.handle, exec_mode, &mut num_query_columns)
+            dpiStmt_execute(self.handle(), exec_mode, &mut num_query_columns)
         );
         if self.is_ddl() {
             let fncode = self.oci_attr::<SqlFnCode>()?;
             match fncode {
                 SQLFNCODE_CREATE_TYPE | SQLFNCODE_ALTER_TYPE | SQLFNCODE_DROP_TYPE => {
-                    self.conn.clear_object_type_cache()?
+                    self.conn().clear_object_type_cache()?
                 }
                 _ => (),
             }
         }
         if self.statement_type == StatementType::Select {
-            if self.row.is_none() {
-                let num_cols = num_query_columns as usize;
-                let mut column_names = Vec::with_capacity(num_cols);
-                let mut column_values = Vec::with_capacity(num_cols);
-                self.column_info = Vec::with_capacity(num_cols);
-
-                for i in 0..num_cols {
-                    // set column info
-                    let ci = ColumnInfo::new(self, i)?;
-                    column_names.push(ci.name.clone());
-                    self.column_info.push(ci);
-                    // setup column value
-                    let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
-                    val.buffer_row_index =
-                        BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
-                    let oratype = self.column_info[i].oracle_type();
-                    let oratype_i64 = OracleType::Int64;
-                    let oratype = match *oratype {
-                        // When the column type is number whose prec is less than 18
-                        // and the scale is zero, define it as int64.
-                        OracleType::Number(prec, 0)
-                            if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 =>
-                        {
-                            &oratype_i64
-                        }
-                        _ => oratype,
-                    };
-                    val.init_handle(oratype, self.fetch_array_size)?;
-                    chkerr!(
-                        self.ctxt(),
-                        dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
-                    );
-                    column_values.push(val);
-                }
-                self.row = Some(Row::new(column_names, column_values)?);
+            if self.stmt.row.is_none() {
+                self.stmt.init_row(num_query_columns as usize)?;
             }
         }
         if self.is_returning {
@@ -732,11 +795,11 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
     {
         let pos = bindidx.idx(&self)?;
-        let conn = Connection::from_conn(self.conn.clone());
+        let conn = Connection::from_conn(self.conn().clone());
         if self.bind_values[pos].init_handle(&value.oratype(&conn)?, 1)? {
             chkerr!(
                 self.ctxt(),
-                bindidx.bind(self.handle, self.bind_values[pos].handle)
+                bindidx.bind(self.handle(), self.bind_values[pos].handle)
             );
         }
         self.bind_values[pos].set(value)
@@ -822,7 +885,7 @@ impl<'conn> Statement<'conn> {
         T: FromSql,
     {
         let mut rows = 0;
-        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle, &mut rows));
+        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle(), &mut rows));
         if rows == 0 {
             return Ok(vec![]);
         }
@@ -838,28 +901,10 @@ impl<'conn> Statement<'conn> {
         Ok(vec)
     }
 
-    pub(crate) fn next(&self) -> Option<Result<&Row>> {
-        let mut found = 0;
-        let mut buffer_row_index = 0;
-        if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
-            if found != 0 {
-                *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
-                // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
-                Some(Ok(self.row.as_ref().unwrap()))
-            } else {
-                None
-            }
-        } else {
-            Some(Err(crate::error::error_from_context(self.ctxt())))
-        }
-    }
-
     /// Returns the number of rows fetched when the SQL statement is a query.
     /// Otherwise, the number of rows affected.
     pub fn row_count(&self) -> Result<u64> {
-        let mut count = 0;
-        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle, &mut count));
-        Ok(count)
+        self.stmt.row_count()
     }
 
     /// Returns statement type
@@ -927,51 +972,6 @@ impl<'conn> Statement<'conn> {
     }
 }
 
-impl<'conn> Drop for Statement<'conn> {
-    fn drop(&mut self) {
-        unsafe { dpiStmt_release(self.handle) };
-    }
-}
-
-impl<'conn> fmt::Debug for Statement<'conn> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Statement {{ handle: {:?}, conn: {:?}, stmt_type: {}",
-            self.handle,
-            self.conn,
-            self.statement_type()
-        )?;
-        if self.column_info.len() != 0 {
-            write!(f, ", colum_info: [")?;
-            for (idx, colinfo) in (&self.column_info).iter().enumerate() {
-                if idx != 0 {
-                    write!(f, ", ")?;
-                }
-                write!(
-                    f,
-                    "{} {}{}",
-                    colinfo.name(),
-                    colinfo.oracle_type(),
-                    if colinfo.nullable() { "" } else { " NOT NULL" }
-                )?;
-            }
-            write!(f, "], fetch_array_size: {}", self.fetch_array_size)?;
-        }
-        if self.bind_count != 0 {
-            write!(
-                f,
-                ", bind_count: {}, bind_names: {:?}, bind_values: {:?}",
-                self.bind_count, self.bind_names, self.bind_values
-            )?;
-        }
-        if self.is_returning {
-            write!(f, ", is_returning: true")?;
-        }
-        write!(f, " }}")
-    }
-}
-
 /// Column information in a select statement
 ///
 /// # Examples
@@ -1016,16 +1016,16 @@ pub struct ColumnInfo {
 }
 
 impl ColumnInfo {
-    fn new(stmt: &Statement, idx: usize) -> Result<ColumnInfo> {
+    fn new(stmt: &Stmt, idx: usize) -> Result<ColumnInfo> {
         let mut info = MaybeUninit::uninit();
         chkerr!(
             stmt.ctxt(),
-            dpiStmt_getQueryInfo(stmt.handle, (idx + 1) as u32, info.as_mut_ptr())
+            dpiStmt_getQueryInfo(stmt.handle(), (idx + 1) as u32, info.as_mut_ptr())
         );
         let info = unsafe { info.assume_init() };
         Ok(ColumnInfo {
             name: to_rust_str(info.name, info.nameLength),
-            oracle_type: OracleType::from_type_info(&stmt.conn, &info.typeInfo)?,
+            oracle_type: OracleType::from_type_info(stmt.conn(), &info.typeInfo)?,
             nullable: info.nullOk != 0,
         })
     }

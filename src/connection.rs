@@ -861,7 +861,7 @@ impl Connection {
         if let Err(err) = stmt.query_row(params) {
             return Err(err);
         };
-        Ok(mem::replace(&mut stmt.row, None).unwrap())
+        Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
     }
 
     /// Gets one row from a query using named bind parameters.
@@ -874,7 +874,7 @@ impl Connection {
         if let Err(err) = stmt.query_row_named(params) {
             return Err(err);
         };
-        Ok(mem::replace(&mut stmt.row, None).unwrap())
+        Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
     }
 
     /// Gets one row from a query as specified type.

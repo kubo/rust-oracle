@@ -56,7 +56,7 @@ impl AttrValue {
     pub(crate) fn from_stmt(stmt: &Statement, attr_num: u32) -> AttrValue {
         AttrValue {
             ctxt: stmt.ctxt(),
-            handle: Handle::Stmt(stmt.handle),
+            handle: Handle::Stmt(stmt.handle()),
             attr_num: attr_num,
         }
     }

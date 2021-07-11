@@ -20,6 +20,7 @@ use std::marker::PhantomData;
 use std::rc::Rc;
 
 use crate::sql_type::FromSql;
+use crate::statement::Stmt;
 use crate::ColumnIndex;
 use crate::ColumnInfo;
 use crate::Connection;
@@ -130,11 +131,11 @@ where
         })
     }
 
-    fn stmt(&self) -> &Statement {
-        if self.stmt.is_some() {
-            self.stmt.as_ref().unwrap()
-        } else if self.stmt_boxed.is_some() {
-            self.stmt_boxed.as_ref().unwrap().as_ref()
+    fn stmt(&self) -> &Stmt {
+        if let Some(stmt) = self.stmt.as_ref() {
+            &stmt.stmt
+        } else if let Some(stmt) = self.stmt_boxed.as_ref() {
+            &stmt.stmt
         } else {
             panic!("Both stmt and stmt_boxed are none!");
         }
