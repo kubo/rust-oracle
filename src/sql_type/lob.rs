@@ -14,6 +14,7 @@
 //-----------------------------------------------------------------------------
 use crate::binding::*;
 use crate::chkerr;
+use crate::io::SeekInChars;
 use crate::new_odpi_str;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
@@ -426,6 +427,158 @@ impl Write for Blob {
     }
 }
 
+/// A reference to Oracle data type `CLOB` or `NCLOB`
+///
+/// This struct implements [`Read`] and [`Write`] to read and write
+/// characters. [`Read.read`] fails when `buf` is too small
+/// to store one character. [`Write.write`] fails when `buf` contains
+/// invalid UTF-8 byte sequence.
+///
+/// This also implements [`SeekInChars`] to seek to a position in characters.
+/// Note that there is no way to seek in bytes.
+///
+/// # Notes
+///
+/// The size of LOBs returned by the [`size`] method and positions in
+/// [`SeekInChars`] are inaccurate if a character in the LOB requires
+/// more than one UCS-2 codepoint. That's becuase Oracle stores CLOBs
+/// and NCLOBs using the UTF-16 encoding and the number of characters
+/// is defined by the number of UCS-2 codepoints.
+///
+/// [`size`]: #method.size
+/// [`Read.read`]: Read#tymethod.read
+/// [`Write.write`]: Write#tymethod.write
+#[derive(Clone, Debug)]
+pub struct Clob {
+    pub(crate) lob: LobLocator,
+}
+
+impl Clob {
+    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Clob> {
+        Ok(Clob {
+            lob: LobLocator::from_raw(ctxt, handle)?,
+        })
+    }
+
+    /// Closes the LOB.
+    pub fn close(&mut self) -> Result<()> {
+        self.lob.close()
+    }
+
+    /// Returns the size of the data stored in the LOB in characters.
+    ///
+    /// See also [Notes](#notes).
+    pub fn size(&self) -> Result<u64> {
+        self.lob.size()
+    }
+
+    // /// Returns the chunk size, in bytes, of the internal LOB. Reading and writing
+    // /// to the LOB in multiples of this size will improve performance.
+    // pub fn chunk_size(&self) -> Result<usize> {
+    //     Ok(self.lob.chunk_size()?.try_into()?)
+    // }
+
+    /// Opens the LOB resource for writing. This will improve performance when
+    /// writing to the LOB in chunks and there are functional or extensible indexes
+    /// associated with the LOB. If this function is not called, the LOB resource
+    /// will be opened and closed for each write that is performed. A call to the
+    /// [`close_resource`] should be done before performing a
+    /// call to the function [`Connection.commit`].
+    ///
+    /// [`close_resource`]: #method.close_resource
+    /// [`Connection.commit`]: Connection#method.commit
+    pub fn open_resource(&mut self) -> Result<()> {
+        self.lob.open_resource()
+    }
+
+    /// Closes the LOB resource. This should be done when a batch of writes has
+    /// been completed so that the indexes associated with the LOB can be updated.
+    /// It should only be performed if a call to function
+    /// [`open_resource`] has been performed.
+    ///
+    /// [`open_resource`]: #method.open_resource
+    pub fn close_resource(&mut self) -> Result<()> {
+        self.lob.close_resource()
+    }
+
+    /// Returns a boolean value indicating if the LOB resource has been opened by
+    /// making a call to the function [`open_resource`].
+    ///
+    /// [`open_resource`]: #method.open_resource
+    pub fn is_resource_open(&self) -> Result<bool> {
+        self.lob.is_resource_open()
+    }
+
+    /// Trims the data in the LOB so that it only contains the specified amount of
+    /// data.
+    ///
+    /// The new size is the number of UCS-2 codepoints. See [Notes](#notes).
+    pub fn trim(&mut self, new_size: u64) -> Result<()> {
+        self.lob.trim(new_size)
+    }
+}
+
+impl FromSql for Clob {
+    fn from_sql(val: &SqlValue) -> Result<Self> {
+        val.to_clob()
+    }
+}
+
+impl ToSqlNull for Clob {
+    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
+        Ok(OracleType::CLOB)
+    }
+}
+
+impl ToSql for Clob {
+    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
+        Ok(OracleType::CLOB)
+    }
+
+    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+        val.set_clob(self)
+    }
+}
+
+fn utf16_len(s: &[u8]) -> io::Result<usize> {
+    let s = map_to_io_error(str::from_utf8(s))?;
+    Ok(s.chars().fold(0, |acc, c| acc + c.len_utf16()))
+}
+
+impl Read for Clob {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let len = map_to_io_error(self.lob.read_bytes(buf.len(), buf))?;
+        self.lob.pos += utf16_len(&buf[0..len])? as u64;
+        Ok(len)
+    }
+
+    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
+        let start_pos = buf.len();
+        let len = self.lob.read_to_end(buf, 4)?;
+        self.lob.pos += utf16_len(&buf[start_pos..])? as u64;
+        Ok(len)
+    }
+}
+
+impl SeekInChars for Clob {
+    fn seek_in_chars(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
+        self.lob.seek(pos)
+    }
+}
+
+impl Write for Clob {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        map_to_io_error(str::from_utf8(buf))?;
+        let len = map_to_io_error(self.lob.write_bytes(buf))?;
+        self.lob.pos += utf16_len(&buf[0..len])? as u64;
+        Ok(len)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -558,6 +711,45 @@ mod tests {
         // error when querying blob as Blob without `StatementBuilder.lob_locator()`.
         let mut stmt = conn.statement(sql).build()?;
         assert_eq!(stmt.query_row_as::<Blob>(&[]).unwrap_err().to_string(), "invalid operation: Please use StatementBuilder.lob_locator() to fetch LOB data as Blob");
+        Ok(())
+    }
+
+    #[test]
+    fn read_write_clob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
+        let mut lob: Clob = get_lob("CLOB", "EMPTY_CLOB()")?;
+        let test_data_len = utf16_len(TEST_DATA.as_bytes())? as u64;
+        assert_eq!(lob.seek_in_chars(io::SeekFrom::Current(0))?, 0);
+        assert_eq!(lob.write(TEST_DATA.as_bytes())?, TEST_DATA.len());
+        assert_eq!(lob.stream_position_in_chars()?, test_data_len);
+        assert_eq!(lob.size()?, test_data_len);
+
+        lob.seek_in_chars(io::SeekFrom::Start(0))?;
+        let mut buf = vec![0; TEST_DATA.len()];
+        let mut offset = 0;
+        while offset < buf.len() {
+            let mut len = lob.read(&mut buf[offset..])?;
+            if len == 0 {
+                len = lob.read_to_end(&mut buf)?;
+                if len == 0 {
+                    panic!(
+                        "lob.read returns zero. (lob: {:?}, buf.len(): {}, offset: {}, buf: {:?}, data: {:?})",
+                        lob.lob,
+                        buf.len(),
+                        offset,
+                        &buf[0..offset],
+                        *TEST_DATA
+                    );
+                }
+            }
+            offset += len as usize;
+        }
+        assert_eq!(offset, TEST_DATA.len());
+        assert_eq!(TEST_DATA.as_bytes(), buf);
+
+        lob.write(&"🦀".as_bytes()[0..1]).unwrap_err();
+        lob.write(&"🦀".as_bytes()[0..2]).unwrap_err();
+        lob.write(&"🦀".as_bytes()[0..3]).unwrap_err();
+        lob.write(&"🦀".as_bytes()[0..4])?;
         Ok(())
     }
 }

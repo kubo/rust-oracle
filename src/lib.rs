@@ -242,7 +242,6 @@ required.
 ## TODO
 
 * Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
-* Read and write LOB as stream
 * REF CURSOR
 * Scrollable cursors
 * Better Oracle object type support
@@ -283,6 +282,7 @@ mod binding;
 mod binding_impl;
 mod connection;
 mod error;
+pub mod io;
 mod row;
 pub mod sql_type;
 mod sql_value;

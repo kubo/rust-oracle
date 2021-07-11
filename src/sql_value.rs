@@ -24,6 +24,7 @@ use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
 use crate::sql_type::Blob;
+use crate::sql_type::Clob;
 use crate::sql_type::Collection;
 use crate::sql_type::FromSql;
 use crate::sql_type::IntervalDS;
@@ -1020,6 +1021,14 @@ impl SqlValue {
         }
     }
 
+    pub(crate) fn to_clob(&self) -> Result<Clob> {
+        match self.native_type {
+            NativeType::CLOB => Ok(Clob::from_raw(self.ctxt, self.get_lob_unchecked()?)?),
+            NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
+            _ => self.invalid_conversion_to_rust_type("Clob"),
+        }
+    }
+
     //
     // set_TYPE methods
     //
@@ -1161,6 +1170,14 @@ impl SqlValue {
             NativeType::BLOB => self.set_lob_unchecked(val.lob.handle),
             NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
             _ => self.invalid_conversion_from_rust_type("Blob"),
+        }
+    }
+
+    pub(crate) fn set_clob(&mut self, val: &Clob) -> Result<()> {
+        match self.native_type {
+            NativeType::CLOB => self.set_lob_unchecked(val.lob.handle),
+            NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
+            _ => self.invalid_conversion_from_rust_type("Clob"),
         }
     }
 
