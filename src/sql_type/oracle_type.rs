@@ -40,9 +40,7 @@ pub enum NativeType {
     CLOB,
     BLOB,
     Object(ObjectType),
-    #[allow(dead_code)]
     Stmt,
-    #[allow(dead_code)]
     Boolean, // bool in rust
     Rowid,
 }
@@ -298,8 +296,7 @@ impl OracleType {
             OracleType::NCLOB => Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
             OracleType::BLOB => Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
             OracleType::BFILE => Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
-            //            OracleType::RefCursor =>
-            //                Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
+            OracleType::RefCursor => Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
             OracleType::Boolean => Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
             OracleType::Object(ref objtype) => Ok((
                 DPI_ORACLE_TYPE_OBJECT,

@@ -27,6 +27,7 @@ mod interval_ym;
 mod lob;
 mod object;
 mod oracle_type;
+mod ref_cursor;
 mod timestamp;
 
 pub use self::interval_ds::IntervalDS;
@@ -40,6 +41,7 @@ pub use self::object::ObjectTypeAttr;
 pub(crate) use self::object::ObjectTypeInternal;
 pub(crate) use self::oracle_type::NativeType;
 pub use self::oracle_type::OracleType;
+pub use self::ref_cursor::RefCursor;
 pub use self::timestamp::Timestamp;
 
 /// Conversion from Oracle values to rust values.

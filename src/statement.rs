@@ -276,6 +276,23 @@ pub(crate) struct Stmt {
 }
 
 impl Stmt {
+    pub(crate) fn new(
+        conn: Conn,
+        handle: *mut dpiStmt,
+        fetch_array_size: u32,
+        lob_as_bytes: bool,
+    ) -> Stmt {
+        Stmt {
+            conn: conn,
+            handle: handle,
+            column_info: Vec::new(),
+            row: None,
+            shared_buffer_row_index: Rc::new(RefCell::new(0)),
+            fetch_array_size: fetch_array_size,
+            lob_as_bytes: lob_as_bytes,
+        }
+    }
+
     pub(crate) fn ctxt(&self) -> &'static Context {
         self.conn.ctxt
     }
@@ -300,7 +317,7 @@ impl Stmt {
         Ok(())
     }
 
-    fn init_row(&mut self, num_cols: usize) -> Result<()> {
+    pub(crate) fn init_row(&mut self, num_cols: usize) -> Result<()> {
         let mut column_names = Vec::with_capacity(num_cols);
         let mut column_values = Vec::with_capacity(num_cols);
         self.column_info = Vec::with_capacity(num_cols);
@@ -453,15 +470,12 @@ impl<'conn> Statement<'conn> {
             }
         };
         Ok(Statement {
-            stmt: Stmt {
-                conn: conn.conn.clone(),
-                handle: handle,
-                column_info: Vec::new(),
-                row: None,
-                shared_buffer_row_index: Rc::new(RefCell::new(0)),
-                fetch_array_size: builder.fetch_array_size,
-                lob_as_bytes: builder.lob_as_bytes,
-            },
+            stmt: Stmt::new(
+                conn.conn.clone(),
+                handle,
+                builder.fetch_array_size,
+                builder.lob_as_bytes,
+            ),
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
             bind_count: bind_count,

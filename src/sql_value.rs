@@ -34,6 +34,7 @@ use crate::sql_type::NativeType;
 use crate::sql_type::Object;
 use crate::sql_type::ObjectType;
 use crate::sql_type::OracleType;
+use crate::sql_type::RefCursor;
 use crate::sql_type::Timestamp;
 use crate::sql_type::ToSql;
 use crate::to_rust_slice;
@@ -617,6 +618,11 @@ impl SqlValue {
         unsafe { Ok(dpiData_getLOB(self.data())) }
     }
 
+    fn get_stmt_unchecked(&self) -> Result<*mut dpiStmt> {
+        self.check_not_null()?;
+        unsafe { Ok(dpiData_getStmt(self.data())) }
+    }
+
     //
     // set_TYPE_unchecked methods
     //
@@ -1025,6 +1031,16 @@ impl SqlValue {
             NativeType::CLOB => Ok(Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?),
             NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
             _ => self.invalid_conversion_to_rust_type("Clob"),
+        }
+    }
+
+    pub(crate) fn to_ref_cursor(&self) -> Result<RefCursor> {
+        match self.native_type {
+            NativeType::Stmt => Ok(RefCursor::from_raw(
+                self.conn.clone(),
+                self.get_stmt_unchecked()?,
+            )?),
+            _ => self.invalid_conversion_to_rust_type("RefCursor"),
         }
     }
 
