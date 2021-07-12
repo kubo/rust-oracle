@@ -496,7 +496,7 @@ impl<'conn> Statement<'conn> {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&mut self, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
-        Ok(ResultSet::<Row>::new(self))
+        Ok(ResultSet::<Row>::new(&self.stmt))
     }
 
     /// Executes the prepared statement using named parameters and returns a result set containing [`Row`]s.
@@ -506,7 +506,7 @@ impl<'conn> Statement<'conn> {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
-        Ok(ResultSet::<Row>::new(self))
+        Ok(ResultSet::<Row>::new(&self.stmt))
     }
 
     /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
@@ -519,7 +519,7 @@ impl<'conn> Statement<'conn> {
         T: RowValue,
     {
         self.exec(params, true, "query_as")?;
-        Ok(ResultSet::new(self))
+        Ok(ResultSet::new(&self.stmt))
     }
 
     /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
@@ -535,7 +535,7 @@ impl<'conn> Statement<'conn> {
         T: RowValue,
     {
         self.exec_named(params, true, "query_as_named")?;
-        Ok(ResultSet::new(self))
+        Ok(ResultSet::new(&self.stmt))
     }
 
     /// Gets one row from the prepared statement using positoinal bind parameters.

@@ -13,7 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::boxed::Box;
 use std::fmt;
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
@@ -23,10 +22,8 @@ use crate::sql_type::FromSql;
 use crate::statement::Stmt;
 use crate::ColumnIndex;
 use crate::ColumnInfo;
-use crate::Connection;
 use crate::Result;
 use crate::SqlValue;
-use crate::Statement;
 
 pub struct RowSharedData {
     column_names: Vec<String>,
@@ -101,13 +98,19 @@ impl fmt::Debug for Row {
     }
 }
 
+#[derive(Debug)]
+enum StmtHolder<'a> {
+    Borrowed(&'a Stmt),
+    Owned(Stmt),
+}
+
 /// Result set
+#[derive(Debug)]
 pub struct ResultSet<'a, T>
 where
     T: RowValue,
 {
-    stmt: Option<&'a Statement<'a>>,
-    pub(crate) stmt_boxed: Option<Box<Statement<'a>>>,
+    stmt: StmtHolder<'a>,
     phantom: PhantomData<T>,
 }
 
@@ -115,29 +118,24 @@ impl<'a, T> ResultSet<'a, T>
 where
     T: RowValue,
 {
-    pub(crate) fn new(stmt: &'a Statement<'a>) -> ResultSet<'a, T> {
+    pub(crate) fn new(stmt: &'a Stmt) -> ResultSet<'a, T> {
         ResultSet {
-            stmt: Some(stmt),
-            stmt_boxed: None,
+            stmt: StmtHolder::Borrowed(stmt),
             phantom: PhantomData,
         }
     }
 
-    pub(crate) fn from_conn(conn: &'a Connection, sql: &str) -> Result<ResultSet<'a, T>> {
-        Ok(ResultSet {
-            stmt: None,
-            stmt_boxed: Some(Box::new(conn.prepare(sql, &[])?)),
+    pub(crate) fn from_stmt(stmt: Stmt) -> ResultSet<'a, T> {
+        ResultSet {
+            stmt: StmtHolder::Owned(stmt),
             phantom: PhantomData,
-        })
+        }
     }
 
     fn stmt(&self) -> &Stmt {
-        if let Some(stmt) = self.stmt.as_ref() {
-            &stmt.stmt
-        } else if let Some(stmt) = self.stmt_boxed.as_ref() {
-            &stmt.stmt
-        } else {
-            panic!("Both stmt and stmt_boxed are none!");
+        match &self.stmt {
+            &StmtHolder::Borrowed(stmt) => stmt,
+            &StmtHolder::Owned(ref stmt) => stmt,
         }
     }
 
@@ -160,25 +158,6 @@ where
 }
 
 impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
-
-impl<'stmt, T> fmt::Debug for ResultSet<'stmt, T>
-where
-    T: RowValue,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let stmt = self.stmt();
-        write!(
-            f,
-            "ResultSet {{ origin: {}, stmt: {:?} }}",
-            if self.stmt.is_some() {
-                "statement"
-            } else {
-                "connection"
-            },
-            stmt
-        )
-    }
-}
 
 /// A trait to get a row as specified type
 ///

@@ -791,12 +791,9 @@ impl Connection {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
-        let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
-        rs.stmt_boxed
-            .as_mut()
-            .unwrap()
-            .exec(params, true, "query")?;
-        Ok(rs)
+        let mut stmt = self.statement(sql).build()?;
+        stmt.exec(params, true, "query")?;
+        Ok(ResultSet::<Row>::from_stmt(stmt.stmt))
     }
 
     /// Executes a select statement using named parameters and returns a result set containing [`Row`]s.
@@ -805,12 +802,9 @@ impl Connection {
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
-        let mut rs = ResultSet::<Row>::from_conn(self, sql)?;
-        rs.stmt_boxed
-            .as_mut()
-            .unwrap()
-            .exec_named(params, true, "query_named")?;
-        Ok(rs)
+        let mut stmt = self.statement(sql).build()?;
+        stmt.exec_named(params, true, "query_named")?;
+        Ok(ResultSet::<Row>::from_stmt(stmt.stmt))
     }
 
     /// Executes a select statement and returns a result set containing [`RowValue`]s.
@@ -822,12 +816,9 @@ impl Connection {
     where
         T: RowValue,
     {
-        let mut rs = ResultSet::from_conn(self, sql)?;
-        rs.stmt_boxed
-            .as_mut()
-            .unwrap()
-            .exec(params, true, "query_as")?;
-        Ok(rs)
+        let mut stmt = self.statement(sql).build()?;
+        stmt.exec(params, true, "query_as")?;
+        Ok(ResultSet::<T>::from_stmt(stmt.stmt))
     }
 
     /// Executes a select statement using named parameters and returns a result set containing [`RowValue`]s.
@@ -843,12 +834,9 @@ impl Connection {
     where
         T: RowValue,
     {
-        let mut rs = ResultSet::from_conn(self, sql)?;
-        rs.stmt_boxed
-            .as_mut()
-            .unwrap()
-            .exec_named(params, true, "query_as_named")?;
-        Ok(rs)
+        let mut stmt = self.statement(sql).build()?;
+        stmt.exec_named(params, true, "query_as_named")?;
+        Ok(ResultSet::<T>::from_stmt(stmt.stmt))
     }
 
     /// Gets one row from a query using positoinal bind parameters.
