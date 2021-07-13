@@ -48,13 +48,34 @@ const SQLFNCODE_CREATE_TYPE: u16 = 77;
 const SQLFNCODE_ALTER_TYPE: u16 = 80;
 const SQLFNCODE_DROP_TYPE: u16 = 78;
 
+#[derive(Clone, Copy, Debug)]
+pub enum LobBindType {
+    Locator,
+    Bytes,
+}
+
+#[derive(Clone, Debug)]
+pub struct QueryParams {
+    pub fetch_array_size: u32,
+    pub prefetch_rows: Option<u32>,
+    pub lob_bind_type: LobBindType,
+}
+
+impl QueryParams {
+    pub fn new() -> QueryParams {
+        QueryParams {
+            fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
+            prefetch_rows: None,
+            lob_bind_type: LobBindType::Bytes,
+        }
+    }
+}
+
 /// A builder to create a [`Statement`][] with various configuration
 pub struct StatementBuilder<'conn, 'sql> {
     conn: &'conn Connection,
     sql: &'sql str,
-    fetch_array_size: u32,
-    prefetch_rows: u32,
-    lob_as_bytes: bool,
+    query_params: QueryParams,
     scrollable: bool,
     tag: String,
 }
@@ -64,9 +85,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         StatementBuilder {
             conn: conn,
             sql: sql,
-            fetch_array_size: DPI_DEFAULT_FETCH_ARRAY_SIZE,
-            prefetch_rows: DPI_DEFAULT_PREFETCH_ROWS,
-            lob_as_bytes: true, // fetch LOB column data as string or binary by default
+            query_params: QueryParams::new(),
             scrollable: false,
             tag: "".into(),
         }
@@ -96,7 +115,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn fetch_array_size<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
-        self.fetch_array_size = size;
+        self.query_params.fetch_array_size = size;
         self
     }
 
@@ -110,12 +129,12 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// which may be useful when the timing for fetching rows must be
     /// controlled by the caller.
     pub fn prefetch_rows<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
-        self.prefetch_rows = size;
+        self.query_params.prefetch_rows = Some(size);
         self
     }
 
     pub fn lob_locator<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
-        self.lob_as_bytes = false;
+        self.query_params.lob_bind_type = LobBindType::Locator;
         self
     }
 
@@ -271,25 +290,18 @@ pub(crate) struct Stmt {
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
-    fetch_array_size: u32,
-    lob_as_bytes: bool,
+    pub(crate) query_params: QueryParams,
 }
 
 impl Stmt {
-    pub(crate) fn new(
-        conn: Conn,
-        handle: *mut dpiStmt,
-        fetch_array_size: u32,
-        lob_as_bytes: bool,
-    ) -> Stmt {
+    pub(crate) fn new(conn: Conn, handle: *mut dpiStmt, query_params: QueryParams) -> Stmt {
         Stmt {
             conn: conn,
             handle: handle,
             column_info: Vec::new(),
             row: None,
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
-            fetch_array_size: fetch_array_size,
-            lob_as_bytes: lob_as_bytes,
+            query_params: query_params,
         }
     }
 
@@ -328,7 +340,11 @@ impl Stmt {
             column_names.push(ci.name.clone());
             self.column_info.push(ci);
             // setup column value
-            let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
+            let mut val = SqlValue::for_column(
+                self.conn.clone(),
+                self.query_params.clone(),
+                self.query_params.fetch_array_size,
+            );
             val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
             let oratype = self.column_info[i].oracle_type();
             let oratype_i64 = OracleType::Int64;
@@ -340,7 +356,7 @@ impl Stmt {
                 }
                 _ => oratype,
             };
-            val.init_handle(oratype, self.fetch_array_size)?;
+            val.init_handle(oratype)?;
             chkerr!(
                 self.ctxt(),
                 dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
@@ -389,7 +405,6 @@ pub struct Statement<'conn> {
     bind_count: usize,
     bind_names: Vec<String>,
     bind_values: Vec<SqlValue>,
-    prefetch_rows: u32,
     phantom: PhantomData<&'conn ()>,
 }
 
@@ -466,22 +481,20 @@ impl<'conn> Statement<'conn> {
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
                 bind_names.push(to_rust_str(names[i], lengths[i]));
-                bind_values.push(SqlValue::new(conn.conn.clone()));
+                bind_values.push(SqlValue::for_bind(
+                    conn.conn.clone(),
+                    builder.query_params.clone(),
+                    1,
+                ));
             }
         };
         Ok(Statement {
-            stmt: Stmt::new(
-                conn.conn.clone(),
-                handle,
-                builder.fetch_array_size,
-                builder.lob_as_bytes,
-            ),
+            stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone()),
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
             bind_count: bind_count,
             bind_names: bind_names,
             bind_values: bind_values,
-            prefetch_rows: builder.prefetch_rows,
             phantom: PhantomData,
         })
     }
@@ -703,12 +716,14 @@ impl<'conn> Statement<'conn> {
         }
         chkerr!(
             self.ctxt(),
-            dpiStmt_setFetchArraySize(self.handle(), self.stmt.fetch_array_size)
+            dpiStmt_setFetchArraySize(self.handle(), self.stmt.query_params.fetch_array_size)
         );
-        chkerr!(
-            self.ctxt(),
-            dpiStmt_setPrefetchRows(self.handle(), self.prefetch_rows)
-        );
+        if let Some(prefetch_rows) = self.stmt.query_params.prefetch_rows {
+            chkerr!(
+                self.ctxt(),
+                dpiStmt_setPrefetchRows(self.handle(), prefetch_rows)
+            );
+        }
         chkerr!(
             self.ctxt(),
             dpiStmt_execute(self.handle(), exec_mode, &mut num_query_columns)
@@ -810,7 +825,7 @@ impl<'conn> Statement<'conn> {
     {
         let pos = bindidx.idx(&self)?;
         let conn = Connection::from_conn(self.conn().clone());
-        if self.bind_values[pos].init_handle(&value.oratype(&conn)?, 1)? {
+        if self.bind_values[pos].init_handle(&value.oratype(&conn)?)? {
             chkerr!(
                 self.ctxt(),
                 bindidx.bind(self.handle(), self.bind_values[pos].handle)

@@ -37,6 +37,7 @@ use crate::private;
 use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
 use crate::sql_value::BufferRowIndex;
+use crate::statement::QueryParams;
 use crate::to_odpi_str;
 use crate::to_rust_str;
 use crate::Connection;
@@ -119,6 +120,7 @@ pub struct BatchBuilder<'conn, 'sql> {
     batch_size: usize,
     with_batch_errors: bool,
     with_row_counts: bool,
+    query_params: QueryParams,
 }
 
 impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
@@ -133,6 +135,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             batch_size: batch_size,
             with_batch_errors: false,
             with_row_counts: false,
+            query_params: QueryParams::new(),
         }
     }
 
@@ -209,7 +212,11 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
                 bind_names.push(to_rust_str(names[i], lengths[i]));
-                bind_values.push(SqlValue::new(conn.conn.clone()));
+                bind_values.push(SqlValue::for_bind(
+                    conn.conn.clone(),
+                    self.query_params.clone(),
+                    batch_size,
+                ));
             }
         };
         Ok(Batch {
@@ -224,6 +231,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             batch_size: batch_size,
             with_batch_errors: self.with_batch_errors,
             with_row_counts: self.with_row_counts,
+            query_params: self.query_params.clone(),
         })
     }
 }
@@ -439,6 +447,7 @@ pub struct Batch<'conn> {
     batch_size: u32,
     with_batch_errors: bool,
     with_row_counts: bool,
+    query_params: QueryParams,
 }
 
 impl<'conn> Batch<'conn> {
@@ -599,7 +608,7 @@ impl<'conn> Batch<'conn> {
                 bindidx
             )));
         }
-        self.bind_values[pos].init_handle(oratype, self.batch_size)?;
+        self.bind_values[pos].init_handle(oratype)?;
         chkerr!(
             self.conn.ctxt(),
             bindidx.bind(self.handle, self.bind_values[pos].handle)
@@ -649,8 +658,7 @@ impl<'conn> Batch<'conn> {
             // assume the type from the value
             let oratype = value.oratype(self.conn)?;
             let bind_type = BindType::new(&oratype);
-            self.bind_values[pos]
-                .init_handle(bind_type.as_oratype().unwrap_or(&oratype), self.batch_size)?;
+            self.bind_values[pos].init_handle(bind_type.as_oratype().unwrap_or(&oratype))?;
             chkerr!(
                 self.conn.ctxt(),
                 bindidx.bind(self.handle, self.bind_values[pos].handle)
@@ -667,8 +675,12 @@ impl<'conn> Batch<'conn> {
                 let new_size = oratype_size(&new_oratype).ok_or(Error::DpiError(dberr))?;
                 bind_type.reset_size(new_size);
                 // allocate new bind handle.
-                let mut new_sql_value = SqlValue::new(self.conn.conn.clone());
-                new_sql_value.init_handle(bind_type.as_oratype().unwrap(), self.batch_size)?;
+                let mut new_sql_value = SqlValue::for_bind(
+                    self.conn.conn.clone(),
+                    self.query_params.clone(),
+                    self.batch_size,
+                );
+                new_sql_value.init_handle(bind_type.as_oratype().unwrap())?;
                 // copy values in old to new.
                 for idx in 0..self.batch_index {
                     chkerr!(

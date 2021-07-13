@@ -19,6 +19,7 @@ use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
 use crate::sql_type::ToSqlNull;
+use crate::statement::QueryParams;
 use crate::statement::Stmt;
 use crate::Connection;
 use crate::Error;
@@ -33,19 +34,29 @@ pub struct RefCursor {
 }
 
 impl RefCursor {
-    pub(crate) fn from_raw(conn: Conn, handle: *mut dpiStmt) -> Result<RefCursor> {
+    pub(crate) fn from_raw(
+        conn: Conn,
+        handle: *mut dpiStmt,
+        query_params: QueryParams,
+    ) -> Result<RefCursor> {
         let mut fetch_array_size = 0;
         chkerr!(
             conn.ctxt,
             dpiStmt_getFetchArraySize(handle, &mut fetch_array_size)
         );
+        if fetch_array_size != query_params.fetch_array_size {
+            return Err(Error::InternalError(format!(
+                "invalid RefCursor fetch_array_size.  {} != {}",
+                fetch_array_size, query_params.fetch_array_size
+            )));
+        }
         let mut num_query_columns = 0;
         chkerr!(
             conn.ctxt,
             dpiStmt_getNumQueryColumns(handle, &mut num_query_columns)
         );
         chkerr!(conn.ctxt, dpiStmt_addRef(handle));
-        let mut stmt = Stmt::new(conn, handle, fetch_array_size, true);
+        let mut stmt = Stmt::new(conn, handle, query_params);
         stmt.init_row(num_query_columns as usize)?;
         Ok(RefCursor { stmt: stmt })
     }

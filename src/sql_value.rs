@@ -37,6 +37,8 @@ use crate::sql_type::OracleType;
 use crate::sql_type::RefCursor;
 use crate::sql_type::Timestamp;
 use crate::sql_type::ToSql;
+use crate::statement::LobBindType;
+use crate::statement::QueryParams;
 use crate::to_rust_slice;
 use crate::to_rust_str;
 use crate::util::check_number_format;
@@ -135,28 +137,38 @@ pub struct SqlValue {
     pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
     keep_dpiobj: *mut dpiObject,
-    lob_as_bytes: bool,
+    lob_bind_type: LobBindType,
+    query_params: QueryParams,
 }
 
 impl SqlValue {
-    // for column and bind values
-    pub(crate) fn new(conn: Conn) -> SqlValue {
-        SqlValue::with_lob_type(conn, false)
-    }
-
-    pub(crate) fn with_lob_type(conn: Conn, lob_as_bytes: bool) -> SqlValue {
+    fn new(
+        conn: Conn,
+        lob_bind_type: LobBindType,
+        query_params: QueryParams,
+        array_size: u32,
+    ) -> SqlValue {
         SqlValue {
             conn: conn,
             handle: ptr::null_mut(),
             data: ptr::null_mut(),
             native_type: NativeType::Int64,
             oratype: None,
-            array_size: 0,
+            array_size: array_size,
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
-            lob_as_bytes: lob_as_bytes,
+            lob_bind_type: lob_bind_type,
+            query_params: query_params,
         }
+    }
+
+    pub(crate) fn for_bind(conn: Conn, query_params: QueryParams, array_size: u32) -> SqlValue {
+        SqlValue::new(conn, LobBindType::Locator, query_params, array_size)
+    }
+
+    pub(crate) fn for_column(conn: Conn, query_params: QueryParams, array_size: u32) -> SqlValue {
+        SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size)
     }
 
     // for object type
@@ -176,7 +188,8 @@ impl SqlValue {
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
-            lob_as_bytes: false,
+            lob_bind_type: LobBindType::Locator,
+            query_params: QueryParams::new(),
         })
     }
 
@@ -184,11 +197,8 @@ impl SqlValue {
         self.conn.ctxt
     }
 
-    fn handle_is_reusable(&self, oratype: &OracleType, array_size: u32) -> Result<bool> {
+    fn handle_is_reusable(&self, oratype: &OracleType) -> Result<bool> {
         if self.handle.is_null() {
-            return Ok(false);
-        }
-        if self.array_size != array_size {
             return Ok(false);
         }
         let current_oratype = match self.oratype {
@@ -212,8 +222,8 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn init_handle(&mut self, oratype: &OracleType, array_size: u32) -> Result<bool> {
-        if self.handle_is_reusable(oratype, array_size)? {
+    pub(crate) fn init_handle(&mut self, oratype: &OracleType) -> Result<bool> {
+        if self.handle_is_reusable(oratype)? {
             return Ok(false);
         }
         if !self.handle.is_null() {
@@ -222,8 +232,8 @@ impl SqlValue {
         self.handle = ptr::null_mut();
         let mut handle: *mut dpiVar = ptr::null_mut();
         let mut data: *mut dpiData = ptr::null_mut();
-        let (oratype_num, native_type, size, size_is_byte) = if self.lob_as_bytes {
-            match oratype {
+        let (oratype_num, native_type, size, size_is_byte) = match self.lob_bind_type {
+            LobBindType::Bytes => match oratype {
                 &OracleType::CLOB => &OracleType::Long,
                 &OracleType::NCLOB => {
                     // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
@@ -233,9 +243,8 @@ impl SqlValue {
                 &OracleType::BLOB => &OracleType::LongRaw,
                 &OracleType::BFILE => &OracleType::LongRaw,
                 _ => oratype,
-            }
-        } else {
-            oratype
+            },
+            LobBindType::Locator => oratype,
         }
         .var_create_param()?;
         let native_type_num = native_type.to_native_type_num();
@@ -246,7 +255,7 @@ impl SqlValue {
                 self.conn.handle,
                 oratype_num,
                 native_type_num,
-                array_size,
+                self.array_size,
                 size,
                 size_is_byte,
                 0,
@@ -259,7 +268,18 @@ impl SqlValue {
         self.data = data;
         self.native_type = native_type;
         self.oratype = Some(oratype.clone());
-        self.array_size = array_size;
+        if native_type_num == DPI_NATIVE_TYPE_STMT {
+            for i in 0..self.array_size {
+                let handle = unsafe { dpiData_getStmt(data.offset(i as isize)) };
+                chkerr!(
+                    self.ctxt(),
+                    dpiStmt_setFetchArraySize(handle, self.query_params.fetch_array_size)
+                );
+                if let Some(prefetch_rows) = self.query_params.prefetch_rows {
+                    chkerr!(self.ctxt(), dpiStmt_setPrefetchRows(handle, prefetch_rows));
+                }
+            }
+        }
         Ok(true)
     }
 
@@ -800,9 +820,14 @@ impl SqlValue {
     }
 
     pub(crate) fn dup_by_handle(&self) -> Result<SqlValue> {
-        let mut val = SqlValue::with_lob_type(self.conn.clone(), self.lob_as_bytes);
+        let mut val = SqlValue::new(
+            self.conn.clone(),
+            self.lob_bind_type,
+            self.query_params.clone(),
+            1,
+        );
         if let Some(ref oratype) = self.oratype {
-            val.init_handle(oratype, 1)?;
+            val.init_handle(oratype)?;
             chkerr!(
                 self.ctxt(),
                 dpiVar_copyData(val.handle, 0, self.handle, self.buffer_row_index()),
@@ -1039,6 +1064,7 @@ impl SqlValue {
             NativeType::Stmt => Ok(RefCursor::from_raw(
                 self.conn.clone(),
                 self.get_stmt_unchecked()?,
+                self.query_params.clone(),
             )?),
             _ => self.invalid_conversion_to_rust_type("RefCursor"),
         }
@@ -1209,7 +1235,8 @@ impl SqlValue {
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
-            lob_as_bytes: self.lob_as_bytes,
+            lob_bind_type: self.lob_bind_type,
+            query_params: self.query_params.clone(),
         }
     }
 }
