@@ -39,17 +39,10 @@ impl RefCursor {
         handle: *mut dpiStmt,
         query_params: QueryParams,
     ) -> Result<RefCursor> {
-        let mut fetch_array_size = 0;
         chkerr!(
             conn.ctxt,
-            dpiStmt_getFetchArraySize(handle, &mut fetch_array_size)
+            dpiStmt_setFetchArraySize(handle, query_params.fetch_array_size)
         );
-        if fetch_array_size != query_params.fetch_array_size {
-            return Err(Error::InternalError(format!(
-                "invalid RefCursor fetch_array_size.  {} != {}",
-                fetch_array_size, query_params.fetch_array_size
-            )));
-        }
         let mut num_query_columns = 0;
         chkerr!(
             conn.ctxt,

@@ -271,10 +271,6 @@ impl SqlValue {
         if native_type_num == DPI_NATIVE_TYPE_STMT {
             for i in 0..self.array_size {
                 let handle = unsafe { dpiData_getStmt(data.offset(i as isize)) };
-                chkerr!(
-                    self.ctxt(),
-                    dpiStmt_setFetchArraySize(handle, self.query_params.fetch_array_size)
-                );
                 if let Some(prefetch_rows) = self.query_params.prefetch_rows {
                     chkerr!(self.ctxt(), dpiStmt_setPrefetchRows(handle, prefetch_rows));
                 }

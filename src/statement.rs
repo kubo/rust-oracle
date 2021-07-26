@@ -30,6 +30,7 @@ use crate::oci_attr::{self, OciAttr, SqlFnCode};
 use crate::private;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
+use crate::sql_type::RefCursor;
 use crate::sql_type::ToSql;
 use crate::sql_value::BufferRowIndex;
 use crate::to_odpi_str;
@@ -932,6 +933,79 @@ impl<'conn> Statement<'conn> {
     /// Otherwise, the number of rows affected.
     pub fn row_count(&self) -> Result<u64> {
         self.stmt.row_count()
+    }
+
+    /// Returns the next implicit result returned by [`dbms_sql.return_result()`]
+    /// in a PL/SQL block or a stored procedure.
+    ///
+    /// This feature is available when both the client and server are 12.1 or higher.
+    ///
+    /// [`dbms_sql.return_result()`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-87562BF3-682C-48A7-B0C1-61075F19382A
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util::{self, check_version, VER12_1};
+    /// # let conn = test_util::connect()?;
+    /// # if !check_version(&conn, &VER12_1, &VER12_1)? {
+    /// #     return Ok(()); // skip this test
+    /// # }
+    ///
+    /// let sql = r#"
+    /// declare
+    ///   cursor1 SYS_REFCURSOR;
+    ///   cursor2 SYS_REFCURSOR;
+    /// begin
+    ///   open cursor1 for select StringCol from TestStrings where IntCol = :1;
+    ///   -- return the first result set
+    ///   dbms_sql.return_result(cursor1);
+    ///
+    ///   open cursor2 for select StringCol from TestStrings where IntCol = :2;
+    ///   -- return the second result set
+    ///   dbms_sql.return_result(cursor2);
+    /// end;
+    /// "#;
+    ///
+    /// let mut stmt = conn.statement(sql).build()?;
+    /// stmt.execute(&[&1, &2])?;
+    ///
+    /// // Get the first result set.
+    /// let mut opt_cursor = stmt.implicit_result()?;
+    /// assert!(opt_cursor.is_some());
+    /// let mut cursor = opt_cursor.unwrap();
+    /// assert_eq!(cursor.query_row_as::<String>()?, "String 1");
+    ///
+    /// // Get the second result set.
+    /// let mut opt_cursor = stmt.implicit_result()?;
+    /// assert!(opt_cursor.is_some());
+    /// let mut cursor = opt_cursor.unwrap();
+    /// assert_eq!(cursor.query_row_as::<String>()?, "String 2");
+    ///
+    /// // No more result sets
+    /// let mut opt_cursor = stmt.implicit_result()?;
+    /// assert!(opt_cursor.is_none());
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn implicit_result(&self) -> Result<Option<RefCursor>> {
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            self.ctxt(),
+            dpiStmt_getImplicitResult(self.handle(), &mut handle)
+        );
+        if handle.is_null() {
+            Ok(None)
+        } else {
+            let cursor = RefCursor::from_raw(
+                self.stmt.conn.clone(),
+                handle,
+                self.stmt.query_params.clone(),
+            )?;
+            unsafe {
+                dpiStmt_release(handle);
+            }
+            Ok(Some(cursor))
+        }
     }
 
     /// Returns statement type
