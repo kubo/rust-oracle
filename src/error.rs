@@ -73,9 +73,8 @@ pub enum Error {
     InvalidOperation(String),
 
     /// Error when an uninitialized bind value is accessed. Bind values
-    /// must be initialized by [`Statement.bind`][Statement#method.bind],
-    /// [`Statement.execute`][Statement#method.execute]
-    /// or [`Connection.execute`][Connection#method.execute] in advance.
+    /// must be initialized by [`Statement::bind`], [`Statement::execute`]
+    /// or [`Connection::execute`] in advance.
     UninitializedBindValue,
 
     /// Error when no more rows exist in the SQL.
@@ -91,9 +90,7 @@ impl AssertSend for Error {}
 impl AssertSync for Error {}
 
 /// An error when parsing a string into an Oracle type fails.
-/// This appears only in boxed data associated with [Error::ParseError][].
-///
-/// [Error::ParseError]: enum.Error.html#variant.ParseError
+/// This appears only in boxed data associated with [`Error::ParseError`].
 #[derive(Eq, PartialEq, Clone)]
 pub struct ParseOracleTypeError {
     typename: &'static str,

@@ -246,7 +246,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// # Usage
 ///
-/// 1. [`conn.batch(sql_stmt, batch_size).build()`][Connection#method.batch] to create [`Batch`].
+/// 1. [`conn.batch(sql_stmt, batch_size).build()`](Connection::batch) to create [`Batch`].
 /// 2. [`append_row()`](#method.append_row) for each row. Rows in the batch are sent to
 ///    the server when the number of appended rows reaches the batch size.  
 ///    **Note:** The "batch errors" option mentioned later changes this behavior.
@@ -318,7 +318,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
 ///
-/// [`BatchBuilder.with_batch_errors`][] changes
+/// [`BatchBuilder::with_batch_errors`] changes
 /// the behavior of `Batch` as follows:
 /// * `execute()` executes all rows in the batch and return an array of the error information
 ///   with row positions in the batch when the errors are caused by invalid data.
@@ -370,7 +370,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
 ///
-/// Use [`BatchBuilder.with_row_counts`][] and [`Batch.row_counts`][] to get affected rows
+/// Use [`BatchBuilder::with_row_counts`] and [`Batch::row_counts`] to get affected rows
 /// for each input row.
 ///
 /// ```
@@ -403,8 +403,8 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 ///
 /// # Bind Parameter Types
 ///
-/// Parameter types are decided by the value of [`Batch.append_row`][], [`Batch.append_row_named`][]
-/// or [`Batch.set`][]; or by the type specified by [`Batch.set_type`][]. Once the
+/// Parameter types are decided by the value of [`Batch::append_row`], [`Batch::append_row_named`]
+/// or [`Batch::set`]; or by the type specified by [`Batch::set_type`]. Once the
 /// type is determined, there are no ways to change it except the following case.
 ///
 /// For user's convenience, when the length of character data types is too short,
@@ -426,15 +426,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// ```
 /// Note that extending the internal buffer needs memory copy from existing buffer
 /// to newly allocated buffer. If you know the maximum data length, it is better
-/// to set the size by [`Batch.set_type`][].
-///
-/// [`BatchBuilder.with_batch_errors`]: BatchBuilder#method.with_batch_errors
-/// [`BatchBuilder.with_row_counts`]: BatchBuilder#method.with_row_counts
-/// [`Batch.append_row`]: Batch#method.append_row
-/// [`Batch.append_row_named`]: Batch#method.append_row_named
-/// [`Batch.row_counts`]: Batch#method.row_counts
-/// [`Batch.set`]: Batch#method.set
-/// [`Batch.set_type`]: Batch#method.set_type
+/// to set the size by [`Batch::set_type`].
 pub struct Batch<'conn> {
     pub(crate) conn: &'conn Connection,
     handle: *mut dpiStmt,

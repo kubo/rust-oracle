@@ -25,6 +25,9 @@ use crate::ColumnInfo;
 use crate::Result;
 use crate::SqlValue;
 
+#[allow(unused_imports)] // for links in doc comments
+use crate::Connection;
+
 pub struct RowSharedData {
     column_names: Vec<String>,
 }
@@ -161,8 +164,8 @@ impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
 
 /// A trait to get a row as specified type
 ///
-/// This is the return type of [`Connection.query_row_as`][Connection#method.query_row_as],
-/// [`Connection.query_row_as_named`][Connection#method.query_row_as_named] and [`Row.get_as`][Row#method.get_as].
+/// This is the return type of [`Connection::query_row_as`],
+/// [`Connection::query_row_as_named`] and [`Row::get_as`].
 ///
 /// The trait was added to fetch column values as a tuple.
 /// The oracle crate provides implementations for a type

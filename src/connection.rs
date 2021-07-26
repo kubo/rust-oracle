@@ -68,7 +68,7 @@ unsafe impl OciAttr for ServerStatus {
 
 /// Database startup mode
 ///
-/// See [`Connection.startup_database`](Connection#method.startup_database).
+/// See [`Connection::startup_database`]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StartupMode {
     /// Shuts down a running instance (if there is any) using ABORT before
@@ -82,7 +82,7 @@ pub enum StartupMode {
 
 /// Database shutdown mode
 ///
-/// See [`Connection.shutdown_database`](Connection#method.shutdown_database).
+/// See [`Connection::shutdown_database`].
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ShutdownMode {
     /// Further connects are prohibited. Waits for users to disconnect from
@@ -111,13 +111,13 @@ pub enum ShutdownMode {
     Abort,
 
     /// Shuts down the database. Should be used only in the second call
-    /// to [`shutdown_database`](Connection#method.shutdown_database) after the database is closed and dismounted.
+    /// to [`Connection::shutdown_database`] after the database is closed and dismounted.
     Final,
 }
 
 /// [Administrative privilege](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-633842B8-4B19-4F96-A757-783BF62825A7)
 ///
-/// See [Connector.privilege](struct.Connector.html#method.privilege).
+/// See [`Connector::privilege`].
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Privilege {
     /// Connects as [SYSDBA](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
@@ -155,20 +155,18 @@ pub enum Purity {
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Connection status
 pub enum ConnStatus {
-    /// The connection is alive. See [`Connection.status`](Connection#method.status) for details.
+    /// The connection is alive. See [`Connection::status`] for details.
     Normal,
-    /// The connection has been terminated. See [`Connection.status`](Connection#method.status) for details.
+    /// The connection has been terminated. See [`Connection::status`] for details.
     NotConnected,
-    /// The connection has been closed by [`Connection.close`](Connection#method.close)
+    /// The connection has been closed by [`Connection::close`].
     Closed,
 }
 
 /// Builder data type to create Connection.
 ///
 /// When a connection can be established only with username, password
-/// and connect string, use [`Connection.connect`] instead.
-///
-/// [Connection.connect]: struct.Connection.html#method.connect
+/// and connect string, use [`Connection::connect`] instead.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Connector {
     username: String,
@@ -252,7 +250,7 @@ impl Connector {
 
     /// Sets prelim auth mode to connect to an idle instance.
     ///
-    /// See [starting up a database](struct.Connection.html#method.startup_database).
+    /// See [starting up a database](Connection::startup_database).
     pub fn prelim_auth(&mut self, b: bool) -> &mut Connector {
         self.prelim_auth = b;
         self
@@ -544,9 +542,7 @@ impl Connection {
     /// Connects to an Oracle server using username, password and connect string.
     ///
     /// If you need to connect the server with additional parameters
-    /// such as SYSDBA privilege, use [Connector] instead.
-    ///
-    /// [Connector]: struct.Connector.html
+    /// such as SYSDBA privilege, use [`Connector`] instead.
     ///
     /// # Examples
     /// Connect to a local database.
@@ -670,7 +666,7 @@ impl Connection {
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
     /// to reduce the number of network round trips in case that many rows are
-    /// fetched. When 100 isn't preferable, use [`StatementBuilder.fetch_array_size`][StatementBuilder#method.fetch_array_size]
+    /// fetched. When 100 isn't preferable, use [`StatementBuilder::fetch_array_size`]
     /// to customize it.
     ///
     /// ```no_run
@@ -689,7 +685,7 @@ impl Connection {
     /// ```
     ///
     /// By default, a maximum of 2 rows are returned when the query is first
-    /// executed. To modify this, use [`StatementBuilder.prefetch_rows`][StatementBuilder#method.prefetch_rows] to customize
+    /// executed. To modify this, use [`StatementBuilder::prefetch_rows`] to customize
     /// it. For more information on the difference between this and `fetch_array_size`,
     /// see [this writeup](https://blog.dbi-services.com/arraysize-or-rowprefetch-in-sqlplus/)
     /// or [this description](https://oracle.github.io/node-oracledb/doc/api.html#rowfetching).
@@ -1079,7 +1075,7 @@ impl Connection {
     /// It checks the connection by making a network round-trip
     /// between the client and the server.
     ///
-    /// See also [Connection.status](struct.Connection.html#method.status).
+    /// See also [`Connection::status`].
     pub fn ping(&self) -> Result<()> {
         chkerr!(self.ctxt(), dpiConn_ping(self.handle()));
         Ok(())
@@ -1088,7 +1084,7 @@ impl Connection {
     /// Gets the status of the connection.
     ///
     /// It returns `Ok(ConnStatus::Closed)` when the connection was closed
-    /// by [Connection.close](struct.Connection.html#method.close).
+    /// by [`Connection::close`].
     /// Otherwise see bellow.
     ///
     /// **Oracle client 12.2 and later:**
@@ -1110,7 +1106,7 @@ impl Connection {
     /// `Ok(ConnStatus::NotConnected)`. There is no guarantee that the
     /// next network round-trip will go through.
     ///
-    /// See also [Connection.ping](struct.Connection.html#method.ping).
+    /// See also [`Connection::ping`].
     pub fn status(&self) -> Result<ConnStatus> {
         match self.oci_attr::<ServerStatus>() {
             Ok(status) => match status {

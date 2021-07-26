@@ -126,7 +126,7 @@ pub enum BufferRowIndex {
 /// determined by the column type.
 ///
 /// When this is a bind value in a SQL statement, the Oracle type is determined
-/// by [`ToSql.oratype`][ToSql#method.oratype].
+/// by [`ToSql::oratype`].
 pub struct SqlValue {
     conn: Conn,
     pub(crate) handle: *mut dpiVar,
@@ -332,10 +332,8 @@ impl SqlValue {
     ///    isn't `Option<FromSql>`, it returns `Err(Error::NullValue)`.
     /// 3. Converts the Oracle value to the rust value. The data type is converted
     ///    implicitly if required. For example string is converted to i64 by
-    ///    [`str.parse`][] if `get::<i64>()` is called for `VARCHAR2` columns.
+    ///    [`str::parse`] if `get::<i64>()` is called for `VARCHAR2` columns.
     ///    If the conversion fails, various errors are returned.
-    ///
-    /// [`str.parse`]: https://doc.rust-lang.org/std/primitive.str.html#method.parse
     pub fn get<T>(&self) -> Result<T>
     where
         T: FromSql,

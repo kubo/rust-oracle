@@ -158,7 +158,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     }
 }
 
-/// Parameters of [`Connection.prepare()`][Connection#method.prepare]
+/// Parameters of [`Connection::prepare`]
 ///
 /// No new variants are added to this enum in the future. That's because
 /// a new variant causes breaking changes. New configuration parameters
@@ -184,7 +184,7 @@ pub enum StmtParam {
     Scrollable,
 }
 
-/// Statement type returned by [`Statement.statement_type`](Statement#method.statement_type).
+/// Statement type returned by [`Statement::statement_type`].
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum StatementType {
     /// SELECT statement
@@ -614,7 +614,7 @@ impl<'conn> Statement<'conn> {
     /// Binds values by position and executes the statement.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
-    /// See also [`Connection.execute`](Connection#method.execute).
+    /// See also [`Connection::execute`].
     ///
     /// # Examples
     ///
@@ -640,7 +640,7 @@ impl<'conn> Statement<'conn> {
     /// Binds values by name and executes the statement.
     /// It will retunrs `Err` when the statemnet is a select statement.
     ///
-    /// See also [Connection.execute_named](Connection#method.execute_named).
+    /// See also [`Connection::execute_named`].
     ///
     /// # Examples
     ///
@@ -906,8 +906,6 @@ impl<'conn> Statement<'conn> {
     /// conn.execute("drop table people purge", &[])?;
     /// # Ok::<(), Error>(())
     /// ```
-    ///
-    /// [Statement.bind_value()]: #method.bind_value
     pub fn returned_values<I, T>(&self, bindidx: I) -> Result<Vec<T>>
     where
         I: BindIndex,
