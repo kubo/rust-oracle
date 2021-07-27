@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["SeekInChars","A cursor which can be moved within a stream of characters."]]});
