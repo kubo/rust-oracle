@@ -1,0 +1,32 @@
+on: 
+  push:
+    branches: [master]
+    
+jobs:
+  gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --no-deps
+      - name: push docs
+        run: |
+          git fetch --depth=1 origin gh-pages
+          git checkout gh-pages
+          rm -rf docs
+          mv target/doc docs
+          echo '<html>' > docs/index.html
+          echo '<head><meta http-equiv="refresh" content="5; url=./oracle"/></head>' >> docs/index.html
+          echo '<body><p>Redirect to <a href="./oracle">here</a> in 5 seconds.</p></body>' >> docs/index.html
+          echo '</html>' >> docs/index.html
+          git config --local user.email "docs-action@github.com"
+          git config --local user.name "GitHub Action (docs)"
+          git add docs
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git commit -m 'Add docs'
+          git push origin gh-pages
