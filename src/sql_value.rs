@@ -252,7 +252,7 @@ impl SqlValue {
         chkerr!(
             self.ctxt(),
             dpiConn_newVar(
-                self.conn.handle,
+                self.conn.handle.raw(),
                 oratype_num,
                 native_type_num,
                 self.array_size,

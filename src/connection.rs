@@ -43,6 +43,7 @@ use crate::AssertSync;
 use crate::Batch;
 use crate::BatchBuilder;
 use crate::Context;
+use crate::DpiConn;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
@@ -473,7 +474,7 @@ pub(crate) type Conn = Arc<InnerConn>;
 
 pub(crate) struct InnerConn {
     pub(crate) ctxt: &'static Context,
-    pub(crate) handle: *mut dpiConn,
+    pub(crate) handle: DpiConn,
     pub(crate) autocommit: Mutex<bool>,
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
@@ -488,7 +489,7 @@ impl InnerConn {
     ) -> InnerConn {
         InnerConn {
             ctxt: ctxt,
-            handle: handle,
+            handle: DpiConn::new(handle),
             autocommit: Mutex::new(false),
             objtype_cache: Mutex::new(HashMap::new()),
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
@@ -506,18 +507,12 @@ impl InnerConn {
     }
 }
 
-impl Drop for InnerConn {
-    fn drop(&mut self) {
-        unsafe { dpiConn_release(self.handle) };
-    }
-}
-
 impl fmt::Debug for InnerConn {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "Conn {{ handle: {:?}, autocommit: {:?}",
-            self.handle, self.autocommit,
+            self.handle.raw(), self.autocommit,
         )?;
         if self.tag.len() != 0 {
             write!(f, ", tag: {:?}", self.tag)?;
@@ -534,8 +529,8 @@ pub struct Connection {
     pub(crate) conn: Conn,
 }
 
-impl AssertSync for Context {}
-impl AssertSend for Context {}
+impl AssertSync for Connection {}
+impl AssertSend for Connection {}
 
 impl Connection {
     /// Connects to an Oracle server using username, password and connect string.
@@ -618,7 +613,7 @@ impl Connection {
     }
 
     pub(crate) fn handle(&self) -> *mut dpiConn {
-        self.conn.handle
+        self.conn.handle.raw()
     }
 
     /// Closes the connection before the end of lifetime.
