@@ -14,13 +14,12 @@
 //-----------------------------------------------------------------------------
 
 //! The module defines types to be set to the associate type [`OciAttr::Mode`]
-use crate::private;
-
-#[allow(unused_imports)] // for doc comments
+#[cfg(doc)]
 use crate::oci_attr::OciAttr;
-#[allow(unused_imports)] // for doc comments
+use crate::private;
+#[cfg(doc)]
 use crate::Connection;
-#[allow(unused_imports)] // for doc comments
+#[cfg(doc)]
 use crate::Statement;
 
 /// Access mode to restrict the associate type [`OciAttr::Mode`]

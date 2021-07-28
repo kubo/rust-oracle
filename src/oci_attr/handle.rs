@@ -15,11 +15,10 @@
 
 //! The module defines types to be set to the associate type [`OciAttr::HandleType`]
 use crate::binding_impl::*;
-use crate::private;
-
-#[allow(unused_imports)] // for doc comments
+#[cfg(doc)]
 use crate::oci_attr::OciAttr;
-#[allow(unused_imports)] // for doc comments
+use crate::private;
+#[cfg(doc)]
 use crate::Connection;
 
 /// OCI handle type to restrict the associate type [`OciAttr::HandleType`]

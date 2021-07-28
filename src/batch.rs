@@ -44,15 +44,14 @@ use crate::Connection;
 use crate::Error;
 use crate::Result;
 use crate::SqlValue;
+#[cfg(doc)]
+use crate::Statement;
 use crate::StatementType;
 use std::convert::TryFrom;
 use std::fmt;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::slice;
-
-#[allow(unused_imports)]
-use crate::Statement; // for links in doc comments
 
 #[cfg(test)]
 const MINIMUM_TYPE_LENGTH: u32 = 1;

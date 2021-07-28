@@ -18,7 +18,11 @@ use crate::binding::dpiErrorInfo;
 use crate::to_rust_str;
 use crate::AssertSend;
 use crate::AssertSync;
+#[cfg(doc)]
+use crate::Connection;
 use crate::Context;
+#[cfg(doc)]
+use crate::Statement;
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
@@ -26,11 +30,6 @@ use std::mem::MaybeUninit;
 use std::num;
 use std::str;
 use std::sync;
-
-#[allow(unused_imports)] // for links in doc comments
-use crate::Connection;
-#[allow(unused_imports)] // for links in doc comments
-use crate::Statement;
 
 /// Enum listing possible errors from rust-oracle.
 pub enum Error {

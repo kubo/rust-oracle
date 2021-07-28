@@ -22,16 +22,15 @@
 //!
 //! [here]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-CB59C987-07E7-42D4-ADDF-96142CBD3D11
 use crate::oci_attr::data_type::{DataType, DurationUsecU64, MaxStringSize};
-use crate::oci_attr::handle::{HandleType, Session, Stmt, SvcCtx};
-use crate::oci_attr::mode::{Mode, Read, ReadWrite};
-
-#[allow(unused_imports)] // for doc comments
+#[cfg(any(doc, test))]
 use crate::oci_attr::handle::Server;
-#[allow(unused_imports)] // for doc comments
+use crate::oci_attr::handle::{HandleType, Session, Stmt, SvcCtx};
+#[cfg(any(doc, test))]
 use crate::oci_attr::mode::Write;
-#[allow(unused_imports)] // for doc comments
+use crate::oci_attr::mode::{Mode, Read, ReadWrite};
+#[cfg(doc)]
 use crate::Connection;
-#[allow(unused_imports)] // for doc comments
+#[cfg(doc)]
 use std::time::Duration;
 
 pub mod data_type;

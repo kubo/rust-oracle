@@ -16,6 +16,8 @@
 //! The module defines types related to the associate type [`OciAttr::DataType`].
 use crate::binding::*;
 use crate::chkerr;
+#[cfg(doc)]
+use crate::oci_attr::OciAttr;
 use crate::to_rust_str;
 use crate::Connection;
 use crate::Context;
@@ -28,9 +30,6 @@ use std::mem;
 use std::os::raw::c_void;
 use std::slice;
 use std::time::Duration;
-
-#[allow(unused_imports)] // for doc comments
-use crate::oci_attr::OciAttr;
 
 enum Handle {
     Conn(*mut dpiConn, u32),

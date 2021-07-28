@@ -39,6 +39,8 @@ use crate::to_rust_str;
 use crate::util::duration_to_msecs;
 use crate::AssertSend;
 use crate::AssertSync;
+#[cfg(doc)]
+use crate::Batch;
 use crate::BatchBuilder;
 use crate::Context;
 use crate::DpiObjectType;
@@ -51,9 +53,6 @@ use crate::Statement;
 use crate::StatementBuilder;
 use crate::StmtParam;
 use crate::Version;
-
-#[allow(unused_imports)] // for links in doc comments
-use crate::Batch;
 
 struct ServerStatus;
 const OCI_ATTR_SERVER_STATUS: u32 = 143;
