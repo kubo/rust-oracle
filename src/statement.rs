@@ -49,7 +49,7 @@ const SQLFNCODE_CREATE_TYPE: u16 = 77;
 const SQLFNCODE_ALTER_TYPE: u16 = 80;
 const SQLFNCODE_DROP_TYPE: u16 = 78;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum LobBindType {
     Locator,
     Bytes,
@@ -1173,7 +1173,7 @@ pub trait BindIndex: private::Sealed {
 impl BindIndex for usize {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         let num = stmt.bind_count();
-        if 0 < num && *self <= num {
+        if 0 < num && 1 <= *self && *self <= num {
             Ok(*self - 1)
         } else {
             Err(Error::InvalidBindIndex(*self))

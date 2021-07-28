@@ -137,8 +137,8 @@ pub struct SqlValue {
     pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
     keep_dpiobj: *mut dpiObject,
-    lob_bind_type: LobBindType,
-    query_params: QueryParams,
+    pub(crate) lob_bind_type: LobBindType,
+    pub(crate) query_params: QueryParams,
 }
 
 impl SqlValue {

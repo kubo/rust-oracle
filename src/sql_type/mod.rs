@@ -73,6 +73,7 @@ pub use self::timestamp::Timestamp;
 /// | [Oracle collection] | [`Collection`] |
 /// |     " | `String` |
 /// | `rowid` | `String` |
+/// | `ref cursor` | [`RefCursor`] |
 /// | `boolean` (PL/SQL only) | `bool` (Oracle client version >= 12.1) |
 ///
 /// When `chrono` feature is enabled, the following conversions are added.
@@ -114,6 +115,7 @@ pub trait FromSql {
 /// | [`Timestamp`] | `timestamp(9) with time zone` |
 /// | [`IntervalDS`] | `interval day(9) to second(9)` |
 /// | [`IntervalYM`] | `interval year(9) to month` |
+/// | [`RefCursor`] | `ref cursor` |
 ///
 /// When `chrono` feature is enabled, the followings are added.
 ///

@@ -220,7 +220,6 @@ required.
 ## TODO
 
 * Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
-* REF CURSOR
 * Scrollable cursors
 * Better Oracle object type support
 * XML data type
