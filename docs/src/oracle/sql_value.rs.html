@@ -1432,8 +1432,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">buffer_row_index</span>: <span class="ident">BufferRowIndex</span>,
     <span class="ident">keep_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
     <span class="ident">keep_dpiobj</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiObject</span>,
-    <span class="ident">lob_bind_type</span>: <span class="ident">LobBindType</span>,
-    <span class="ident">query_params</span>: <span class="ident">QueryParams</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lob_bind_type</span>: <span class="ident">LobBindType</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">query_params</span>: <span class="ident">QueryParams</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SqlValue</span> {
@@ -1547,7 +1547,7 @@
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
             <span class="ident">dpiConn_newVar</span>(
-                <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">handle</span>,
+                <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">handle</span>.<span class="ident">raw</span>(),
                 <span class="ident">oratype_num</span>,
                 <span class="ident">native_type_num</span>,
                 <span class="self">self</span>.<span class="ident">array_size</span>,

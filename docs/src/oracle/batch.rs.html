@@ -958,7 +958,6 @@
 <span id="955">955</span>
 <span id="956">956</span>
 <span id="957">957</span>
-<span id="958">958</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -1006,15 +1005,14 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SqlValue</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::StatementType</span>;
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 <span class="kw">use</span> <span class="ident">std::slice</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>; <span class="comment">// for links in doc comments</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">const</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;

@@ -375,7 +375,6 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
-<span id="375">375</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -397,7 +396,11 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_rust_str</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AssertSend</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AssertSync</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Context</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
 <span class="kw">use</span> <span class="ident">std::error</span>;
 <span class="kw">use</span> <span class="ident">std::ffi::CStr</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -405,11 +408,6 @@
 <span class="kw">use</span> <span class="ident">std::num</span>;
 <span class="kw">use</span> <span class="ident">std::str</span>;
 <span class="kw">use</span> <span class="ident">std::sync</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for links in doc comments</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for links in doc comments</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
 
 <span class="doccomment">/// Enum listing possible errors from rust-oracle.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {

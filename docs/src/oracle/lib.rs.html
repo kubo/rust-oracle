@@ -555,6 +555,8 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -800,7 +802,6 @@ required.
 ## TODO
 
 * Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
-* REF CURSOR
 * Scrollable cursors
 * Better Oracle object type support
 * XML data type
@@ -919,6 +920,9 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
         }
     };
 }
+
+<span class="comment">// define DpiConn wrapping *mut dpiConn.</span>
+<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Conn</span>);
 
 <span class="comment">// define DpiObjectType wrapping *mut dpiObjectType.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectType</span>);

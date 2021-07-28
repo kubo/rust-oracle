@@ -59,7 +59,6 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-<span id="59">59</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -77,13 +76,12 @@
 <span class="comment">//-----------------------------------------------------------------------------</span>
 
 <span class="doccomment">//! The module defines types to be set to the associate type [`OciAttr::Mode`]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::private</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for doc comments</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::OciAttr</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for doc comments</span>
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::private</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for doc comments</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
 
 <span class="doccomment">/// Access mode to restrict the associate type [`OciAttr::Mode`]</span>

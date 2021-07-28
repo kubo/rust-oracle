@@ -366,7 +366,6 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
-<span id="366">366</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -386,6 +385,8 @@
 <span class="doccomment">//! The module defines types related to the associate type [`OciAttr::DataType`].</span>
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::binding</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::chkerr</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::OciAttr</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_rust_str</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Context</span>;
@@ -398,9 +399,6 @@
 <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
 <span class="kw">use</span> <span class="ident">std::slice</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for doc comments</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::OciAttr</span>;
 
 <span class="kw">enum</span> <span class="ident">Handle</span> {
     <span class="ident">Conn</span>(<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiConn</span>, <span class="ident">u32</span>),
