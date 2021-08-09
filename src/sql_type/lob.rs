@@ -209,7 +209,7 @@ impl LobLocator {
         Ok(size)
     }
 
-    fn trim(&mut self, new_size: u64) -> Result<()> {
+    fn truncate(&mut self, new_size: u64) -> Result<()> {
         chkerr!(self.ctxt, dpiLob_trim(self.handle, new_size));
         if self.pos > new_size {
             self.pos = new_size;
@@ -217,10 +217,10 @@ impl LobLocator {
         Ok(())
     }
 
-    fn chunk_size(&self) -> Result<u32> {
+    fn chunk_size(&self) -> Result<usize> {
         let mut size = 0;
         chkerr!(self.ctxt, dpiLob_getChunkSize(self.handle, &mut size));
-        Ok(size)
+        Ok(size.try_into()?)
     }
 
     fn open_resource(&mut self) -> Result<()> {
@@ -328,6 +328,51 @@ impl Drop for LobLocator {
     }
 }
 
+/// A trait for LOB types
+pub trait Lob {
+    /// Returns the size of the data stored in the LOB.
+    ///
+    /// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;
+    /// for [`Blob`] the size is in bytes.
+    fn size(&self) -> Result<u64>;
+
+    /// Shortens the data in the LOB so that it only contains the specified amount of
+    /// data.
+    ///
+    /// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;
+    /// for [`Blob`] the size is in bytes.
+    fn truncate(&mut self, new_size: u64) -> Result<()>;
+
+    /// Returns the chunk size, in bytes, of the internal LOB. Reading and writing
+    /// to the LOB in multiples of this size will improve performance.
+    fn chunk_size(&self) -> Result<usize>;
+
+    /// Opens the LOB resource for writing. This will improve performance when
+    /// writing to the LOB in chunks and there are functional or extensible indexes
+    /// associated with the LOB. If this function is not called, the LOB resource
+    /// will be opened and closed for each write that is performed. A call to the
+    /// [`close_resource`] should be done before performing a
+    /// call to the function [`Connection.commit`].
+    ///
+    /// [`close_resource`]: #method.close_resource
+    /// [`Connection.commit`]: Connection#method.commit
+    fn open_resource(&mut self) -> Result<()>;
+
+    /// Closes the LOB resource. This should be done when a batch of writes has
+    /// been completed so that the indexes associated with the LOB can be updated.
+    /// It should only be performed if a call to function
+    /// [`open_resource`] has been performed.
+    ///
+    /// [`open_resource`]: #method.open_resource
+    fn close_resource(&mut self) -> Result<()>;
+
+    /// Returns a boolean value indicating if the LOB resource has been opened by
+    /// making a call to the function [`open_resource`].
+    ///
+    /// [`open_resource`]: #method.open_resource
+    fn is_resource_open(&self) -> Result<bool>;
+}
+
 /// A reference to Oracle data type `BLOB` or `BFILE`
 ///
 /// This struct implements [`Read`], [`Write`] and [`Seek`] to
@@ -338,7 +383,8 @@ impl Drop for LobLocator {
 /// ```
 /// # use oracle::Error;
 /// # use oracle::test_util;
-/// # use oracle::sql_type::Blob;
+/// use oracle::sql_type::Blob;
+/// use oracle::sql_type::Lob;
 /// use std::io::BufReader;
 /// use std::io::Read;
 /// # let conn = test_util::connect()?;
@@ -389,54 +435,6 @@ impl Blob {
         self.lob.close()
     }
 
-    /// Returns the size of the data stored in the LOB in bytes.
-    pub fn size(&self) -> Result<u64> {
-        self.lob.size()
-    }
-
-    /// Returns the chunk size, in bytes, of the internal LOB. Reading and writing
-    /// to the LOB in multiples of this size will improve performance.
-    pub fn chunk_size(&self) -> Result<usize> {
-        Ok(self.lob.chunk_size()?.try_into()?)
-    }
-
-    /// Opens the LOB resource for writing. This will improve performance when
-    /// writing to the LOB in chunks and there are functional or extensible indexes
-    /// associated with the LOB. If this function is not called, the LOB resource
-    /// will be opened and closed for each write that is performed. A call to the
-    /// [`close_resource`] should be done before performing a
-    /// call to the function [`Connection.commit`].
-    ///
-    /// [`close_resource`]: #method.close_resource
-    /// [`Connection.commit`]: Connection#method.commit
-    pub fn open_resource(&mut self) -> Result<()> {
-        self.lob.open_resource()
-    }
-
-    /// Closes the LOB resource. This should be done when a batch of writes has
-    /// been completed so that the indexes associated with the LOB can be updated.
-    /// It should only be performed if a call to function
-    /// [`open_resource`] has been performed.
-    ///
-    /// [`open_resource`]: #method.open_resource
-    pub fn close_resource(&mut self) -> Result<()> {
-        self.lob.close_resource()
-    }
-
-    /// Returns a boolean value indicating if the LOB resource has been opened by
-    /// making a call to the function [`open_resource`].
-    ///
-    /// [`open_resource`]: #method.open_resource
-    pub fn is_resource_open(&self) -> Result<bool> {
-        self.lob.is_resource_open()
-    }
-
-    /// Trims the data in the LOB so that it only contains the specified amount of
-    /// data.
-    pub fn trim(&mut self, new_size: u64) -> Result<()> {
-        self.lob.trim(new_size)
-    }
-
     /// Returns the directory alias name and file name for a BFILE type LOB.
     pub fn directory_and_file_name(&self) -> Result<(String, String)> {
         self.lob.directory_and_file_name()
@@ -463,59 +461,11 @@ impl Blob {
     }
 }
 
-impl FromSql for Blob {
-    fn from_sql(val: &SqlValue) -> Result<Self> {
-        val.to_blob()
-    }
-}
-
-impl ToSqlNull for Blob {
-    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
-        Ok(OracleType::BLOB)
-    }
-}
-
-impl ToSql for Blob {
-    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
-        Ok(OracleType::BLOB)
-    }
-
-    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        val.set_blob(self)
-    }
-}
-
-impl Read for Blob {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.lob.read_binary(buf)
-    }
-
-    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        self.lob.read_binary_to_end(buf)
-    }
-}
-
-impl Seek for Blob {
-    fn seek(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
-        self.lob.seek(pos)
-    }
-}
-
-impl Write for Blob {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.lob.write_binary(buf)
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        Ok(())
-    }
-}
-
 /// A reference to Oracle data type `CLOB` or `NCLOB`
 ///
 /// This struct implements [`Read`] and [`Write`] to read and write
-/// characters. [`Read.read`] fails when `buf` is too small
-/// to store one character. [`Write.write`] fails when `buf` contains
+/// characters. [`Read::read`] fails when `buf` is too small
+/// to store one character. [`Write::write`] fails when `buf` contains
 /// invalid UTF-8 byte sequence.
 ///
 /// This also implements [`SeekInChars`] to seek to a position in characters.
@@ -530,8 +480,6 @@ impl Write for Blob {
 /// is defined by the number of UCS-2 codepoints.
 ///
 /// [`size`]: #method.size
-/// [`Read.read`]: Read#tymethod.read
-/// [`Write.write`]: Write#tymethod.write
 #[derive(Clone, Debug)]
 pub struct Clob {
     pub(crate) lob: LobLocator,
@@ -566,107 +514,129 @@ impl Clob {
     pub fn close(&mut self) -> Result<()> {
         self.lob.close()
     }
-
-    /// Returns the size of the data stored in the LOB in characters.
-    ///
-    /// See also [Notes](#notes).
-    pub fn size(&self) -> Result<u64> {
-        self.lob.size()
-    }
-
-    // /// Returns the chunk size, in bytes, of the internal LOB. Reading and writing
-    // /// to the LOB in multiples of this size will improve performance.
-    // pub fn chunk_size(&self) -> Result<usize> {
-    //     Ok(self.lob.chunk_size()?.try_into()?)
-    // }
-
-    /// Opens the LOB resource for writing. This will improve performance when
-    /// writing to the LOB in chunks and there are functional or extensible indexes
-    /// associated with the LOB. If this function is not called, the LOB resource
-    /// will be opened and closed for each write that is performed. A call to the
-    /// [`close_resource`] should be done before performing a
-    /// call to the function [`Connection.commit`].
-    ///
-    /// [`close_resource`]: #method.close_resource
-    /// [`Connection.commit`]: Connection#method.commit
-    pub fn open_resource(&mut self) -> Result<()> {
-        self.lob.open_resource()
-    }
-
-    /// Closes the LOB resource. This should be done when a batch of writes has
-    /// been completed so that the indexes associated with the LOB can be updated.
-    /// It should only be performed if a call to function
-    /// [`open_resource`] has been performed.
-    ///
-    /// [`open_resource`]: #method.open_resource
-    pub fn close_resource(&mut self) -> Result<()> {
-        self.lob.close_resource()
-    }
-
-    /// Returns a boolean value indicating if the LOB resource has been opened by
-    /// making a call to the function [`open_resource`].
-    ///
-    /// [`open_resource`]: #method.open_resource
-    pub fn is_resource_open(&self) -> Result<bool> {
-        self.lob.is_resource_open()
-    }
-
-    /// Trims the data in the LOB so that it only contains the specified amount of
-    /// data.
-    ///
-    /// The new size is the number of UCS-2 codepoints. See [Notes](#notes).
-    pub fn trim(&mut self, new_size: u64) -> Result<()> {
-        self.lob.trim(new_size)
-    }
 }
 
-impl FromSql for Clob {
-    fn from_sql(val: &SqlValue) -> Result<Self> {
-        val.to_clob()
-    }
+macro_rules! impl_traits {
+    (FromSql $(,$trait:ident)* for $name:ty : $type:ident) => {
+        paste::item! {
+            impl FromSql for $name {
+                fn from_sql(val: &SqlValue) -> Result<Self> {
+                    val.[<to_ $name:lower>]()
+                }
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (ToSqlNull $(,$trait:ident)* for $name:ty : $type:ident) => {
+        paste::item! {
+            impl ToSqlNull for $name {
+                fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
+                    Ok(OracleType::[<$name:upper>])
+                }
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (ToSql $(,$trait:ident)* for $name:ty : $type:ident) => {
+        paste::item! {
+            impl ToSql for $name {
+                fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
+                    Ok(OracleType::[<$name:upper>])
+                }
+
+                fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
+                    val.[<set_ $name:lower>](self)
+                }
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (Read $(,$trait:ident)* for $name:ty : $type:ident) => {
+        paste::item! {
+            impl Read for $name {
+                fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+                    self.lob.[<read_ $type>](buf)
+                }
+
+                fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
+                    self.lob.[<read_ $type _to_end>](buf)
+                }
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (Write $(,$trait:ident)* for $name:ty : $type:ident) => {
+        paste::item! {
+            impl Write for $name {
+                fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+                    self.lob.[<write_ $type>](buf)
+                }
+
+                fn flush(&mut self) -> io::Result<()> {
+                    Ok(())
+                }
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (Seek $(,$trait:ident)* for $name:ty : $type:ident) => {
+        impl Seek for $name {
+            fn seek(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
+                self.lob.seek(pos)
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (SeekInChars $(,$trait:ident)* for $name:ty : $type:ident) => {
+        impl SeekInChars for $name {
+            fn seek_in_chars(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
+                self.lob.seek(pos)
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (Lob $(,$trait:ident)* for $name:ty : $type:ident) => {
+        impl Lob for $name {
+            fn size(&self) -> Result<u64> {
+                self.lob.size()
+            }
+
+            fn truncate(&mut self, new_size: u64) -> Result<()> {
+                self.lob.truncate(new_size)
+            }
+
+            fn chunk_size(&self) -> Result<usize> {
+                self.lob.chunk_size()
+            }
+
+            fn open_resource(&mut self) -> Result<()> {
+                self.lob.open_resource()
+            }
+
+            fn close_resource(&mut self) -> Result<()> {
+                self.lob.close_resource()
+            }
+
+            fn is_resource_open(&self) -> Result<bool> {
+                self.lob.is_resource_open()
+            }
+        }
+        impl_traits!($($trait),* for $name : $type);
+    };
+
+    (for $name:ty : $type:ident) => {
+    };
 }
 
-impl ToSqlNull for Clob {
-    fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
-        Ok(OracleType::CLOB)
-    }
-}
-
-impl ToSql for Clob {
-    fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
-        Ok(OracleType::CLOB)
-    }
-
-    fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        val.set_clob(self)
-    }
-}
-
-impl Read for Clob {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.lob.read_chars(buf)
-    }
-
-    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        self.lob.read_chars_to_end(buf)
-    }
-}
-
-impl SeekInChars for Clob {
-    fn seek_in_chars(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
-        self.lob.seek(pos)
-    }
-}
-
-impl Write for Clob {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.lob.write_chars(buf)
-    }
-
-    fn flush(&mut self) -> io::Result<()> {
-        Ok(())
-    }
-}
+impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, Seek, Lob for Blob : binary);
+impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, SeekInChars, Lob for Clob : chars);
 
 #[cfg(test)]
 mod tests {
@@ -757,7 +727,7 @@ mod tests {
             TEST_DATA.len() as u64 * 2,
         );
 
-        lob.trim(TEST_DATA.len() as u64)?;
+        lob.truncate(TEST_DATA.len() as u64)?;
         Ok(())
     }
 

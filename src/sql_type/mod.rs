@@ -34,6 +34,7 @@ pub use self::interval_ds::IntervalDS;
 pub use self::interval_ym::IntervalYM;
 pub use self::lob::Blob;
 pub use self::lob::Clob;
+pub use self::lob::Lob;
 pub use self::object::Collection;
 pub use self::object::Object;
 pub use self::object::ObjectType;
