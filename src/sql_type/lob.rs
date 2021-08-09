@@ -34,6 +34,17 @@ use std::os::raw::c_char;
 use std::ptr;
 use std::str;
 
+#[cfg(not(test))]
+const MIN_READ_SIZE: usize = 400;
+
+#[cfg(test)]
+const MIN_READ_SIZE: usize = 20;
+
+fn utf16_len(s: &[u8]) -> io::Result<usize> {
+    let s = map_to_io_error(str::from_utf8(s))?;
+    Ok(s.chars().fold(0, |acc, c| acc + c.len_utf16()))
+}
+
 fn map_to_io_error<T, E>(res: std::result::Result<T, E>) -> io::Result<T>
 where
     E: Into<Box<dyn std::error::Error + Send + Sync>>,
@@ -77,6 +88,41 @@ impl LobLocator {
         Ok(len as usize)
     }
 
+    /// read for `Blob` and `Bfile`
+    fn read_binary(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let len = map_to_io_error(self.read_bytes(buf.len(), buf))?;
+        self.pos += len as u64;
+        Ok(len)
+    }
+
+    /// read for `Clob` and `Nclob`
+    fn read_chars(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        if buf.len() > MIN_READ_SIZE {
+            let len = map_to_io_error(self.read_bytes(buf.len(), buf))?;
+            self.pos += utf16_len(&buf[0..len])? as u64;
+            Ok(len)
+        } else {
+            let mut tmp = [0u8; MIN_READ_SIZE];
+            let buf_len = if buf.len() == 1 { 2 } else { buf.len() };
+            let len = map_to_io_error(self.read_bytes(buf_len, &mut tmp))?;
+            let len = cmp::min(len, buf.len());
+            let s = match str::from_utf8(&tmp[0..len]) {
+                Ok(s) => s,
+                Err(err) if err.error_len().is_some() => return map_to_io_error(Err(err)),
+                Err(err) if err.valid_up_to() == 0 => {
+                    return Err(io::Error::new(
+                        io::ErrorKind::Other,
+                        "too small buffer to read characters",
+                    ));
+                }
+                Err(err) => unsafe { str::from_utf8_unchecked(&tmp[0..err.valid_up_to()]) },
+            };
+            buf[0..s.len()].copy_from_slice(s.as_bytes());
+            self.pos += s.chars().fold(0, |acc, c| acc + c.len_utf16()) as u64;
+            Ok(s.len())
+        }
+    }
+
     fn read_to_end(&mut self, buf: &mut Vec<u8>, nls_ratio: usize) -> io::Result<usize> {
         let too_long_data_err = || {
             io::Error::new(
@@ -113,6 +159,21 @@ impl LobLocator {
         map_to_io_error(result)
     }
 
+    /// read_to_end for `BLOB` and `BFILE`
+    fn read_binary_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
+        let len = self.read_to_end(buf, 1)?;
+        self.pos += len as u64;
+        Ok(len)
+    }
+
+    /// read_to_end for `CLOB` and `NCLOB`
+    fn read_chars_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
+        let start_pos = buf.len();
+        let len = self.read_to_end(buf, 4)?;
+        self.pos += utf16_len(&buf[start_pos..])? as u64;
+        Ok(len)
+    }
+
     fn write_bytes(&mut self, buf: &[u8]) -> Result<usize> {
         let len = buf.len() as u64;
         chkerr!(
@@ -125,6 +186,21 @@ impl LobLocator {
             )
         );
         Ok(len as usize)
+    }
+
+    /// write for `BLOB` and `BFILE`
+    fn write_binary(&mut self, buf: &[u8]) -> io::Result<usize> {
+        let len = map_to_io_error(self.write_bytes(buf))?;
+        self.pos += len as u64;
+        Ok(len)
+    }
+
+    /// write for `CLOB` and `NCLOB`
+    fn write_chars(&mut self, buf: &[u8]) -> io::Result<usize> {
+        map_to_io_error(str::from_utf8(buf))?;
+        let len = map_to_io_error(self.write_bytes(buf))?;
+        self.pos += utf16_len(&buf[0..len])? as u64;
+        Ok(len)
     }
 
     fn size(&self) -> Result<u64> {
@@ -411,15 +487,11 @@ impl ToSql for Blob {
 
 impl Read for Blob {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        let len = map_to_io_error(self.lob.read_bytes(buf.len(), buf))?;
-        self.lob.pos += len as u64;
-        Ok(len)
+        self.lob.read_binary(buf)
     }
 
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        let len = self.lob.read_to_end(buf, 1)?;
-        self.lob.pos += len as u64;
-        Ok(len)
+        self.lob.read_binary_to_end(buf)
     }
 }
 
@@ -431,9 +503,7 @@ impl Seek for Blob {
 
 impl Write for Blob {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        let len = map_to_io_error(self.lob.write_bytes(buf))?;
-        self.lob.pos += len as u64;
-        Ok(len)
+        self.lob.write_binary(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {
@@ -572,50 +642,13 @@ impl ToSql for Clob {
     }
 }
 
-fn utf16_len(s: &[u8]) -> io::Result<usize> {
-    let s = map_to_io_error(str::from_utf8(s))?;
-    Ok(s.chars().fold(0, |acc, c| acc + c.len_utf16()))
-}
-
-#[cfg(not(test))]
-const MIN_READ_SIZE: usize = 400;
-
-#[cfg(test)]
-const MIN_READ_SIZE: usize = 20;
-
 impl Read for Clob {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        if buf.len() > MIN_READ_SIZE {
-            let len = map_to_io_error(self.lob.read_bytes(buf.len(), buf))?;
-            self.lob.pos += utf16_len(&buf[0..len])? as u64;
-            Ok(len)
-        } else {
-            let mut tmp = [0u8; MIN_READ_SIZE];
-            let buf_len = if buf.len() == 1 { 2 } else { buf.len() };
-            let len = map_to_io_error(self.lob.read_bytes(buf_len, &mut tmp))?;
-            let len = cmp::min(len, buf.len());
-            let s = match str::from_utf8(&tmp[0..len]) {
-                Ok(s) => s,
-                Err(err) if err.error_len().is_some() => return map_to_io_error(Err(err)),
-                Err(err) if err.valid_up_to() == 0 => {
-                    return Err(io::Error::new(
-                        io::ErrorKind::Other,
-                        "too small buffer to read characters",
-                    ));
-                }
-                Err(err) => unsafe { str::from_utf8_unchecked(&tmp[0..err.valid_up_to()]) },
-            };
-            buf[0..s.len()].copy_from_slice(s.as_bytes());
-            self.lob.pos += s.chars().fold(0, |acc, c| acc + c.len_utf16()) as u64;
-            Ok(s.len())
-        }
+        self.lob.read_chars(buf)
     }
 
     fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
-        let start_pos = buf.len();
-        let len = self.lob.read_to_end(buf, 4)?;
-        self.lob.pos += utf16_len(&buf[start_pos..])? as u64;
-        Ok(len)
+        self.lob.read_chars_to_end(buf)
     }
 }
 
@@ -627,10 +660,7 @@ impl SeekInChars for Clob {
 
 impl Write for Clob {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        map_to_io_error(str::from_utf8(buf))?;
-        let len = map_to_io_error(self.lob.write_bytes(buf))?;
-        self.lob.pos += utf16_len(&buf[0..len])? as u64;
-        Ok(len)
+        self.lob.write_chars(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {
