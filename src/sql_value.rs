@@ -24,6 +24,7 @@ use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
 use crate::connection::Conn;
+use crate::sql_type::Bfile;
 use crate::sql_type::Blob;
 use crate::sql_type::Clob;
 use crate::sql_type::Collection;
@@ -31,6 +32,7 @@ use crate::sql_type::FromSql;
 use crate::sql_type::IntervalDS;
 use crate::sql_type::IntervalYM;
 use crate::sql_type::NativeType;
+use crate::sql_type::Nclob;
 use crate::sql_type::Object;
 use crate::sql_type::ObjectType;
 use crate::sql_type::OracleType;
@@ -277,16 +279,6 @@ impl SqlValue {
             }
         }
         Ok(true)
-    }
-
-    fn is_lob_type(&self) -> bool {
-        match &self.oratype {
-            &Some(OracleType::CLOB)
-            | &Some(OracleType::NCLOB)
-            | &Some(OracleType::BLOB)
-            | &Some(OracleType::BFILE) => true,
-            _ => false,
-        }
     }
 
     pub(crate) fn fix_internal_data(&mut self) -> Result<()> {
@@ -1037,20 +1029,56 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn to_blob(&self) -> Result<Blob> {
-        match self.native_type {
-            NativeType::BLOB => Ok(Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?),
-            NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
-            _ => self.invalid_conversion_to_rust_type("Blob"),
+    pub(crate) fn to_bfile(&self) -> Result<Bfile> {
+        if self.oratype == Some(OracleType::BFILE) {
+            match self.native_type {
+                NativeType::BLOB => {
+                    return Ok(Bfile::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
+                }
+                NativeType::Raw => return self.lob_locator_is_not_set("Bfile"),
+                _ => (),
+            }
         }
+        self.invalid_conversion_to_rust_type("Bfile")
+    }
+
+    pub(crate) fn to_blob(&self) -> Result<Blob> {
+        if self.oratype == Some(OracleType::BLOB) {
+            match self.native_type {
+                NativeType::BLOB => {
+                    return Ok(Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
+                }
+                NativeType::Raw => return self.lob_locator_is_not_set("Blob"),
+                _ => (),
+            }
+        }
+        self.invalid_conversion_to_rust_type("Blob")
     }
 
     pub(crate) fn to_clob(&self) -> Result<Clob> {
-        match self.native_type {
-            NativeType::CLOB => Ok(Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?),
-            NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
-            _ => self.invalid_conversion_to_rust_type("Clob"),
+        if self.oratype == Some(OracleType::CLOB) {
+            match self.native_type {
+                NativeType::CLOB => {
+                    return Ok(Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
+                }
+                NativeType::Raw => return self.lob_locator_is_not_set("Clob"),
+                _ => (),
+            }
         }
+        self.invalid_conversion_to_rust_type("Clob")
+    }
+
+    pub(crate) fn to_nclob(&self) -> Result<Nclob> {
+        if self.oratype == Some(OracleType::NCLOB) {
+            match self.native_type {
+                NativeType::CLOB => {
+                    return Ok(Nclob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
+                }
+                NativeType::Raw => return self.lob_locator_is_not_set("Nclob"),
+                _ => (),
+            }
+        }
+        self.invalid_conversion_to_rust_type("Nclob")
     }
 
     pub(crate) fn to_ref_cursor(&self) -> Result<RefCursor> {
@@ -1200,20 +1228,48 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn set_blob(&mut self, val: &Blob) -> Result<()> {
-        match self.native_type {
-            NativeType::BLOB => self.set_lob_unchecked(val.lob.handle),
-            NativeType::Raw if self.is_lob_type() => self.lob_locator_is_not_set("Blob"),
-            _ => self.invalid_conversion_from_rust_type("Blob"),
+    pub(crate) fn set_bfile(&mut self, val: &Bfile) -> Result<()> {
+        if self.oratype == Some(OracleType::BFILE) {
+            match self.native_type {
+                NativeType::BLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Raw => return self.lob_locator_is_not_set("Bfile"),
+                _ => (),
+            }
         }
+        self.invalid_conversion_from_rust_type("Bfile")
+    }
+
+    pub(crate) fn set_blob(&mut self, val: &Blob) -> Result<()> {
+        if self.oratype == Some(OracleType::BLOB) {
+            match self.native_type {
+                NativeType::BLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Raw => return self.lob_locator_is_not_set("Blob"),
+                _ => (),
+            }
+        }
+        self.invalid_conversion_from_rust_type("Blob")
     }
 
     pub(crate) fn set_clob(&mut self, val: &Clob) -> Result<()> {
-        match self.native_type {
-            NativeType::CLOB => self.set_lob_unchecked(val.lob.handle),
-            NativeType::Char if self.is_lob_type() => self.lob_locator_is_not_set("Clob"),
-            _ => self.invalid_conversion_from_rust_type("Clob"),
+        if self.oratype == Some(OracleType::CLOB) {
+            match self.native_type {
+                NativeType::CLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Raw => return self.lob_locator_is_not_set("Clob"),
+                _ => (),
+            }
         }
+        self.invalid_conversion_from_rust_type("Clob")
+    }
+
+    pub(crate) fn set_nclob(&mut self, val: &Nclob) -> Result<()> {
+        if self.oratype == Some(OracleType::NCLOB) {
+            match self.native_type {
+                NativeType::CLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Raw => return self.lob_locator_is_not_set("Nclob"),
+                _ => (),
+            }
+        }
+        self.invalid_conversion_from_rust_type("Nclob")
     }
 
     /// The cloned value must not live longer than self.

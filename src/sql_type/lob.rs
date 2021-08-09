@@ -23,7 +23,6 @@ use crate::sql_type::ToSqlNull;
 use crate::to_odpi_str;
 use crate::Connection;
 use crate::Context;
-use crate::Error;
 use crate::Result;
 use crate::SqlValue;
 use std::cmp;
@@ -373,7 +372,87 @@ pub trait Lob {
     fn is_resource_open(&self) -> Result<bool>;
 }
 
-/// A reference to Oracle data type `BLOB` or `BFILE`
+/// A reference to Oracle data type `BFILE`
+///
+/// This struct implements [`Read`], and [`Seek`] to
+/// read and write bytes; and seek to a position in a LOB.
+///
+/// # Examples
+///
+/// ```ignore
+/// # use oracle::test_util;
+/// use oracle::sql_type::Bfile;
+/// # let conn = test_util::connect()?;
+/// conn.execute(
+///     "insert into TestBFILEs values (1, BFILENAME('odpic_dir', 'non-existing-file'))",
+///     &[],
+/// )?;
+///
+/// let sql = "select BFILECol from TestBFILES where IntCol = 1";
+/// let mut stmt = conn.statement(sql).lob_locator().build()?;
+/// let bfile = stmt.query_row_as::<Bfile>(&[])?;
+/// let bfilename = bfile.directory_and_file_name()?;
+/// assert_eq!(bfilename.0, "odpic_dir");
+/// assert_eq!(bfilename.1, "non-existing-file");
+/// assert_eq!(bfile.file_exists()?, false);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+#[derive(Clone, Debug)]
+pub struct Bfile {
+    pub(crate) lob: LobLocator,
+}
+
+#[allow(dead_code)] // TODO: remove this
+impl Bfile {
+    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Bfile> {
+        Ok(Bfile {
+            lob: LobLocator::from_raw(ctxt, handle)?,
+        })
+    }
+
+    /// Returns a reference to a new temporary LOB which may subsequently be
+    /// written and bound to a statement.
+    pub fn new(conn: &Connection) -> Result<Bfile> {
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            conn.ctxt(),
+            dpiConn_newTempLob(conn.handle(), DPI_ORACLE_TYPE_BLOB, &mut handle)
+        );
+        Bfile::from_raw(conn.ctxt(), handle)
+    }
+
+    /// Closes the LOB.
+    pub fn close(&mut self) -> Result<()> {
+        self.lob.close()
+    }
+
+    /// Returns the directory alias name and file name.
+    pub fn directory_and_file_name(&self) -> Result<(String, String)> {
+        self.lob.directory_and_file_name()
+    }
+
+    /// Sets the directory alias name and file name.
+    pub fn set_directory_and_file_name<D, F>(
+        &mut self,
+        directory_alias: D,
+        file_name: F,
+    ) -> Result<()>
+    where
+        D: AsRef<str>,
+        F: AsRef<str>,
+    {
+        self.lob
+            .set_directory_and_file_name(directory_alias.as_ref(), file_name.as_ref())
+    }
+
+    /// Returns a boolean value indicating if the file referenced by the `BFILE` type
+    /// LOB exists or not.
+    pub fn file_exists(&self) -> Result<bool> {
+        self.lob.file_exists()
+    }
+}
+
+/// A reference to Oracle data type `BLOB`
 ///
 /// This struct implements [`Read`], [`Write`] and [`Seek`] to
 /// read and write bytes; and seek to a position in a LOB.
@@ -434,34 +513,9 @@ impl Blob {
     pub fn close(&mut self) -> Result<()> {
         self.lob.close()
     }
-
-    /// Returns the directory alias name and file name for a BFILE type LOB.
-    pub fn directory_and_file_name(&self) -> Result<(String, String)> {
-        self.lob.directory_and_file_name()
-    }
-
-    /// Sets the directory alias name and file name for a BFILE type LOB.
-    pub fn set_directory_and_file_name<D, F>(
-        &mut self,
-        directory_alias: D,
-        file_name: F,
-    ) -> Result<()>
-    where
-        D: AsRef<str>,
-        F: AsRef<str>,
-    {
-        self.lob
-            .set_directory_and_file_name(directory_alias.as_ref(), file_name.as_ref())
-    }
-
-    /// Returns a boolean value indicating if the file referenced by the BFILE type
-    /// LOB exists or not.
-    pub fn file_exists(&self) -> Result<bool> {
-        self.lob.file_exists()
-    }
 }
 
-/// A reference to Oracle data type `CLOB` or `NCLOB`
+/// A reference to Oracle data type `CLOB`
 ///
 /// This struct implements [`Read`] and [`Write`] to read and write
 /// characters. [`Read::read`] fails when `buf` is too small
@@ -473,13 +527,11 @@ impl Blob {
 ///
 /// # Notes
 ///
-/// The size of LOBs returned by the [`size`] method and positions in
+/// The size of LOBs returned by [`Lob::size`] and positions in
 /// [`SeekInChars`] are inaccurate if a character in the LOB requires
 /// more than one UCS-2 codepoint. That's becuase Oracle stores CLOBs
 /// and NCLOBs using the UTF-16 encoding and the number of characters
 /// is defined by the number of UCS-2 codepoints.
-///
-/// [`size`]: #method.size
 #[derive(Clone, Debug)]
 pub struct Clob {
     pub(crate) lob: LobLocator,
@@ -492,22 +544,61 @@ impl Clob {
         })
     }
 
-    /// Returns a reference to a new temporary CLOB or NCLOB which may subsequently be
+    /// Returns a reference to a new temporary CLOB which may subsequently be
     /// written and bound to a statement.
-    ///
-    /// The `oratype` argument must be either `&OracleType::CLOB` or `&OracleType::NCLOB`.
-    pub fn new(conn: &Connection, oratype: &OracleType) -> Result<Clob> {
-        let lob_type = match oratype {
-            &OracleType::CLOB => DPI_ORACLE_TYPE_CLOB,
-            &OracleType::NCLOB => DPI_ORACLE_TYPE_NCLOB,
-            _ => return Err(Error::InvalidOperation(format!("The oratype argument must be either OracleType::CLOB or OracleType::NCLOB but {:?}", oratype))),
-        };
+    pub fn new(conn: &Connection) -> Result<Clob> {
         let mut handle = ptr::null_mut();
         chkerr!(
             conn.ctxt(),
-            dpiConn_newTempLob(conn.handle(), lob_type, &mut handle)
+            dpiConn_newTempLob(conn.handle(), DPI_ORACLE_TYPE_CLOB, &mut handle)
         );
         Clob::from_raw(conn.ctxt(), handle)
+    }
+
+    /// Closes the LOB.
+    pub fn close(&mut self) -> Result<()> {
+        self.lob.close()
+    }
+}
+
+/// A reference to Oracle data type `NCLOB`
+///
+/// This struct implements [`Read`] and [`Write`] to read and write
+/// characters. [`Read::read`] fails when `buf` is too small
+/// to store one character. [`Write::write`] fails when `buf` contains
+/// invalid UTF-8 byte sequence.
+///
+/// This also implements [`SeekInChars`] to seek to a position in characters.
+/// Note that there is no way to seek in bytes.
+///
+/// # Notes
+///
+/// The size of LOBs returned by [`Lob::size`] and positions in
+/// [`SeekInChars`] are inaccurate if a character in the LOB requires
+/// more than one UCS-2 codepoint. That's becuase Oracle stores CLOBs
+/// and NCLOBs using the UTF-16 encoding and the number of characters
+/// is defined by the number of UCS-2 codepoints.
+#[derive(Clone, Debug)]
+pub struct Nclob {
+    pub(crate) lob: LobLocator,
+}
+
+impl Nclob {
+    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Nclob> {
+        Ok(Nclob {
+            lob: LobLocator::from_raw(ctxt, handle)?,
+        })
+    }
+
+    /// Returns a reference to a new temporary NCLOB which may subsequently be
+    /// written and bound to a statement.
+    pub fn new(conn: &Connection) -> Result<Nclob> {
+        let mut handle = ptr::null_mut();
+        chkerr!(
+            conn.ctxt(),
+            dpiConn_newTempLob(conn.handle(), DPI_ORACLE_TYPE_NCLOB, &mut handle)
+        );
+        Nclob::from_raw(conn.ctxt(), handle)
     }
 
     /// Closes the LOB.
@@ -635,8 +726,10 @@ macro_rules! impl_traits {
     };
 }
 
+impl_traits!(FromSql, ToSqlNull, ToSql, Read, Seek, Lob for Bfile : binary);
 impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, Seek, Lob for Blob : binary);
 impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, SeekInChars, Lob for Clob : chars);
+impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, SeekInChars, Lob for Nclob : chars);
 
 #[cfg(test)]
 mod tests {
@@ -760,7 +853,7 @@ mod tests {
     #[test]
     fn read_write_clob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
         let conn = test_util::connect()?;
-        let mut lob = Clob::new(&conn, &OracleType::CLOB)?;
+        let mut lob = Clob::new(&conn)?;
         let test_data_len = utf16_len(TEST_DATA.as_bytes())? as u64;
         assert_eq!(lob.seek_in_chars(io::SeekFrom::Current(0))?, 0);
         assert_eq!(lob.write(TEST_DATA.as_bytes())?, TEST_DATA.len());

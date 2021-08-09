@@ -32,9 +32,11 @@ mod timestamp;
 
 pub use self::interval_ds::IntervalDS;
 pub use self::interval_ym::IntervalYM;
+pub(crate) use self::lob::Bfile; // TODO: remove `(crate)`
 pub use self::lob::Blob;
 pub use self::lob::Clob;
 pub use self::lob::Lob;
+pub use self::lob::Nclob;
 pub use self::object::Collection;
 pub use self::object::Object;
 pub use self::object::ObjectType;
