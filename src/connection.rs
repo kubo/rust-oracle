@@ -512,7 +512,8 @@ impl fmt::Debug for InnerConn {
         write!(
             f,
             "Conn {{ handle: {:?}, autocommit: {:?}",
-            self.handle.raw(), self.autocommit,
+            self.handle.raw(),
+            self.autocommit,
         )?;
         if self.tag.len() != 0 {
             write!(f, ", tag: {:?}", self.tag)?;
