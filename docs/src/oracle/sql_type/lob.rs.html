@@ -834,6 +834,99 @@
 <span id="832">832</span>
 <span id="833">833</span>
 <span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
 </pre><pre class="rust">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -860,7 +953,6 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_odpi_str</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Context</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SqlValue</span>;
 <span class="kw">use</span> <span class="ident">std::cmp</span>;
@@ -870,6 +962,17 @@
 <span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 <span class="kw">use</span> <span class="ident">std::str</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
+<span class="kw">const</span> <span class="ident">MIN_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">400</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">const</span> <span class="ident">MIN_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">20</span>;
+
+<span class="kw">fn</span> <span class="ident">utf16_len</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">s</span>))<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()))
+}
 
 <span class="kw">fn</span> <span class="ident">map_to_io_error</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -914,6 +1017,41 @@
         <span class="prelude-val">Ok</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
+    <span class="doccomment">/// read for `Blob` and `Bfile`</span>
+    <span class="kw">fn</span> <span class="ident">read_binary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
+    <span class="doccomment">/// read for `Clob` and `Nclob`</span>
+    <span class="kw">fn</span> <span class="ident">read_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">MIN_READ_SIZE</span> {
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">MIN_READ_SIZE</span>];
+            <span class="kw">let</span> <span class="ident">buf_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">2</span> } <span class="kw">else</span> { <span class="ident">buf</span>.<span class="ident">len</span>() };
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf_len</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp</span>))<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">len</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">len</span>]) {
+                <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">error_len</span>().<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">map_to_io_error</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">valid_up_to</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+                        <span class="ident">io::ErrorKind::Other</span>,
+                        <span class="string">&quot;too small buffer to read characters&quot;</span>,
+                    ));
+                }
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">err</span>.<span class="ident">valid_up_to</span>()]) },
+            };
+            <span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">s</span>.<span class="ident">len</span>()].<span class="ident">copy_from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
+            <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()) <span class="kw">as</span> <span class="ident">u64</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">len</span>())
+        }
+    }
+
     <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">nls_ratio</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">too_long_data_err</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> {
             <span class="ident">io::Error::new</span>(
@@ -950,6 +1088,21 @@
         <span class="ident">map_to_io_error</span>(<span class="ident">result</span>)
     }
 
+    <span class="doccomment">/// read_to_end for `BLOB` and `BFILE`</span>
+    <span class="kw">fn</span> <span class="ident">read_binary_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">1</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
+    <span class="doccomment">/// read_to_end for `CLOB` and `NCLOB`</span>
+    <span class="kw">fn</span> <span class="ident">read_chars_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">start_pos</span>..])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="macro">chkerr!</span>(
@@ -964,13 +1117,28 @@
         <span class="prelude-val">Ok</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
+    <span class="doccomment">/// write for `BLOB` and `BFILE`</span>
+    <span class="kw">fn</span> <span class="ident">write_binary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
+    <span class="doccomment">/// write for `CLOB` and `NCLOB`</span>
+    <span class="kw">fn</span> <span class="ident">write_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">size</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">size</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">trim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_trim</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">new_size</span>));
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pos</span> <span class="op">&gt;</span> <span class="ident">new_size</span> {
             <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="ident">new_size</span>;
@@ -978,10 +1146,10 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getChunkSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">size</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">size</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">size</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -1089,7 +1257,132 @@
     }
 }
 
-<span class="doccomment">/// A reference to Oracle data type `BLOB` or `BFILE`</span>
+<span class="doccomment">/// A trait for LOB types</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Lob</span> {
+    <span class="doccomment">/// Returns the size of the data stored in the LOB.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;</span>
+    <span class="doccomment">/// for [`Blob`] the size is in bytes.</span>
+    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Shortens the data in the LOB so that it only contains the specified amount of</span>
+    <span class="doccomment">/// data.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;</span>
+    <span class="doccomment">/// for [`Blob`] the size is in bytes.</span>
+    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Returns the chunk size, in bytes, of the internal LOB. Reading and writing</span>
+    <span class="doccomment">/// to the LOB in multiples of this size will improve performance.</span>
+    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Opens the LOB resource for writing. This will improve performance when</span>
+    <span class="doccomment">/// writing to the LOB in chunks and there are functional or extensible indexes</span>
+    <span class="doccomment">/// associated with the LOB. If this function is not called, the LOB resource</span>
+    <span class="doccomment">/// will be opened and closed for each write that is performed. A call to the</span>
+    <span class="doccomment">/// [`close_resource`] should be done before performing a</span>
+    <span class="doccomment">/// call to the function [`Connection.commit`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`close_resource`]: #method.close_resource</span>
+    <span class="doccomment">/// [`Connection.commit`]: Connection#method.commit</span>
+    <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Closes the LOB resource. This should be done when a batch of writes has</span>
+    <span class="doccomment">/// been completed so that the indexes associated with the LOB can be updated.</span>
+    <span class="doccomment">/// It should only be performed if a call to function</span>
+    <span class="doccomment">/// [`open_resource`] has been performed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
+    <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Returns a boolean value indicating if the LOB resource has been opened by</span>
+    <span class="doccomment">/// making a call to the function [`open_resource`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
+    <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+}
+
+<span class="doccomment">/// A reference to Oracle data type `BFILE`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This struct implements [`Read`], and [`Seek`] to</span>
+<span class="doccomment">/// read and write bytes; and seek to a position in a LOB.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// # use oracle::test_util;</span>
+<span class="doccomment">/// use oracle::sql_type::Bfile;</span>
+<span class="doccomment">/// # let conn = test_util::connect()?;</span>
+<span class="doccomment">/// conn.execute(</span>
+<span class="doccomment">///     &quot;insert into TestBFILEs values (1, BFILENAME(&#39;odpic_dir&#39;, &#39;non-existing-file&#39;))&quot;,</span>
+<span class="doccomment">///     &amp;[],</span>
+<span class="doccomment">/// )?;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let sql = &quot;select BFILECol from TestBFILES where IntCol = 1&quot;;</span>
+<span class="doccomment">/// let mut stmt = conn.statement(sql).lob_locator().build()?;</span>
+<span class="doccomment">/// let bfile = stmt.query_row_as::&lt;Bfile&gt;(&amp;[])?;</span>
+<span class="doccomment">/// let bfilename = bfile.directory_and_file_name()?;</span>
+<span class="doccomment">/// assert_eq!(bfilename.0, &quot;odpic_dir&quot;);</span>
+<span class="doccomment">/// assert_eq!(bfilename.1, &quot;non-existing-file&quot;);</span>
+<span class="doccomment">/// assert_eq!(bfile.file_exists()?, false);</span>
+<span class="doccomment">/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(())</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bfile</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lob</span>: <span class="ident">LobLocator</span>,
+}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// TODO: remove this</span>
+<span class="kw">impl</span> <span class="ident">Bfile</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Bfile</span> {
+            <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
+        })
+    }
+
+    <span class="doccomment">/// Returns a reference to a new temporary LOB which may subsequently be</span>
+    <span class="doccomment">/// written and bound to a statement.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+        <span class="macro">chkerr!</span>(
+            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+        );
+        <span class="ident">Bfile::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
+    }
+
+    <span class="doccomment">/// Closes the LOB.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
+    }
+
+    <span class="doccomment">/// Returns the directory alias name and file name.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">directory_and_file_name</span>()
+    }
+
+    <span class="doccomment">/// Sets the directory alias name and file name.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_directory_and_file_name</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">F</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">directory_alias</span>: <span class="ident">D</span>,
+        <span class="ident">file_name</span>: <span class="ident">F</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">lob</span>
+            .<span class="ident">set_directory_and_file_name</span>(<span class="ident">directory_alias</span>.<span class="ident">as_ref</span>(), <span class="ident">file_name</span>.<span class="ident">as_ref</span>())
+    }
+
+    <span class="doccomment">/// Returns a boolean value indicating if the file referenced by the `BFILE` type</span>
+    <span class="doccomment">/// LOB exists or not.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">file_exists</span>()
+    }
+}
+
+<span class="doccomment">/// A reference to Oracle data type `BLOB`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This struct implements [`Read`], [`Write`] and [`Seek`] to</span>
 <span class="doccomment">/// read and write bytes; and seek to a position in a LOB.</span>
@@ -1099,7 +1392,8 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use oracle::Error;</span>
 <span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # use oracle::sql_type::Blob;</span>
+<span class="doccomment">/// use oracle::sql_type::Blob;</span>
+<span class="doccomment">/// use oracle::sql_type::Lob;</span>
 <span class="doccomment">/// use std::io::BufReader;</span>
 <span class="doccomment">/// use std::io::Read;</span>
 <span class="doccomment">/// # let conn = test_util::connect()?;</span>
@@ -1149,140 +1443,13 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
-
-    <span class="doccomment">/// Returns the size of the data stored in the LOB in bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">size</span>()
-    }
-
-    <span class="doccomment">/// Returns the chunk size, in bytes, of the internal LOB. Reading and writing</span>
-    <span class="doccomment">/// to the LOB in multiples of this size will improve performance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">chunk_size</span>()<span class="question-mark">?</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>)
-    }
-
-    <span class="doccomment">/// Opens the LOB resource for writing. This will improve performance when</span>
-    <span class="doccomment">/// writing to the LOB in chunks and there are functional or extensible indexes</span>
-    <span class="doccomment">/// associated with the LOB. If this function is not called, the LOB resource</span>
-    <span class="doccomment">/// will be opened and closed for each write that is performed. A call to the</span>
-    <span class="doccomment">/// [`close_resource`] should be done before performing a</span>
-    <span class="doccomment">/// call to the function [`Connection.commit`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`close_resource`]: #method.close_resource</span>
-    <span class="doccomment">/// [`Connection.commit`]: Connection#method.commit</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">open_resource</span>()
-    }
-
-    <span class="doccomment">/// Closes the LOB resource. This should be done when a batch of writes has</span>
-    <span class="doccomment">/// been completed so that the indexes associated with the LOB can be updated.</span>
-    <span class="doccomment">/// It should only be performed if a call to function</span>
-    <span class="doccomment">/// [`open_resource`] has been performed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close_resource</span>()
-    }
-
-    <span class="doccomment">/// Returns a boolean value indicating if the LOB resource has been opened by</span>
-    <span class="doccomment">/// making a call to the function [`open_resource`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">is_resource_open</span>()
-    }
-
-    <span class="doccomment">/// Trims the data in the LOB so that it only contains the specified amount of</span>
-    <span class="doccomment">/// data.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">trim</span>(<span class="ident">new_size</span>)
-    }
-
-    <span class="doccomment">/// Returns the directory alias name and file name for a BFILE type LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">directory_and_file_name</span>()
-    }
-
-    <span class="doccomment">/// Sets the directory alias name and file name for a BFILE type LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_directory_and_file_name</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">directory_alias</span>: <span class="ident">D</span>,
-        <span class="ident">file_name</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">F</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="self">self</span>.<span class="ident">lob</span>
-            .<span class="ident">set_directory_and_file_name</span>(<span class="ident">directory_alias</span>.<span class="ident">as_ref</span>(), <span class="ident">file_name</span>.<span class="ident">as_ref</span>())
-    }
-
-    <span class="doccomment">/// Returns a boolean value indicating if the file referenced by the BFILE type</span>
-    <span class="doccomment">/// LOB exists or not.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">file_exists</span>()
-    }
 }
 
-<span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">to_blob</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BLOB</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BLOB</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_blob</span>(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Seek</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">Blob</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="doccomment">/// A reference to Oracle data type `CLOB` or `NCLOB`</span>
+<span class="doccomment">/// A reference to Oracle data type `CLOB`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This struct implements [`Read`] and [`Write`] to read and write</span>
-<span class="doccomment">/// characters. [`Read.read`] fails when `buf` is too small</span>
-<span class="doccomment">/// to store one character. [`Write.write`] fails when `buf` contains</span>
+<span class="doccomment">/// characters. [`Read::read`] fails when `buf` is too small</span>
+<span class="doccomment">/// to store one character. [`Write::write`] fails when `buf` contains</span>
 <span class="doccomment">/// invalid UTF-8 byte sequence.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This also implements [`SeekInChars`] to seek to a position in characters.</span>
@@ -1290,15 +1457,11 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Notes</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The size of LOBs returned by the [`size`] method and positions in</span>
+<span class="doccomment">/// The size of LOBs returned by [`Lob::size`] and positions in</span>
 <span class="doccomment">/// [`SeekInChars`] are inaccurate if a character in the LOB requires</span>
 <span class="doccomment">/// more than one UCS-2 codepoint. That&#39;s becuase Oracle stores CLOBs</span>
 <span class="doccomment">/// and NCLOBs using the UTF-16 encoding and the number of characters</span>
 <span class="doccomment">/// is defined by the number of UCS-2 codepoints.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`size`]: #method.size</span>
-<span class="doccomment">/// [`Read.read`]: Read#tymethod.read</span>
-<span class="doccomment">/// [`Write.write`]: Write#tymethod.write</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Clob</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lob</span>: <span class="ident">LobLocator</span>,
@@ -1311,20 +1474,13 @@
         })
     }
 
-    <span class="doccomment">/// Returns a reference to a new temporary CLOB or NCLOB which may subsequently be</span>
+    <span class="doccomment">/// Returns a reference to a new temporary CLOB which may subsequently be</span>
     <span class="doccomment">/// written and bound to a statement.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `oratype` argument must be either `&amp;OracleType::CLOB` or `&amp;OracleType::NCLOB`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>, <span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lob_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">oratype</span> {
-            <span class="kw-2">&amp;</span><span class="ident">OracleType::CLOB</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_ORACLE_TYPE_CLOB</span>,
-            <span class="kw-2">&amp;</span><span class="ident">OracleType::NCLOB</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_ORACLE_TYPE_NCLOB</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidOperation</span>(<span class="macro">format!</span>(<span class="string">&quot;The oratype argument must be either OracleType::CLOB or OracleType::NCLOB but {:?}&quot;</span>, <span class="ident">oratype</span>))),
-        };
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">lob_type</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_CLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
         );
         <span class="ident">Clob::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
@@ -1333,147 +1489,177 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
+}
 
-    <span class="doccomment">/// Returns the size of the data stored in the LOB in characters.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [Notes](#notes).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">size</span>()
+<span class="doccomment">/// A reference to Oracle data type `NCLOB`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This struct implements [`Read`] and [`Write`] to read and write</span>
+<span class="doccomment">/// characters. [`Read::read`] fails when `buf` is too small</span>
+<span class="doccomment">/// to store one character. [`Write::write`] fails when `buf` contains</span>
+<span class="doccomment">/// invalid UTF-8 byte sequence.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This also implements [`SeekInChars`] to seek to a position in characters.</span>
+<span class="doccomment">/// Note that there is no way to seek in bytes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Notes</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The size of LOBs returned by [`Lob::size`] and positions in</span>
+<span class="doccomment">/// [`SeekInChars`] are inaccurate if a character in the LOB requires</span>
+<span class="doccomment">/// more than one UCS-2 codepoint. That&#39;s becuase Oracle stores CLOBs</span>
+<span class="doccomment">/// and NCLOBs using the UTF-16 encoding and the number of characters</span>
+<span class="doccomment">/// is defined by the number of UCS-2 codepoints.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Nclob</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lob</span>: <span class="ident">LobLocator</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Nclob</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Nclob</span> {
+            <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
+        })
     }
 
-    <span class="comment">// /// Returns the chunk size, in bytes, of the internal LOB. Reading and writing</span>
-    <span class="comment">// /// to the LOB in multiples of this size will improve performance.</span>
-    <span class="comment">// pub fn chunk_size(&amp;self) -&gt; Result&lt;usize&gt; {</span>
-    <span class="comment">//     Ok(self.lob.chunk_size()?.try_into()?)</span>
-    <span class="comment">// }</span>
-
-    <span class="doccomment">/// Opens the LOB resource for writing. This will improve performance when</span>
-    <span class="doccomment">/// writing to the LOB in chunks and there are functional or extensible indexes</span>
-    <span class="doccomment">/// associated with the LOB. If this function is not called, the LOB resource</span>
-    <span class="doccomment">/// will be opened and closed for each write that is performed. A call to the</span>
-    <span class="doccomment">/// [`close_resource`] should be done before performing a</span>
-    <span class="doccomment">/// call to the function [`Connection.commit`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`close_resource`]: #method.close_resource</span>
-    <span class="doccomment">/// [`Connection.commit`]: Connection#method.commit</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">open_resource</span>()
+    <span class="doccomment">/// Returns a reference to a new temporary NCLOB which may subsequently be</span>
+    <span class="doccomment">/// written and bound to a statement.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+        <span class="macro">chkerr!</span>(
+            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_NCLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+        );
+        <span class="ident">Nclob::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
 
-    <span class="doccomment">/// Closes the LOB resource. This should be done when a batch of writes has</span>
-    <span class="doccomment">/// been completed so that the indexes associated with the LOB can be updated.</span>
-    <span class="doccomment">/// It should only be performed if a call to function</span>
-    <span class="doccomment">/// [`open_resource`] has been performed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close_resource</span>()
-    }
-
-    <span class="doccomment">/// Returns a boolean value indicating if the LOB resource has been opened by</span>
-    <span class="doccomment">/// making a call to the function [`open_resource`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">is_resource_open</span>()
-    }
-
-    <span class="doccomment">/// Trims the data in the LOB so that it only contains the specified amount of</span>
-    <span class="doccomment">/// data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The new size is the number of UCS-2 codepoints. See [Notes](#notes).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">trim</span>(<span class="ident">new_size</span>)
+    <span class="doccomment">/// Closes the LOB.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">to_clob</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::CLOB</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::CLOB</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_clob</span>(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">fn</span> <span class="ident">utf16_len</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">s</span>))<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()))
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
-<span class="kw">const</span> <span class="ident">MIN_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">400</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">const</span> <span class="ident">MIN_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">20</span>;
-
-<span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">MIN_READ_SIZE</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">MIN_READ_SIZE</span>];
-            <span class="kw">let</span> <span class="ident">buf_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">2</span> } <span class="kw">else</span> { <span class="ident">buf</span>.<span class="ident">len</span>() };
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">read_bytes</span>(<span class="ident">buf_len</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp</span>))<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">len</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">len</span>]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">error_len</span>().<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">map_to_io_error</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">valid_up_to</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::Other</span>,
-                        <span class="string">&quot;too small buffer to read characters&quot;</span>,
-                    ));
+<span class="macro">macro_rules!</span> <span class="ident">impl_traits</span> {
+    (<span class="ident">FromSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">paste::item!</span> {
+            <span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+                <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                    <span class="ident">val</span>.[<span class="op">&lt;</span><span class="ident">to_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">lower</span><span class="op">&gt;</span>]()
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">err</span>.<span class="ident">valid_up_to</span>()]) },
-            };
-            <span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">s</span>.<span class="ident">len</span>()].<span class="ident">copy_from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
-            <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()) <span class="kw">as</span> <span class="ident">u64</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">len</span>())
+            }
         }
-    }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
 
-    <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">start_pos</span>..])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-    }
+    (<span class="macro-nonterminal">ToSqlNull</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">paste::item!</span> {
+            <span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+                <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">OracleType</span>::[<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">upper</span><span class="op">&gt;</span>])
+                }
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">ToSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">paste::item!</span> {
+            <span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+                <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">OracleType</span>::[<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">upper</span><span class="op">&gt;</span>])
+                }
+
+                <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                    <span class="ident">val</span>.[<span class="op">&lt;</span><span class="ident">set_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">lower</span><span class="op">&gt;</span>](<span class="self">self</span>)
+                }
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">Read</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">paste::item!</span> {
+            <span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+                <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">read_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span>](<span class="macro-nonterminal">buf</span>)
+                }
+
+                <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">read_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> <span class="macro-nonterminal">_to_end</span><span class="op">&gt;</span>](<span class="ident">buf</span>)
+                }
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">Write</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">paste::item!</span> {
+            <span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+                <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">write_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span>](<span class="macro-nonterminal">buf</span>)
+                }
+
+                <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(())
+                }
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">Seek</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span> <span class="ident">Seek</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">SeekInChars</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span> <span class="ident">SeekInChars</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">seek_in_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="macro-nonterminal">Lob</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span> <span class="ident">Lob</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">size</span>()
+            }
+
+            <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">truncate</span>(<span class="ident">new_size</span>)
+            }
+
+            <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">chunk_size</span>()
+            }
+
+            <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">open_resource</span>()
+            }
+
+            <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close_resource</span>()
+            }
+
+            <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">is_resource_open</span>()
+            }
+        }
+        <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
+    };
+
+    (<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    };
 }
 
-<span class="kw">impl</span> <span class="ident">SeekInChars</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">seek_in_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">Clob</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(())
-    }
-}
+<span class="macro">impl_traits!</span>(<span class="ident">FromSql</span>, <span class="ident">ToSqlNull</span>, <span class="ident">ToSql</span>, <span class="ident">Read</span>, <span class="ident">Seek</span>, <span class="ident">Lob</span> <span class="kw">for</span> <span class="ident">Bfile</span> : <span class="ident">binary</span>);
+<span class="macro">impl_traits!</span>(<span class="ident">FromSql</span>, <span class="ident">ToSqlNull</span>, <span class="ident">ToSql</span>, <span class="ident">Read</span>, <span class="ident">Write</span>, <span class="ident">Seek</span>, <span class="ident">Lob</span> <span class="kw">for</span> <span class="ident">Blob</span> : <span class="ident">binary</span>);
+<span class="macro">impl_traits!</span>(<span class="ident">FromSql</span>, <span class="ident">ToSqlNull</span>, <span class="ident">ToSql</span>, <span class="ident">Read</span>, <span class="ident">Write</span>, <span class="ident">SeekInChars</span>, <span class="ident">Lob</span> <span class="kw">for</span> <span class="ident">Clob</span> : <span class="ident">chars</span>);
+<span class="macro">impl_traits!</span>(<span class="ident">FromSql</span>, <span class="ident">ToSqlNull</span>, <span class="ident">ToSql</span>, <span class="ident">Read</span>, <span class="ident">Write</span>, <span class="ident">SeekInChars</span>, <span class="ident">Lob</span> <span class="kw">for</span> <span class="ident">Nclob</span> : <span class="ident">chars</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
@@ -1564,7 +1750,7 @@
             <span class="ident">TEST_DATA</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">*</span> <span class="number">2</span>,
         );
 
-        <span class="ident">lob</span>.<span class="ident">trim</span>(<span class="ident">TEST_DATA</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)<span class="question-mark">?</span>;
+        <span class="ident">lob</span>.<span class="ident">truncate</span>(<span class="ident">TEST_DATA</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1597,7 +1783,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">read_write_clob</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lob</span> <span class="op">=</span> <span class="ident">Clob::new</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">OracleType::CLOB</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lob</span> <span class="op">=</span> <span class="ident">Clob::new</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">test_data_len</span> <span class="op">=</span> <span class="ident">utf16_len</span>(<span class="ident">TEST_DATA</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="number">0</span>))<span class="question-mark">?</span>, <span class="number">0</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">write</span>(<span class="ident">TEST_DATA</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>, <span class="ident">TEST_DATA</span>.<span class="ident">len</span>());

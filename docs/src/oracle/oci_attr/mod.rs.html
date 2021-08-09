@@ -380,6 +380,12 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><pre class="rust">
 <span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
@@ -648,16 +654,22 @@
 <span class="doccomment">/// # use oracle::Error;</span>
 <span class="doccomment">/// # use oracle::test_util;</span>
 <span class="doccomment">/// use oracle::oci_attr::SqlFnCode;</span>
+<span class="doccomment">/// # use std::thread::sleep;</span>
+<span class="doccomment">/// # use std::time::Duration;</span>
 <span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
 <span class="doccomment">/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);</span>
+<span class="doccomment">/// # sleep(Duration::from_millis(500));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let mut stmt = conn.statement(&quot;create table test_sql_fn_code (id integer)&quot;).build()?;</span>
 <span class="doccomment">/// stmt.execute(&amp;[])?;</span>
 <span class="doccomment">/// // 1 is the function code of CREATE TABLE statements.</span>
 <span class="doccomment">/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 1);</span>
+<span class="doccomment">/// # sleep(Duration::from_millis(500));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let mut stmt = conn.statement(&quot;drop table test_sql_fn_code purge&quot;).build()?;</span>
+<span class="doccomment">/// eprintln!(&quot;line: {}&quot;, line!());</span>
 <span class="doccomment">/// stmt.execute(&amp;[])?;</span>
+<span class="doccomment">/// eprintln!(&quot;line: {}&quot;, line!());</span>
 <span class="doccomment">/// // 8 is the function code of DROP TABLE statements.</span>
 <span class="doccomment">/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 8);</span>
 <span class="doccomment">///</span>
