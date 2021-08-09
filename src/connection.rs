@@ -691,7 +691,7 @@ impl Connection {
     /// // fetch top 10 rows.
     /// let mut stmt = conn
     ///     .statement("select empno, ename from emp order by empno fetch first 10 rows only")
-    ///     .prefetch_rows(11)  /// add one to avoid a round-trip to check for end-of-fetch
+    ///     .prefetch_rows(11)  // add one to avoid a round-trip to check for end-of-fetch
     ///     .build()?;
     /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
     ///     let (empno, ename) = row_result?;

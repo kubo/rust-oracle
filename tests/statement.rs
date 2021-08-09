@@ -243,7 +243,7 @@ fn query_row() -> Result<()> {
 fn dml_returning() -> Result<()> {
     // magic spell to prevent "ORA-00060: deadlock detected while waiting for resource' in this test.
     // I'm not sure why.
-    thread::sleep(time::Duration::from_millis(500));
+    thread::sleep(time::Duration::from_secs(1));
 
     let conn = common::connect()?;
     let sql = "update TestStrings set StringCol = StringCol where IntCol >= :1 returning IntCol into :icol";

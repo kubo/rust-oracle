@@ -265,16 +265,22 @@ unsafe impl OciAttr for TransactionInProgress {
 /// # use oracle::Error;
 /// # use oracle::test_util;
 /// use oracle::oci_attr::SqlFnCode;
+/// # use std::thread::sleep;
+/// # use std::time::Duration;
 /// # let mut conn = test_util::connect()?;
 /// # conn.execute("drop table test_sql_fn_code purge", &[]);
+/// # sleep(Duration::from_millis(500));
 ///
 /// let mut stmt = conn.statement("create table test_sql_fn_code (id integer)").build()?;
 /// stmt.execute(&[])?;
 /// // 1 is the function code of CREATE TABLE statements.
 /// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 1);
+/// # sleep(Duration::from_millis(500));
 ///
 /// let mut stmt = conn.statement("drop table test_sql_fn_code purge").build()?;
+/// eprintln!("line: {}", line!());
 /// stmt.execute(&[])?;
+/// eprintln!("line: {}", line!());
 /// // 8 is the function code of DROP TABLE statements.
 /// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 8);
 ///
