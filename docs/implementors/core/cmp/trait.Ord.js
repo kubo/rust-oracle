@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["oracle"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"oracle/struct.Version.html\" title=\"struct oracle::Version\">Version</a>","synthetic":false,"types":["oracle::version::Version"]}];
+implementors["oracle"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.54.0/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"oracle/struct.Version.html\" title=\"struct oracle::Version\">Version</a>","synthetic":false,"types":["oracle::version::Version"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
