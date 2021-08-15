@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.5.3 (2021-08-15)
+
+New features:
+
+* Add [`Connection::statement`][] and [`StatementBuilder`][] to create
+  [`Statement`][] and deprecate [`Connection::prepare`][].
+* Customize prefetch row size ([`StatementBuilder::prefetch_rows`]) [GH-40]
+* Read/Write LOBs as streams ([`sql_type::Lob`][], [`sql_type::Clob`][], [`sql_type::Nclob`][] and [`sql_type::Blob`][])
+* Ref cursors including implicit statement results ([`sql_type::RefCursor`][]) [GH-38]
+* Add [`Connection::oci_attr`][], [`Connection::set_oci_attr`][], [`Statement::oci_attr`][] and [`Statement::oci_attr`][]
+  to support OCI handle attributes.
+* `Impl ToSql for &'a [u8; N]`
+
+Internal Changes:
+
+* Bind LOB columns as string or binary by default
+
 ## 0.5.2 (2021-06-11)
 
 * Update ODPI-C to 4.2.1. (see ODPI-C release notes: [4.2.0](https://oracle.github.io/odpi/doc/releasenotes.html#version-4-2-may-18-2021) and [4.2.1](https://oracle.github.io/odpi/doc/releasenotes.html#version-4-2-1-june-1-2021))
@@ -185,7 +202,7 @@ Changes:
 Incompatible changes:
 
 * Changed Methods
-  * [`Connection.prepare()`][]. The `params` argument was added.
+  * [`Connection::prepare`][]. The `params` argument was added.
 
 * Removed methods
   * `Statement.set_fetch_array_size()`. Use [`StmtParam::FetchArraySize`][] instead.
@@ -286,6 +303,8 @@ Incompatible changes:
 [GH-19]: https://github.com/kubo/rust-oracle/issues/19
 [GH-29]: https://github.com/kubo/rust-oracle/issues/29
 [GH-36]: https://github.com/kubo/rust-oracle/issues/36
+[GH-38]: https://github.com/kubo/rust-oracle/issues/38
+[GH-40]: https://github.com/kubo/rust-oracle/issues/40
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
@@ -293,7 +312,7 @@ Incompatible changes:
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
 [`Connection.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute_named
 [`Connection.object_type()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.object_type
-[`Connection.prepare()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.prepare
+[`Connection::prepare`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.prepare
 [`Connection.query()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query
 [`Connection.query_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_named
 [`Connection.query_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_as
@@ -302,6 +321,7 @@ Incompatible changes:
 [`Connection.query_row_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_named
 [`Connection.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as
 [`Connection.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as_named
+[`Connection::statement`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.statement
 [`Connection.status()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.status
 [`Connection.set_call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.set_call_timeout
 [`Connection.tag()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.tag
@@ -323,7 +343,6 @@ Incompatible changes:
 [`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values
 [`Row.get_as()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.get_as
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
-[`StatetmentType`]: https://docs.rs/oracle/*/oracle/enum.StatementType.html
 [`Statement.execute()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute
 [`Statement.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute_named
 [`Statement.query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query
@@ -340,5 +359,7 @@ Incompatible changes:
 [`Statement.is_plsql()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_plsql
 [`Statement.is_ddl()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_ddl
 [`Statement.is_dml()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.id_dml
+[`StatementBuilder`]: https://docs.rs/oracle/*/oracle/struct.StatementBuilder.html
+[`StatementBuilder::prefetch_rows`]: https://docs.rs/oracle/*/oracle/struct.StatementBuilder.html#method.prefetch_rows
 [`StmtParam`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html#variant.FetchArraySize
