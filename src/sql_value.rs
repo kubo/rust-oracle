@@ -16,6 +16,7 @@
 use std::cell::RefCell;
 use std::convert::TryInto;
 use std::fmt;
+use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
 use std::str;
@@ -522,7 +523,7 @@ impl SqlValue {
         }
         let mut result = String::with_capacity(total_byte_size as usize);
         let mut buf = vec![0u8; bufsiz as usize];
-        let bufptr = buf.as_mut_ptr() as *mut i8;
+        let bufptr = buf.as_mut_ptr() as *mut c_char;
 
         let mut offset = 1;
         while offset <= total_char_size {
@@ -552,7 +553,7 @@ impl SqlValue {
                 lob,
                 1,
                 total_size,
-                result.as_mut_ptr() as *mut i8,
+                result.as_mut_ptr() as *mut c_char,
                 &mut read_len
             )
         );
@@ -572,7 +573,7 @@ impl SqlValue {
         }
         let mut result = String::with_capacity((total_size * 2) as usize);
         let mut buf = vec![0u8; READ_SIZE as usize];
-        let bufptr = buf.as_mut_ptr() as *mut i8;
+        let bufptr = buf.as_mut_ptr() as *mut c_char;
 
         let mut offset = 1;
         while offset <= total_size {
@@ -668,7 +669,7 @@ impl SqlValue {
             unsafe {
                 dpiData_setBytes(
                     self.data(),
-                    self.keep_bytes.as_mut_ptr() as *mut i8,
+                    self.keep_bytes.as_mut_ptr() as *mut c_char,
                     val.len() as u32,
                 );
             }
@@ -678,7 +679,7 @@ impl SqlValue {
                 dpiVar_setFromBytes(
                     self.handle,
                     self.buffer_row_index(),
-                    val.as_ptr() as *const i8,
+                    val.as_ptr() as *const c_char,
                     val.len() as u32
                 )
             );
@@ -743,7 +744,7 @@ impl SqlValue {
     }
 
     fn set_string_to_clob_unchecked(&mut self, val: &str) -> Result<()> {
-        let ptr = val.as_ptr() as *const i8;
+        let ptr = val.as_ptr() as *const c_char;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
         chkerr!(self.ctxt(), dpiLob_trim(lob, 0));
@@ -755,7 +756,7 @@ impl SqlValue {
     }
 
     fn set_raw_to_blob_unchecked(&mut self, val: &[u8]) -> Result<()> {
-        let ptr = val.as_ptr() as *const i8;
+        let ptr = val.as_ptr() as *const c_char;
         let len = val.len() as u64;
         let lob = unsafe { dpiData_getLOB(self.data()) };
         chkerr!(self.ctxt(), dpiLob_trim(lob, 0));

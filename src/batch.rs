@@ -50,6 +50,7 @@ use crate::StatementType;
 use std::convert::TryFrom;
 use std::fmt;
 use std::mem::MaybeUninit;
+use std::os::raw::c_char;
 use std::ptr;
 use std::slice;
 
@@ -199,7 +200,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         let mut bind_names = Vec::with_capacity(bind_count);
         let mut bind_values = Vec::with_capacity(bind_count);
         if bind_count > 0 {
-            let mut names: Vec<*const i8> = vec![ptr::null_mut(); bind_count];
+            let mut names: Vec<*const c_char> = vec![ptr::null_mut(); bind_count];
             let mut lengths = vec![0; bind_count];
             chkerr!(
                 conn.ctxt(),
