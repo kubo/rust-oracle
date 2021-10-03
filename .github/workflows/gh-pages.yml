@@ -26,6 +26,7 @@ jobs:
           echo '<head><meta http-equiv="refresh" content="5; url=./oracle"/></head>' >> docs/index.html
           echo '<body><p>Redirect to <a href="./oracle">here</a> in 5 seconds.</p></body>' >> docs/index.html
           echo '</html>' >> docs/index.html
+          sed -i -E 's/(Version [0-9]+\.[0-9]+\.[0-9]+)/\1<br\/>(in development)/g' docs/oracle/index.html docs/oracle/all.html
           git config --local user.email "docs-action@github.com"
           git config --local user.name "GitHub Action (docs)"
           git add docs
