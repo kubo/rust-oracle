@@ -15,6 +15,7 @@ $HOME/.cargo/bin/bindgen odpi/include/dpi.h -o src/binding.rs \
 
 $HOME/.cargo/bin/bindgen odpi/src/dpiImpl.h -o src/binding_impl.rs \
   --whitelist-var "DPI_MAX_BASIC_BUFFER_SIZE" \
+  --whitelist-var "DPI_NUMBER_AS_TEXT_CHARS" \
   --whitelist-var "DPI_OCI_HTYPE_SVCCTX" \
   --whitelist-var "DPI_OCI_HTYPE_SERVER" \
   --whitelist-var "DPI_OCI_HTYPE_SESSION" \

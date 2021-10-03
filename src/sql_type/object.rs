@@ -21,6 +21,7 @@ use std::ptr;
 use std::sync::Arc;
 
 use crate::binding::*;
+use crate::binding_impl::DPI_NUMBER_AS_TEXT_CHARS;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::FromSql;
@@ -194,7 +195,7 @@ impl Collection {
     {
         let oratype = self.objtype.element_oracle_type().unwrap();
         let mut data = unsafe { mem::zeroed() };
-        let mut buf = [0 as c_char; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
+        let mut buf = [0 as c_char; DPI_NUMBER_AS_TEXT_CHARS as usize];
         match oratype {
             &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
                 dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
@@ -397,7 +398,7 @@ impl Object {
         T: FromSql,
     {
         let mut data = unsafe { mem::zeroed() };
-        let mut buf = [0 as c_char; 172]; // DPI_NUMBER_AS_TEXT_CHARS in odpi/src/dpiImpl.h
+        let mut buf = [0 as c_char; DPI_NUMBER_AS_TEXT_CHARS as usize];
         match &attr.oratype {
             &OracleType::Number(_, _) | &OracleType::Float(_) => unsafe {
                 dpiData_setBytes(&mut data, buf.as_mut_ptr(), buf.len() as u32);
