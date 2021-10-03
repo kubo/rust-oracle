@@ -1,0 +1,62 @@
+name: Run tests
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:latest
+        env:
+          ORACLE_PASSWORD: sys_passwd
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install the latest Oracle instant client
+        run: |
+          curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
+          curl -Lo sqlplus.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linuxx64.zip
+          curl -Lo sdk.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-sdk-linuxx64.zip
+          unzip basic.zip
+          unzip sqlplus.zip
+          unzip sdk.zip
+          IC_DIR=$PWD/$(ls -d instantclient*)
+          echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
+          echo $IC_DIR >> $GITHUB_PATH
+
+      - name: Get the Oracle container IP address
+        env:
+          ORACLE_SERVICE_ID: ${{ job.services.oracle.id }}
+        run: |
+          ORACLE_IP_ADDRESS=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{println .IPAddress}}{{end}}' $ORACLE_SERVICE_ID)
+          if test -z "$ORACLE_IP_ADDRESS"; then
+              echo "Cannot get ORACLE_IP_ADDRESS."
+              docker inspect $ORACLE_SERVICE_ID
+              exit 1
+          fi
+          echo TWO_TASK=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Create Oracle users and schema
+        run: |
+          sqlplus sys/sys_passwd as sysdba @tests/SetupTest.sql < /dev/null
+
+      - name: cargo test
+        run: |
+          cargo test --all-features -- --nocapture
+        env:
+          ODPIC_TEST_CONNECT_STRING: ${{ env.TWO_TASK }}
+          NLS_LANG: AMERICAN_AMERICA.AL32UTF8
