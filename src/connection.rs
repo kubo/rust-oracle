@@ -1272,6 +1272,11 @@ impl Connection {
         Ok(())
     }
 
+    /// Check errors or warnings
+    pub fn check_errors(&self) -> Result<()> {
+        crate::error::error_may_from_context(self.ctxt())
+    }
+
     /// Sets module associated with the connection
     ///
     /// This is same with calling [DBMS_APPLICATION_INFO.SET_MODULE][] but

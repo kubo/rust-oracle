@@ -131,6 +131,7 @@ pub struct DbError {
     message: String,
     fn_name: String,
     action: String,
+    is_warning: bool,
 }
 
 impl DbError {
@@ -140,6 +141,7 @@ impl DbError {
         message: String,
         fn_name: String,
         action: String,
+        is_warning: bool,
     ) -> DbError {
         DbError {
             code: code,
@@ -147,6 +149,7 @@ impl DbError {
             message: message,
             fn_name: fn_name,
             action: action,
+            is_warning: is_warning,
         }
     }
 
@@ -173,6 +176,11 @@ impl DbError {
     /// action name in ODPI-C used by rust-oracle
     pub fn action(&self) -> &str {
         &self.action
+    }
+
+    /// it is only a warning
+    pub fn is_warning(&self) -> bool {
+        self.is_warning
     }
 }
 
@@ -329,6 +337,7 @@ pub fn dberror_from_dpi_error(err: &dpiErrorInfo) -> DbError {
         unsafe { CStr::from_ptr(err.action) }
             .to_string_lossy()
             .into_owned(),
+        err.isWarning != 0,
     )
 }
 
@@ -348,6 +357,19 @@ pub(crate) fn error_from_context(ctxt: &Context) -> Error {
         err.assume_init()
     };
     crate::error::error_from_dpi_error(&err)
+}
+
+pub(crate) fn error_may_from_context(ctxt: &Context) -> Result<(), Error> {
+    let err = unsafe {
+        let mut err = MaybeUninit::uninit();
+        dpiContext_getError(ctxt.context, err.as_mut_ptr());
+        err.assume_init()
+    };
+    if err.code != 0 {
+        Err(crate::error::error_from_dpi_error(&err))
+    } else {
+        Ok(())
+    }
 }
 
 #[macro_export]
