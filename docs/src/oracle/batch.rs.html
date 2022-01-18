@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;batch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>batch.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;batch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>batch.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -956,8 +957,7 @@
 <span id="956">956</span>
 <span id="957">957</span>
 <span id="958">958</span>
-</pre><pre class="rust">
-<span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
 <span class="comment">//</span>
@@ -989,23 +989,23 @@
 <span class="comment">// authors and should not be interpreted as representing official policies, either expressed</span>
 <span class="comment">// or implied, of the authors.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::chkerr</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::dberror_from_dpi_error</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::private</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ToSql</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_value::BufferRowIndex</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::statement::QueryParams</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_odpi_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_rust_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SqlValue</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::dberror_from_dpi_error</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::private</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_value::BufferRowIndex</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::QueryParams</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_rust_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::StatementType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Statement</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StatementType</span>;
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 <span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
@@ -1019,21 +1019,21 @@
 <span class="kw">const</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">64</span>;
 
 <span class="comment">// round up to the nearest power of two</span>
-<span class="kw">fn</span> <span class="ident">po2</span>(<span class="kw-2">mut</span> <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+<span class="kw">fn</span> <span class="ident">po2</span>(<span class="kw-2">mut</span> <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
     <span class="kw">if</span> <span class="ident">size</span> <span class="op">&lt;</span> <span class="ident">MINIMUM_TYPE_LENGTH</span> {
         <span class="ident">size</span> <span class="op">=</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>;
     }
     <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">32</span> <span class="op">-</span> (<span class="ident">size</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">leading_zeros</span>())
 }
 
-<span class="kw">fn</span> <span class="ident">oratype_size</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">oratype_size</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">oratype</span> {
         <span class="kw-2">&amp;</span><span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>)
         <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>)
         <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::Char</span>(<span class="ident">size</span>)
         <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::NChar</span>(<span class="ident">size</span>)
-        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">size</span>),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">size</span>),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
@@ -1043,31 +1043,31 @@
 }
 
 <span class="kw">impl</span> <span class="ident">BindType</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BindType</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="ident">BindType</span> {
         <span class="ident">BindType</span> {
             <span class="ident">oratype</span>: <span class="kw">match</span> <span class="ident">oratype</span> {
-                <span class="kw-2">&amp;</span><span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
-                <span class="kw-2">&amp;</span><span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
-                <span class="kw-2">&amp;</span><span class="ident">OracleType::Char</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
-                <span class="kw-2">&amp;</span><span class="ident">OracleType::NChar</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
-                <span class="kw-2">&amp;</span><span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="kw-2">&amp;</span><span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
+                <span class="kw-2">&amp;</span><span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
+                <span class="kw-2">&amp;</span><span class="ident">OracleType::Char</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
+                <span class="kw-2">&amp;</span><span class="ident">OracleType::NChar</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
+                <span class="kw-2">&amp;</span><span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="ident">size</span>))),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reset_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u32</span>) {
+    <span class="kw">fn</span> <span class="ident">reset_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u32</span>) {
         <span class="self">self</span>.<span class="ident">oratype</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">oratype</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
+            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
+            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
+            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
+            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         };
     }
 
-    <span class="kw">fn</span> <span class="ident">as_oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">as_oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">oratype</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -1087,7 +1087,7 @@
         <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="ident">Connection</span>,
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>,
         <span class="ident">batch_size</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
         <span class="ident">BatchBuilder</span> {
             <span class="ident">conn</span>: <span class="ident">conn</span>,
             <span class="ident">sql</span>: <span class="ident">sql</span>,
@@ -1099,23 +1099,23 @@
     }
 
     <span class="doccomment">/// See [&quot;Error Handling&quot;](Batch#error-handling)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_batch_errors</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_batch_errors</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">with_batch_errors</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_row_counts</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_row_counts</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">with_row_counts</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">batch_size</span> <span class="op">=</span> <span class="ident">u32::try_from</span>(<span class="self">self</span>.<span class="ident">batch_size</span>)
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;too large batch_size: {}&quot;</span>, <span class="self">self</span>.<span class="ident">batch_size</span>)))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>;
         <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="self">self</span>.<span class="ident">sql</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiStmt</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
             <span class="ident">dpiConn_prepareStmt</span>(
@@ -1125,7 +1125,7 @@
                 <span class="ident">sql</span>.<span class="ident">len</span>,
                 <span class="ident">ptr::null</span>(),
                 <span class="number">0</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>
+                <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
             )
         );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
@@ -1137,7 +1137,7 @@
             }
         );
         <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">info</span>.<span class="ident">assume_init</span>() };
-        <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">isDML</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">info</span>.<span class="ident">isPLSQL</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">isDML</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">info</span>.<span class="ident">isPLSQL</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">unsafe</span> {
                 <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
             }
@@ -1150,7 +1150,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_getBindCount</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num</span>),
+            <span class="ident">dpiStmt_getBindCount</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num</span>),
             <span class="kw">unsafe</span> {
                 <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
             }
@@ -1159,11 +1159,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bind_names</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">bind_count</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bind_values</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">bind_count</span>);
         <span class="kw">if</span> <span class="ident">bind_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ptr::null_mut</span>(); <span class="ident">bind_count</span>];
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">c_char</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ptr::null_mut</span>(); <span class="ident">bind_count</span>];
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lengths</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">bind_count</span>];
             <span class="macro">chkerr!</span>(
                 <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiStmt_getBindNames</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num</span>, <span class="ident">names</span>.<span class="ident">as_mut_ptr</span>(), <span class="ident">lengths</span>.<span class="ident">as_mut_ptr</span>()),
+                <span class="ident">dpiStmt_getBindNames</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num</span>, <span class="ident">names</span>.<span class="ident">as_mut_ptr</span>(), <span class="ident">lengths</span>.<span class="ident">as_mut_ptr</span>()),
                 <span class="kw">unsafe</span> {
                     <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
                 }
@@ -1388,7 +1388,7 @@
 <span class="doccomment">/// to set the size by [`Batch::set_type`].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="ident">Connection</span>,
-    <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiStmt</span>,
+    <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>,
     <span class="ident">statement_type</span>: <span class="ident">StatementType</span>,
     <span class="ident">bind_count</span>: <span class="ident">usize</span>,
     <span class="ident">bind_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -1403,13 +1403,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Closes the batch before the end of its lifetime.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiStmt_close</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">ptr::null</span>(), <span class="number">0</span>));
         <span class="self">self</span>.<span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">check_batch_index</span>()<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">params</span>.<span class="ident">len</span>() {
             <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">params</span>[<span class="ident">i</span>])<span class="question-mark">?</span>;
@@ -1417,7 +1417,7 @@
         <span class="self">self</span>.<span class="ident">append_row_common</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row_named</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row_named</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">check_batch_index</span>()<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">params</span>.<span class="ident">len</span>() {
             <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">params</span>[<span class="ident">i</span>].<span class="number">0</span>, <span class="ident">params</span>[<span class="ident">i</span>].<span class="number">1</span>)<span class="question-mark">?</span>;
@@ -1425,24 +1425,24 @@
         <span class="self">self</span>.<span class="ident">append_row_common</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">append_row_common</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">append_row_common</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_batch_errors</span> {
             <span class="self">self</span>.<span class="ident">set_batch_index</span>(<span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">+</span> <span class="number">1</span>);
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">set_batch_index</span>(<span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">batch_size</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">batch_size</span> {
                 <span class="self">self</span>.<span class="ident">execute</span>()<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">execute_sub</span>();
         <span class="comment">// reset all values to null regardless of the result</span>
         <span class="kw">let</span> <span class="ident">num_rows</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch_index</span>;
         <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
+        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_rows</span> {
                 <span class="ident">bind_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="ident">i</span>);
                 <span class="ident">bind_value</span>.<span class="ident">set_null</span>()<span class="question-mark">?</span>;
@@ -1452,8 +1452,8 @@
         <span class="ident">result</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">execute_sub</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+    <span class="kw">fn</span> <span class="ident">execute_sub</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exec_mode</span> <span class="op">=</span> <span class="ident">DPI_MODE_EXEC_DEFAULT</span>;
@@ -1474,7 +1474,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errnum</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="macro">chkerr!</span>(
                 <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiStmt_getBatchErrorCount</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">errnum</span>)
+                <span class="ident">dpiStmt_getBatchErrorCount</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">errnum</span>)
             );
             <span class="kw">if</span> <span class="ident">errnum</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errs</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">errnum</span> <span class="kw">as</span> <span class="ident">usize</span>);
@@ -1503,7 +1503,7 @@
     <span class="doccomment">/// assert_eq!(batch.bind_count(), 2);</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">bind_count</span>
     }
 
@@ -1519,11 +1519,11 @@
     <span class="doccomment">/// assert_eq!(batch.bind_names(), &amp;[&quot;INTCOL&quot;, &quot;STRINGCOL&quot;]);</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_names</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_names</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">bind_names</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">as_str</span>()).<span class="ident">collect</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">check_batch_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">check_batch_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">batch_size</span> {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
@@ -1548,7 +1548,7 @@
     <span class="doccomment">/// batch.set_type(2, &amp;OracleType::Varchar2(10))?;</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_type</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_type</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
     {
@@ -1591,7 +1591,7 @@
     <span class="doccomment">/// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;101])?, (101, &quot;hundred one&quot;.to_string()));</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
     {
@@ -1599,7 +1599,7 @@
         <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">index</span>, <span class="ident">value</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">bind_internal</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">bind_internal</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
     {
@@ -1617,7 +1617,7 @@
             <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">bind_type</span>);
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">set</span>(<span class="ident">value</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>)) <span class="kw">if</span> <span class="ident">dberr</span>.<span class="ident">message</span>().<span class="ident">starts_with</span>(<span class="string">&quot;DPI-1019:&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>)) <span class="kw">if</span> <span class="ident">dberr</span>.<span class="ident">message</span>().<span class="ident">starts_with</span>(<span class="string">&quot;DPI-1019:&quot;</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">bind_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>].<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
                 <span class="kw">if</span> <span class="ident">bind_type</span>.<span class="ident">as_oratype</span>().<span class="ident">is_none</span>() {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>));
@@ -1653,13 +1653,13 @@
                 <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="ident">new_sql_value</span>;
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>,
+            <span class="ident">x</span> =&gt; <span class="ident">x</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">set_batch_index</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch_index</span>: <span class="ident">u32</span>) {
+    <span class="kw">fn</span> <span class="ident">set_batch_index</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">batch_index</span>: <span class="ident">u32</span>) {
         <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span> <span class="ident">batch_index</span>;
-        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
+        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
             <span class="ident">bind_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="ident">batch_index</span>);
         }
     }
@@ -1667,43 +1667,43 @@
     <span class="doccomment">/// Returns the number of affected rows</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_row_counts</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row_counts</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_getRowCounts</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num_row_counts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">row_counts</span>)
+            <span class="ident">dpiStmt_getRowCounts</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num_row_counts</span>, <span class="kw-2">&amp;mut</span> <span class="ident">row_counts</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="ident">row_counts</span>, <span class="ident">num_row_counts</span> <span class="kw">as</span> <span class="ident">usize</span>) }.<span class="ident">to_vec</span>())
     }
 
     <span class="doccomment">/// Returns statement type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatementType</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatementType</span> {
         <span class="self">self</span>.<span class="ident">statement_type</span>
     }
 
     <span class="doccomment">/// Returns true when the SQL statement is a PL/SQL block.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_plsql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_plsql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">statement_type</span> {
-            <span class="ident">StatementType::Begin</span> <span class="op">|</span> <span class="ident">StatementType::Declare</span> <span class="op">|</span> <span class="ident">StatementType::Call</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">StatementType::Begin</span> <span class="op">|</span> <span class="ident">StatementType::Declare</span> <span class="op">|</span> <span class="ident">StatementType::Call</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns true when the SQL statement is DML (data manipulation language).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dml</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dml</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">statement_type</span> {
             <span class="ident">StatementType::Insert</span>
             <span class="op">|</span> <span class="ident">StatementType::Update</span>
             <span class="op">|</span> <span class="ident">StatementType::Delete</span>
-            <span class="op">|</span> <span class="ident">StatementType::Merge</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="op">|</span> <span class="ident">StatementType::Merge</span> =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> { <span class="ident">dpiStmt_release</span>(<span class="self">self</span>.<span class="ident">handle</span>) };
     }
 }
@@ -1714,15 +1714,15 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BatchBindIndex</span>: <span class="ident">private::Sealed</span> <span class="op">+</span> <span class="ident">fmt::Display</span> {
     <span class="doccomment">/// Returns the index of the bind value specified by `self`.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
     <span class="doccomment">/// Binds the specified value by using a private method.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiVar</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">BatchBindIndex</span> <span class="kw">for</span> <span class="ident">usize</span> {
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">bind_count</span>();
         <span class="kw">if</span> <span class="number">0</span> <span class="op">&lt;</span> <span class="ident">num</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">num</span> {
             <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span> <span class="op">-</span> <span class="number">1</span>)
@@ -1732,24 +1732,24 @@
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiVar</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span> {
         <span class="ident">dpiStmt_bindByPos</span>(<span class="ident">stmt_handle</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">var_handle</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BatchBindIndex</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">bindname</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_uppercase</span>();
         <span class="ident">batch</span>
             .<span class="ident">bind_names</span>()
             .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">bindname</span>)
+            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">bindname</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error::InvalidBindName</span>((<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">to_string</span>()))
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiVar</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">*</span><span class="self">self</span>);
         <span class="ident">dpiStmt_bindByName</span>(<span class="ident">stmt_handle</span>, <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>, <span class="ident">var_handle</span>)
     }
@@ -1758,7 +1758,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::test_util</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
 
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
     <span class="kw">struct</span> <span class="ident">TestData</span> {
@@ -1768,7 +1768,7 @@
     }
 
     <span class="kw">impl</span> <span class="ident">TestData</span> {
-        <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">int_val</span>: <span class="ident">i32</span>, <span class="ident">string_val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">error_code</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestData</span> {
+        <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">int_val</span>: <span class="ident">i32</span>, <span class="ident">string_val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">error_code</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">TestData</span> {
             <span class="ident">TestData</span> {
                 <span class="ident">int_val</span>: <span class="ident">int_val</span>,
                 <span class="ident">string_val</span>: <span class="ident">string_val</span>,
@@ -1796,7 +1796,7 @@
         <span class="ident">TestData::new</span>(<span class="number">3</span>, <span class="string">&quot;9999999999999999999999999&quot;</span>, <span class="ident">ERROR_UNIQUE_INDEX_VIOLATION</span>),
     ];
 
-    <span class="kw">fn</span> <span class="ident">append_rows_then_execute</span>(<span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Batch</span>, <span class="ident">rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">append_rows_then_execute</span>(<span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Batch</span>, <span class="ident">rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
             <span class="ident">batch</span>.<span class="ident">append_row</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">int_val</span>, <span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">string_val</span>])<span class="question-mark">?</span>;
         }
@@ -1804,7 +1804,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">check_rows_inserted</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>, <span class="ident">expected_rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">check_rows_inserted</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>, <span class="ident">expected_rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span>
             <span class="ident">conn</span>.<span class="ident">query_as</span>::<span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">String</span>)<span class="op">&gt;</span>(<span class="string">&quot;select * from TestTempTable order by intCol&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_rows</span> <span class="op">=</span> <span class="ident">expected_rows</span>.<span class="ident">to_vec</span>();
@@ -1831,7 +1831,7 @@
             .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows</span>.<span class="ident">len</span>())
             .<span class="ident">build</span>()
             .<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>).<span class="ident">unwrap</span>();
+        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>).<span class="ident">unwrap</span>();
         <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>).<span class="ident">unwrap</span>();
     }
 
@@ -1847,8 +1847,8 @@
             .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows_first</span>.<span class="ident">len</span>())
             .<span class="ident">build</span>()
             .<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">rows_first</span>).<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">rows_second</span>).<span class="ident">unwrap</span>();
+        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">rows_first</span>).<span class="ident">unwrap</span>();
+        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">rows_second</span>).<span class="ident">unwrap</span>();
         <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">rows_total</span>).<span class="ident">unwrap</span>();
     }
 
@@ -1864,8 +1864,8 @@
             .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows</span>.<span class="ident">len</span>())
             .<span class="ident">build</span>()
             .<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::OciError</span>(<span class="ident">dberr</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::OciError</span>(<span class="ident">dberr</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">errcode</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">find</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">error_code</span>.<span class="ident">is_some</span>())
@@ -1874,7 +1874,7 @@
                     .<span class="ident">unwrap</span>();
                 <span class="macro">assert_eq!</span>(<span class="ident">dberr</span>.<span class="ident">code</span>(), <span class="ident">errcode</span>);
             }
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> =&gt; {
                 <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;got {:?}&quot;</span>, <span class="ident">x</span>);
             }
         }
@@ -1894,8 +1894,8 @@
             .<span class="ident">with_batch_errors</span>()
             .<span class="ident">build</span>()
             .<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::BatchErrors</span>(<span class="ident">errs</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::BatchErrors</span>(<span class="ident">errs</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">expected_errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">i32</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">enumerate</span>()
@@ -1908,14 +1908,13 @@
                     .<span class="ident">collect</span>();
                 <span class="macro">assert_eq!</span>(<span class="ident">expected_errors</span>, <span class="ident">actual_errors</span>);
             }
-            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">x</span> =&gt; {
                 <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, <span class="ident">x</span>);
             }
         }
         <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">expected_rows</span>).<span class="ident">unwrap</span>();
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

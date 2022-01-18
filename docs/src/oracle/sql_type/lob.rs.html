@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;sql_type&#x2F;lob.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lob.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;sql_type&#x2F;lob.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lob.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -925,8 +926,7 @@
 <span id="925">925</span>
 <span id="926">926</span>
 <span id="927">927</span>
-</pre><pre class="rust">
-<span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
 <span class="comment">//</span>
@@ -940,19 +940,19 @@
 <span class="comment">//</span>
 <span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
 <span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::chkerr</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::SeekInChars</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::new_odpi_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::FromSql</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ToSql</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ToSqlNull</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_odpi_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Context</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SqlValue</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::SeekInChars</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::new_odpi_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::FromSql</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSqlNull</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
 <span class="kw">use</span> <span class="ident">std::cmp</span>;
 <span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -967,12 +967,12 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">const</span> <span class="ident">MIN_READ_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">20</span>;
 
-<span class="kw">fn</span> <span class="ident">utf16_len</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">utf16_len</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">s</span>))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()))
 }
 
-<span class="kw">fn</span> <span class="ident">map_to_io_error</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">map_to_io_error</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
@@ -981,12 +981,12 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LobLocator</span> {
     <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>,
     <span class="ident">pos</span>: <span class="ident">u64</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">LobLocator</span> {
-    <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LobLocator</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LobLocator</span><span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="ident">ctxt</span>, <span class="ident">dpiLob_addRef</span>(<span class="ident">handle</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">LobLocator</span> {
             <span class="ident">ctxt</span>: <span class="ident">ctxt</span>,
@@ -995,12 +995,12 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_close</span>(<span class="self">self</span>.<span class="ident">handle</span>));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">read_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">amount</span>: <span class="ident">usize</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">amount</span>: <span class="ident">usize</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>,
@@ -1008,41 +1008,41 @@
                 <span class="self">self</span>.<span class="ident">handle</span>,
                 <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>,
                 <span class="ident">amount</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">len</span>
+                <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">len</span>
             )
         );
         <span class="prelude-val">Ok</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
     <span class="doccomment">/// read for `Blob` and `Bfile`</span>
-    <span class="kw">fn</span> <span class="ident">read_binary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
     }
 
     <span class="doccomment">/// read for `Clob` and `Nclob`</span>
-    <span class="kw">fn</span> <span class="ident">read_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_chars</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">MIN_READ_SIZE</span> {
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="ident">buf</span>))<span class="question-mark">?</span>;
             <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident">MIN_READ_SIZE</span>];
-            <span class="kw">let</span> <span class="ident">buf_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="number">2</span> } <span class="kw">else</span> { <span class="ident">buf</span>.<span class="ident">len</span>() };
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf_len</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tmp</span>))<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">buf_len</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> { <span class="number">2</span> } <span class="kw">else</span> { <span class="ident">buf</span>.<span class="ident">len</span>() };
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">buf_len</span>, <span class="kw-2">&amp;mut</span> <span class="ident">tmp</span>))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">len</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
             <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">len</span>]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">error_len</span>().<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">map_to_io_error</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">valid_up_to</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>,
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">error_len</span>().<span class="ident">is_some</span>() =&gt; <span class="kw">return</span> <span class="ident">map_to_io_error</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">valid_up_to</span>() <span class="op">==</span> <span class="number">0</span> =&gt; {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                         <span class="ident">io::ErrorKind::Other</span>,
                         <span class="string">&quot;too small buffer to read characters&quot;</span>,
                     ));
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">err</span>.<span class="ident">valid_up_to</span>()]) },
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">tmp</span>[<span class="number">0</span>..<span class="ident">err</span>.<span class="ident">valid_up_to</span>()]) },
             };
             <span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">s</span>.<span class="ident">len</span>()].<span class="ident">copy_from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
             <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf16</span>()) <span class="kw">as</span> <span class="ident">u64</span>;
@@ -1050,7 +1050,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">nls_ratio</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">nls_ratio</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">too_long_data_err</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> {
             <span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::Other</span>,
@@ -1079,7 +1079,7 @@
         <span class="kw">unsafe</span> {
             <span class="ident">buf</span>.<span class="ident">set_len</span>(<span class="ident">buf_len</span> <span class="op">+</span> <span class="ident">rest_byte_size</span>);
         }
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">rest_size</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="ident">buf_len</span>..]);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_bytes</span>(<span class="ident">rest_size</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="ident">buf_len</span>..]);
         <span class="kw">unsafe</span> {
             <span class="ident">buf</span>.<span class="ident">set_len</span>(<span class="ident">buf_len</span> <span class="op">+</span> <span class="ident">result</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>));
         }
@@ -1087,28 +1087,28 @@
     }
 
     <span class="doccomment">/// read_to_end for `BLOB` and `BFILE`</span>
-    <span class="kw">fn</span> <span class="ident">read_binary_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_binary_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">1</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
     }
 
     <span class="doccomment">/// read_to_end for `CLOB` and `NCLOB`</span>
-    <span class="kw">fn</span> <span class="ident">read_chars_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_chars_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_to_end</span>(<span class="ident">buf</span>, <span class="number">4</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">start_pos</span>..])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>,
             <span class="ident">dpiLob_writeBytes</span>(
                 <span class="self">self</span>.<span class="ident">handle</span>,
                 <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>,
-                <span class="ident">buf</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+                <span class="ident">buf</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">c_char</span>,
                 <span class="ident">len</span>,
             )
         );
@@ -1116,27 +1116,27 @@
     }
 
     <span class="doccomment">/// write for `BLOB` and `BFILE`</span>
-    <span class="kw">fn</span> <span class="ident">write_binary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
     }
 
     <span class="doccomment">/// write for `CLOB` and `NCLOB`</span>
-    <span class="kw">fn</span> <span class="ident">write_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write_chars</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">map_to_io_error</span>(<span class="ident">str::from_utf8</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">buf</span>))<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">utf16_len</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">len</span>])<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">len</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">size</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">size</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">size</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_trim</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">new_size</span>));
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pos</span> <span class="op">&gt;</span> <span class="ident">new_size</span> {
             <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="ident">new_size</span>;
@@ -1144,35 +1144,35 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getChunkSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">size</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getChunkSize</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">size</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">size</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_openResource</span>(<span class="self">self</span>.<span class="ident">handle</span>));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_closeResource</span>(<span class="self">self</span>.<span class="ident">handle</span>));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_open</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiLob_getIsResourceOpen</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">is_open</span>)
+            <span class="ident">dpiLob_getIsResourceOpen</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">is_open</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">is_open</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pos</span> {
-            <span class="ident">io::SeekFrom::Start</span>(<span class="ident">offset</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span>),
-            <span class="ident">io::SeekFrom::End</span>(<span class="ident">offset</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">io::SeekFrom::Start</span>(<span class="ident">offset</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">offset</span>),
+            <span class="ident">io::SeekFrom::End</span>(<span class="ident">offset</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">map_to_io_error</span>(<span class="self">self</span>.<span class="ident">size</span>())<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">0</span> {
                     <span class="ident">size</span>.<span class="ident">checked_sub</span>((<span class="op">-</span><span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u64</span>)
@@ -1180,7 +1180,7 @@
                     <span class="ident">size</span>.<span class="ident">checked_add</span>(<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">u64</span>)
                 }
             }
-            <span class="ident">io::SeekFrom::Current</span>(<span class="ident">offset</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">io::SeekFrom::Current</span>(<span class="ident">offset</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">0</span> {
                     <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">checked_sub</span>((<span class="op">-</span><span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u64</span>)
                 } <span class="kw">else</span> {
@@ -1197,23 +1197,23 @@
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">pos</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dir_alias</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>,
             <span class="ident">dpiLob_getDirectoryAndFileName</span>(
                 <span class="self">self</span>.<span class="ident">handle</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dir_alias</span>.<span class="ident">ptr</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dir_alias</span>.<span class="ident">len</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file_name</span>.<span class="ident">ptr</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file_name</span>.<span class="ident">len</span>
+                <span class="kw-2">&amp;mut</span> <span class="ident">dir_alias</span>.<span class="ident">ptr</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">dir_alias</span>.<span class="ident">len</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">file_name</span>.<span class="ident">ptr</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">file_name</span>.<span class="ident">len</span>
             )
         );
         <span class="prelude-val">Ok</span>((<span class="ident">dir_alias</span>.<span class="ident">to_string</span>(), <span class="ident">file_name</span>.<span class="ident">to_string</span>()))
     }
 
-    <span class="kw">fn</span> <span class="ident">set_directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">directory_alias</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">set_directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">directory_alias</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">dir_alias</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">directory_alias</span>);
         <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">file_name</span>);
         <span class="macro">chkerr!</span>(
@@ -1229,28 +1229,28 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exists</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getFileExists</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">exists</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiLob_getFileExists</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">exists</span>));
         <span class="prelude-val">Ok</span>(<span class="ident">exists</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">LobLocator</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">unsafe</span> { <span class="ident">dpiLob_addRef</span>(<span class="self">self</span>.<span class="ident">handle</span>) };
         <span class="ident">LobLocator</span> { ..<span class="kw-2">*</span><span class="self">self</span> }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">LobLocator</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Lob {{ handle: {:?}, pos: {} }} &quot;</span>, <span class="self">self</span>.<span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">pos</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">LobLocator</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> { <span class="ident">dpiLob_release</span>(<span class="self">self</span>.<span class="ident">handle</span>) };
     }
 }
@@ -1261,18 +1261,18 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;</span>
     <span class="doccomment">/// for [`Blob`] the size is in bytes.</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Shortens the data in the LOB so that it only contains the specified amount of</span>
     <span class="doccomment">/// data.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// **Note:** For [`Clob`] the size is in number of UCS-2 codepoints;</span>
     <span class="doccomment">/// for [`Blob`] the size is in bytes.</span>
-    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns the chunk size, in bytes, of the internal LOB. Reading and writing</span>
     <span class="doccomment">/// to the LOB in multiples of this size will improve performance.</span>
-    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Opens the LOB resource for writing. This will improve performance when</span>
     <span class="doccomment">/// writing to the LOB in chunks and there are functional or extensible indexes</span>
@@ -1283,7 +1283,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`close_resource`]: #method.close_resource</span>
     <span class="doccomment">/// [`Connection.commit`]: Connection#method.commit</span>
-    <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Closes the LOB resource. This should be done when a batch of writes has</span>
     <span class="doccomment">/// been completed so that the indexes associated with the LOB can be updated.</span>
@@ -1291,13 +1291,13 @@
     <span class="doccomment">/// [`open_resource`] has been performed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns a boolean value indicating if the LOB resource has been opened by</span>
     <span class="doccomment">/// making a call to the function [`open_resource`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`open_resource`]: #method.open_resource</span>
-    <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// A reference to Oracle data type `BFILE`</span>
@@ -1332,7 +1332,7 @@
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// TODO: remove this</span>
 <span class="kw">impl</span> <span class="ident">Bfile</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Bfile</span> {
             <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
         })
@@ -1340,31 +1340,31 @@
 
     <span class="doccomment">/// Returns a reference to a new temporary LOB which may subsequently be</span>
     <span class="doccomment">/// written and bound to a statement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bfile</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
         );
         <span class="ident">Bfile::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
 
     <span class="doccomment">/// Closes the LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
 
     <span class="doccomment">/// Returns the directory alias name and file name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">directory_and_file_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">directory_and_file_name</span>()
     }
 
     <span class="doccomment">/// Sets the directory alias name and file name.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_directory_and_file_name</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">F</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">directory_alias</span>: <span class="ident">D</span>,
         <span class="ident">file_name</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">F</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -1375,7 +1375,7 @@
 
     <span class="doccomment">/// Returns a boolean value indicating if the file referenced by the `BFILE` type</span>
     <span class="doccomment">/// LOB exists or not.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">file_exists</span>()
     }
 }
@@ -1420,7 +1420,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Blob</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Blob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Blob</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Blob</span> {
             <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
         })
@@ -1428,17 +1428,17 @@
 
     <span class="doccomment">/// Returns a reference to a new temporary LOB which may subsequently be</span>
     <span class="doccomment">/// written and bound to a statement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Blob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Blob</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
         );
         <span class="ident">Blob::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
 
     <span class="doccomment">/// Closes the LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
 }
@@ -1466,7 +1466,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Clob</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Clob</span> {
             <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
         })
@@ -1474,17 +1474,17 @@
 
     <span class="doccomment">/// Returns a reference to a new temporary CLOB which may subsequently be</span>
     <span class="doccomment">/// written and bound to a statement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Clob</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_CLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_CLOB</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
         );
         <span class="ident">Clob::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
 
     <span class="doccomment">/// Closes the LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
 }
@@ -1512,7 +1512,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Nclob</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiLob</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiLob</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Nclob</span> {
             <span class="ident">lob</span>: <span class="ident">LobLocator::from_raw</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>)<span class="question-mark">?</span>,
         })
@@ -1520,26 +1520,26 @@
 
     <span class="doccomment">/// Returns a reference to a new temporary NCLOB which may subsequently be</span>
     <span class="doccomment">/// written and bound to a statement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Nclob</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_NCLOB</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_newTempLob</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">DPI_ORACLE_TYPE_NCLOB</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
         );
         <span class="ident">Nclob::from_raw</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>)
     }
 
     <span class="doccomment">/// Closes the LOB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close</span>()
     }
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_traits</span> {
-    (<span class="ident">FromSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="ident">FromSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="macro">paste::item!</span> {
             <span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
                     <span class="ident">val</span>.[<span class="op">&lt;</span><span class="ident">to_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">lower</span><span class="op">&gt;</span>]()
                 }
             }
@@ -1547,10 +1547,10 @@
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">ToSqlNull</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">ToSqlNull</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="macro">paste::item!</span> {
             <span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
                     <span class="prelude-val">Ok</span>(<span class="ident">OracleType</span>::[<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">upper</span><span class="op">&gt;</span>])
                 }
             }
@@ -1558,14 +1558,14 @@
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">ToSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">ToSql</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="macro">paste::item!</span> {
             <span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
                     <span class="prelude-val">Ok</span>(<span class="ident">OracleType</span>::[<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">upper</span><span class="op">&gt;</span>])
                 }
 
-                <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SqlValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                     <span class="ident">val</span>.[<span class="op">&lt;</span><span class="ident">set_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">lower</span><span class="op">&gt;</span>](<span class="self">self</span>)
                 }
             }
@@ -1573,14 +1573,14 @@
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">Read</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">Read</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="macro">paste::item!</span> {
             <span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">read_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span>](<span class="macro-nonterminal">buf</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">read_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> <span class="macro-nonterminal">_to_end</span><span class="op">&gt;</span>](<span class="ident">buf</span>)
                 }
             }
@@ -1588,14 +1588,14 @@
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">Write</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">Write</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="macro">paste::item!</span> {
             <span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">lob</span>.[<span class="op">&lt;</span><span class="ident">write_</span> <span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span>](<span class="macro-nonterminal">buf</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                     <span class="prelude-val">Ok</span>(())
                 }
             }
@@ -1603,54 +1603,54 @@
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">Seek</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">Seek</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">Seek</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
             }
         }
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">SeekInChars</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">SeekInChars</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">SeekInChars</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">seek_in_chars</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">seek_in_chars</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">io::SeekFrom</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">pos</span>)
             }
         }
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="macro-nonterminal">Lob</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">Lob</span> $(,<span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident</span>)<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
         <span class="kw">impl</span> <span class="ident">Lob</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">size</span>()
             }
 
-            <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">truncate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">truncate</span>(<span class="ident">new_size</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">chunk_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">chunk_size</span>()
             }
 
-            <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">open_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">open_resource</span>()
             }
 
-            <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">close_resource</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">close_resource</span>()
             }
 
-            <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">is_resource_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">lob</span>.<span class="ident">is_resource_open</span>()
             }
         }
         <span class="macro">impl_traits!</span>($(<span class="macro-nonterminal">$</span><span class="kw">trait</span>),<span class="op">*</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>);
     };
 
-    (<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>) =&gt; {
     };
 }
 
@@ -1662,7 +1662,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::test_util</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
     <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
     <span class="kw">use</span> <span class="ident">std::io::Read</span>;
     <span class="kw">use</span> <span class="ident">std::io::Seek</span>;
@@ -1692,14 +1692,14 @@
     }
 
     <span class="kw">impl</span> <span class="ident">Rand</span> {
-        <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Rand</span> {
+        <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Rand</span> {
             <span class="ident">Rand</span> { <span class="ident">next</span>: <span class="number">1</span> }
         }
     }
 
     <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Rand</span> {
         <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">u16</span>;
-        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
             <span class="comment">// https://pubs.opengroup.org/onlinepubs/9699919799/functions/rand.html#tag_16_473_06_02</span>
             <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>.<span class="ident">overflowing_mul</span>(<span class="number">1103515245</span>).<span class="number">0</span>;
             <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>.<span class="ident">overflowing_add</span>(<span class="number">12345</span>).<span class="number">0</span>;
@@ -1718,7 +1718,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">read_write_blob</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_write_blob</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lob</span> <span class="op">=</span> <span class="ident">Blob::new</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>)<span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="number">0</span>)).<span class="ident">unwrap</span>(), <span class="number">0</span>);
@@ -1736,11 +1736,11 @@
 
         <span class="ident">lob</span>.<span class="ident">seek</span>(<span class="ident">io::SeekFrom::Start</span>(<span class="number">0</span>)).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">TEST_DATA</span>.<span class="ident">len</span>()];
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">len</span>, <span class="ident">TEST_DATA</span>.<span class="ident">len</span>());
         <span class="macro">assert_eq!</span>(<span class="ident">TEST_DATA</span>.<span class="ident">as_bytes</span>(), <span class="ident">buf</span>);
 
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">len</span>, <span class="ident">TEST_DATA</span>.<span class="ident">len</span>());
         <span class="macro">assert_eq!</span>(<span class="ident">TEST_DATA</span>.<span class="ident">as_bytes</span>(), <span class="ident">buf</span>);
         <span class="macro">assert_eq!</span>(
@@ -1753,7 +1753,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">query_blob</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">query_blob</span>() -&gt; <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lob</span> <span class="op">=</span> <span class="ident">Blob::new</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>)<span class="question-mark">?</span>;
         <span class="ident">lob</span>.<span class="ident">write</span>(<span class="string">b&quot;BLOB DATA&quot;</span>)<span class="question-mark">?</span>;
@@ -1768,7 +1768,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">lob_locator</span>().<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">stmt</span>.<span class="ident">query_row_as</span>::<span class="op">&lt;</span><span class="ident">Blob</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>
-            .<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)
+            .<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>)
             .<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="string">b&quot;BLOB DATA&quot;</span>);
 
@@ -1779,7 +1779,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">read_write_clob</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_write_clob</span>() -&gt; <span class="ident">std::result::Result</span><span class="op">&lt;</span>(), <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lob</span> <span class="op">=</span> <span class="ident">Clob::new</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">test_data_len</span> <span class="op">=</span> <span class="ident">utf16_len</span>(<span class="ident">TEST_DATA</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">u64</span>;
@@ -1792,10 +1792,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">TEST_DATA</span>.<span class="ident">len</span>()];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">while</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="ident">buf</span>.<span class="ident">len</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="ident">offset</span>..])<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="ident">offset</span>..])<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="ident">len</span> <span class="op">=</span> <span class="ident">lob</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
+                <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;lob.read returns zero. (lob: {:?}, buf.len(): {}, offset: {}, buf: {:?}, data: {:?})&quot;</span>,
                         <span class="ident">lob</span>.<span class="ident">lob</span>,
@@ -1817,43 +1817,42 @@
         <span class="ident">lob</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="string">&quot;🦀&quot;</span>.<span class="ident">as_bytes</span>()[<span class="number">0</span>..<span class="number">4</span>])<span class="question-mark">?</span>;
 
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">2</span>))<span class="question-mark">?</span>;
-        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">1</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// one byte buffer for four byte UTF-8</span>
-        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// two bytes buffer for four byte UTF-8</span>
-        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">3</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// three bytes buffer for four byte UTF-8</span>
+        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">1</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// one byte buffer for four byte UTF-8</span>
+        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// two bytes buffer for four byte UTF-8</span>
+        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">3</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// three bytes buffer for four byte UTF-8</span>
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>])<span class="question-mark">?</span>, <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>])<span class="question-mark">?</span>, <span class="number">4</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>], <span class="string">&quot;🦀&quot;</span>.<span class="ident">as_bytes</span>());
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">2</span>))<span class="question-mark">?</span>;
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">5</span>])<span class="question-mark">?</span>, <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">5</span>])<span class="question-mark">?</span>, <span class="number">4</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>], <span class="string">&quot;🦀&quot;</span>.<span class="ident">as_bytes</span>());
 
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">3</span>))<span class="question-mark">?</span>;
-        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">1</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// one byte buffer for two byte UTF-8</span>
+        <span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">1</span>]).<span class="ident">unwrap_err</span>(); <span class="comment">// one byte buffer for two byte UTF-8</span>
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="string">&quot;б&quot;</span>.<span class="ident">as_bytes</span>());
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">1</span>))<span class="question-mark">?</span>;
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">3</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">3</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="string">&quot;б&quot;</span>.<span class="ident">as_bytes</span>());
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">1</span>))<span class="question-mark">?</span>;
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">4</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="string">&quot;б&quot;</span>.<span class="ident">as_bytes</span>());
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">1</span>))<span class="question-mark">?</span>;
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">5</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">5</span>])<span class="question-mark">?</span>, <span class="number">2</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="string">&quot;б&quot;</span>.<span class="ident">as_bytes</span>());
         <span class="ident">lob</span>.<span class="ident">seek_in_chars</span>(<span class="ident">io::SeekFrom::Current</span>(<span class="op">-</span><span class="number">1</span>))<span class="question-mark">?</span>;
         <span class="ident">buf</span>.<span class="ident">fill</span>(<span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">6</span>])<span class="question-mark">?</span>, <span class="number">6</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">lob</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="number">0</span>..<span class="number">6</span>])<span class="question-mark">?</span>, <span class="number">6</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="number">6</span>], <span class="string">&quot;б🦀&quot;</span>.<span class="ident">as_bytes</span>());
 
         <span class="prelude-val">Ok</span>(())
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

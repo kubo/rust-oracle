@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -412,8 +413,7 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-</pre><pre class="rust">
-<span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
 <span class="comment">//</span>
@@ -433,15 +433,15 @@
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::FromSql</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::statement::Stmt</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ColumnIndex</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ColumnInfo</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SqlValue</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::FromSql</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::Stmt</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ColumnIndex</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ColumnInfo</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
 
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// for links in doc comments</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Connection</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RowSharedData</span> {
     <span class="ident">column_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -454,7 +454,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Row</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">column_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">column_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SqlValue</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">column_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">column_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SqlValue</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">RowSharedData</span> {
             <span class="ident">column_names</span>: <span class="ident">column_names</span>,
         };
@@ -465,7 +465,7 @@
     }
 
     <span class="doccomment">/// Gets the column value at the specified index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">colidx</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">colidx</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">ColumnIndex</span>,
         <span class="ident">T</span>: <span class="ident">FromSql</span>,
@@ -475,7 +475,7 @@
     }
 
     <span class="doccomment">/// Returns column values as a vector of SqlValue</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sql_values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">SqlValue</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sql_values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">SqlValue</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">column_values</span>
     }
 
@@ -498,7 +498,7 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">RowValue</span>,
     {
@@ -507,7 +507,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Row</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Row {{ &quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">column_names</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">column_values</span>) {
             <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}: {:?} &quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
@@ -536,28 +536,28 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">RowValue</span>,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">stmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Stmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultSet</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">stmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Stmt</span>) -&gt; <span class="ident">ResultSet</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">ResultSet</span> {
             <span class="ident">stmt</span>: <span class="ident">StmtHolder::Borrowed</span>(<span class="ident">stmt</span>),
             <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_stmt</span>(<span class="ident">stmt</span>: <span class="ident">Stmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultSet</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_stmt</span>(<span class="ident">stmt</span>: <span class="ident">Stmt</span>) -&gt; <span class="ident">ResultSet</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">ResultSet</span> {
             <span class="ident">stmt</span>: <span class="ident">StmtHolder::Owned</span>(<span class="ident">stmt</span>),
             <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">stmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Stmt</span> {
+    <span class="kw">fn</span> <span class="ident">stmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Stmt</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stmt</span> {
-            <span class="kw-2">&amp;</span><span class="ident">StmtHolder::Borrowed</span>(<span class="ident">stmt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">stmt</span>,
-            <span class="kw-2">&amp;</span><span class="ident">StmtHolder::Owned</span>(<span class="kw-2">ref</span> <span class="ident">stmt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">stmt</span>,
+            <span class="kw-2">&amp;</span><span class="ident">StmtHolder::Borrowed</span>(<span class="ident">stmt</span>) =&gt; <span class="ident">stmt</span>,
+            <span class="kw-2">&amp;</span><span class="ident">StmtHolder::Owned</span>(<span class="kw-2">ref</span> <span class="ident">stmt</span>) =&gt; <span class="ident">stmt</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">ColumnInfo</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">ColumnInfo</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stmt</span>().<span class="ident">column_info</span>
     }
 }
@@ -568,7 +568,7 @@
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">stmt</span>()
             .<span class="ident">next</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">row_result</span><span class="op">|</span> <span class="ident">row_result</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="ident">get_as</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
@@ -636,11 +636,11 @@
 <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">RowValue</span>: <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">RowValue</span> <span class="kw">for</span> <span class="ident">Row</span> {
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">num_cols</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">column_values</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">column_values</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">num_cols</span>);
         <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">column_values</span> {
@@ -654,7 +654,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromSql</span><span class="op">&gt;</span> <span class="ident">RowValue</span> <span class="kw">for</span> <span class="ident">T</span> {
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">row</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="number">0</span>)<span class="question-mark">?</span>)
     }
 }
@@ -662,10 +662,10 @@
 <span class="macro">macro_rules!</span> <span class="ident">impl_row_value_for_tuple</span> {
     ($(
         [$((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span>:<span class="ident">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span>))<span class="op">+</span>],
-    )<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    )<span class="op">+</span>) =&gt; {
         $(
             <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">FromSql</span>,)<span class="op">+</span><span class="op">&gt;</span> <span class="ident">RowValue</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>) {
-                <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)<span class="op">&gt;</span> {
+                <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)<span class="op">&gt;</span> {
                     <span class="prelude-val">Ok</span>((
                         $(<span class="ident">row</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">usize</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span><span class="op">&gt;</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span>)<span class="question-mark">?</span>,)<span class="op">+</span>
                     ))
@@ -827,7 +827,6 @@
      (<span class="number">30</span>,<span class="ident">T30</span>)(<span class="number">31</span>,<span class="ident">T31</span>)(<span class="number">32</span>,<span class="ident">T32</span>)(<span class="number">33</span>,<span class="ident">T33</span>)(<span class="number">34</span>,<span class="ident">T34</span>)(<span class="number">35</span>,<span class="ident">T35</span>)(<span class="number">36</span>,<span class="ident">T36</span>)(<span class="number">37</span>,<span class="ident">T37</span>)(<span class="number">38</span>,<span class="ident">T38</span>)(<span class="number">39</span>,<span class="ident">T39</span>)
      (<span class="number">40</span>,<span class="ident">T40</span>)(<span class="number">41</span>,<span class="ident">T41</span>)(<span class="number">42</span>,<span class="ident">T42</span>)(<span class="number">43</span>,<span class="ident">T43</span>)(<span class="number">44</span>,<span class="ident">T44</span>)(<span class="number">45</span>,<span class="ident">T45</span>)(<span class="number">46</span>,<span class="ident">T46</span>)(<span class="number">47</span>,<span class="ident">T47</span>)(<span class="number">48</span>,<span class="ident">T48</span>)(<span class="number">49</span>,<span class="ident">T49</span>)],
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

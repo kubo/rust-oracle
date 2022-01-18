@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../oracle/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1526,8 +1527,13 @@
 <span id="1526">1526</span>
 <span id="1527">1527</span>
 <span id="1528">1528</span>
-</pre><pre class="rust">
-<span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
 <span class="comment">//</span>
@@ -1551,38 +1557,38 @@
 <span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::chkerr</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::new_odpi_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::data_type</span>::{<span class="ident">AttrValue</span>, <span class="ident">DataType</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::handle::ConnHandle</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::handle::Server</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::mode::Read</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::mode</span>::{<span class="ident">ReadMode</span>, <span class="ident">WriteMode</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::oci_attr::OciAttr</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ObjectType</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ObjectTypeInternal</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sql_type::ToSql</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_odpi_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::to_rust_str</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util::duration_to_msecs</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AssertSend</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AssertSync</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::new_odpi_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::data_type</span>::{<span class="ident">AttrValue</span>, <span class="ident">DataType</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::handle::ConnHandle</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::handle::Server</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode::Read</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode</span>::{<span class="ident">ReadMode</span>, <span class="ident">WriteMode</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::OciAttr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectTypeInternal</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_rust_str</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::duration_to_msecs</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AssertSend</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AssertSync</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Batch</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::BatchBuilder</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Context</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::DpiConn</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::DpiObjectType</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Result</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ResultSet</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Row</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::RowValue</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Statement</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::StatementBuilder</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::StmtParam</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Version</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Batch</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::BatchBuilder</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiConn</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiObjectType</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ResultSet</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Row</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RowValue</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Statement</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StatementBuilder</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StmtParam</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Version</span>;
 
 <span class="kw">struct</span> <span class="ident">ServerStatus</span>;
 <span class="kw">const</span> <span class="ident">OCI_ATTR_SERVER_STATUS</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">143</span>;
@@ -1717,7 +1723,7 @@
 
 <span class="kw">impl</span> <span class="ident">Connector</span> {
     <span class="doccomment">/// Create a connector</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="ident">P</span>, <span class="ident">connect_string</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="ident">P</span>, <span class="ident">connect_string</span>: <span class="ident">C</span>) -&gt; <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">P</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -1754,7 +1760,7 @@
     <span class="doccomment">///     .connect()?;</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">privilege</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">privilege</span>: <span class="ident">Privilege</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">privilege</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">privilege</span>: <span class="ident">Privilege</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">privilege</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">privilege</span>);
         <span class="self">self</span>
     }
@@ -1772,7 +1778,7 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [OS authentication]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-37BECE32-58D5-43BF-A098-97936D66968F</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_auth</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">external_auth</span> <span class="op">=</span> <span class="ident">b</span>;
         <span class="self">self</span>
     }
@@ -1780,7 +1786,7 @@
     <span class="doccomment">/// Sets prelim auth mode to connect to an idle instance.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [starting up a database](Connection::startup_database).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prelim_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prelim_auth</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">prelim_auth</span> <span class="op">=</span> <span class="ident">b</span>;
         <span class="self">self</span>
     }
@@ -1810,7 +1816,7 @@
     <span class="doccomment">/// };</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_password</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_password</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
@@ -1821,7 +1827,7 @@
     <span class="doccomment">/// Sets session purity specifying whether an application can reuse a pooled session (`Purity::Self_`) or must use a new session (`Purity::New`) from [DRCP][] pooled sessions.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DRCP]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-015CA8C1-2386-4626-855D-CC546DDC1086</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">purity</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">purity</span>: <span class="ident">Purity</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">purity</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">purity</span>: <span class="ident">Purity</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">purity</span>);
         <span class="self">self</span>
     }
@@ -1832,7 +1838,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DRCP]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-015CA8C1-2386-4626-855D-CC546DDC1086</span>
     <span class="doccomment">/// [here]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-EC3DEE61-512C-4CBB-A431-91894D0E1E37</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_class</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connection_class</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_class</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">connection_class</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
@@ -1862,7 +1868,7 @@
     <span class="doccomment">/// assert_eq!(val, &quot;qux&quot;);</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_context</span><span class="op">&lt;</span><span class="ident">T1</span>, <span class="ident">T2</span>, <span class="ident">T3</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">namespace</span>: <span class="ident">T1</span>, <span class="ident">name</span>: <span class="ident">T2</span>, <span class="ident">value</span>: <span class="ident">T3</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_context</span><span class="op">&lt;</span><span class="ident">T1</span>, <span class="ident">T2</span>, <span class="ident">T3</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">namespace</span>: <span class="ident">T1</span>, <span class="ident">name</span>: <span class="ident">T2</span>, <span class="ident">value</span>: <span class="ident">T3</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">T1</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">T2</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -1874,7 +1880,7 @@
     }
 
     <span class="doccomment">/// Reserved for when connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tag</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tag</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
@@ -1883,14 +1889,14 @@
     }
 
     <span class="doccomment">/// Reserved for when connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_any_tag</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_any_tag</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">match_any_tag</span> <span class="op">=</span> <span class="ident">b</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Reserved for when advanced queuing (AQ) or continuous query</span>
     <span class="doccomment">/// notification (CQN) is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>.<span class="ident">events</span> <span class="op">=</span> <span class="ident">b</span>;
         <span class="self">self</span>
     }
@@ -1898,7 +1904,7 @@
     <span class="doccomment">/// Specifies edition of [Edition-Based Redefinition][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Edition-Based Redefinition]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-58DE05A0-5DEF-4791-8FA8-F04D11964906</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">edition</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">edition</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
@@ -1913,7 +1919,7 @@
     <span class="doccomment">/// lower than 12.0.1.2.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_name</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">driver_name</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connector</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_name</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">driver_name</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
@@ -1922,20 +1928,20 @@
     }
 
     <span class="doccomment">/// Connect an Oracle server using specified parameters</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">common_create_params</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">privilege</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">privilege</span> {
             <span class="ident">conn_params</span>.<span class="ident">authMode</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="ident">privilege</span> {
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdba</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSDBA</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysoper</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSOPER</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysasm</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSASM</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysbackup</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSBKP</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdg</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSDGD</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Syskm</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSKMT</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysrac</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_AUTH_SYSRAC</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdba</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDBA</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysoper</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSOPER</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysasm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSASM</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysbackup</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSBKP</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdg</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDGD</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Syskm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSKMT</span>,
+                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysrac</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSRAC</span>,
             };
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">external_auth</span> {
@@ -1949,8 +1955,8 @@
         <span class="ident">conn_params</span>.<span class="ident">newPasswordLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">purity</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">purity</span> {
             <span class="ident">conn_params</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">purity</span> {
-                <span class="ident">Purity::New</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_PURITY_NEW</span>,
-                <span class="ident">Purity::Self_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_PURITY_SELF</span>,
+                <span class="ident">Purity::New</span> =&gt; <span class="ident">DPI_PURITY_NEW</span>,
+                <span class="ident">Purity::Self_</span> =&gt; <span class="ident">DPI_PURITY_SELF</span>,
             };
         }
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connection_class</span>);
@@ -2013,9 +2019,9 @@
 <span class="kw">impl</span> <span class="ident">InnerConn</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-        <span class="ident">handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiConn</span>,
+        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiConn</span>,
         <span class="ident">conn_params</span>: <span class="kw-2">&amp;</span><span class="ident">dpiConnCreateParams</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InnerConn</span> {
+    ) -&gt; <span class="ident">InnerConn</span> {
         <span class="ident">InnerConn</span> {
             <span class="ident">ctxt</span>: <span class="ident">ctxt</span>,
             <span class="ident">handle</span>: <span class="ident">DpiConn::new</span>(<span class="ident">handle</span>),
@@ -2026,18 +2032,18 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocommit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocommit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">autocommit</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_object_type_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_object_type_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">objtype_cache</span>.<span class="ident">lock</span>()<span class="question-mark">?</span>.<span class="ident">clear</span>();
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">InnerConn</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;Conn {{ handle: {:?}, autocommit: {:?}&quot;</span>,
@@ -2085,7 +2091,7 @@
     <span class="doccomment">///                                &quot;server_name:1521/service_name&quot;)?;</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="ident">P</span>, <span class="ident">connect_string</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="ident">P</span>, <span class="ident">connect_string</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
@@ -2106,7 +2112,7 @@
         <span class="ident">connect_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">common_params</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dpiCommonCreateParams</span><span class="op">&gt;</span>,
         <span class="ident">conn_params</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dpiConnCreateParams</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="ident">common_params</span>.<span class="ident">unwrap_or</span>(<span class="ident">ctxt</span>.<span class="ident">common_create_params</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">conn_params</span>.<span class="ident">unwrap_or</span>(<span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>());
@@ -2125,8 +2131,8 @@
                 <span class="ident">connect_string</span>.<span class="ident">ptr</span>,
                 <span class="ident">connect_string</span>.<span class="ident">len</span>,
                 <span class="kw-2">&amp;</span><span class="ident">common_params</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">conn_params</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>
+                <span class="kw-2">&amp;mut</span> <span class="ident">conn_params</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
             )
         );
         <span class="prelude-val">Ok</span>(<span class="ident">Connection</span> {
@@ -2134,22 +2140,22 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_conn</span>(<span class="ident">conn</span>: <span class="ident">Conn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Connection</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_conn</span>(<span class="ident">conn</span>: <span class="ident">Conn</span>) -&gt; <span class="ident">Connection</span> {
         <span class="ident">Connection</span> { <span class="ident">conn</span>: <span class="ident">conn</span> }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ctxt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ctxt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">dpiConn</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">dpiConn</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">handle</span>.<span class="ident">raw</span>()
     }
 
     <span class="doccomment">/// Closes the connection before the end of lifetime.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This fails when open statements or LOBs exist.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">close_internal</span>(<span class="ident">DPI_MODE_CONN_CLOSE_DEFAULT</span>, <span class="string">&quot;&quot;</span>)
     }
 
@@ -2228,7 +2234,7 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatementBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>) -&gt; <span class="ident">StatementBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
         <span class="ident">StatementBuilder::new</span>(<span class="self">self</span>, <span class="ident">sql</span>)
     }
 
@@ -2290,7 +2296,7 @@
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">StmtParam</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">StmtParam</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="ident">Statement::from_params</span>(<span class="self">self</span>, <span class="ident">sql</span>, <span class="ident">params</span>)
     }
 
@@ -2301,7 +2307,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="self">self</span>,
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>,
         <span class="ident">max_batch_size</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
         <span class="ident">BatchBuilder::new</span>(<span class="self">self</span>, <span class="ident">sql</span>, <span class="ident">max_batch_size</span>)
     }
 
@@ -2310,7 +2316,7 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="ident">stmt</span>.<span class="ident">exec</span>(<span class="ident">params</span>, <span class="bool-val">true</span>, <span class="string">&quot;query&quot;</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="ident">::from_stmt</span>(<span class="ident">stmt</span>.<span class="ident">stmt</span>))
@@ -2321,7 +2327,7 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="ident">stmt</span>.<span class="ident">exec_named</span>(<span class="ident">params</span>, <span class="bool-val">true</span>, <span class="string">&quot;query_named&quot;</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="ident">::from_stmt</span>(<span class="ident">stmt</span>.<span class="ident">stmt</span>))
@@ -2332,7 +2338,7 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">RowValue</span>,
     {
@@ -2350,7 +2356,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">RowValue</span>,
     {
@@ -2364,12 +2370,12 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">fetch_array_size</span>(<span class="number">1</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">query_row</span>(<span class="ident">params</span>) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stmt</span>.<span class="ident">stmt</span>.<span class="ident">row</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())
+        <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmt</span>.<span class="ident">stmt</span>.<span class="ident">row</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())
     }
 
     <span class="doccomment">/// Gets one row from a query using named bind parameters.</span>
@@ -2377,12 +2383,12 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">fetch_array_size</span>(<span class="number">1</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">query_row_named</span>(<span class="ident">params</span>) {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stmt</span>.<span class="ident">stmt</span>.<span class="ident">row</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())
+        <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmt</span>.<span class="ident">stmt</span>.<span class="ident">row</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())
     }
 
     <span class="doccomment">/// Gets one row from a query as specified type.</span>
@@ -2390,7 +2396,7 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">RowValue</span>,
     {
@@ -2403,7 +2409,7 @@
     <span class="doccomment">/// See [Query Methods][].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_as_named</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_as_named</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">RowValue</span>,
     {
@@ -2428,7 +2434,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>)
@@ -2452,38 +2458,38 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
         <span class="ident">stmt</span>.<span class="ident">execute_named</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>)
     }
 
     <span class="doccomment">/// Commits the current active transaction</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">commit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">commit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_commit</span>(<span class="self">self</span>.<span class="ident">handle</span>()));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Rolls back the current active transaction</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_rollback</span>(<span class="self">self</span>.<span class="ident">handle</span>()));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Gets autocommit mode.</span>
     <span class="doccomment">/// It is false by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocommit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocommit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">autocommit</span>()
     }
 
     <span class="doccomment">/// Enables or disables autocommit mode.</span>
     <span class="doccomment">/// It is disabled by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_autocommit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">autocommit</span>: <span class="ident">bool</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_autocommit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">autocommit</span>: <span class="ident">bool</span>) {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">autocommit</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">autocommit</span>;
     }
 
     <span class="doccomment">/// Cancels execution of running statements in the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">break_execution</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">break_execution</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_breakExecution</span>(<span class="self">self</span>.<span class="ident">handle</span>()));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2500,7 +2506,7 @@
     <span class="doccomment">/// Note that the object type is cached in the connection.</span>
     <span class="doccomment">/// However when &quot;CREATE TYPE&quot;, &quot;ALTER TYPE&quot; or &quot;DROP TYPE&quot;</span>
     <span class="doccomment">/// is executed, the cache clears.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span> {
         {
             <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">objtype_cache</span>.<span class="ident">lock</span>()<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rc_objtype</span>) <span class="op">=</span> <span class="ident">guard</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
@@ -2513,7 +2519,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getObjectType</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">handle</span>)
+            <span class="ident">dpiConn_getObjectType</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
         );
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ObjectType::from_dpi_object_type</span>(<span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">DpiObjectType::new</span>(<span class="ident">handle</span>));
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">objtype</span>) <span class="op">=</span> <span class="ident">res</span> {
@@ -2528,12 +2534,12 @@
     <span class="doccomment">/// Clear the object type cache in the connection.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See also [`object_type`](#method.object_type).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_object_type_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_object_type_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">clear_object_type_cache</span>()
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object_type_cache_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object_type_cache_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">objtype_cache</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>().<span class="ident">len</span>()
     }
 
@@ -2556,12 +2562,12 @@
     <span class="doccomment">/// println!(&quot;---------------------&quot;);</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Version</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Version</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ver</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getServerVersion</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">len</span>, <span class="ident">ver</span>.<span class="ident">as_mut_ptr</span>())
+            <span class="ident">dpiConn_getServerVersion</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>, <span class="ident">ver</span>.<span class="ident">as_mut_ptr</span>())
         );
         <span class="prelude-val">Ok</span>((
             <span class="ident">Version::new_from_dpi_ver</span>(<span class="kw">unsafe</span> { <span class="ident">ver</span>.<span class="ident">assume_init</span>() }),
@@ -2575,7 +2581,7 @@
         <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">old_password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">new_password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">username</span>);
         <span class="kw">let</span> <span class="ident">old_password</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">old_password</span>);
         <span class="kw">let</span> <span class="ident">new_password</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">new_password</span>);
@@ -2600,7 +2606,7 @@
     <span class="doccomment">/// between the client and the server.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See also [`Connection::status`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_ping</span>(<span class="self">self</span>.<span class="ident">handle</span>()));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2631,35 +2637,35 @@
     <span class="doccomment">/// next network round-trip will go through.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See also [`Connection::ping`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConnStatus</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConnStatus</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">oci_attr</span>::<span class="op">&lt;</span><span class="ident">ServerStatus</span><span class="op">&gt;</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">OCI_SERVER_NOT_CONNECTED</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnStatus::NotConnected</span>),
-                <span class="ident">OCI_SERVER_NORMAL</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnStatus::Normal</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> <span class="ident">status</span> {
+                <span class="ident">OCI_SERVER_NOT_CONNECTED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConnStatus::NotConnected</span>),
+                <span class="ident">OCI_SERVER_NORMAL</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ConnStatus::Normal</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Unexpected server status: {}&quot;</span>,
                     <span class="ident">status</span>
                 ))),
             },
-            <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">err</span>)) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">message</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;DPI-1010: not connected&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">err</span>)) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">message</span>() <span class="op">==</span> <span class="string">&quot;DPI-1010: not connected&quot;</span> =&gt; {
                 <span class="prelude-val">Ok</span>(<span class="ident">ConnStatus::Closed</span>)
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
         }
     }
 
     <span class="doccomment">/// Gets the statement cache size</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0u32</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">size</span>)
+            <span class="ident">dpiConn_getStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">size</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">size</span>)
     }
 
     <span class="doccomment">/// Sets the statement cache size</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_setStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">size</span>));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2667,11 +2673,11 @@
     <span class="doccomment">/// Gets the current call timeout used for round-trips to</span>
     <span class="doccomment">/// the database made with this connection. `None` means that no timeouts</span>
     <span class="doccomment">/// will take place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getCallTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>)
+            <span class="ident">dpiConn_getCallTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">value</span>)
         );
         <span class="kw">if</span> <span class="ident">value</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_millis</span>(<span class="ident">value</span>.<span class="ident">into</span>())))
@@ -2712,13 +2718,13 @@
     <span class="doccomment">/// complete successfully within the additional call timeout</span>
     <span class="doccomment">/// period. In this case an exception ORA-3114 is raised and the</span>
     <span class="doccomment">/// connection will no longer be usable. It should be closed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_call_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dur</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_call_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dur</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dur</span>) <span class="op">=</span> <span class="ident">dur</span> {
             <span class="kw">let</span> <span class="ident">msecs</span> <span class="op">=</span> <span class="ident">duration_to_msecs</span>(<span class="ident">dur</span>).<span class="ident">ok_or</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Too large duration {:?}. It must be less than 49.7 days&quot;</span>,
                 <span class="ident">dur</span>
             )))<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">msecs</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">msecs</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Too short duration {:?}. It must not be submilliseconds&quot;</span>,
                     <span class="ident">dur</span>
@@ -2732,17 +2738,17 @@
     }
 
     <span class="doccomment">/// Gets current schema associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_schema</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_schema</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getCurrentSchema</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="ident">dpiConn_getCurrentSchema</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
     }
 
     <span class="doccomment">/// Sets current schema associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_current_schema</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current_schema</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_current_schema</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current_schema</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">current_schema</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -2752,27 +2758,27 @@
     }
 
     <span class="doccomment">/// Gets edition associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getEdition</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="ident">dpiConn_getEdition</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
     }
 
     <span class="doccomment">/// Gets external name associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getExternalName</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="ident">dpiConn_getExternalName</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
     }
 
     <span class="doccomment">/// Sets external name associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_external_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_external_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">external_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">external_name</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -2782,17 +2788,17 @@
     }
 
     <span class="doccomment">/// Gets internal name associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">internal_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">internal_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_getInternalName</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="ident">dpiConn_getInternalName</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
         );
         <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
     }
 
     <span class="doccomment">/// Sets internal name associated with the connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_internal_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">internal_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_internal_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">internal_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">internal_name</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -2808,7 +2814,7 @@
     <span class="doccomment">/// to the server with the next network round-trip.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DBMS_APPLICATION_INFO.SET_MODULE]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">module</span>);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_setModule</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>));
         <span class="prelude-val">Ok</span>(())
@@ -2821,7 +2827,7 @@
     <span class="doccomment">/// to the server with the next network round-trip.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DBMS_APPLICATION_INFO.SET_ACTION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_action</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_action</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">action</span>);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_setAction</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>));
         <span class="prelude-val">Ok</span>(())
@@ -2834,7 +2840,7 @@
     <span class="doccomment">/// to the server with the next network round-trip.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DBMS_APPLICATION_INFO.SET_CLIENT_INFO]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-68A3DF04-BE91-46CC-8D2B-97BA0E89956F</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_client_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">client_info</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_client_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">client_info</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">client_info</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -2850,7 +2856,7 @@
     <span class="doccomment">/// to the server with the next network round-trip.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [DBMS_SESSION.SET_IDENTIFIER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-988EA930-BDFE-4205-A806-E54F05333562</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_client_identifier</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">client_identifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_client_identifier</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">client_identifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">client_identifier</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -2871,7 +2877,7 @@
     <span class="doccomment">/// [db_op]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9CE3C342-D210-4690-A7E9-5813EF9D558E</span>
     <span class="doccomment">/// [DBMS_SQL_MONITOR.BEGIN_OPERATION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-25BE0E79-3A19-4303-9F66-2CFDB87C7F82</span>
     <span class="doccomment">/// [Monitoring Database Operations]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_db_op</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">db_op</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_db_op</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">db_op</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">db_op</span>);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_setDbOp</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>));
         <span class="prelude-val">Ok</span>(())
@@ -2929,12 +2935,12 @@
     <span class="doccomment">/// conn.startup_database(&amp;[StartupMode::Force, StartupMode::Restrict])?;</span>
     <span class="doccomment">/// ...</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">startup_database</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">modes</span>: <span class="kw-2">&amp;</span>[<span class="ident">StartupMode</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">startup_database</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">modes</span>: <span class="kw-2">&amp;</span>[<span class="ident">StartupMode</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode_num</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">mode</span> <span class="kw">in</span> <span class="ident">modes</span> {
             <span class="ident">mode_num</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">mode</span> {
-                <span class="ident">StartupMode::Force</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_STARTUP_FORCE</span>,
-                <span class="ident">StartupMode::Restrict</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_STARTUP_RESTRICT</span>,
+                <span class="ident">StartupMode::Force</span> =&gt; <span class="ident">DPI_MODE_STARTUP_FORCE</span>,
+                <span class="ident">StartupMode::Restrict</span> =&gt; <span class="ident">DPI_MODE_STARTUP_RESTRICT</span>,
             };
         }
         <span class="macro">chkerr!</span>(
@@ -2992,30 +2998,30 @@
     <span class="doccomment">/// // The database is aborted here.</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown_database</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">ShutdownMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shutdown_database</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">ShutdownMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">ShutdownMode::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_DEFAULT</span>,
-            <span class="ident">ShutdownMode::Transactional</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_TRANSACTIONAL</span>,
-            <span class="ident">ShutdownMode::TransactionalLocal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_TRANSACTIONAL_LOCAL</span>,
-            <span class="ident">ShutdownMode::Immediate</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_IMMEDIATE</span>,
-            <span class="ident">ShutdownMode::Abort</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_ABORT</span>,
-            <span class="ident">ShutdownMode::Final</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DPI_MODE_SHUTDOWN_FINAL</span>,
+            <span class="ident">ShutdownMode::Default</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_DEFAULT</span>,
+            <span class="ident">ShutdownMode::Transactional</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_TRANSACTIONAL</span>,
+            <span class="ident">ShutdownMode::TransactionalLocal</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_TRANSACTIONAL_LOCAL</span>,
+            <span class="ident">ShutdownMode::Immediate</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_IMMEDIATE</span>,
+            <span class="ident">ShutdownMode::Abort</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_ABORT</span>,
+            <span class="ident">ShutdownMode::Final</span> =&gt; <span class="ident">DPI_MODE_SHUTDOWN_FINAL</span>,
         };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_shutdownDatabase</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">mode</span>));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// hiden until connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">tag</span>
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// hiden until connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag_found</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag_found</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">tag_found</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">close_internal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">dpiConnCloseMode</span>, <span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">close_internal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">dpiConnCloseMode</span>, <span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">tag</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.<span class="ident">ctxt</span>(),
@@ -3026,7 +3032,7 @@
 
     <span class="doccomment">/// Gets an OCI handle attribute corresponding to the specified type parameter</span>
     <span class="doccomment">/// See the [`oci_attr` module][crate::oci_attr] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oci_attr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T::DataType</span> <span class="kw">as</span> <span class="ident">DataType</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">ToOwned</span><span class="op">&gt;</span><span class="ident">::Owned</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oci_attr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T::DataType</span> <span class="kw">as</span> <span class="ident">DataType</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">ToOwned</span><span class="op">&gt;</span><span class="ident">::Owned</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">OciAttr</span>,
         <span class="ident">T::HandleType</span>: <span class="ident">ConnHandle</span>,
@@ -3038,7 +3044,7 @@
 
     <span class="doccomment">/// Sets an OCI handle attribute corresponding to the specified type parameter</span>
     <span class="doccomment">/// See the [`oci_attr` module][crate::oci_attr] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_oci_attr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">T::DataType</span> <span class="kw">as</span> <span class="ident">DataType</span><span class="op">&gt;</span><span class="ident">::Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_oci_attr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">T::DataType</span> <span class="kw">as</span> <span class="ident">DataType</span><span class="op">&gt;</span><span class="ident">::Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">OciAttr</span>,
         <span class="ident">T::HandleType</span>: <span class="ident">ConnHandle</span>,
@@ -3046,16 +3052,21 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attr_value</span> <span class="op">=</span>
             <span class="ident">AttrValue::from_conn</span>(<span class="self">self</span>, <span class="op">&lt;</span><span class="ident">T::HandleType</span><span class="op">&gt;</span><span class="ident">::HANDLE_TYPE</span>, <span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::ATTR_NUM</span>);
-        <span class="kw">unsafe</span> { <span class="op">&lt;</span><span class="ident">T::DataType</span><span class="op">&gt;</span><span class="ident">::set</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">attr_value</span>, <span class="ident">value</span>) }
+        <span class="kw">unsafe</span> { <span class="op">&lt;</span><span class="ident">T::DataType</span><span class="op">&gt;</span><span class="ident">::set</span>(<span class="kw-2">&amp;mut</span> <span class="ident">attr_value</span>, <span class="ident">value</span>) }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Connection</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clear_object_type_cache</span>();
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Connection</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Connection {{ conn: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">conn</span>)
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>
