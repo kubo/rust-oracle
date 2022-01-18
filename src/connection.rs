@@ -1521,6 +1521,12 @@ impl Connection {
     }
 }
 
+impl Drop for Connection {
+    fn drop(&mut self) {
+        let _ = self.clear_object_type_cache();
+    }
+}
+
 impl fmt::Debug for Connection {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Connection {{ conn: {:?}", self.conn)
