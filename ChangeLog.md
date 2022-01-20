@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.4 (2022-01-20)
+
+Fixed bugs:
+
+* Fix resource leaks when Oracle object datatypes are used. ([GH-48][])
+
 ## 0.5.3 (2021-08-15)
 
 New features:
@@ -305,6 +311,7 @@ Incompatible changes:
 [GH-36]: https://github.com/kubo/rust-oracle/issues/36
 [GH-38]: https://github.com/kubo/rust-oracle/issues/38
 [GH-40]: https://github.com/kubo/rust-oracle/issues/40
+[GH-48]: https://github.com/kubo/rust-oracle/issues/48
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
