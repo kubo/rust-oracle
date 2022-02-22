@@ -1,5 +1,5 @@
 [package]
-name = "rust-oracle-derive"
+name = "oracle_procmacro"
 version = "0.1.0"
 authors = ["Simon Naumov <daretoodefy@gmail.com>"]
 repository = "https://github.com/kubo/rust-oracle"

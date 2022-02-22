@@ -315,7 +315,7 @@ pub use crate::statement::StatementBuilder;
 pub use crate::statement::StatementType;
 pub use crate::statement::StmtParam;
 pub use crate::version::Version;
-pub use rust_oracle_derive::RowValue;
+pub use oracle_procmacro::RowValue;
 
 use crate::binding::*;
 
