@@ -551,6 +551,21 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(&self.stmt))
     }
 
+    /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
+    ///
+    /// This is the same as [`Statement::query_as()`], but takes ownership of the [`Statement`].
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
+    pub fn into_result_set<'a, T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
+    where
+        T: RowValue,
+    {
+        self.exec(params, true, "into_result_set")?;
+        Ok(ResultSet::from_stmt(self.stmt))
+    }
+
     /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
@@ -565,6 +580,24 @@ impl<'conn> Statement<'conn> {
     {
         self.exec_named(params, true, "query_as_named")?;
         Ok(ResultSet::new(&self.stmt))
+    }
+
+    /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
+    ///
+    /// This is the same as [`Statement::query_as_named()`], but takes ownership of the [`Statement`].
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
+    pub fn into_result_set_named<'a, T>(
+        mut self,
+        params: &[(&str, &dyn ToSql)],
+    ) -> Result<ResultSet<'a, T>>
+    where
+        T: RowValue,
+    {
+        self.exec_named(params, true, "into_result_set_named")?;
+        Ok(ResultSet::from_stmt(self.stmt))
     }
 
     /// Gets one row from the prepared statement using positoinal bind parameters.
