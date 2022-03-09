@@ -184,6 +184,7 @@ pub struct Connector {
     events: bool,
     edition: String,
     driver_name: String,
+    stmt_cache_size: Option<u32>,
 }
 
 impl Connector {
@@ -210,6 +211,7 @@ impl Connector {
             events: false,
             edition: "".into(),
             driver_name: "".into(),
+            stmt_cache_size: None,
         }
     }
 
@@ -392,6 +394,17 @@ impl Connector {
         self
     }
 
+    /// Specifies the number of statements to retain in the statement cache. Use a
+    /// value of 0 to disable the statement cache completely.
+    ///
+    /// The default value is 20.
+    ///
+    /// See also [`Connection::stmt_cache_size`] and [`Connection::set_stmt_cache_size`]
+    pub fn stmt_cache_size(&mut self, size: u32) -> &mut Connector {
+        self.stmt_cache_size = Some(size);
+        self
+    }
+
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
@@ -460,6 +473,9 @@ impl Connector {
         let s = to_odpi_str(&self.driver_name);
         common_params.driverName = s.ptr;
         common_params.driverNameLength = s.len;
+        if let Some(size) = self.stmt_cache_size {
+            common_params.stmtCacheSize = size;
+        }
         Connection::connect_internal(
             &self.username,
             &self.password,
@@ -1120,6 +1136,8 @@ impl Connection {
     }
 
     /// Gets the statement cache size
+    ///
+    /// See also [`Connector::stmt_cache_size`]
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut size = 0u32;
         chkerr!(
@@ -1130,6 +1148,8 @@ impl Connection {
     }
 
     /// Sets the statement cache size
+    ///
+    /// See also [`Connector::stmt_cache_size`]
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
         chkerr!(self.ctxt(), dpiConn_setStmtCacheSize(self.handle(), size));
         Ok(())
