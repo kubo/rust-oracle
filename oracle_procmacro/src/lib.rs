@@ -22,26 +22,7 @@ use syn::{
     MetaNameValue, NestedMeta, Path,
 };
 
-/// Macro deriving `oracle::RowValue`.
-/// You have to have `rust-oracle` dependency and
-/// all of the structure named fields have to implement `oracle::sql_type::FromSql`.
-///
-/// ## Examples
-///
-/// ```ignore
-/// #[derive(RowValue)]
-/// struct TestStruct {
-///     #[row_value(rename = "fifth")]
-///     first: String,
-///     second: i64,
-///     #[row_value(with = "some::path::custom_big_decimal_parser")]
-///     third: BigDecimal,
-///     fourth: Option<String>,
-/// }
-/// ```
-///
-/// Where `custom_big_decimal_parser` is:
-/// `fn custom_big_decimal_parser(row: &oracle::Row, name: &'static str) -> oracle::Result<BigDecimal>`
+#[doc = include_str!("../docs/row_value.md")]
 #[proc_macro_derive(RowValue, attributes(row_value))]
 pub fn derive_row_value(input: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(input);

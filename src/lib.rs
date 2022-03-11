@@ -284,6 +284,8 @@ mod connection;
 mod error;
 pub mod io;
 pub mod oci_attr;
+#[cfg(doctest)]
+mod procmacro;
 mod row;
 pub mod sql_type;
 mod sql_value;

@@ -5,8 +5,7 @@ authors = ["Simon Naumov <daretoodefy@gmail.com>"]
 repository = "https://github.com/kubo/rust-oracle"
 license = "UPL-1.0/Apache-2.0"
 keywords = ["oracle", "database"]
-readme = "../README.md"
-description = "Helpful boilerplate rust oracle derive macros"
+description = "Procedural macro for the oracle crate"
 edition = "2018"
 
 [lib]
