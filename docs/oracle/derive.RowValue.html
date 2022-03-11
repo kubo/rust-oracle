@@ -1,24 +1,89 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Macro deriving `oracle::RowValue`. You have to have `rust-oracle` dependency and all of the structure named fields have to implement `oracle::sql_type::FromSql`."><meta name="keywords" content="rust, rustlang, rust-lang, RowValue"><title>RowValue in oracle - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A derive macro to implement the [`RowValue`] trait"><meta name="keywords" content="rust, rustlang, rust-lang, RowValue"><title>RowValue in oracle - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
     <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.png" alt="logo"></div>
         </a><div class="sidebar-elems"><h2 class="location">Other items in<br><a href="index.html">oracle</a></h2><div id="sidebar-vars" data-name="RowValue" data-ty="derive" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../oracle/index.html"><img class="rust-logo" src="../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><h1 class="fqn"><span class="in-band">Derive Macro <a href="index.html">oracle</a>::<wbr><a class="derive" href="#">RowValue</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></span></h1><div class="docblock item-decl"><pre class="rust derive"><code>#[derive(RowValue)]
 {
     // Attributes available to this derive:
     #[row_value]
 }
-</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Macro deriving <code>oracle::RowValue</code>.
-You have to have <code>rust-oracle</code> dependency and
-all of the structure named fields have to implement <code>oracle::sql_type::FromSql</code>.</p>
+</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A derive macro to implement the <a href="derive.RowValue.html" title="RowValue"><code>RowValue</code></a> trait</p>
+<p>All of the structure named fields have to implement <a href="sql_type/trait.FromSql.html"><code>FromSql</code></a>
+or have a <code>row_value</code> attribute with a function name.</p>
 <h3 id="examples" class="section-header"><a href="#examples">Examples</a></h3>
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">RowValue</span>)]</span>
-<span class="kw">struct</span> <span class="ident">TestStruct</span> {
-    <span class="attribute">#[<span class="ident">row_value</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;fifth&quot;</span>)]</span>
-    <span class="ident">first</span>: <span class="ident">String</span>,
-    <span class="ident">second</span>: <span class="ident">i64</span>,
-    <span class="attribute">#[<span class="ident">row_value</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;some::path::custom_big_decimal_parser&quot;</span>)]</span>
-    <span class="ident">third</span>: <span class="ident">BigDecimal</span>,
-    <span class="ident">fourth</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<p>When all field data types implement <a href="sql_type/trait.FromSql.html"><code>FromSql</code></a>, set the <code>#[derive(RowValue)]</code>
+attribute to the struct.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">RowValue</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Employee</span> {
+    <span class="ident">id</span>: <span class="ident">u32</span>,
+    <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="ident">salary</span>: <span class="ident">u64</span>,
+    <span class="attribute">#[<span class="ident">row_value</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;manager&quot;</span>)]</span>
+    <span class="ident">manager_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
 }</code></pre></div>
-<p>Where <code>custom_big_decimal_parser</code> is:
-<code>fn custom_big_decimal_parser(row: &amp;oracle::Row, name: &amp;'static str) -&gt; oracle::Result&lt;BigDecimal&gt;</code></p>
+<p>The above code is equivalent to the following:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Employee</span> {
+    <span class="ident">id</span>: <span class="ident">u32</span>,
+    <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="ident">salary</span>: <span class="ident">u64</span>,
+    <span class="ident">manager_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">RowValue</span> <span class="kw">for</span> <span class="ident">Employee</span> {
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Employee</span> {
+            <span class="ident">id</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">name</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">salary</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;salary&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">manager_id</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;manager&quot;</span>)<span class="question-mark">?</span>,
+        })
+    }
+}</code></pre></div>
+<p><strong>Note:</strong> The <code>manager</code> column value is set to the <code>manager_id</code> field due to
+the <code>#[row_value(rename = &quot;manager&quot;)]</code> attribute.</p>
+<p>When a struct contains a field, whose type is defined in the same crate,
+it is better to implement <a href="sql_type/trait.FromSql.html"><code>FromSql</code></a> for the type.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">enum</span> <span class="ident">Gender</span> {
+  <span class="ident">Male</span>,
+  <span class="ident">Female</span>,
+  <span class="ident">X</span>(<span class="ident">String</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="ident">Gender</span> {
+    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">gender</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">gender</span>.<span class="ident">as_str</span>() {
+            <span class="string">&quot;M&quot;</span> =&gt; <span class="ident">Gender::Male</span>,
+            <span class="string">&quot;F&quot;</span> =&gt; <span class="ident">Gender::Female</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">Gender::X</span>(<span class="ident">gender</span>),
+        })
+    }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">RowValue</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Employee</span> {
+    <span class="ident">id</span>: <span class="ident">u32</span>,
+    <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="ident">gender</span>: <span class="ident">Gender</span>,
+}</code></pre></div>
+<p>When a struct contains a field, whose type is defined in an external crate,
+use <code>row_value</code> attribute with a function name to convert
+<a href="struct.Row.html"><code>Row</code></a> to the field type.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">fn</span> <span class="ident">oracle_column_to_uuid</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">Row</span>, <span class="ident">column_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">uuid_str</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="ident">column_name</span>)<span class="question-mark">?</span>;
+    <span class="ident">Uuid::parse_str</span>(<span class="kw-2">&amp;</span><span class="ident">uuid_str</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error::ParseError</span>(<span class="ident">Box::new</span>(<span class="ident">err</span>)))
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">RowValue</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Employee</span> {
+    <span class="ident">id</span>: <span class="ident">u32</span>,
+    <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">row_value</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;oracle_column_to_uuid&quot;</span>)]</span>
+    <span class="ident">uuid</span>: <span class="ident">Uuid</span>, <span class="comment">// https://docs.rs/uuid/0.8/uuid/struct.Uuid.html</span>
+}</code></pre></div>
 </div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>
