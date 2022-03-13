@@ -271,6 +271,8 @@ use std::ptr;
 use std::result;
 use std::slice;
 
+#[cfg(feature = "aq_unstable")]
+pub mod aq;
 mod batch;
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
@@ -368,11 +370,17 @@ macro_rules! define_dpi_data_with_refcount {
 // define DpiConn wrapping *mut dpiConn.
 define_dpi_data_with_refcount!(Conn);
 
+// define DpiMsgProps wrapping *mut dpiMsgProps.
+define_dpi_data_with_refcount!(MsgProps);
+
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
 
 // define DpiObjectAttr wrapping *mut dpiObjectAttr.
 define_dpi_data_with_refcount!(ObjectAttr);
+
+// define DpiQueue wrapping *mut dpiQueue.
+define_dpi_data_with_refcount!(Queue);
 
 //
 // Context
@@ -446,6 +454,22 @@ impl Context {
     }
 }
 
+impl Default for dpiTimestamp {
+    fn default() -> dpiTimestamp {
+        dpiTimestamp {
+            year: 0,
+            month: 0,
+            day: 0,
+            hour: 0,
+            minute: 0,
+            second: 0,
+            fsecond: 0,
+            tzHourOffset: 0,
+            tzMinuteOffset: 0,
+        }
+    }
+}
+
 //
 // Utility struct to convert Rust strings from/to ODPI-C strings
 //
@@ -479,6 +503,17 @@ fn to_odpi_str(s: &str) -> OdpiStr {
 impl OdpiStr {
     pub fn to_string(&self) -> String {
         to_rust_str(self.ptr, self.len)
+    }
+
+    #[cfg(feature = "aq_unstable")]
+    pub fn to_vec(&self) -> Vec<u8> {
+        if self.ptr.is_null() {
+            Vec::new()
+        } else {
+            let ptr = self.ptr as *mut u8;
+            let len = self.len as usize;
+            unsafe { Vec::from_raw_parts(ptr, len, len) }
+        }
     }
 }
 
