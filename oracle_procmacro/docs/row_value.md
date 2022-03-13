@@ -104,6 +104,7 @@ struct Employee {
 }
 ```
 
+[`RowValue`]: trait.RowValue.html
 [`FromSql`]: sql_type/trait.FromSql.html
 [`Row`]: struct.Row.html
 [`SqlValue`]: struct.SqlValue.html

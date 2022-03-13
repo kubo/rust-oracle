@@ -13,6 +13,12 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+//! See [`oracle`] instead.
+//! Macros in this crate are documented in the crate also
+//! and some links in docs are valid only there.
+//!
+//! [`oracle`]: https://www.jiubao.org/rust-oracle/oracle/index.html#derives
+
 use darling::ToTokens;
 use proc_macro::TokenStream;
 use proc_macro2::{Group, Literal, Span, TokenStream as TokenStream2, TokenTree};
