@@ -560,6 +560,41 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -833,6 +868,8 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="kw">use</span> <span class="ident">std::result</span>;
 <span class="kw">use</span> <span class="ident">std::slice</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aq_unstable&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">aq</span>;
 <span class="kw">mod</span> <span class="ident">batch</span>;
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
@@ -930,11 +967,17 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="comment">// define DpiConn wrapping *mut dpiConn.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Conn</span>);
 
+<span class="comment">// define DpiMsgProps wrapping *mut dpiMsgProps.</span>
+<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">MsgProps</span>);
+
 <span class="comment">// define DpiObjectType wrapping *mut dpiObjectType.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectType</span>);
 
 <span class="comment">// define DpiObjectAttr wrapping *mut dpiObjectAttr.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectAttr</span>);
+
+<span class="comment">// define DpiQueue wrapping *mut dpiQueue.</span>
+<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Queue</span>);
 
 <span class="comment">//</span>
 <span class="comment">// Context</span>
@@ -1008,6 +1051,22 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
     }
 }
 
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">dpiTimestamp</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">dpiTimestamp</span> {
+        <span class="ident">dpiTimestamp</span> {
+            <span class="ident">year</span>: <span class="number">0</span>,
+            <span class="ident">month</span>: <span class="number">0</span>,
+            <span class="ident">day</span>: <span class="number">0</span>,
+            <span class="ident">hour</span>: <span class="number">0</span>,
+            <span class="ident">minute</span>: <span class="number">0</span>,
+            <span class="ident">second</span>: <span class="number">0</span>,
+            <span class="ident">fsecond</span>: <span class="number">0</span>,
+            <span class="ident">tzHourOffset</span>: <span class="number">0</span>,
+            <span class="ident">tzMinuteOffset</span>: <span class="number">0</span>,
+        }
+    }
+}
+
 <span class="comment">//</span>
 <span class="comment">// Utility struct to convert Rust strings from/to ODPI-C strings</span>
 <span class="comment">//</span>
@@ -1041,6 +1100,17 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="kw">impl</span> <span class="ident">OdpiStr</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="ident">to_rust_str</span>(<span class="self">self</span>.<span class="ident">ptr</span>, <span class="self">self</span>.<span class="ident">len</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aq_unstable&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ptr</span>.<span class="ident">is_null</span>() {
+            <span class="ident">Vec::new</span>()
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>;
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>;
+            <span class="kw">unsafe</span> { <span class="ident">Vec::from_raw_parts</span>(<span class="ident">ptr</span>, <span class="ident">len</span>, <span class="ident">len</span>) }
+        }
     }
 }
 
