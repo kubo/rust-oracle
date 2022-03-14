@@ -1,6 +1,104 @@
-//! Oracle Advanced Queuing (available when `aq-unstable` feature is enabled.)
+//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)
 //!
 //! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.
+//!
+//! # Examples
+//!
+//! ## Object type queue
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # use oracle::sql_type::Object;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let objtype = conn.object_type("UDT_BOOK")?;
+//! let mut queue = aq::Queue::<Object>::new(&conn, "BOOK_QUEUE", &objtype)?;
+//!
+//! // Create a message
+//! let mut payload = objtype.new_object()?;
+//! payload.set("TITLE", &"Pebble in the Sky")?;
+//! payload.set("AUTHORS", &"Isaac Asimov")?;
+//! payload.set("PRICE", &17.0)?;
+//! let mut msg = aq::MsgProps::<Object>::new(&conn)?;
+//! msg.set_payload(&payload);
+//!
+//! // Enqueue the message to the queue
+//! queue.enqueue(&msg)?;
+//!
+//! // Dequeue a message from the queue
+//! let new_msg = queue.dequeue()?;
+//! let new_payload = new_msg.payload()?;
+//!
+//! // Compare message payloads.
+//! assert_eq!(payload.get::<String>("TITLE")?, new_payload.get::<String>("TITLE")?);
+//! assert_eq!(payload.get::<String>("AUTHORS")?, new_payload.get::<String>("AUTHORS")?);
+//! assert_eq!(payload.get::<f32>("PRICE")?, new_payload.get::<f32>("PRICE")?);
+//! # Ok::<(), Error>(())
+//! ```
+//!
+//! ## RAW data queue
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let mut queue = aq::Queue::<[u8]>::new(&conn, "RAW_QUEUE", &())?;
+//!
+//! // Create a message
+//! let payload = b"\xde\xad\xbe\xef";
+//! let mut msg = aq::MsgProps::<[u8]>::new(&conn)?;
+//! msg.set_payload(payload.as_ref());
+//!
+//! // Enqueue the message to the queue
+//! queue.enqueue(&msg)?;
+//!
+//! // Dequeue a message from the queue
+//! let new_msg = queue.dequeue()?;
+//! let new_payload = new_msg.payload()?; // returns Vec<u8>
+//!
+//! // Compare message payloads.
+//! assert_eq!(payload, new_payload.as_slice());
+//! # Ok::<(), Error>(())
+//! ```
+//!
+//! # Enqueue and dequeue more than one message in one call
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let mut queue = aq::Queue::<[u8]>::new(&conn, "RAW_QUEUE", &())?;
+//!
+//! // Create messages
+//! let payloads = [b"\xde\xad\xbe\xef", b"\xba\xce\xba\x11"];
+//! let mut messages = vec![];
+//! for payload in &payloads {
+//!     let mut msg = aq::MsgProps::<[u8]>::new(&conn)?;
+//!     msg.set_payload(payload.as_ref())?;
+//!     messages.push(msg);
+//! }
+//!
+//! // Enqueue the messages
+//! queue.enqueue_many(&messages)?;
+//!
+//! // Dequeue message from the queue
+//! let new_messages = queue.dequeue_many(10)?;
+//!
+//! // Compare message payloads.
+//! assert_eq!(new_messages.len(), 2);
+//! assert_eq!(new_messages[0].payload()?, payloads[0]);
+//! assert_eq!(new_messages[1].payload()?, payloads[1]);
+//! # Ok::<(), Error>(())
+//! ```
 
 use crate::binding::*;
 use crate::chkerr;
@@ -101,71 +199,6 @@ impl Payload for Object {
 /// Advanced Queueing (AQ) queue which may be used to enqueue and dequeue messages
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
-///
-/// # Examples
-///
-/// Object type queue
-///
-/// ```
-/// # use oracle::Error;
-/// # use oracle::test_util;
-/// # use oracle::aq;
-/// # use oracle::sql_type::Object;
-/// # let conn = test_util::connect()?;
-///
-/// // Create a new queue
-/// let objtype = conn.object_type("UDT_BOOK")?;
-/// let mut queue = aq::Queue::<Object>::new(&conn, "BOOK_QUEUE", &objtype)?;
-///
-/// // Create a message
-/// let mut payload = objtype.new_object()?;
-/// payload.set("TITLE", &"Pebble in the Sky")?;
-/// payload.set("AUTHORS", &"Isaac Asimov")?;
-/// payload.set("PRICE", &17.0)?;
-/// let mut msg = aq::MsgProps::<Object>::new(&conn)?;
-/// msg.set_payload(&payload);
-///
-/// // Enqueue the message to the queue
-/// queue.enqueue(&msg)?;
-///
-/// // Dequeue a message from the queue
-/// let new_msg = queue.dequeue()?;
-/// let new_payload = new_msg.payload()?;
-///
-/// // Compare message payloads.
-/// assert_eq!(payload.get::<String>("TITLE")?, new_payload.get::<String>("TITLE")?);
-/// assert_eq!(payload.get::<String>("AUTHORS")?, new_payload.get::<String>("AUTHORS")?);
-/// assert_eq!(payload.get::<f32>("PRICE")?, new_payload.get::<f32>("PRICE")?);
-/// # Ok::<(), Error>(())
-/// ```
-///
-/// RAW data queue
-///
-/// ```
-/// # use oracle::Error;
-/// # use oracle::test_util;
-/// # use oracle::aq;
-/// # let conn = test_util::connect()?;
-///
-/// // Create a new queue
-/// let mut queue = aq::Queue::<[u8]>::new(&conn, "RAW_QUEUE", &())?;
-///
-/// // Create a message
-/// let payload = b"\xde\xad\xbe\xef";
-/// let mut msg = aq::MsgProps::<[u8]>::new(&conn)?;
-/// msg.set_payload(payload.as_ref());
-///
-/// // Enqueue the message to the queue
-/// queue.enqueue(&msg)?;
-///
-/// // Dequeue a message from the queue
-/// let new_msg = queue.dequeue()?;
-/// let new_payload = new_msg.payload()?; // returns Vec<u8>
-///
-/// // Compare message payloads.
-/// assert_eq!(payload, new_payload.as_slice());
-/// # Ok::<(), Error>(())
-/// ```
 pub struct Queue<T>
 where
     T: Payload + ?Sized,
@@ -267,35 +300,6 @@ where
     /// [`Queue.enqueue`] instead. The function [`Queue.dequeue_many`]
     /// call is not affected.
     ///
-    /// ```
-    /// # use oracle::Error;
-    /// # use oracle::test_util;
-    /// # use oracle::aq;
-    /// # let conn = test_util::connect()?;
-    ///
-    /// // Create a new queue
-    /// let mut queue = aq::Queue::<[u8]>::new(&conn, "RAW_QUEUE", &())?;
-    ///
-    /// // Create messages
-    /// let payloads = [b"\xde\xad\xbe\xef", b"\xba\xce\xba\x11"];
-    /// let mut messages = vec![];
-    /// for payload in &payloads {
-    ///     let mut msg = aq::MsgProps::<[u8]>::new(&conn)?;
-    ///     msg.set_payload(payload.as_ref())?;
-    ///     messages.push(msg);
-    /// }
-    ///
-    /// // Enqueue the message to the queue
-    /// queue.enqueue_many(&messages)?;
-    ///
-    /// // Dequeue a message from the queue
-    /// let new_msg = queue.dequeue()?;
-    /// let new_payload = new_msg.payload()?; // returns Vec<u8>
-    ///
-    /// // Compare message payloads.
-    /// // assert_eq!(payload, new_payload.as_slice());
-    /// # Ok::<(), Error>(())
-    /// ```
     /// [`Queue.enqueue`]: #method.enqueue
     /// [`Queue.dequeue_many`]: #method.dequeue_many
     pub fn enqueue_many<I>(&self, props: I) -> Result<()>
