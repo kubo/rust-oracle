@@ -1162,9 +1162,111 @@
 <span id="1160">1160</span>
 <span id="1161">1161</span>
 <span id="1162">1162</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq-unstable` feature is enabled.)</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Object type queue</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use oracle::Error;</span>
+<span class="doccomment">//! # use oracle::test_util;</span>
+<span class="doccomment">//! # use oracle::aq;</span>
+<span class="doccomment">//! # use oracle::sql_type::Object;</span>
+<span class="doccomment">//! # let conn = test_util::connect()?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a queue</span>
+<span class="doccomment">//! let objtype = conn.object_type(&quot;UDT_BOOK&quot;)?;</span>
+<span class="doccomment">//! let mut queue = aq::Queue::&lt;Object&gt;::new(&amp;conn, &quot;BOOK_QUEUE&quot;, &amp;objtype)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a message</span>
+<span class="doccomment">//! let mut payload = objtype.new_object()?;</span>
+<span class="doccomment">//! payload.set(&quot;TITLE&quot;, &amp;&quot;Pebble in the Sky&quot;)?;</span>
+<span class="doccomment">//! payload.set(&quot;AUTHORS&quot;, &amp;&quot;Isaac Asimov&quot;)?;</span>
+<span class="doccomment">//! payload.set(&quot;PRICE&quot;, &amp;17.0)?;</span>
+<span class="doccomment">//! let mut msg = aq::MsgProps::&lt;Object&gt;::new(&amp;conn)?;</span>
+<span class="doccomment">//! msg.set_payload(&amp;payload);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Enqueue the message to the queue</span>
+<span class="doccomment">//! queue.enqueue(&amp;msg)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Dequeue a message from the queue</span>
+<span class="doccomment">//! let new_msg = queue.dequeue()?;</span>
+<span class="doccomment">//! let new_payload = new_msg.payload()?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Compare message payloads.</span>
+<span class="doccomment">//! assert_eq!(payload.get::&lt;String&gt;(&quot;TITLE&quot;)?, new_payload.get::&lt;String&gt;(&quot;TITLE&quot;)?);</span>
+<span class="doccomment">//! assert_eq!(payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?, new_payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?);</span>
+<span class="doccomment">//! assert_eq!(payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?, new_payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?);</span>
+<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## RAW data queue</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use oracle::Error;</span>
+<span class="doccomment">//! # use oracle::test_util;</span>
+<span class="doccomment">//! # use oracle::aq;</span>
+<span class="doccomment">//! # let conn = test_util::connect()?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a queue</span>
+<span class="doccomment">//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a message</span>
+<span class="doccomment">//! let payload = b&quot;\xde\xad\xbe\xef&quot;;</span>
+<span class="doccomment">//! let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
+<span class="doccomment">//! msg.set_payload(payload.as_ref());</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Enqueue the message to the queue</span>
+<span class="doccomment">//! queue.enqueue(&amp;msg)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Dequeue a message from the queue</span>
+<span class="doccomment">//! let new_msg = queue.dequeue()?;</span>
+<span class="doccomment">//! let new_payload = new_msg.payload()?; // returns Vec&lt;u8&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Compare message payloads.</span>
+<span class="doccomment">//! assert_eq!(payload, new_payload.as_slice());</span>
+<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Enqueue and dequeue more than one message in one call</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use oracle::Error;</span>
+<span class="doccomment">//! # use oracle::test_util;</span>
+<span class="doccomment">//! # use oracle::aq;</span>
+<span class="doccomment">//! # let conn = test_util::connect()?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a queue</span>
+<span class="doccomment">//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create messages</span>
+<span class="doccomment">//! let payloads = [b&quot;\xde\xad\xbe\xef&quot;, b&quot;\xba\xce\xba\x11&quot;];</span>
+<span class="doccomment">//! let mut messages = vec![];</span>
+<span class="doccomment">//! for payload in &amp;payloads {</span>
+<span class="doccomment">//!     let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
+<span class="doccomment">//!     msg.set_payload(payload.as_ref())?;</span>
+<span class="doccomment">//!     messages.push(msg);</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Enqueue the messages</span>
+<span class="doccomment">//! queue.enqueue_many(&amp;messages)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Dequeue message from the queue</span>
+<span class="doccomment">//! let new_messages = queue.dequeue_many(10)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Compare message payloads.</span>
+<span class="doccomment">//! assert_eq!(new_messages.len(), 2);</span>
+<span class="doccomment">//! assert_eq!(new_messages[0].payload()?, payloads[0]);</span>
+<span class="doccomment">//! assert_eq!(new_messages[1].payload()?, payloads[1]);</span>
+<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
+<span class="doccomment">//! ```</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
@@ -1265,71 +1367,6 @@
 <span class="doccomment">/// Advanced Queueing (AQ) queue which may be used to enqueue and dequeue messages</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Object type queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # use oracle::aq;</span>
-<span class="doccomment">/// # use oracle::sql_type::Object;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a new queue</span>
-<span class="doccomment">/// let objtype = conn.object_type(&quot;UDT_BOOK&quot;)?;</span>
-<span class="doccomment">/// let mut queue = aq::Queue::&lt;Object&gt;::new(&amp;conn, &quot;BOOK_QUEUE&quot;, &amp;objtype)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a message</span>
-<span class="doccomment">/// let mut payload = objtype.new_object()?;</span>
-<span class="doccomment">/// payload.set(&quot;TITLE&quot;, &amp;&quot;Pebble in the Sky&quot;)?;</span>
-<span class="doccomment">/// payload.set(&quot;AUTHORS&quot;, &amp;&quot;Isaac Asimov&quot;)?;</span>
-<span class="doccomment">/// payload.set(&quot;PRICE&quot;, &amp;17.0)?;</span>
-<span class="doccomment">/// let mut msg = aq::MsgProps::&lt;Object&gt;::new(&amp;conn)?;</span>
-<span class="doccomment">/// msg.set_payload(&amp;payload);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Enqueue the message to the queue</span>
-<span class="doccomment">/// queue.enqueue(&amp;msg)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Dequeue a message from the queue</span>
-<span class="doccomment">/// let new_msg = queue.dequeue()?;</span>
-<span class="doccomment">/// let new_payload = new_msg.payload()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Compare message payloads.</span>
-<span class="doccomment">/// assert_eq!(payload.get::&lt;String&gt;(&quot;TITLE&quot;)?, new_payload.get::&lt;String&gt;(&quot;TITLE&quot;)?);</span>
-<span class="doccomment">/// assert_eq!(payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?, new_payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?);</span>
-<span class="doccomment">/// assert_eq!(payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?, new_payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// RAW data queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # use oracle::aq;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a new queue</span>
-<span class="doccomment">/// let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a message</span>
-<span class="doccomment">/// let payload = b&quot;\xde\xad\xbe\xef&quot;;</span>
-<span class="doccomment">/// let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
-<span class="doccomment">/// msg.set_payload(payload.as_ref());</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Enqueue the message to the queue</span>
-<span class="doccomment">/// queue.enqueue(&amp;msg)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Dequeue a message from the queue</span>
-<span class="doccomment">/// let new_msg = queue.dequeue()?;</span>
-<span class="doccomment">/// let new_payload = new_msg.payload()?; // returns Vec&lt;u8&gt;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Compare message payloads.</span>
-<span class="doccomment">/// assert_eq!(payload, new_payload.as_slice());</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Queue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Payload</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1431,35 +1468,6 @@
     <span class="doccomment">/// [`Queue.enqueue`] instead. The function [`Queue.dequeue_many`]</span>
     <span class="doccomment">/// call is not affected.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # use oracle::aq;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Create a new queue</span>
-    <span class="doccomment">/// let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Create messages</span>
-    <span class="doccomment">/// let payloads = [b&quot;\xde\xad\xbe\xef&quot;, b&quot;\xba\xce\xba\x11&quot;];</span>
-    <span class="doccomment">/// let mut messages = vec![];</span>
-    <span class="doccomment">/// for payload in &amp;payloads {</span>
-    <span class="doccomment">///     let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
-    <span class="doccomment">///     msg.set_payload(payload.as_ref())?;</span>
-    <span class="doccomment">///     messages.push(msg);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Enqueue the message to the queue</span>
-    <span class="doccomment">/// queue.enqueue_many(&amp;messages)?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Dequeue a message from the queue</span>
-    <span class="doccomment">/// let new_msg = queue.dequeue()?;</span>
-    <span class="doccomment">/// let new_payload = new_msg.payload()?; // returns Vec&lt;u8&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Compare message payloads.</span>
-    <span class="doccomment">/// // assert_eq!(payload, new_payload.as_slice());</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
     <span class="doccomment">/// [`Queue.enqueue`]: #method.enqueue</span>
     <span class="doccomment">/// [`Queue.dequeue_many`]: #method.dequeue_many</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enqueue_many</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
