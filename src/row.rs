@@ -67,7 +67,7 @@ impl Row {
     /// Gets column values as specified type.
     ///
     /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly such as `row.get_as::<(i32, String>()`.
+    /// it explicitly such as `row.get_as::<(i32, String)>()`.
     /// See [`RowValue`] for available return types.
     ///
     /// ```no_run
