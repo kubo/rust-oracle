@@ -455,6 +455,22 @@ impl Connector {
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
+        let common_params = self.common_params.build(ctxt);
+        let (conn_params, _app_contexts) = self.to_dpi_conn_create_params(ctxt);
+        Connection::connect_internal(
+            ctxt,
+            &self.username,
+            &self.password,
+            &self.connect_string,
+            common_params,
+            conn_params,
+        )
+    }
+
+    pub(crate) fn to_dpi_conn_create_params(
+        &self,
+        ctxt: &'static Context,
+    ) -> (dpiConnCreateParams, Vec<dpiAppContext>) {
         let mut conn_params = ctxt.conn_create_params();
 
         if let Some(ref privilege) = self.privilege {
@@ -510,14 +526,7 @@ impl Connector {
         if self.match_any_tag {
             conn_params.matchAnyTag = 1;
         }
-        let common_params = self.common_params.build(ctxt);
-        Connection::connect_internal(
-            &self.username,
-            &self.password,
-            &self.connect_string,
-            Some(common_params),
-            Some(conn_params),
-        )
+        (conn_params, app_context)
     }
 }
 
@@ -613,25 +622,25 @@ impl Connection {
         P: AsRef<str>,
         C: AsRef<str>,
     {
+        let ctxt = Context::get()?;
         Connection::connect_internal(
+            ctxt,
             username.as_ref(),
             password.as_ref(),
             connect_string.as_ref(),
-            None,
-            None,
+            ctxt.common_create_params(),
+            ctxt.conn_create_params(),
         )
     }
 
-    pub(crate) fn connect_internal(
+    fn connect_internal(
+        ctxt: &'static Context,
         username: &str,
         password: &str,
         connect_string: &str,
-        common_params: Option<dpiCommonCreateParams>,
-        conn_params: Option<dpiConnCreateParams>,
+        common_params: dpiCommonCreateParams,
+        mut conn_params: dpiConnCreateParams,
     ) -> Result<Connection> {
-        let ctxt = Context::get()?;
-        let common_params = common_params.unwrap_or(ctxt.common_create_params());
-        let mut conn_params = conn_params.unwrap_or(ctxt.conn_create_params());
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
