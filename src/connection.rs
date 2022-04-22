@@ -163,6 +163,59 @@ pub enum ConnStatus {
     Closed,
 }
 
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct CommonCreateParamsBuilder {
+    events: bool,
+    edition: Option<String>,
+    driver_name: Option<String>,
+    stmt_cache_size: Option<u32>,
+}
+
+impl CommonCreateParamsBuilder {
+    pub fn events(&mut self, b: bool) {
+        self.events = b;
+    }
+
+    pub fn edition<S>(&mut self, edition: S)
+    where
+        S: Into<String>,
+    {
+        self.edition = Some(edition.into());
+    }
+
+    pub fn driver_name<S>(&mut self, driver_name: S)
+    where
+        S: Into<String>,
+    {
+        self.driver_name = Some(driver_name.into());
+    }
+
+    pub fn stmt_cache_size(&mut self, size: u32) {
+        self.stmt_cache_size = Some(size);
+    }
+
+    pub fn build(&self, ctxt: &'static Context) -> dpiCommonCreateParams {
+        let mut common_params = ctxt.common_create_params();
+        if self.events {
+            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
+        }
+        if let Some(ref s) = self.edition {
+            let s = to_odpi_str(s);
+            common_params.edition = s.ptr;
+            common_params.editionLength = s.len;
+        }
+        if let Some(ref s) = self.driver_name {
+            let s = to_odpi_str(s);
+            common_params.driverName = s.ptr;
+            common_params.driverNameLength = s.len;
+        }
+        if let Some(s) = self.stmt_cache_size {
+            common_params.stmtCacheSize = s;
+        }
+        common_params
+    }
+}
+
 /// Builder data type to create Connection.
 ///
 /// When a connection can be established only with username, password
@@ -181,10 +234,7 @@ pub struct Connector {
     app_context: Vec<(String, String, String)>,
     tag: String,
     match_any_tag: bool,
-    events: bool,
-    edition: String,
-    driver_name: String,
-    stmt_cache_size: Option<u32>,
+    common_params: CommonCreateParamsBuilder,
 }
 
 impl Connector {
@@ -208,10 +258,7 @@ impl Connector {
             app_context: vec![],
             tag: "".into(),
             match_any_tag: false,
-            events: false,
-            edition: "".into(),
-            driver_name: "".into(),
-            stmt_cache_size: None,
+            common_params: Default::default(),
         }
     }
 
@@ -364,7 +411,7 @@ impl Connector {
     /// Reserved for when advanced queuing (AQ) or continuous query
     /// notification (CQN) is supported.
     pub fn events(&mut self, b: bool) -> &mut Connector {
-        self.events = b;
+        self.common_params.events(b);
         self
     }
 
@@ -375,7 +422,7 @@ impl Connector {
     where
         S: Into<String>,
     {
-        self.edition = edition.into();
+        self.common_params.edition(edition);
         self
     }
 
@@ -390,7 +437,7 @@ impl Connector {
     where
         S: Into<String>,
     {
-        self.driver_name = driver_name.into();
+        self.common_params.driver_name(driver_name);
         self
     }
 
@@ -401,14 +448,13 @@ impl Connector {
     ///
     /// See also [`Connection::stmt_cache_size`] and [`Connection::set_stmt_cache_size`]
     pub fn stmt_cache_size(&mut self, size: u32) -> &mut Connector {
-        self.stmt_cache_size = Some(size);
+        self.common_params.stmt_cache_size(size);
         self
     }
 
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
-        let mut common_params = ctxt.common_create_params();
         let mut conn_params = ctxt.conn_create_params();
 
         if let Some(ref privilege) = self.privilege {
@@ -464,18 +510,7 @@ impl Connector {
         if self.match_any_tag {
             conn_params.matchAnyTag = 1;
         }
-        if self.events {
-            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
-        }
-        let s = to_odpi_str(&self.edition);
-        common_params.edition = s.ptr;
-        common_params.editionLength = s.len;
-        let s = to_odpi_str(&self.driver_name);
-        common_params.driverName = s.ptr;
-        common_params.driverNameLength = s.len;
-        if let Some(size) = self.stmt_cache_size {
-            common_params.stmtCacheSize = size;
-        }
+        let common_params = self.common_params.build(ctxt);
         Connection::connect_internal(
             &self.username,
             &self.password,
