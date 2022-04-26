@@ -46,6 +46,7 @@ use crate::Context;
 use crate::DpiConn;
 use crate::DpiObjectType;
 use crate::Error;
+use crate::EncodingInfo;
 use crate::Result;
 use crate::ResultSet;
 use crate::Row;
@@ -1518,6 +1519,16 @@ impl Connection {
         let mut attr_value =
             AttrValue::from_conn(self, <T::HandleType>::HANDLE_TYPE, <T>::ATTR_NUM);
         unsafe { <T::DataType>::set(&mut attr_value, value) }
+    }
+
+    pub fn encoding_info(&self) -> Result<EncodingInfo> {
+        let mut info = MaybeUninit::uninit();
+        chkerr!(
+            self.ctxt(),
+            dpiConn_getEncodingInfo(self.handle(), info.as_mut_ptr())
+        );
+
+        Ok(EncodingInfo::new_from_dpi_info(unsafe { info.assume_init() }))
     }
 }
 
