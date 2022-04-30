@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2021 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -370,9 +370,13 @@ impl Connector {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connector::new("scott", "tiger", "")
+    /// ```
+    /// # use oracle::{Connector, Error};
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let password = test_util::main_password();
+    /// # let connect_string = test_util::connect_string();
+    /// let conn = Connector::new(username, password, connect_string)
     ///               .app_context("CLIENTCONTEXT", "foo", "bar")
     ///               .app_context("CLIENTCONTEXT", "baz", "qux")
     ///               .connect()?;
@@ -600,6 +604,7 @@ impl Connection {
     /// such as SYSDBA privilege, use [`Connector`] instead.
     ///
     /// # Examples
+    ///
     /// Connect to a local database.
     ///
     /// ```no_run
@@ -1014,6 +1019,38 @@ impl Connection {
     }
 
     /// Cancels execution of running statements in the connection
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use std::sync::Arc;
+    /// # use std::thread::{self, sleep};
+    /// # use std::time::{Duration, Instant};
+    /// # let conn = test_util::connect()?;
+    ///
+    /// // Wrap conn with Arc to be share it with threads.
+    /// let conn = Arc::new(conn);
+    ///
+    /// let now = Instant::now();
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(10);
+    ///
+    /// // Start a thread to cancel a query
+    /// let cloned_conn = conn.clone();
+    /// let join_handle = thread::spawn(move || {
+    ///   sleep(Duration::from_secs(3));
+    ///   cloned_conn.break_execution()
+    /// });
+    ///
+    /// // This query is canceled by break_execution.
+    /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
+    /// assert!(result.is_err());
+    /// let elapsed = now.elapsed();
+    /// assert!(range.contains(&elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
+    /// # join_handle.join().unwrap();
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn break_execution(&self) -> Result<()> {
         chkerr!(self.ctxt(), dpiConn_breakExecution(self.handle()));
         Ok(())
@@ -1021,10 +1058,13 @@ impl Connection {
 
     /// Gets an object type information from name
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let objtype = conn.object_type("SDO_GEOMETRY")?;
+    /// assert_eq!(objtype.schema(), "MDSYS");
+    /// assert_eq!(objtype.name(), "SDO_GEOMETRY");
     /// # Ok::<(), Error>(())
     /// ```
     ///
@@ -1077,9 +1117,10 @@ impl Connection {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connection::connect("scott", "tiger", "")?;
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
     /// let (version, banner) = conn.server_version()?;
     /// println!("Oracle Version: {}", version);
     /// println!("--- Version Banner ---");
@@ -1247,6 +1288,27 @@ impl Connection {
     /// complete successfully within the additional call timeout
     /// period. In this case an exception ORA-3114 is raised and the
     /// connection will no longer be usable. It should be closed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use std::time::{Duration, Instant};
+    /// # let conn = test_util::connect()?;
+    /// // Set timeout three seconds.
+    /// conn.set_call_timeout(Some(Duration::from_secs(3)))?;
+    ///
+    /// let now = Instant::now();
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(10);
+    ///
+    /// // This query is canceled by timeout.
+    /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
+    /// assert!(result.is_err());
+    /// let elapsed = now.elapsed();
+    /// assert!(range.contains(&elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
         if let Some(dur) = dur {
             let msecs = duration_to_msecs(dur).ok_or(Error::OutOfRange(format!(
@@ -1277,6 +1339,47 @@ impl Connection {
     }
 
     /// Sets current schema associated with the connection
+    ///
+    /// `conn.set_current_schema("MDSYS")` has same effect with the following SQL.
+    ///
+    /// ```sql
+    /// ALTER SESSION SET CURRENT_SCHEMA = MDSYS;
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn1 = test_util::connect()?;
+    /// # let conn2 = test_util::connect()?;
+    ///
+    /// // Get the username and sid of connection 1.
+    /// let (username, sid) = conn1.query_row_as::<(String, i32)>("select user, sys_context('userenv', 'sid') from dual", &[])?;
+    ///
+    /// // Create a closure to get the schema name of connection 1 in the database side using connection 2.
+    /// let mut stmt = conn2.statement("select schemaname from v$session where sid = :1").build()?;
+    /// let mut schema_name = move || { stmt.query_row_as::<String>(&[&sid]) };
+    ///
+    /// // The default current schema is same with the username.
+    /// assert_eq!(schema_name()?, username);
+    ///
+    /// // Change the current schema of connection 1.
+    /// let new_schema_name = "MDSYS";
+    /// conn1.set_current_schema(new_schema_name)?;
+    ///
+    /// // The current schema of connection 1 in the database side has not been changed yet.
+    /// assert_eq!(schema_name()?, username);
+    ///
+    /// // Call a function sending packets to the database server.
+    /// // The new schema name is prepended to the packets.
+    /// let _ = conn1.query_row_as::<i32>("select 1 from dual", &[]);
+    ///
+    /// // The current schema of connection 1 in the database side is changed.
+    /// assert_eq!(schema_name()?, new_schema_name);
+    ///
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
         let s = to_odpi_str(current_schema);
         chkerr!(

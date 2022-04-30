@@ -965,6 +965,34 @@ impl<'conn> Statement<'conn> {
 
     /// Returns the number of rows fetched when the SQL statement is a query.
     /// Otherwise, the number of rows affected.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util::{self, check_version, VER12_1};
+    /// # let conn = test_util::connect()?;
+    /// // number of affected rows
+    /// let stmt = conn.execute("update TestStrings set StringCol = StringCol where IntCol >= :1", &[&6])?;
+    /// assert_eq!(stmt.row_count()?, 5);
+    ///
+    /// // number of fetched rows
+    /// let mut stmt = conn.statement("select * from TestStrings where IntCol >= :1").build()?;
+    /// assert_eq!(stmt.row_count()?, 0); // before fetch
+    /// let mut nrows = 0;
+    /// for _ in stmt.query(&[&6])? {
+    ///   nrows += 1;
+    /// }
+    /// assert_eq!(stmt.row_count()?, nrows); // after fetch
+    ///
+    /// // fetch again using same stmt with a different bind value.
+    /// let mut nrows = 0;
+    /// for _ in stmt.query(&[&4])? {
+    ///   nrows += 1;
+    /// }
+    /// assert_eq!(stmt.row_count()?, nrows); // after fetch
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn row_count(&self) -> Result<u64> {
         self.stmt.row_count()
     }
