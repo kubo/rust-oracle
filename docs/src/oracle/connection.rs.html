@@ -1537,6 +1537,70 @@
 <span id="1532">1532</span>
 <span id="1533">1533</span>
 <span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -1702,6 +1766,59 @@
     <span class="ident">Closed</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CommonCreateParamsBuilder</span> {
+    <span class="ident">events</span>: <span class="ident">bool</span>,
+    <span class="ident">edition</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">driver_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">stmt_cache_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">CommonCreateParamsBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) {
+        <span class="self">self</span>.<span class="ident">events</span> <span class="op">=</span> <span class="ident">b</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">edition</span>: <span class="ident">S</span>)
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">edition</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">edition</span>.<span class="ident">into</span>());
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_name</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">driver_name</span>: <span class="ident">S</span>)
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">driver_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">driver_name</span>.<span class="ident">into</span>());
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) {
+        <span class="self">self</span>.<span class="ident">stmt_cache_size</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">size</span>);
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>) -&gt; <span class="ident">dpiCommonCreateParams</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">common_create_params</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">events</span> {
+            <span class="ident">common_params</span>.<span class="ident">createMode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_CREATE_EVENTS</span>;
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">edition</span> {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">s</span>);
+            <span class="ident">common_params</span>.<span class="ident">edition</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
+            <span class="ident">common_params</span>.<span class="ident">editionLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">driver_name</span> {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">s</span>);
+            <span class="ident">common_params</span>.<span class="ident">driverName</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
+            <span class="ident">common_params</span>.<span class="ident">driverNameLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stmt_cache_size</span> {
+            <span class="ident">common_params</span>.<span class="ident">stmtCacheSize</span> <span class="op">=</span> <span class="ident">s</span>;
+        }
+        <span class="ident">common_params</span>
+    }
+}
+
 <span class="doccomment">/// Builder data type to create Connection.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// When a connection can be established only with username, password</span>
@@ -1720,9 +1837,7 @@
     <span class="ident">app_context</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     <span class="ident">tag</span>: <span class="ident">String</span>,
     <span class="ident">match_any_tag</span>: <span class="ident">bool</span>,
-    <span class="ident">events</span>: <span class="ident">bool</span>,
-    <span class="ident">edition</span>: <span class="ident">String</span>,
-    <span class="ident">driver_name</span>: <span class="ident">String</span>,
+    <span class="ident">common_params</span>: <span class="ident">CommonCreateParamsBuilder</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Connector</span> {
@@ -1746,9 +1861,7 @@
             <span class="ident">app_context</span>: <span class="macro">vec!</span>[],
             <span class="ident">tag</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">match_any_tag</span>: <span class="bool-val">false</span>,
-            <span class="ident">events</span>: <span class="bool-val">false</span>,
-            <span class="ident">edition</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">driver_name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">common_params</span>: <span class="ident">Default::default</span>(),
         }
     }
 
@@ -1901,7 +2014,7 @@
     <span class="doccomment">/// Reserved for when advanced queuing (AQ) or continuous query</span>
     <span class="doccomment">/// notification (CQN) is supported.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
-        <span class="self">self</span>.<span class="ident">events</span> <span class="op">=</span> <span class="ident">b</span>;
+        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">events</span>(<span class="ident">b</span>);
         <span class="self">self</span>
     }
 
@@ -1912,7 +2025,7 @@
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">edition</span> <span class="op">=</span> <span class="ident">edition</span>.<span class="ident">into</span>();
+        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">edition</span>(<span class="ident">edition</span>);
         <span class="self">self</span>
     }
 
@@ -1927,14 +2040,40 @@
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">driver_name</span> <span class="op">=</span> <span class="ident">driver_name</span>.<span class="ident">into</span>();
+        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">driver_name</span>(<span class="ident">driver_name</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Specifies the number of statements to retain in the statement cache. Use a</span>
+    <span class="doccomment">/// value of 0 to disable the statement cache completely.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is 20.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See also [`Connection::stmt_cache_size`] and [`Connection::set_stmt_cache_size`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
+        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">stmt_cache_size</span>(<span class="ident">size</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Connect an Oracle server using specified parameters</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">common_create_params</span>();
+        <span class="kw">let</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">build</span>(<span class="ident">ctxt</span>);
+        <span class="kw">let</span> (<span class="ident">conn_params</span>, <span class="ident">_app_contexts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_dpi_conn_create_params</span>(<span class="ident">ctxt</span>);
+        <span class="ident">Connection::connect_internal</span>(
+            <span class="ident">ctxt</span>,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">username</span>,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">password</span>,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connect_string</span>,
+            <span class="ident">common_params</span>,
+            <span class="ident">conn_params</span>,
+        )
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_dpi_conn_create_params</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
+    ) -&gt; (<span class="ident">dpiConnCreateParams</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">dpiAppContext</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">privilege</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">privilege</span> {
@@ -1990,22 +2129,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">match_any_tag</span> {
             <span class="ident">conn_params</span>.<span class="ident">matchAnyTag</span> <span class="op">=</span> <span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">events</span> {
-            <span class="ident">common_params</span>.<span class="ident">createMode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_CREATE_EVENTS</span>;
-        }
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edition</span>);
-        <span class="ident">common_params</span>.<span class="ident">edition</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-        <span class="ident">common_params</span>.<span class="ident">editionLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">driver_name</span>);
-        <span class="ident">common_params</span>.<span class="ident">driverName</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-        <span class="ident">common_params</span>.<span class="ident">driverNameLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
-        <span class="ident">Connection::connect_internal</span>(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">username</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">password</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connect_string</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">common_params</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">conn_params</span>),
-        )
+        (<span class="ident">conn_params</span>, <span class="ident">app_context</span>)
     }
 }
 
@@ -2101,25 +2225,25 @@
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">C</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     {
+        <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
         <span class="ident">Connection::connect_internal</span>(
+            <span class="ident">ctxt</span>,
             <span class="ident">username</span>.<span class="ident">as_ref</span>(),
             <span class="ident">password</span>.<span class="ident">as_ref</span>(),
             <span class="ident">connect_string</span>.<span class="ident">as_ref</span>(),
-            <span class="prelude-val">None</span>,
-            <span class="prelude-val">None</span>,
+            <span class="ident">ctxt</span>.<span class="ident">common_create_params</span>(),
+            <span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>(),
         )
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">connect_internal</span>(
+    <span class="kw">fn</span> <span class="ident">connect_internal</span>(
+        <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
         <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">connect_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">common_params</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dpiCommonCreateParams</span><span class="op">&gt;</span>,
-        <span class="ident">conn_params</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">dpiConnCreateParams</span><span class="op">&gt;</span>,
+        <span class="ident">common_params</span>: <span class="ident">dpiCommonCreateParams</span>,
+        <span class="kw-2">mut</span> <span class="ident">conn_params</span>: <span class="ident">dpiConnCreateParams</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="ident">common_params</span>.<span class="ident">unwrap_or</span>(<span class="ident">ctxt</span>.<span class="ident">common_create_params</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">conn_params</span>.<span class="ident">unwrap_or</span>(<span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>());
         <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">username</span>);
         <span class="kw">let</span> <span class="ident">password</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">password</span>);
         <span class="kw">let</span> <span class="ident">connect_string</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">connect_string</span>);
@@ -2659,6 +2783,8 @@
     }
 
     <span class="doccomment">/// Gets the statement cache size</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See also [`Connector::stmt_cache_size`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0u32</span>;
         <span class="macro">chkerr!</span>(
@@ -2669,6 +2795,8 @@
     }
 
     <span class="doccomment">/// Sets the statement cache size</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See also [`Connector::stmt_cache_size`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_setStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">size</span>));
         <span class="prelude-val">Ok</span>(())
