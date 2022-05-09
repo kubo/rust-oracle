@@ -24,6 +24,7 @@ use std::time::Duration;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::conn::Purity;
 use crate::new_odpi_str;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::handle::ConnHandle;
@@ -141,15 +142,6 @@ pub enum Privilege {
 
     /// Connects as [SYSRAC](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-69D0614C-D24E-4EC1-958A-79D7CCA3FA3A) (Oracle 12c R2 or later)
     Sysrac,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-/// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
-pub enum Purity {
-    /// Must use a new session
-    New,
-    /// Reuse a pooled session
-    Self_,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -498,10 +490,7 @@ impl Connector {
         conn_params.newPassword = s.ptr;
         conn_params.newPasswordLength = s.len;
         if let Some(purity) = self.purity {
-            conn_params.purity = match purity {
-                Purity::New => DPI_PURITY_NEW,
-                Purity::Self_ => DPI_PURITY_SELF,
-            };
+            conn_params.purity = purity.to_dpi();
         }
         let s = to_odpi_str(&self.connection_class);
         conn_params.connectionClass = s.ptr;

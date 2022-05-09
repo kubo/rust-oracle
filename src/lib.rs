@@ -282,6 +282,7 @@ mod batch;
 #[allow(deref_nullptr)] // ditto
 mod binding;
 mod binding_impl;
+pub mod conn;
 mod connection;
 mod error;
 pub mod io;
