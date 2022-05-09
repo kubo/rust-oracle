@@ -33,6 +33,8 @@ use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::RefCursor;
 use crate::sql_type::ToSql;
+#[cfg(doc)]
+use crate::sql_type::{Blob, Clob, Nclob};
 use crate::sql_value::BufferRowIndex;
 use crate::to_odpi_str;
 use crate::to_rust_str;
@@ -44,6 +46,8 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::SqlValue;
+#[cfg(doc)]
+use std::io::Read;
 
 // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
@@ -135,6 +139,42 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         self
     }
 
+    /// Enables lob data types to be fetched or bound as [`Clob`], [`Nclob`] or [`Blob`].
+    ///
+    /// Lob data types are internally bound as string or bytes by default.
+    /// It is proper for small data but not for big data. That's because
+    /// when a lob contains 1 gigabyte data, the whole data are copied to the client
+    /// and consume 1 gigabyte or more memory. When `lob_locator` is set and
+    /// a column is fetched as [`Clob`], data are copied using [`Read::read`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Connection;
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::Clob;
+    /// # use oracle::test_util;
+    /// # use std::io::{Read, Write};
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestClobs", &[])?;
+    /// # conn.execute("insert into TestClobs values (:1, :2)", &[&1i32, &"clob data"])?;
+    /// # let mut out = vec![0u8; 0];
+    /// let mut stmt = conn.statement("select ClobCol from TestClobs where IntCol = :1")
+    ///     .lob_locator()
+    ///     .build()?;
+    /// let mut clob = stmt.query_row_as::<Clob>(&[&1i32])?;
+    ///
+    /// // Copy contents of clob using 1MB buffer.
+    /// let mut buf = [0u8; 1 * 1024 * 1024];
+    /// loop {
+    ///   let size = clob.read(&mut buf)?;
+    ///   if size == 0 {
+    ///     break;
+    ///   }
+    ///   out.write(&buf[0..size]);
+    /// }
+    /// # Ok::<(), Box::<dyn std::error::Error>>(())
+    /// ```
     pub fn lob_locator<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
         self.query_params.lob_bind_type = LobBindType::Locator;
         self
