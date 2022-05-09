@@ -241,7 +241,6 @@ required.
 
 ## TODO
 
-* Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * [BFILEs (External LOBs)](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5834BC49-4053-40FF-BE39-B14342B1201E) (Note: Reading contents of BFILEs as `Vec<u8>` is supported.)
 * Scrollable cursors
 * Better Oracle object type support
@@ -260,8 +259,6 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
-[ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
-[r2d2-oracle]: https://crates.io/crates/r2d2-oracle
 */
 
 use lazy_static::lazy_static;
@@ -287,6 +284,7 @@ mod connection;
 mod error;
 pub mod io;
 pub mod oci_attr;
+pub mod pool;
 #[cfg(doctest)]
 mod procmacro;
 mod row;
@@ -377,6 +375,9 @@ define_dpi_data_with_refcount!(MsgProps);
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
 
+// define DpiPool wrapping *mut dpiPool.
+define_dpi_data_with_refcount!(Pool);
+
 // define DpiObjectAttr wrapping *mut dpiObjectAttr.
 define_dpi_data_with_refcount!(ObjectAttr);
 
@@ -446,10 +447,19 @@ impl Context {
             params
         }
     }
+
     pub fn conn_create_params(&self) -> dpiConnCreateParams {
         let mut params = MaybeUninit::uninit();
         unsafe {
             dpiContext_initConnCreateParams(self.context, params.as_mut_ptr());
+            params.assume_init()
+        }
+    }
+
+    pub fn pool_create_params(&self) -> dpiPoolCreateParams {
+        let mut params = MaybeUninit::uninit();
+        unsafe {
+            dpiContext_initPoolCreateParams(self.context, params.as_mut_ptr());
             params.assume_init()
         }
     }
@@ -576,6 +586,14 @@ pub mod test_util {
 
     pub fn main_password() -> String {
         env_var_or("ODPIC_TEST_MAIN_PASSWORD", "welcome")
+    }
+
+    pub fn edition_user() -> String {
+        env_var_or("ODPIC_TEST_EDITION_USER", "odpic_edition")
+    }
+
+    pub fn edition_password() -> String {
+        env_var_or("ODPIC_TEST_EDITION_PASSWORD", "welcome")
     }
 
     pub fn connect_string() -> String {

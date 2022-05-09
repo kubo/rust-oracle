@@ -24,7 +24,7 @@ use std::time::Duration;
 
 use crate::binding::*;
 use crate::chkerr;
-use crate::conn::Purity;
+use crate::conn::{CloseMode, Purity};
 use crate::new_odpi_str;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::handle::ConnHandle;
@@ -32,6 +32,8 @@ use crate::oci_attr::handle::Server;
 use crate::oci_attr::mode::Read;
 use crate::oci_attr::mode::{ReadMode, WriteMode};
 use crate::oci_attr::OciAttr;
+#[cfg(doc)]
+use crate::pool::PoolOptions;
 use crate::sql_type::ObjectType;
 use crate::sql_type::ObjectTypeInternal;
 use crate::sql_type::ToSql;
@@ -144,6 +146,20 @@ pub enum Privilege {
     Sysrac,
 }
 
+impl Privilege {
+    pub(crate) fn to_dpi(&self) -> dpiAuthMode {
+        match self {
+            Privilege::Sysdba => DPI_MODE_AUTH_SYSDBA,
+            Privilege::Sysoper => DPI_MODE_AUTH_SYSOPER,
+            Privilege::Sysasm => DPI_MODE_AUTH_SYSASM,
+            Privilege::Sysbackup => DPI_MODE_AUTH_SYSBKP,
+            Privilege::Sysdg => DPI_MODE_AUTH_SYSDGD,
+            Privilege::Syskm => DPI_MODE_AUTH_SYSKMT,
+            Privilege::Sysrac => DPI_MODE_AUTH_SYSRAC,
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Connection status
 pub enum ConnStatus {
@@ -224,8 +240,6 @@ pub struct Connector {
     purity: Option<Purity>,
     connection_class: String,
     app_context: Vec<(String, String, String)>,
-    tag: String,
-    match_any_tag: bool,
     common_params: CommonCreateParamsBuilder,
 }
 
@@ -248,8 +262,6 @@ impl Connector {
             purity: None,
             connection_class: "".into(),
             app_context: vec![],
-            tag: "".into(),
-            match_any_tag: false,
             common_params: Default::default(),
         }
     }
@@ -389,18 +401,18 @@ impl Connector {
         self
     }
 
-    /// Reserved for when connection pooling is supported.
-    pub fn tag<S>(&mut self, tag: S) -> &mut Connector
+    // Remove later
+    #[doc(hidden)]
+    pub fn tag<S>(&mut self, _tag: S) -> &mut Connector
     where
         S: Into<String>,
     {
-        self.tag = tag.into();
         self
     }
 
-    /// Reserved for when connection pooling is supported.
-    pub fn match_any_tag(&mut self, b: bool) -> &mut Connector {
-        self.match_any_tag = b;
+    // Remove later
+    #[doc(hidden)]
+    pub fn match_any_tag(&mut self, _b: bool) -> &mut Connector {
         self
     }
 
@@ -463,22 +475,14 @@ impl Connector {
         )
     }
 
-    pub(crate) fn to_dpi_conn_create_params(
+    fn to_dpi_conn_create_params(
         &self,
         ctxt: &'static Context,
     ) -> (dpiConnCreateParams, Vec<dpiAppContext>) {
         let mut conn_params = ctxt.conn_create_params();
 
         if let Some(ref privilege) = self.privilege {
-            conn_params.authMode |= match privilege {
-                &Privilege::Sysdba => DPI_MODE_AUTH_SYSDBA,
-                &Privilege::Sysoper => DPI_MODE_AUTH_SYSOPER,
-                &Privilege::Sysasm => DPI_MODE_AUTH_SYSASM,
-                &Privilege::Sysbackup => DPI_MODE_AUTH_SYSBKP,
-                &Privilege::Sysdg => DPI_MODE_AUTH_SYSDGD,
-                &Privilege::Syskm => DPI_MODE_AUTH_SYSKMT,
-                &Privilege::Sysrac => DPI_MODE_AUTH_SYSRAC,
-            };
+            conn_params.authMode |= privilege.to_dpi();
         }
         if self.external_auth {
             conn_params.externalAuth = 1;
@@ -513,12 +517,6 @@ impl Connector {
             conn_params.appContext = app_context.as_mut_ptr();
             conn_params.numAppContext = app_context.len() as u32;
         }
-        let s = to_odpi_str(&self.tag);
-        conn_params.tag = s.ptr;
-        conn_params.tagLength = s.len;
-        if self.match_any_tag {
-            conn_params.matchAnyTag = 1;
-        }
         (conn_params, app_context)
     }
 }
@@ -532,6 +530,7 @@ pub(crate) struct InnerConn {
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
     tag_found: bool,
+    is_new_connection: bool,
 }
 
 impl InnerConn {
@@ -547,6 +546,7 @@ impl InnerConn {
             objtype_cache: Mutex::new(HashMap::new()),
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
             tag_found: conn_params.outTagFound != 0,
+            is_new_connection: conn_params.outNewSession != 0,
         }
     }
 
@@ -654,13 +654,22 @@ impl Connection {
                 &mut handle
             )
         );
-        Ok(Connection {
-            conn: Arc::new(InnerConn::new(ctxt, handle, &conn_params)),
-        })
+        conn_params.outNewSession = 1;
+        Ok(Connection::from_dpi_handle(ctxt, handle, &conn_params))
     }
 
     pub(crate) fn from_conn(conn: Conn) -> Connection {
         Connection { conn: conn }
+    }
+
+    pub(crate) fn from_dpi_handle(
+        ctxt: &'static Context,
+        handle: *mut dpiConn,
+        params: &dpiConnCreateParams,
+    ) -> Connection {
+        Connection {
+            conn: Arc::new(InnerConn::new(ctxt, handle, params)),
+        }
     }
 
     pub(crate) fn ctxt(&self) -> &'static Context {
@@ -675,7 +684,21 @@ impl Connection {
     ///
     /// This fails when open statements or LOBs exist.
     pub fn close(&self) -> Result<()> {
-        self.close_internal(DPI_MODE_CONN_CLOSE_DEFAULT, "")
+        self.close_with_mode(CloseMode::Default)
+    }
+
+    pub fn close_with_mode(&self, mode: CloseMode) -> Result<()> {
+        let (mode, tag) = match mode {
+            CloseMode::Default => (DPI_MODE_CONN_CLOSE_DEFAULT, ""),
+            CloseMode::Drop => (DPI_MODE_CONN_CLOSE_DROP, ""),
+            CloseMode::Retag(tag) => (DPI_MODE_CONN_CLOSE_RETAG, tag),
+        };
+        let tag = to_odpi_str(tag);
+        chkerr!(
+            self.ctxt(),
+            dpiConn_close(self.handle(), mode, tag.ptr, tag.len)
+        );
+        Ok(())
     }
 
     /// Creates [`StatementBuilder`][] to create a [`Statement`][]
@@ -1632,23 +1655,92 @@ impl Connection {
         Ok(())
     }
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
+    /// Gets the tag of the connection that was acquired from a connection pool.
+    /// It is `""` if the connection is a standalone one or not tagged.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::{Connection, Error};
+    /// # use oracle::pool::{PoolBuilder, PoolOptions};
+    /// # use oracle::conn;
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let username = &username;
+    /// # let password = test_util::main_password();
+    /// # let password = &password;
+    /// # let connect_string = test_util::connect_string();
+    /// # let connect_string = &connect_string;
+    ///
+    /// // standalone connection
+    /// let conn = Connection::connect(username, password, connect_string)?;
+    /// assert_eq!(conn.tag(), "");
+    /// assert_eq!(conn.tag_found(), false);
+    ///
+    /// let pool = PoolBuilder::new(username, password, connect_string)
+    ///     .build()?;
+    /// let opts = PoolOptions::new().tag("NAME=VALUE");
+    ///
+    /// // No connections with tag "NAME=VALUE" exist in the pool at first.
+    /// let conn = pool.get_with_options(&opts)?;
+    /// assert_eq!(conn.tag(), "");
+    /// assert_eq!(conn.tag_found(), false);
+    /// // Close the connection with setting a new tag.
+    /// conn.close_with_mode(conn::CloseMode::Retag("NAME=VALUE"))?;
+    ///
+    /// // One connection with tag "NAME=VALUE" exists in the pool now.
+    /// let conn = pool.get_with_options(&opts)?;
+    /// assert_eq!(conn.tag_found(), true);
+    /// assert_eq!(conn.tag(), "NAME=VALUE");
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn tag(&self) -> &str {
         &self.conn.tag
     }
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
+    /// Gets `true` when the connection is a standalone one
+    /// or it is a connection with the specified tag by
+    /// [`PoolOptions::tag`].
+    ///
+    /// Sea also [`Connection::tag`].
     pub fn tag_found(&self) -> bool {
         self.conn.tag_found
     }
 
-    fn close_internal(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-        chkerr!(
-            self.ctxt(),
-            dpiConn_close(self.handle(), mode, tag.ptr, tag.len)
-        );
-        Ok(())
+    /// Returns `true` when the connection is a standalone one
+    /// or a newly created one by a connection pool.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Connection;
+    /// # use oracle::Error;
+    /// # use oracle::pool::PoolBuilder;
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let username = &username;
+    /// # let password = test_util::main_password();
+    /// # let password = &password;
+    /// # let connect_string = test_util::connect_string();
+    /// # let connect_string = &connect_string;
+    ///
+    /// let conn = Connection::connect(username, password, connect_string)?;
+    /// assert!(conn.is_new_connection(), "standalone connection");
+    ///
+    /// let pool = PoolBuilder::new(username, password, connect_string)
+    ///     .build()?;
+    ///
+    /// let conn = pool.get()?; // Get a newly created connection
+    /// assert!(conn.is_new_connection(), "new connectoin from the pool");
+    /// conn.close()?; // Back the connection to the pool
+    ///
+    /// let conn = pool.get()?; // Get a connection cached in the pool
+    /// assert!(!conn.is_new_connection(), "cached connectoin in the pool");
+    /// conn.close()?;
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn is_new_connection(&self) -> bool {
+        self.conn.is_new_connection
     }
 
     /// Gets an OCI handle attribute corresponding to the specified type parameter

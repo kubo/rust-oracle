@@ -17,6 +17,26 @@
 //!
 //! Some types at the top-level module will move here in future.
 use crate::binding::*;
+#[cfg(doc)]
+use crate::Connection;
+
+/// The mode to use when closing connections to the database
+///
+/// See [`Connection::close_with_mode`].
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum CloseMode<'a> {
+    /// The connection is returned to the connection pool for
+    /// future use.
+    Default,
+
+    /// Causes the connection to be dropped from the connection
+    /// pool.
+    Drop,
+
+    /// Causes the connection to be tagged with the tag information.
+    /// An empty tag `""` will cause the tag to be cleared.
+    Retag(&'a str),
+}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
