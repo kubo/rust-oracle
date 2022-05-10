@@ -375,7 +375,6 @@ impl Stmt {
         let tag = to_odpi_str(tag);
 
         chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
-        self.handle = ptr::null_mut();
         Ok(())
     }
 
