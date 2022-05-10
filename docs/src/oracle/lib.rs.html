@@ -598,6 +598,25 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -841,7 +860,6 @@ required.
 
 ## TODO
 
-* Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * [BFILEs (External LOBs)](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-5834BC49-4053-40FF-BE39-B14342B1201E) (Note: Reading contents of BFILEs as `Vec&lt;u8&gt;` is supported.)
 * Scrollable cursors
 * Better Oracle object type support
@@ -860,8 +878,6 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
-[ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
-[r2d2-oracle]: https://crates.io/crates/r2d2-oracle
 */</span>
 
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
@@ -882,10 +898,12 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deref_nullptr</span>)]</span> <span class="comment">// ditto</span>
 <span class="kw">mod</span> <span class="ident">binding</span>;
 <span class="kw">mod</span> <span class="ident">binding_impl</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">conn</span>;
 <span class="kw">mod</span> <span class="ident">connection</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">io</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">oci_attr</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pool</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doctest</span>)]</span>
 <span class="kw">mod</span> <span class="ident">procmacro</span>;
 <span class="kw">mod</span> <span class="ident">row</span>;
@@ -976,6 +994,9 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="comment">// define DpiObjectType wrapping *mut dpiObjectType.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectType</span>);
 
+<span class="comment">// define DpiPool wrapping *mut dpiPool.</span>
+<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Pool</span>);
+
 <span class="comment">// define DpiObjectAttr wrapping *mut dpiObjectAttr.</span>
 <span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectAttr</span>);
 
@@ -1045,10 +1066,19 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
             <span class="ident">params</span>
         }
     }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conn_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiConnCreateParams</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
         <span class="kw">unsafe</span> {
             <span class="ident">dpiContext_initConnCreateParams</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="ident">params</span>.<span class="ident">as_mut_ptr</span>());
+            <span class="ident">params</span>.<span class="ident">assume_init</span>()
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiPoolCreateParams</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+        <span class="kw">unsafe</span> {
+            <span class="ident">dpiContext_initPoolCreateParams</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="ident">params</span>.<span class="ident">as_mut_ptr</span>());
             <span class="ident">params</span>.<span class="ident">assume_init</span>()
         }
     }
@@ -1175,6 +1205,14 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main_password</span>() -&gt; <span class="ident">String</span> {
         <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_MAIN_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition_user</span>() -&gt; <span class="ident">String</span> {
+        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_EDITION_USER&quot;</span>, <span class="string">&quot;odpic_edition&quot;</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition_password</span>() -&gt; <span class="ident">String</span> {
+        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_EDITION_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_string</span>() -&gt; <span class="ident">String</span> {

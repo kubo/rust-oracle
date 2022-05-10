@@ -1704,6 +1704,87 @@
 <span id="1699">1699</span>
 <span id="1700">1700</span>
 <span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -1730,6 +1811,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conn</span>::{<span class="ident">CloseMode</span>, <span class="ident">Purity</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::new_odpi_str</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::data_type</span>::{<span class="ident">AttrValue</span>, <span class="ident">DataType</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::handle::ConnHandle</span>;
@@ -1737,6 +1819,8 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode::Read</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode</span>::{<span class="ident">ReadMode</span>, <span class="ident">WriteMode</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::OciAttr</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::PoolOptions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectType</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectTypeInternal</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
@@ -1849,13 +1933,18 @@
     <span class="ident">Sysrac</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Purity</span> {
-    <span class="doccomment">/// Must use a new session</span>
-    <span class="ident">New</span>,
-    <span class="doccomment">/// Reuse a pooled session</span>
-    <span class="ident">Self_</span>,
+<span class="kw">impl</span> <span class="ident">Privilege</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_dpi</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiAuthMode</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Privilege::Sysdba</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDBA</span>,
+            <span class="ident">Privilege::Sysoper</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSOPER</span>,
+            <span class="ident">Privilege::Sysasm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSASM</span>,
+            <span class="ident">Privilege::Sysbackup</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSBKP</span>,
+            <span class="ident">Privilege::Sysdg</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDGD</span>,
+            <span class="ident">Privilege::Syskm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSKMT</span>,
+            <span class="ident">Privilege::Sysrac</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSRAC</span>,
+        }
+    }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
@@ -1938,8 +2027,6 @@
     <span class="ident">purity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Purity</span><span class="op">&gt;</span>,
     <span class="ident">connection_class</span>: <span class="ident">String</span>,
     <span class="ident">app_context</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
-    <span class="ident">tag</span>: <span class="ident">String</span>,
-    <span class="ident">match_any_tag</span>: <span class="ident">bool</span>,
     <span class="ident">common_params</span>: <span class="ident">CommonCreateParamsBuilder</span>,
 }
 
@@ -1962,8 +2049,6 @@
             <span class="ident">purity</span>: <span class="prelude-val">None</span>,
             <span class="ident">connection_class</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">app_context</span>: <span class="macro">vec!</span>[],
-            <span class="ident">tag</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">match_any_tag</span>: <span class="bool-val">false</span>,
             <span class="ident">common_params</span>: <span class="ident">Default::default</span>(),
         }
     }
@@ -2103,18 +2188,18 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Reserved for when connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tag</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
+    <span class="comment">// Remove later</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_tag</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">tag</span> <span class="op">=</span> <span class="ident">tag</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Reserved for when connection pooling is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_any_tag</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
-        <span class="self">self</span>.<span class="ident">match_any_tag</span> <span class="op">=</span> <span class="ident">b</span>;
+    <span class="comment">// Remove later</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_any_tag</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Connector</span> {
         <span class="self">self</span>
     }
 
@@ -2177,22 +2262,14 @@
         )
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_dpi_conn_create_params</span>(
+    <span class="kw">fn</span> <span class="ident">to_dpi_conn_create_params</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
     ) -&gt; (<span class="ident">dpiConnCreateParams</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">dpiAppContext</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">privilege</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">privilege</span> {
-            <span class="ident">conn_params</span>.<span class="ident">authMode</span> <span class="op">|</span><span class="op">=</span> <span class="kw">match</span> <span class="ident">privilege</span> {
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdba</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDBA</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysoper</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSOPER</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysasm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSASM</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysbackup</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSBKP</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysdg</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSDGD</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Syskm</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSKMT</span>,
-                <span class="kw-2">&amp;</span><span class="ident">Privilege::Sysrac</span> =&gt; <span class="ident">DPI_MODE_AUTH_SYSRAC</span>,
-            };
+            <span class="ident">conn_params</span>.<span class="ident">authMode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">privilege</span>.<span class="ident">to_dpi</span>();
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">external_auth</span> {
             <span class="ident">conn_params</span>.<span class="ident">externalAuth</span> <span class="op">=</span> <span class="number">1</span>;
@@ -2204,10 +2281,7 @@
         <span class="ident">conn_params</span>.<span class="ident">newPassword</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
         <span class="ident">conn_params</span>.<span class="ident">newPasswordLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">purity</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">purity</span> {
-            <span class="ident">conn_params</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">purity</span> {
-                <span class="ident">Purity::New</span> =&gt; <span class="ident">DPI_PURITY_NEW</span>,
-                <span class="ident">Purity::Self_</span> =&gt; <span class="ident">DPI_PURITY_SELF</span>,
-            };
+            <span class="ident">conn_params</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="ident">purity</span>.<span class="ident">to_dpi</span>();
         }
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connection_class</span>);
         <span class="ident">conn_params</span>.<span class="ident">connectionClass</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
@@ -2230,12 +2304,6 @@
             <span class="ident">conn_params</span>.<span class="ident">appContext</span> <span class="op">=</span> <span class="ident">app_context</span>.<span class="ident">as_mut_ptr</span>();
             <span class="ident">conn_params</span>.<span class="ident">numAppContext</span> <span class="op">=</span> <span class="ident">app_context</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
         }
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tag</span>);
-        <span class="ident">conn_params</span>.<span class="ident">tag</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-        <span class="ident">conn_params</span>.<span class="ident">tagLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">match_any_tag</span> {
-            <span class="ident">conn_params</span>.<span class="ident">matchAnyTag</span> <span class="op">=</span> <span class="number">1</span>;
-        }
         (<span class="ident">conn_params</span>, <span class="ident">app_context</span>)
     }
 }
@@ -2249,6 +2317,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">objtype_cache</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ObjectTypeInternal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">tag</span>: <span class="ident">String</span>,
     <span class="ident">tag_found</span>: <span class="ident">bool</span>,
+    <span class="ident">is_new_connection</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">InnerConn</span> {
@@ -2264,6 +2333,7 @@
             <span class="ident">objtype_cache</span>: <span class="ident">Mutex::new</span>(<span class="ident">HashMap::new</span>()),
             <span class="ident">tag</span>: <span class="ident">to_rust_str</span>(<span class="ident">conn_params</span>.<span class="ident">outTag</span>, <span class="ident">conn_params</span>.<span class="ident">outTagLength</span>),
             <span class="ident">tag_found</span>: <span class="ident">conn_params</span>.<span class="ident">outTagFound</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>,
+            <span class="ident">is_new_connection</span>: <span class="ident">conn_params</span>.<span class="ident">outNewSession</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>,
         }
     }
 
@@ -2371,13 +2441,22 @@
                 <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
             )
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Connection</span> {
-            <span class="ident">conn</span>: <span class="ident">Arc::new</span>(<span class="ident">InnerConn::new</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="ident">conn_params</span>)),
-        })
+        <span class="ident">conn_params</span>.<span class="ident">outNewSession</span> <span class="op">=</span> <span class="number">1</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">Connection::from_dpi_handle</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="ident">conn_params</span>))
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_conn</span>(<span class="ident">conn</span>: <span class="ident">Conn</span>) -&gt; <span class="ident">Connection</span> {
         <span class="ident">Connection</span> { <span class="ident">conn</span>: <span class="ident">conn</span> }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_dpi_handle</span>(
+        <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
+        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiConn</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">dpiConnCreateParams</span>,
+    ) -&gt; <span class="ident">Connection</span> {
+        <span class="ident">Connection</span> {
+            <span class="ident">conn</span>: <span class="ident">Arc::new</span>(<span class="ident">InnerConn::new</span>(<span class="ident">ctxt</span>, <span class="ident">handle</span>, <span class="ident">params</span>)),
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ctxt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span> {
@@ -2392,7 +2471,21 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This fails when open statements or LOBs exist.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">close_internal</span>(<span class="ident">DPI_MODE_CONN_CLOSE_DEFAULT</span>, <span class="string">&quot;&quot;</span>)
+        <span class="self">self</span>.<span class="ident">close_with_mode</span>(<span class="ident">CloseMode::Default</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close_with_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">CloseMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">mode</span>, <span class="ident">tag</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
+            <span class="ident">CloseMode::Default</span> =&gt; (<span class="ident">DPI_MODE_CONN_CLOSE_DEFAULT</span>, <span class="string">&quot;&quot;</span>),
+            <span class="ident">CloseMode::Drop</span> =&gt; (<span class="ident">DPI_MODE_CONN_CLOSE_DROP</span>, <span class="string">&quot;&quot;</span>),
+            <span class="ident">CloseMode::Retag</span>(<span class="ident">tag</span>) =&gt; (<span class="ident">DPI_MODE_CONN_CLOSE_RETAG</span>, <span class="ident">tag</span>),
+        };
+        <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">tag</span>);
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.<span class="ident">ctxt</span>(),
+            <span class="ident">dpiConn_close</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">mode</span>, <span class="ident">tag</span>.<span class="ident">ptr</span>, <span class="ident">tag</span>.<span class="ident">len</span>)
+        );
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Creates [`StatementBuilder`][] to create a [`Statement`][]</span>
@@ -2740,7 +2833,7 @@
     <span class="doccomment">/// let conn = Arc::new(conn);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let now = Instant::now();</span>
-    <span class="doccomment">/// let range = Duration::from_secs(3)..=Duration::from_secs(10);</span>
+    <span class="doccomment">/// let range = Duration::from_secs(3)..=Duration::from_secs(20);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // Start a thread to cancel a query</span>
     <span class="doccomment">/// let cloned_conn = conn.clone();</span>
@@ -3006,7 +3099,7 @@
     <span class="doccomment">/// conn.set_call_timeout(Some(Duration::from_secs(3)))?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let now = Instant::now();</span>
-    <span class="doccomment">/// let range = Duration::from_secs(3)..=Duration::from_secs(10);</span>
+    <span class="doccomment">/// let range = Duration::from_secs(3)..=Duration::from_secs(20);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // This query is canceled by timeout.</span>
     <span class="doccomment">/// let result = conn.query_row_as::&lt;u64&gt;(&quot;select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects&quot;, &amp;[]);</span>
@@ -3349,23 +3442,92 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// hiden until connection pooling is supported.</span>
+    <span class="doccomment">/// Gets the tag of the connection that was acquired from a connection pool.</span>
+    <span class="doccomment">/// It is `&quot;&quot;` if the connection is a standalone one or not tagged.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use oracle::{Connection, Error};</span>
+    <span class="doccomment">/// # use oracle::pool::{PoolBuilder, PoolOptions};</span>
+    <span class="doccomment">/// # use oracle::conn;</span>
+    <span class="doccomment">/// # use oracle::test_util;</span>
+    <span class="doccomment">/// # let username = test_util::main_user();</span>
+    <span class="doccomment">/// # let username = &amp;username;</span>
+    <span class="doccomment">/// # let password = test_util::main_password();</span>
+    <span class="doccomment">/// # let password = &amp;password;</span>
+    <span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
+    <span class="doccomment">/// # let connect_string = &amp;connect_string;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // standalone connection</span>
+    <span class="doccomment">/// let conn = Connection::connect(username, password, connect_string)?;</span>
+    <span class="doccomment">/// assert_eq!(conn.tag(), &quot;&quot;);</span>
+    <span class="doccomment">/// assert_eq!(conn.tag_found(), false);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
+    <span class="doccomment">///     .build()?;</span>
+    <span class="doccomment">/// let opts = PoolOptions::new().tag(&quot;NAME=VALUE&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // No connections with tag &quot;NAME=VALUE&quot; exist in the pool at first.</span>
+    <span class="doccomment">/// let conn = pool.get_with_options(&amp;opts)?;</span>
+    <span class="doccomment">/// assert_eq!(conn.tag(), &quot;&quot;);</span>
+    <span class="doccomment">/// assert_eq!(conn.tag_found(), false);</span>
+    <span class="doccomment">/// // Close the connection with setting a new tag.</span>
+    <span class="doccomment">/// conn.close_with_mode(conn::CloseMode::Retag(&quot;NAME=VALUE&quot;))?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // One connection with tag &quot;NAME=VALUE&quot; exists in the pool now.</span>
+    <span class="doccomment">/// let conn = pool.get_with_options(&amp;opts)?;</span>
+    <span class="doccomment">/// assert_eq!(conn.tag_found(), true);</span>
+    <span class="doccomment">/// assert_eq!(conn.tag(), &quot;NAME=VALUE&quot;);</span>
+    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">tag</span>
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// hiden until connection pooling is supported.</span>
+    <span class="doccomment">/// Gets `true` when the connection is a standalone one</span>
+    <span class="doccomment">/// or it is a connection with the specified tag by</span>
+    <span class="doccomment">/// [`PoolOptions::tag`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Sea also [`Connection::tag`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag_found</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">tag_found</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">close_internal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">dpiConnCloseMode</span>, <span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">tag</span>);
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_close</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">mode</span>, <span class="ident">tag</span>.<span class="ident">ptr</span>, <span class="ident">tag</span>.<span class="ident">len</span>)
-        );
-        <span class="prelude-val">Ok</span>(())
+    <span class="doccomment">/// Returns `true` when the connection is a standalone one</span>
+    <span class="doccomment">/// or a newly created one by a connection pool.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use oracle::Connection;</span>
+    <span class="doccomment">/// # use oracle::Error;</span>
+    <span class="doccomment">/// # use oracle::pool::PoolBuilder;</span>
+    <span class="doccomment">/// # use oracle::test_util;</span>
+    <span class="doccomment">/// # let username = test_util::main_user();</span>
+    <span class="doccomment">/// # let username = &amp;username;</span>
+    <span class="doccomment">/// # let password = test_util::main_password();</span>
+    <span class="doccomment">/// # let password = &amp;password;</span>
+    <span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
+    <span class="doccomment">/// # let connect_string = &amp;connect_string;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let conn = Connection::connect(username, password, connect_string)?;</span>
+    <span class="doccomment">/// assert!(conn.is_new_connection(), &quot;standalone connection&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
+    <span class="doccomment">///     .build()?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let conn = pool.get()?; // Get a newly created connection</span>
+    <span class="doccomment">/// assert!(conn.is_new_connection(), &quot;new connectoin from the pool&quot;);</span>
+    <span class="doccomment">/// conn.close()?; // Back the connection to the pool</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let conn = pool.get()?; // Get a connection cached in the pool</span>
+    <span class="doccomment">/// assert!(!conn.is_new_connection(), &quot;cached connectoin in the pool&quot;);</span>
+    <span class="doccomment">/// conn.close()?;</span>
+    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_new_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">is_new_connection</span>
     }
 
     <span class="doccomment">/// Gets an OCI handle attribute corresponding to the specified type parameter</span>
