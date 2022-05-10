@@ -84,6 +84,7 @@ pub struct StatementBuilder<'conn, 'sql> {
     query_params: QueryParams,
     scrollable: bool,
     tag: String,
+    exclude_from_cache: bool,
 }
 
 impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
@@ -94,6 +95,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
             query_params: QueryParams::new(),
             scrollable: false,
             tag: "".into(),
+            exclude_from_cache: false,
         }
     }
 
@@ -192,6 +194,12 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         T: Into<String>,
     {
         self.tag = tag_name.into();
+        self
+    }
+
+    /// Excludes the statement from the cache even when stmt_cache_size is not zero.
+    pub fn exclude_from_cache<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
+        self.exclude_from_cache = true;
         self
     }
 
@@ -530,6 +538,11 @@ impl<'conn> Statement<'conn> {
                 ));
             }
         };
+        if builder.exclude_from_cache {
+            chkerr!(conn.ctxt(), dpiStmt_deleteFromCache(handle), unsafe {
+                dpiStmt_release(handle);
+            });
+        }
         Ok(Statement {
             stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone()),
             statement_type: StatementType::from_enum(info.statementType),
