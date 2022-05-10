@@ -1046,7 +1046,7 @@ impl Connection {
     /// let conn = Arc::new(conn);
     ///
     /// let now = Instant::now();
-    /// let range = Duration::from_secs(3)..=Duration::from_secs(10);
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
     ///
     /// // Start a thread to cancel a query
     /// let cloned_conn = conn.clone();
@@ -1312,7 +1312,7 @@ impl Connection {
     /// conn.set_call_timeout(Some(Duration::from_secs(3)))?;
     ///
     /// let now = Instant::now();
-    /// let range = Duration::from_secs(3)..=Duration::from_secs(10);
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
     ///
     /// // This query is canceled by timeout.
     /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
