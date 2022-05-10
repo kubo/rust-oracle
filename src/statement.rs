@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2022 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -188,8 +188,59 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         self
     }
 
-    // make the visibility public when statement caching is supported.
-    fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
+    /// Specifies the key to be used for searching for the statement in the statement cache.
+    /// If the key is not found, the SQL text specified by [`Connection::statement`] is used
+    /// to create a statement.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    ///
+    /// // When both SQL text and a tag are specifed and the tag is not found
+    /// // in the statement cache, the SQL text is used to make a statement.
+    /// // The statement is backed to the cache with the tag when
+    /// // it is closed.
+    /// let mut stmt = conn.statement("select 1 from dual").tag("query one").build()?;
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// // When only a tag is specified and the tag is found in the cache,
+    /// // the statement with the tag is returned.
+    /// let mut stmt = conn.statement("").tag("query one").build()?;
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// // When only a tag is specified and the tag isn't found in the cache,
+    /// // ORA-24431 is returned.
+    /// let err = conn.statement("").tag("not existing tag").build().unwrap_err();
+    /// match err {
+    ///   Error::OciError(err) if err.code() == 24431 => {
+    ///     // ORA-24431: Statement does not exist in the cache
+    ///   },
+    ///   _ => panic!("unexpected err {:?}", err),
+    /// }
+    ///
+    /// // WARNING: The SQL statement is not checked when the tag is found.
+    /// let mut stmt = conn.statement("select 2 from dual").tag("query one").build()?;
+    /// // The result must be 2 if the SQL text is used. However it is 1
+    /// // because the statement tagged with "query one" is "select 1 from dual".
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// # // test whether the statement is tagged when it is closed by drop.
+    /// # {
+    /// #    let mut stmt = conn.statement("select 2 from dual").tag("query two").build()?;
+    /// #    assert_eq!(stmt.query_row_as::<i32>(&[])?, 2);
+    /// #    // stmt is dropped here.
+    /// # }
+    /// # let mut stmt = conn.statement("").tag("query two").build()?;
+    /// # assert_eq!(stmt.query_row_as::<i32>(&[])?, 2);
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
     where
         T: Into<String>,
     {
@@ -227,7 +278,7 @@ pub enum StmtParam {
     /// `StmtParam::FetchArraySize(1)`.
     FetchArraySize(u32),
 
-    /// Reserved for when statement caching is supported.
+    /// See [`StatementBuilder::tag`].
     Tag(String),
 
     /// Reserved for when scrollable cursors are supported.
@@ -341,10 +392,16 @@ pub(crate) struct Stmt {
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<RefCell<u32>>,
     pub(crate) query_params: QueryParams,
+    tag: String,
 }
 
 impl Stmt {
-    pub(crate) fn new(conn: Conn, handle: *mut dpiStmt, query_params: QueryParams) -> Stmt {
+    pub(crate) fn new(
+        conn: Conn,
+        handle: *mut dpiStmt,
+        query_params: QueryParams,
+        tag: String,
+    ) -> Stmt {
         Stmt {
             conn: conn,
             handle: handle,
@@ -352,6 +409,7 @@ impl Stmt {
             row: None,
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
             query_params: query_params,
+            tag: tag,
         }
     }
 
@@ -368,12 +426,7 @@ impl Stmt {
     }
 
     fn close(&mut self) -> Result<()> {
-        self.close_internal("")
-    }
-
-    fn close_internal(&mut self, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-
+        let tag = to_odpi_str(&self.tag);
         chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
         Ok(())
     }
@@ -441,6 +494,7 @@ impl Stmt {
 
 impl Drop for Stmt {
     fn drop(&mut self) {
+        let _ = self.close();
         unsafe { dpiStmt_release(self.handle) };
     }
 }
@@ -537,13 +591,16 @@ impl<'conn> Statement<'conn> {
                 ));
             }
         };
-        if builder.exclude_from_cache {
+        let tag = if builder.exclude_from_cache {
             chkerr!(conn.ctxt(), dpiStmt_deleteFromCache(handle), unsafe {
                 dpiStmt_release(handle);
             });
-        }
+            String::new()
+        } else {
+            builder.tag.clone()
+        };
         Ok(Statement {
-            stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone()),
+            stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone(), tag),
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
             bind_count: bind_count,

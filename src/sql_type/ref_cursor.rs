@@ -127,7 +127,7 @@ impl RefCursor {
             dpiStmt_getNumQueryColumns(handle, &mut num_query_columns)
         );
         chkerr!(conn.ctxt, dpiStmt_addRef(handle));
-        let mut stmt = Stmt::new(conn, handle, query_params);
+        let mut stmt = Stmt::new(conn, handle, query_params, "".into());
         stmt.init_row(num_query_columns as usize)?;
         Ok(RefCursor { stmt: stmt })
     }
