@@ -232,7 +232,8 @@ Other crates for connecting to Oracle:
 * [Sibyl]: an OCI-based interface supporting both blocking (threads) and nonblocking (async) API
 
 Oracle-related crates:
-* [r2d2-oracle]: an adapter crate between [r2d2] and rust-oracle
+* [r2d2-oracle]: Oracle support for the [r2d2] connection pool
+* [bb8-oracle]: [bb8] connection pool support for oracle
 * [include-oracle-sql]: an extension of [include-sql] using [Sibyl] for database access
 
 ## License
@@ -247,8 +248,10 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
+[bb8]: https://crates.io/crates/bb8
+[bb8-oracle]: https://crates.io/crates/bb8-oracle
+[include-sql]: https://crates.io/crates/include-sql
+[include-oracle-sql]: https://crates.io/crates/include-oracle-sql
 [r2d2]: https://crates.io/crates/r2d2
 [r2d2-oracle]: https://crates.io/crates/r2d2-oracle
 [Sibyl]: https://crates.io/crates/sibyl
-[include-sql]: https://crates.io/crates/include-sql
-[include-oracle-sql]: https://crates.io/crates/include-oracle-sql
