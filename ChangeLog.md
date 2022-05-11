@@ -1,5 +1,33 @@
 # Change Log
 
+## 0.5.5 (2022-05-11)
+
+New features:
+
+* [`RowValue` derive macro] (contributed by [GH-49])
+* Add query methods for Statement which take ownership (contributed by [GH-50])
+* Support connection pooling
+  * [`pool`]
+  * [`Connection::close_with_mode`]
+  * [`Connection::tag`]
+  * [`Connection::tag_found`]
+  * [`Connection::is_new_connection`]
+* Add methods related to statement caching
+  * [`Connector::stmt_cache_size`]
+  * [`StatementBuilder::exclude_from_cache`]
+  * [`StatementBuilder::tag`]
+* Support Advanced Queuing experimentally when `aq_unstable` feature is enabled
+  Breaking changes may be introduced by a minor release.
+
+Fixed bugs:
+
+* Fix resource leaks when statement are explicitly closed by [`Statement::close`].
+* Fix syntax typo in doc comment about `row.get_as` ([GH-54])
+
+Internal Changes:
+
+* Update ODPI-C to 4.3.0. (see ODPI-C release notes: [4.3.0](https://oracle.github.io/odpi/doc/releasenotes.html#version-4-3-november-4-2021))
+
 ## 0.5.4 (2022-01-20)
 
 Fixed bugs:
@@ -312,6 +340,10 @@ Incompatible changes:
 [GH-38]: https://github.com/kubo/rust-oracle/issues/38
 [GH-40]: https://github.com/kubo/rust-oracle/issues/40
 [GH-48]: https://github.com/kubo/rust-oracle/issues/48
+[GH-49]: https://github.com/kubo/rust-oracle/issues/49
+[GH-50]: https://github.com/kubo/rust-oracle/issues/50
+[GH-54]: https://github.com/kubo/rust-oracle/issues/54
+[`pool`]: https://docs.rs/oracle/latest/oracle/pool/index.html
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
@@ -332,6 +364,7 @@ Incompatible changes:
 [`Connection.status()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.status
 [`Connection.set_call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.set_call_timeout
 [`Connection.tag()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.tag
+[`Connector::stmt_cache_size`]: https://docs.rs/oracle/*/oracle/struct.Connector.html#method.stmt_cache_size
 [`ConnParam`]: https://docs.rs/oracle/0.2.*/oracle/enum.ConnParam.html
 [`ConnStatus`]: https://docs.rs/oracle/*/oracle/enum.ConnStatus.html
 [`DbError.action()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.action
@@ -350,6 +383,8 @@ Incompatible changes:
 [`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values
 [`Row.get_as()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.get_as
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
+[`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
+[`Statement::close`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.close
 [`Statement.execute()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute
 [`Statement.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute_named
 [`Statement.query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query
@@ -367,6 +402,8 @@ Incompatible changes:
 [`Statement.is_ddl()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_ddl
 [`Statement.is_dml()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.id_dml
 [`StatementBuilder`]: https://docs.rs/oracle/*/oracle/struct.StatementBuilder.html
-[`StatementBuilder::prefetch_rows`]: https://docs.rs/oracle/*/oracle/struct.StatementBuilder.html#method.prefetch_rows
+[`StatementBuilder::exclude_from_cache`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.exclude_from_cache
+[`StatementBuilder::prefetch_rows`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.prefetch_rows
+[`StatementBuilder::tag`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.tag
 [`StmtParam`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html#variant.FetchArraySize
