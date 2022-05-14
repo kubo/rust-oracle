@@ -22,7 +22,6 @@ use std::str;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::binding::*;
-use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::Bfile;

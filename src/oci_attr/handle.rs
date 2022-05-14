@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 //! The module defines types to be set to the associate type [`OciAttr::HandleType`]
-use crate::binding_impl::*;
+use crate::binding::*;
 #[cfg(doc)]
 use crate::oci_attr::OciAttr;
 use crate::private;

@@ -21,7 +21,6 @@ use std::ptr;
 use std::sync::Arc;
 
 use crate::binding::*;
-use crate::binding_impl::DPI_NUMBER_AS_TEXT_CHARS;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::FromSql;

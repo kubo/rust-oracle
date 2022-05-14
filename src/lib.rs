@@ -283,7 +283,6 @@ mod batch;
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
 mod binding;
-mod binding_impl;
 pub mod conn;
 mod connection;
 mod error;
