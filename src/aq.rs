@@ -90,7 +90,7 @@
 //! // Enqueue the messages
 //! queue.enqueue_many(&messages)?;
 //!
-//! // Dequeue message from the queue
+//! // Dequeue messages from the queue
 //! let new_messages = queue.dequeue_many(10)?;
 //!
 //! // Compare message payloads.
