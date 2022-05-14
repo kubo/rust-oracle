@@ -6,6 +6,7 @@ New features:
 
 * Add `stmt_without_lifetime` feature flag.
 * Add [`ObjectType::package_name`]
+* Add [`Statement::last_row_id`]
 
 Fixed Issues:
 
@@ -425,6 +426,7 @@ Incompatible changes:
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
 [`Statement::close`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.close
+[`Statement::last_row_id`]: https://docs.rs/oracle/latest/oracle/struct.Statement.html#method.last_row_id
 [`Statement.execute()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute
 [`Statement.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute_named
 [`Statement.query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query

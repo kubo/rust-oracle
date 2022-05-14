@@ -1235,6 +1235,40 @@ impl<'conn> Statement<'conn> {
         self.is_returning
     }
 
+    /// Returns the rowid of the last row that was affected by the statement.
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let mut stmt = conn
+    ///     .statement("insert into TestDates values(100, sysdate, null)")
+    ///     .build()?;
+    /// stmt.execute(&[])?;
+    /// // get the rowid inserted by stmt
+    /// let rowid1 = stmt.last_row_id()?;
+    /// // get the rowid from database
+    /// let rowid2 = conn.query_row_as::<String>("select rowid from TestDates where IntCol = 100", &[])?;
+    /// assert_eq!(rowid1, Some(rowid2));
+    /// # conn.rollback()?;
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn last_row_id(&self) -> Result<Option<String>> {
+        let mut rowid = ptr::null_mut();
+        chkerr!(self.ctxt(), dpiStmt_getLastRowid(self.handle(), &mut rowid));
+        if rowid.is_null() {
+            Ok(None)
+        } else {
+            let mut ptr = ptr::null();
+            let mut len = 0;
+            chkerr!(
+                self.ctxt(),
+                dpiRowid_getStringValue(rowid, &mut ptr, &mut len)
+            );
+            Ok(Some(to_rust_str(ptr, len)))
+        }
+    }
+
     /// Gets an OCI handle attribute corresponding to the specified type parameter
     /// See the [`oci_attr` module][crate::oci_attr] for details.
     pub fn oci_attr<T>(&self) -> Result<<<T::DataType as DataType>::Type as ToOwned>::Owned>
