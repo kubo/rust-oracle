@@ -794,6 +794,8 @@ impl Connection {
     ///
     /// ```no_run
     /// # use oracle::*;
+    /// # #[allow(deprecated)]
+    /// # fn main() -> Result<()> {
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
     ///
@@ -818,7 +820,7 @@ impl Connection {
     /// for emp in &emp_list {
     ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
     /// }
-    /// # Ok::<(), Error>(())
+    /// # Ok(()) }
     /// ```
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
@@ -828,6 +830,8 @@ impl Connection {
     ///
     /// ```no_run
     /// # use oracle::*;
+    /// # #[allow(deprecated)]
+    /// # fn main() -> Result<()> {
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
     /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
@@ -836,9 +840,10 @@ impl Connection {
     ///     let (empno, ename) = row_result?;
     ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
-    /// # Ok::<(), Error>(())
+    /// # Ok(()) }
     /// ```
     ///
+    #[deprecated]
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::from_params(self, sql, params)
     }

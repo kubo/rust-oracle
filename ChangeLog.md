@@ -2,6 +2,10 @@
 
 ## 0.5.6 (20XX-XX-XX)
 
+Changes:
+
+* [`Connection::prepare`] was marked as deprecated.
+
 Internal Changes:
 
 * Update ODPI-C to 4.4.1. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
