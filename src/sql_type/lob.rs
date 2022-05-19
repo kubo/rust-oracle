@@ -741,7 +741,7 @@ mod tests {
     use std::io::Write;
 
     // one-byte characters in UTF-8
-    const CRAB_CHARS: [&'static str; 4] = [
+    const CRAB_CHARS: [&str; 4] = [
         // one-byte characters in UTF-8
         "crab",
         // two-byte characters in UTF-8
