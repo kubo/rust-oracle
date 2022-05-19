@@ -13,7 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
+use std::cmp::{self, Ordering};
 use std::fmt;
 use std::str;
 
@@ -391,11 +391,13 @@ impl str::FromStr for Timestamp {
                 nsec = s.read_digits().ok_or(err())?;
                 let ndigit = s.ndigits();
                 precision = ndigit;
-                if ndigit < 9 {
-                    nsec *= 10u64.pow(9 - ndigit);
-                } else if ndigit > 9 {
-                    nsec /= 10u64.pow(ndigit - 9);
-                    precision = 9;
+                match ndigit.cmp(&9) {
+                    Ordering::Less => nsec *= 10u64.pow(9 - ndigit),
+                    Ordering::Equal => (),
+                    Ordering::Greater => {
+                        nsec /= 10u64.pow(ndigit - 9);
+                        precision = 9;
+                    }
                 }
             }
             if let Some(' ') = s.char() {

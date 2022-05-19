@@ -13,7 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
+use std::cmp::{self, Ordering};
 use std::fmt;
 use std::str;
 
@@ -294,11 +294,13 @@ impl str::FromStr for IntervalDS {
             nsecs = s.read_digits().ok_or(err())? as i32;
             let ndigit = s.ndigits();
             fsprec = ndigit;
-            if ndigit < 9 {
-                nsecs *= 10i32.pow(9 - ndigit);
-            } else if ndigit > 9 {
-                nsecs /= 10i32.pow(ndigit - 9);
-                fsprec = 9;
+            match ndigit.cmp(&9) {
+                Ordering::Less => nsecs *= 10i32.pow(9 - ndigit),
+                Ordering::Equal => (),
+                Ordering::Greater => {
+                    nsecs /= 10i32.pow(ndigit - 9);
+                    fsprec = 9;
+                }
             }
         }
         if s.char().is_some() {
