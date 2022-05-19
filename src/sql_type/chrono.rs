@@ -245,19 +245,19 @@ impl FromSql for Duration {
         let d = Duration::milliseconds(0);
         let d = d
             .checked_add(&Duration::days(it.days() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::hours(it.hours() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::minutes(it.minutes() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::seconds(it.seconds() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::nanoseconds(it.nanoseconds() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         Ok(d)
     }
 }

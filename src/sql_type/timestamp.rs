@@ -334,7 +334,7 @@ impl str::FromStr for Timestamp {
         } else {
             false
         };
-        let mut year = s.read_digits().ok_or(err())?;
+        let mut year = s.read_digits().ok_or_else(err)?;
         let mut month = 1;
         let mut day = 1;
         match s.char() {
@@ -347,10 +347,10 @@ impl str::FromStr for Timestamp {
             }
             Some('-') => {
                 s.next();
-                month = s.read_digits().ok_or(err())?;
+                month = s.read_digits().ok_or_else(err)?;
                 if let Some('-') = s.char() {
                     s.next();
-                    day = s.read_digits().ok_or(err())?
+                    day = s.read_digits().ok_or_else(err)?
                 }
             }
             _ => return Err(err()),
@@ -367,13 +367,13 @@ impl str::FromStr for Timestamp {
             match c {
                 'T' | ' ' => {
                     s.next();
-                    hour = s.read_digits().ok_or(err())?;
+                    hour = s.read_digits().ok_or_else(err)?;
                     if let Some(':') = s.char() {
                         s.next();
-                        min = s.read_digits().ok_or(err())?;
+                        min = s.read_digits().ok_or_else(err)?;
                         if let Some(':') = s.char() {
                             s.next();
-                            sec = s.read_digits().ok_or(err())?;
+                            sec = s.read_digits().ok_or_else(err)?;
                         }
                     } else if s.ndigits() == 6 {
                         // 123456 -> 12:34:56
@@ -388,7 +388,7 @@ impl str::FromStr for Timestamp {
             }
             if let Some('.') = s.char() {
                 s.next();
-                nsec = s.read_digits().ok_or(err())?;
+                nsec = s.read_digits().ok_or_else(err)?;
                 let ndigit = s.ndigits();
                 precision = ndigit;
                 match ndigit.cmp(&9) {
@@ -406,10 +406,10 @@ impl str::FromStr for Timestamp {
             match s.char() {
                 Some('+') => {
                     s.next();
-                    tz_hour = s.read_digits().ok_or(err())? as i32;
+                    tz_hour = s.read_digits().ok_or_else(err)? as i32;
                     if let Some(':') = s.char() {
                         s.next();
-                        tz_min = s.read_digits().ok_or(err())? as i32;
+                        tz_min = s.read_digits().ok_or_else(err)? as i32;
                     } else {
                         tz_min = tz_hour % 100;
                         tz_hour /= 100;
@@ -418,10 +418,10 @@ impl str::FromStr for Timestamp {
                 }
                 Some('-') => {
                     s.next();
-                    tz_hour = s.read_digits().ok_or(err())? as i32;
+                    tz_hour = s.read_digits().ok_or_else(err)? as i32;
                     if let Some(':') = s.char() {
                         s.next();
-                        tz_min = s.read_digits().ok_or(err())? as i32;
+                        tz_min = s.read_digits().ok_or_else(err)? as i32;
                     } else {
                         tz_min = tz_hour % 100;
                         tz_hour /= 100;

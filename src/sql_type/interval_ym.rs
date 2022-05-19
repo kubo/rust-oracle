@@ -193,14 +193,14 @@ impl str::FromStr for IntervalYM {
             }
             _ => false,
         };
-        let years = s.read_digits().ok_or(err())? as i32;
+        let years = s.read_digits().ok_or_else(err)? as i32;
         let precision = s.ndigits();
         if let Some('-') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let months = s.read_digits().ok_or(err())? as i32;
+        let months = s.read_digits().ok_or_else(err)? as i32;
         if s.char().is_some() {
             return Err(err());
         }

@@ -267,31 +267,31 @@ impl str::FromStr for IntervalDS {
             }
             _ => false,
         };
-        let days = s.read_digits().ok_or(err())? as i32;
+        let days = s.read_digits().ok_or_else(err)? as i32;
         let lfprec = s.ndigits();
         if let Some(' ') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let hours = s.read_digits().ok_or(err())? as i32;
+        let hours = s.read_digits().ok_or_else(err)? as i32;
         if let Some(':') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let minutes = s.read_digits().ok_or(err())? as i32;
+        let minutes = s.read_digits().ok_or_else(err)? as i32;
         if let Some(':') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let seconds = s.read_digits().ok_or(err())? as i32;
+        let seconds = s.read_digits().ok_or_else(err)? as i32;
         let mut nsecs = 0;
         let mut fsprec = 0;
         if let Some('.') = s.char() {
             s.next();
-            nsecs = s.read_digits().ok_or(err())? as i32;
+            nsecs = s.read_digits().ok_or_else(err)? as i32;
             let ndigit = s.ndigits();
             fsprec = ndigit;
             match ndigit.cmp(&9) {

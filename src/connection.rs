@@ -1323,10 +1323,12 @@ impl Connection {
     /// ```
     pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
         if let Some(dur) = dur {
-            let msecs = duration_to_msecs(dur).ok_or(Error::OutOfRange(format!(
-                "Too large duration {:?}. It must be less than 49.7 days",
-                dur
-            )))?;
+            let msecs = duration_to_msecs(dur).ok_or_else(|| {
+                Error::OutOfRange(format!(
+                    "Too large duration {:?}. It must be less than 49.7 days",
+                    dur
+                ))
+            })?;
             if msecs == 0 {
                 return Err(Error::OutOfRange(format!(
                     "Too short duration {:?}. It must not be submilliseconds",
