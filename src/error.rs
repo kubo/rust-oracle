@@ -355,17 +355,13 @@ pub(crate) fn error_from_context(ctxt: &Context) -> Error {
 macro_rules! chkerr {
     ($ctxt:expr, $code:expr) => {{
         #[allow(unused_unsafe)]
-        if unsafe { $code } == DPI_SUCCESS as i32 {
-            ()
-        } else {
+        if unsafe { $code } != DPI_SUCCESS as i32 {
             return Err($crate::error::error_from_context($ctxt));
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
         #[allow(unused_unsafe)]
-        if unsafe { $code } == DPI_SUCCESS as i32 {
-            ()
-        } else {
+        if unsafe { $code } != DPI_SUCCESS as i32 {
             let err = $crate::error::error_from_context($ctxt);
             $cleanup
             return Err(err);
