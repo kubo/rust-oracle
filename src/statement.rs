@@ -1373,11 +1373,11 @@ impl<'a> BindIndex for &'a str {
 pub trait ColumnIndex: private::Sealed {
     /// Returns the index of the column specified by `self`.
     #[doc(hidden)]
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize>;
+    fn idx(&self, column_names: &[String]) -> Result<usize>;
 }
 
 impl ColumnIndex for usize {
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+    fn idx(&self, column_names: &[String]) -> Result<usize> {
         let ncols = column_names.len();
         if *self < ncols {
             Ok(*self)
@@ -1388,7 +1388,7 @@ impl ColumnIndex for usize {
 }
 
 impl<'a> ColumnIndex for &'a str {
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+    fn idx(&self, column_names: &[String]) -> Result<usize> {
         for (idx, colname) in column_names.iter().enumerate() {
             if colname.as_str().eq_ignore_ascii_case(*self) {
                 return Ok(idx);
