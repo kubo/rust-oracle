@@ -1199,7 +1199,7 @@ impl SqlValue {
     /// Sets Object to the Sql Value
     pub(crate) fn set_object(&mut self, val: &Object) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) => return self.set_object_unchecked(val.handle),
+            NativeType::Object(_) => self.set_object_unchecked(val.handle),
             _ => self.invalid_conversion_from_rust_type("Object"),
         }
     }
@@ -1207,7 +1207,7 @@ impl SqlValue {
     /// Sets Collection to the Sql Value
     pub(crate) fn set_collection(&mut self, val: &Collection) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) => return self.set_object_unchecked(val.handle),
+            NativeType::Object(_) => self.set_object_unchecked(val.handle),
             _ => self.invalid_conversion_from_rust_type("Collection"),
         }
     }
