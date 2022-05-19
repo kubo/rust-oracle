@@ -513,7 +513,7 @@ impl Connector {
                 valueLength: value.len,
             });
         }
-        if app_context.len() != 0 {
+        if !app_context.is_empty() {
             conn_params.appContext = app_context.as_mut_ptr();
             conn_params.numAppContext = app_context.len() as u32;
         }
@@ -568,7 +568,7 @@ impl fmt::Debug for InnerConn {
             self.handle.raw(),
             self.autocommit,
         )?;
-        if self.tag.len() != 0 {
+        if !self.tag.is_empty() {
             write!(f, ", tag: {:?}", self.tag)?;
         }
         if self.tag_found {

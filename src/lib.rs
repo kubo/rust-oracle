@@ -482,7 +482,7 @@ fn new_odpi_str() -> OdpiStr {
 }
 
 fn to_odpi_str(s: &str) -> OdpiStr {
-    if s.len() == 0 {
+    if s.is_empty() {
         OdpiStr {
             ptr: ptr::null(),
             len: 0,
