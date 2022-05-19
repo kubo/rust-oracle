@@ -111,7 +111,7 @@ where
     let mut stmt = conn.prepare(&format!("select {} from dual", column_literal), &[])?;
     let mut rows = stmt
         .query_as::<T>(&[])
-        .expect(format!("error at {}:{}", file, line).as_str());
+        .unwrap_or_else(|_| panic!("error at {}:{}", file, line));
     assert_eq!(
         rows.column_info()[0].oracle_type(),
         column_type,
@@ -155,7 +155,7 @@ where
     stmt.bind(1, &OracleType::Varchar2(4000))?;
     stmt.bind(2, input_data)?;
     stmt.execute(&[])
-        .expect(format!("error at {}:{}", file, line).as_str());
+        .unwrap_or_else(|_| panic!("error at {}:{}", file, line));
     let result: String = stmt.bind_value(1)?;
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
     Ok(())
