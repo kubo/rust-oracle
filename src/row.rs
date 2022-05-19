@@ -136,9 +136,9 @@ where
     }
 
     fn stmt(&self) -> &Stmt {
-        match &self.stmt {
-            &StmtHolder::Borrowed(stmt) => stmt,
-            &StmtHolder::Owned(ref stmt) => stmt,
+        match self.stmt {
+            StmtHolder::Borrowed(stmt) => stmt,
+            StmtHolder::Owned(ref stmt) => stmt,
         }
     }
 

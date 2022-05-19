@@ -394,9 +394,9 @@ impl MessageDeliveryMode {
 
     fn to_dpi_value(&self) -> dpiMessageDeliveryMode {
         match self {
-            &MessageDeliveryMode::Persistent => DPI_MODE_MSG_PERSISTENT as dpiMessageDeliveryMode,
-            &MessageDeliveryMode::Buffered => DPI_MODE_MSG_PERSISTENT as dpiMessageDeliveryMode,
-            &MessageDeliveryMode::PersistentOrBuffered => {
+            MessageDeliveryMode::Persistent => DPI_MODE_MSG_PERSISTENT as dpiMessageDeliveryMode,
+            MessageDeliveryMode::Buffered => DPI_MODE_MSG_PERSISTENT as dpiMessageDeliveryMode,
+            MessageDeliveryMode::PersistentOrBuffered => {
                 DPI_MODE_MSG_PERSISTENT as dpiMessageDeliveryMode
             }
         }
@@ -468,10 +468,10 @@ impl DeqMode {
 
     fn to_dpi_value(&self) -> dpiDeqMode {
         match self {
-            &DeqMode::Browse => DPI_MODE_DEQ_BROWSE,
-            &DeqMode::Locked => DPI_MODE_DEQ_LOCKED,
-            &DeqMode::Remove => DPI_MODE_DEQ_REMOVE,
-            &DeqMode::RemoveNoData => DPI_MODE_DEQ_REMOVE_NO_DATA,
+            DeqMode::Browse => DPI_MODE_DEQ_BROWSE,
+            DeqMode::Locked => DPI_MODE_DEQ_LOCKED,
+            DeqMode::Remove => DPI_MODE_DEQ_REMOVE,
+            DeqMode::RemoveNoData => DPI_MODE_DEQ_REMOVE_NO_DATA,
         }
     }
 }
@@ -511,9 +511,9 @@ impl DeqNavigation {
 
     fn to_dpi_value(&self) -> dpiDeqNavigation {
         match self {
-            &DeqNavigation::FirstMessage => DPI_DEQ_NAV_FIRST_MSG,
-            &DeqNavigation::NextTransaction => DPI_DEQ_NAV_NEXT_TRANSACTION,
-            &DeqNavigation::NextMessage => DPI_DEQ_NAV_NEXT_MSG,
+            DeqNavigation::FirstMessage => DPI_DEQ_NAV_FIRST_MSG,
+            DeqNavigation::NextTransaction => DPI_DEQ_NAV_NEXT_TRANSACTION,
+            DeqNavigation::NextMessage => DPI_DEQ_NAV_NEXT_MSG,
         }
     }
 }
@@ -545,8 +545,8 @@ impl Visibility {
 
     fn to_dpi_value(&self) -> dpiVisibility {
         match self {
-            &Visibility::Immediate => DPI_VISIBILITY_IMMEDIATE,
-            &Visibility::OnCommit => DPI_VISIBILITY_ON_COMMIT,
+            Visibility::Immediate => DPI_VISIBILITY_IMMEDIATE,
+            Visibility::OnCommit => DPI_VISIBILITY_ON_COMMIT,
         }
     }
 }

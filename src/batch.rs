@@ -87,11 +87,11 @@ impl BindType {
     fn new(oratype: &OracleType) -> BindType {
         BindType {
             oratype: match oratype {
-                &OracleType::Varchar2(size) => Some(OracleType::Varchar2(po2(size))),
-                &OracleType::NVarchar2(size) => Some(OracleType::NVarchar2(po2(size))),
-                &OracleType::Char(size) => Some(OracleType::Char(po2(size))),
-                &OracleType::NChar(size) => Some(OracleType::NChar(po2(size))),
-                &OracleType::Raw(size) => Some(OracleType::Raw(po2(size))),
+                OracleType::Varchar2(size) => Some(OracleType::Varchar2(po2(*size))),
+                OracleType::NVarchar2(size) => Some(OracleType::NVarchar2(po2(*size))),
+                OracleType::Char(size) => Some(OracleType::Char(po2(*size))),
+                OracleType::NChar(size) => Some(OracleType::NChar(po2(*size))),
+                OracleType::Raw(size) => Some(OracleType::Raw(po2(*size))),
                 _ => None,
             },
         }

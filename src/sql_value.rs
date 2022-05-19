@@ -237,14 +237,14 @@ impl SqlValue {
         let mut data: *mut dpiData = ptr::null_mut();
         let (oratype_num, native_type, size, size_is_byte) = match self.lob_bind_type {
             LobBindType::Bytes => match oratype {
-                &OracleType::CLOB => &OracleType::Long,
-                &OracleType::NCLOB => {
+                OracleType::CLOB => &OracleType::Long,
+                OracleType::NCLOB => {
                     // When the size is larger than DPI_MAX_BASIC_BUFFER_SIZE, ODPI-C uses
                     // a dynamic buffer instead of a fixed-size buffer.
                     &OracleType::NVarchar2(DPI_MAX_BASIC_BUFFER_SIZE + 1)
                 }
-                &OracleType::BLOB => &OracleType::LongRaw,
-                &OracleType::BFILE => &OracleType::LongRaw,
+                OracleType::BLOB => &OracleType::LongRaw,
+                OracleType::BFILE => &OracleType::LongRaw,
                 _ => oratype,
             },
             LobBindType::Locator => oratype,

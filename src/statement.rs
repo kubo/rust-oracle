@@ -365,21 +365,21 @@ impl StatementType {
 impl fmt::Display for StatementType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &StatementType::Select => write!(f, "select"),
-            &StatementType::Insert => write!(f, "insert"),
-            &StatementType::Update => write!(f, "update"),
-            &StatementType::Delete => write!(f, "delete"),
-            &StatementType::Merge => write!(f, "merge"),
-            &StatementType::Create => write!(f, "create"),
-            &StatementType::Alter => write!(f, "alter"),
-            &StatementType::Drop => write!(f, "drop"),
-            &StatementType::Begin => write!(f, "PL/SQL(begin)"),
-            &StatementType::Declare => write!(f, "PL/SQL(declare)"),
-            &StatementType::Commit => write!(f, "commit"),
-            &StatementType::Rollback => write!(f, "rollback"),
-            &StatementType::ExplainPlan => write!(f, "explain plan"),
-            &StatementType::Call => write!(f, "call"),
-            &StatementType::Unknown => write!(f, "unknown"),
+            StatementType::Select => write!(f, "select"),
+            StatementType::Insert => write!(f, "insert"),
+            StatementType::Update => write!(f, "update"),
+            StatementType::Delete => write!(f, "delete"),
+            StatementType::Merge => write!(f, "merge"),
+            StatementType::Create => write!(f, "create"),
+            StatementType::Alter => write!(f, "alter"),
+            StatementType::Drop => write!(f, "drop"),
+            StatementType::Begin => write!(f, "PL/SQL(begin)"),
+            StatementType::Declare => write!(f, "PL/SQL(declare)"),
+            StatementType::Commit => write!(f, "commit"),
+            StatementType::Rollback => write!(f, "rollback"),
+            StatementType::ExplainPlan => write!(f, "explain plan"),
+            StatementType::Call => write!(f, "call"),
+            StatementType::Unknown => write!(f, "unknown"),
         }
     }
 }
@@ -520,13 +520,13 @@ impl<'conn> Statement<'conn> {
         let mut builder = conn.statement(sql);
         for param in params {
             match param {
-                &StmtParam::FetchArraySize(size) => {
-                    builder.fetch_array_size(size);
+                StmtParam::FetchArraySize(size) => {
+                    builder.fetch_array_size(*size);
                 }
-                &StmtParam::Scrollable => {
+                StmtParam::Scrollable => {
                     builder.scrollable(true);
                 }
-                &StmtParam::Tag(ref name) => {
+                StmtParam::Tag(name) => {
                     builder.tag(name);
                 }
             }
