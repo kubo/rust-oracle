@@ -831,8 +831,8 @@ impl<'conn> Statement<'conn> {
         method_name: &str,
     ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
-        for i in 0..params.len() {
-            self.bind(i + 1, params[i])?;
+        for (i, param) in params.iter().enumerate() {
+            self.bind(i + 1, *param)?;
         }
         self.exec_common()
     }
@@ -844,8 +844,8 @@ impl<'conn> Statement<'conn> {
         method_name: &str,
     ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
-        for i in 0..params.len() {
-            self.bind(params[i].0, params[i].1)?;
+        for param in params {
+            self.bind(param.0, param.1)?;
         }
         self.exec_common()
     }

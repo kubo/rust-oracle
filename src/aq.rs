@@ -255,9 +255,9 @@ where
     pub fn dequeue(&self) -> Result<MsgProps<T>> {
         let mut props = ptr::null_mut();
         chkerr!(self.ctxt(), dpiQueue_deqOne(self.handle(), &mut props));
-        Ok(MsgProps::from_raw(
+        Ok(MsgProps::from_dpi_msg_props(
             self.conn.clone(),
-            props,
+            DpiMsgProps::new(props),
             self.payload_type.clone(),
         ))
     }
@@ -265,23 +265,27 @@ where
     /// Dequeues multiple messages from the queue.
     pub fn dequeue_many(&self, max_size: u32) -> Result<Vec<MsgProps<T>>> {
         let mut num_props = max_size;
-        let mut raw_props = Vec::with_capacity(max_size as usize);
+        let mut handles = Vec::<DpiMsgProps>::with_capacity(max_size as usize);
         chkerr!(
             self.ctxt(),
-            dpiQueue_deqMany(self.handle(), &mut num_props, raw_props.as_mut_ptr())
+            dpiQueue_deqMany(
+                self.handle(),
+                &mut num_props,
+                // The following code works only when
+                // the size of `*mut dpiMsgProps` equals to that of `DpiMsgProps`.
+                handles.as_mut_ptr() as *mut *mut dpiMsgProps
+            )
         );
         let num_props = num_props as usize;
         unsafe {
-            raw_props.set_len(num_props);
+            handles.set_len(num_props);
         }
-        let mut props = Vec::with_capacity(num_props);
-        for i in 0..num_props {
-            props.push(MsgProps::from_raw(
-                self.conn.clone(),
-                raw_props[i],
-                self.payload_type.clone(),
-            ));
-        }
+        let props: Vec<_> = handles
+            .into_iter()
+            .map(|handle| {
+                MsgProps::from_dpi_msg_props(self.conn.clone(), handle, self.payload_type.clone())
+            })
+            .collect();
         Ok(props)
     }
 
@@ -904,14 +908,14 @@ where
         })
     }
 
-    fn from_raw(
+    fn from_dpi_msg_props(
         conn: Conn,
-        props: *mut dpiMsgProps,
+        handle: DpiMsgProps,
         payload_type: Option<ObjectType>,
     ) -> MsgProps<T> {
         MsgProps {
             conn: conn,
-            handle: DpiMsgProps::new(props),
+            handle: handle,
             payload_type: payload_type,
             phantom: PhantomData,
         }

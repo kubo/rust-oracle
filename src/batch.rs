@@ -452,16 +452,16 @@ impl<'conn> Batch<'conn> {
 
     pub fn append_row(&mut self, params: &[&dyn ToSql]) -> Result<()> {
         self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(i + 1, params[i])?;
+        for (i, param) in params.iter().enumerate() {
+            self.bind_internal(i + 1, *param)?;
         }
         self.append_row_common()
     }
 
     pub fn append_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
         self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(params[i].0, params[i].1)?;
+        for param in params {
+            self.bind_internal(param.0, param.1)?;
         }
         self.append_row_common()
     }

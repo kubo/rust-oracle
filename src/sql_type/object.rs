@@ -746,30 +746,25 @@ impl ObjectTypeInternal {
             }
         } else {
             let attrnum = info.numAttributes as usize;
-            let mut attr_handles = vec![ptr::null_mut(); attrnum];
+            let mut handles = Vec::<DpiObjectAttr>::with_capacity(attrnum);
             chkerr!(
                 conn.ctxt,
                 dpiObjectType_getAttributes(
                     handle.raw(),
                     info.numAttributes,
-                    attr_handles.as_mut_ptr()
+                    // The following code works only when
+                    // the size of `*mut dpiObjectAttr` equals to that of `DpiObjectAttr`.
+                    handles.as_mut_ptr() as *mut *mut dpiObjectAttr
                 )
             );
-            let mut attrs = Vec::with_capacity(attrnum);
-            for i in 0..attrnum {
-                match ObjectTypeAttr::new(conn.clone(), DpiObjectAttr::new(attr_handles[i])) {
-                    Ok(attr) => attrs.push(attr),
-                    Err(err) => {
-                        for j in (i + 1)..attrnum {
-                            unsafe {
-                                dpiObjectAttr_release(attr_handles[j]);
-                            }
-                        }
-                        return Err(err);
-                    }
-                }
+            unsafe {
+                handles.set_len(attrnum);
             }
-            (None, attrs)
+            let attrs: Result<Vec<_>> = handles
+                .into_iter()
+                .map(|handle| ObjectTypeAttr::new(conn.clone(), handle))
+                .collect();
+            (None, attrs?)
         };
         Ok(ObjectTypeInternal {
             conn: conn,
