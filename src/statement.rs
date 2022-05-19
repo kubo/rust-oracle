@@ -963,7 +963,7 @@ impl<'conn> Statement<'conn> {
     where
         I: BindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         let conn = Connection::from_conn(self.conn().clone());
         if self.bind_values[pos].init_handle(&value.oratype(&conn)?)? {
             chkerr!(
@@ -1007,7 +1007,7 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
         T: FromSql,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         self.bind_values[pos].get()
     }
 
@@ -1056,7 +1056,7 @@ impl<'conn> Statement<'conn> {
         if rows == 0 {
             return Ok(vec![]);
         }
-        let mut sqlval = self.bind_values[bindidx.idx(&self)?].unsafely_clone();
+        let mut sqlval = self.bind_values[bindidx.idx(self)?].unsafely_clone();
         if rows > sqlval.array_size as u64 {
             rows = sqlval.array_size as u64;
         }

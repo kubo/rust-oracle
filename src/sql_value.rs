@@ -399,7 +399,7 @@ impl SqlValue {
     /// Gets the Oracle type of the SQL value.
     pub fn oracle_type(&self) -> Result<&OracleType> {
         match self.oratype {
-            Some(ref oratype) => Ok(&oratype),
+            Some(ref oratype) => Ok(oratype),
             None => Err(Error::UninitializedBindValue),
         }
     }

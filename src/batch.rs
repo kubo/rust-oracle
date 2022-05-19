@@ -593,7 +593,7 @@ impl<'conn> Batch<'conn> {
     where
         I: BatchBindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         if self.bind_types[pos].is_some() {
             return Err(Error::InvalidOperation(format!(
                 "The bind parameter type at {} has been specified already.",
@@ -644,7 +644,7 @@ impl<'conn> Batch<'conn> {
     where
         I: BatchBindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         if self.bind_types[pos].is_none() {
             // When the parameter type has not bee specified yet,
             // assume the type from the value
