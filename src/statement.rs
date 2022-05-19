@@ -1187,29 +1187,29 @@ impl<'conn> Statement<'conn> {
 
     /// Returns true when the SQL statement is a PL/SQL block.
     pub fn is_plsql(&self) -> bool {
-        match self.statement_type {
-            StatementType::Begin | StatementType::Declare | StatementType::Call => true,
-            _ => false,
-        }
+        matches!(
+            self.statement_type,
+            StatementType::Begin | StatementType::Declare | StatementType::Call
+        )
     }
 
     /// Returns true when the SQL statement is DDL (data definition language).
     pub fn is_ddl(&self) -> bool {
-        match self.statement_type {
-            StatementType::Create | StatementType::Drop | StatementType::Alter => true,
-            _ => false,
-        }
+        matches!(
+            self.statement_type,
+            StatementType::Create | StatementType::Drop | StatementType::Alter
+        )
     }
 
     /// Returns true when the SQL statement is DML (data manipulation language).
     pub fn is_dml(&self) -> bool {
-        match self.statement_type {
+        matches!(
+            self.statement_type,
             StatementType::Insert
-            | StatementType::Update
-            | StatementType::Delete
-            | StatementType::Merge => true,
-            _ => false,
-        }
+                | StatementType::Update
+                | StatementType::Delete
+                | StatementType::Merge
+        )
     }
 
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
