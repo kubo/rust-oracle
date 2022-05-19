@@ -1033,9 +1033,7 @@ impl SqlValue {
     pub(crate) fn to_bfile(&self) -> Result<Bfile> {
         if self.oratype == Some(OracleType::BFILE) {
             match self.native_type {
-                NativeType::BLOB => {
-                    return Ok(Bfile::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
-                }
+                NativeType::BLOB => return Bfile::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Bfile"),
                 _ => (),
             }
@@ -1046,9 +1044,7 @@ impl SqlValue {
     pub(crate) fn to_blob(&self) -> Result<Blob> {
         if self.oratype == Some(OracleType::BLOB) {
             match self.native_type {
-                NativeType::BLOB => {
-                    return Ok(Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
-                }
+                NativeType::BLOB => return Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Blob"),
                 _ => (),
             }
@@ -1059,9 +1055,7 @@ impl SqlValue {
     pub(crate) fn to_clob(&self) -> Result<Clob> {
         if self.oratype == Some(OracleType::CLOB) {
             match self.native_type {
-                NativeType::CLOB => {
-                    return Ok(Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
-                }
+                NativeType::CLOB => return Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Clob"),
                 _ => (),
             }
@@ -1072,9 +1066,7 @@ impl SqlValue {
     pub(crate) fn to_nclob(&self) -> Result<Nclob> {
         if self.oratype == Some(OracleType::NCLOB) {
             match self.native_type {
-                NativeType::CLOB => {
-                    return Ok(Nclob::from_raw(self.ctxt(), self.get_lob_unchecked()?)?)
-                }
+                NativeType::CLOB => return Nclob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Nclob"),
                 _ => (),
             }

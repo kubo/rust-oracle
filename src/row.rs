@@ -240,7 +240,7 @@ impl RowValue for Row {
 
 impl<T: FromSql> RowValue for T {
     fn get(row: &Row) -> Result<T> {
-        Ok(row.get::<usize, T>(0)?)
+        row.get::<usize, T>(0)
     }
 }
 
