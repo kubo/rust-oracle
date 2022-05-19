@@ -525,7 +525,7 @@ impl<'conn> Batch<'conn> {
                 );
                 unsafe { errs.set_len(errnum as usize) };
                 return Err(Error::BatchErrors(
-                    errs.iter().map(|err| dberror_from_dpi_error(err)).collect(),
+                    errs.iter().map(dberror_from_dpi_error).collect(),
                 ));
             }
         }
