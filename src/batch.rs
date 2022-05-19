@@ -916,7 +916,7 @@ mod tests {
                 assert_eq!(dberr.code(), errcode);
             }
             x => {
-                assert!(false, "got {:?}", x);
+                panic!("got {:?}", x);
             }
         }
         check_rows_inserted(&conn, &expected_rows).unwrap();
