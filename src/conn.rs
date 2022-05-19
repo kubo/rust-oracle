@@ -48,7 +48,7 @@ pub enum Purity {
 }
 
 impl Purity {
-    pub(crate) fn to_dpi(&self) -> dpiPurity {
+    pub(crate) fn to_dpi(self) -> dpiPurity {
         match self {
             Purity::New => DPI_PURITY_NEW,
             Purity::Self_ => DPI_PURITY_SELF,

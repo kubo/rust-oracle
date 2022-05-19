@@ -51,7 +51,7 @@ pub enum CloseMode {
 }
 
 impl CloseMode {
-    fn to_dpi_value(&self) -> dpiPoolCloseMode {
+    fn to_dpi_value(self) -> dpiPoolCloseMode {
         match self {
             CloseMode::Default => DPI_MODE_POOL_CLOSE_DEFAULT,
             CloseMode::Force => DPI_MODE_POOL_CLOSE_FORCE,
@@ -88,7 +88,7 @@ pub enum GetMode {
 }
 
 impl GetMode {
-    fn to_dpi_value(&self) -> dpiPoolGetMode {
+    fn to_dpi_value(self) -> dpiPoolGetMode {
         match self {
             GetMode::Wait => DPI_MODE_POOL_GET_WAIT as dpiPoolGetMode,
             GetMode::NoWait => DPI_MODE_POOL_GET_NOWAIT as dpiPoolGetMode,
@@ -97,7 +97,7 @@ impl GetMode {
         }
     }
 
-    fn to_wait_timeout(&self) -> Result<Option<u32>> {
+    fn to_wait_timeout(self) -> Result<Option<u32>> {
         if let GetMode::TimedWait(ref dur) = self {
             if let Ok(msecs) = dur.as_millis().try_into() {
                 Ok(Some(msecs))

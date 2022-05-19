@@ -147,7 +147,7 @@ pub enum Privilege {
 }
 
 impl Privilege {
-    pub(crate) fn to_dpi(&self) -> dpiAuthMode {
+    pub(crate) fn to_dpi(self) -> dpiAuthMode {
         match self {
             Privilege::Sysdba => DPI_MODE_AUTH_SYSDBA,
             Privilege::Sysoper => DPI_MODE_AUTH_SYSOPER,
