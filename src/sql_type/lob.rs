@@ -799,33 +799,30 @@ mod tests {
     }
 
     #[test]
-    fn read_write_blob() -> Result<()> {
+    fn read_write_blob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
         let conn = test_util::connect()?;
         let mut lob = Blob::new(&conn)?;
-        assert_eq!(lob.seek(io::SeekFrom::Current(0)).unwrap(), 0);
-        lob.write(TEST_DATA.as_bytes()).unwrap();
-        assert_eq!(
-            lob.seek(io::SeekFrom::Current(0)).unwrap(),
-            TEST_DATA.len() as u64
-        );
+        assert_eq!(lob.seek(io::SeekFrom::Current(0))?, 0);
+        assert_eq!(lob.write(TEST_DATA.as_bytes())?, TEST_DATA.len());
+        assert_eq!(lob.seek(io::SeekFrom::Current(0))?, TEST_DATA.len() as u64);
 
         lob.open_resource()?;
         assert!(lob.is_resource_open()?);
-        lob.write(TEST_DATA.as_bytes()).unwrap();
+        assert_eq!(lob.write(TEST_DATA.as_bytes())?, TEST_DATA.len());
         lob.close_resource()?;
         assert!(!lob.is_resource_open()?);
 
-        lob.seek(io::SeekFrom::Start(0)).unwrap();
+        lob.seek(io::SeekFrom::Start(0))?;
         let mut buf = vec![0; TEST_DATA.len()];
-        let len = lob.read(&mut buf).unwrap();
+        let len = lob.read(&mut buf)?;
         assert_eq!(len, TEST_DATA.len());
         assert_eq!(TEST_DATA.as_bytes(), buf);
 
-        let len = lob.read(&mut buf).unwrap();
+        let len = lob.read(&mut buf)?;
         assert_eq!(len, TEST_DATA.len());
         assert_eq!(TEST_DATA.as_bytes(), buf);
         assert_eq!(
-            lob.seek(io::SeekFrom::Current(0)).unwrap(),
+            lob.seek(io::SeekFrom::Current(0))?,
             TEST_DATA.len() as u64 * 2,
         );
 
@@ -837,7 +834,7 @@ mod tests {
     fn query_blob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {
         let conn = test_util::connect()?;
         let mut lob = Blob::new(&conn)?;
-        lob.write(b"BLOB DATA")?;
+        assert_eq!(lob.write(b"BLOB DATA")?, 9);
         conn.execute("insert into TestBLOBs values (1, :1)", &[&lob])?;
         let sql = "select BLOBCol from TestBLOBs where IntCol = 1";
 
@@ -848,9 +845,7 @@ mod tests {
         // query blob as Blob
         let mut stmt = conn.statement(sql).lob_locator().build()?;
         let mut buf = Vec::new();
-        stmt.query_row_as::<Blob>(&[])?
-            .read_to_end(&mut buf)
-            .unwrap();
+        stmt.query_row_as::<Blob>(&[])?.read_to_end(&mut buf)?;
         assert_eq!(buf, b"BLOB DATA");
 
         // error when querying blob as Blob without `StatementBuilder.lob_locator()`.
@@ -895,7 +890,7 @@ mod tests {
         lob.write(&"🦀".as_bytes()[0..1]).unwrap_err();
         lob.write(&"🦀".as_bytes()[0..2]).unwrap_err();
         lob.write(&"🦀".as_bytes()[0..3]).unwrap_err();
-        lob.write(&"🦀".as_bytes()[0..4])?;
+        assert_eq!(lob.write(&"🦀".as_bytes()[0..4])?, 4);
 
         lob.seek_in_chars(io::SeekFrom::Current(-2))?;
         lob.read(&mut buf[0..1]).unwrap_err(); // one byte buffer for four byte UTF-8
