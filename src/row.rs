@@ -40,12 +40,10 @@ pub struct Row {
 
 impl Row {
     pub(crate) fn new(column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
-        let shared = RowSharedData {
-            column_names: column_names,
-        };
+        let shared = RowSharedData { column_names };
         Ok(Row {
             shared: Rc::new(shared),
-            column_values: column_values,
+            column_values,
         })
     }
 
@@ -233,7 +231,7 @@ impl RowValue for Row {
         }
         Ok(Row {
             shared: row.shared.clone(),
-            column_values: column_values,
+            column_values,
         })
     }
 }

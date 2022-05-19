@@ -325,8 +325,8 @@ struct UdtSubObject {
 impl UdtSubObject {
     fn new(sub_number_value: i32, sub_string_value: String) -> UdtSubObject {
         UdtSubObject {
-            sub_number_value: sub_number_value,
-            sub_string_value: sub_string_value,
+            sub_number_value,
+            sub_string_value,
         }
     }
 
@@ -360,13 +360,13 @@ impl UdtObject {
         sub_object_array: Vec<UdtSubObject>,
     ) -> UdtObject {
         UdtObject {
-            number_value: number_value,
-            string_value: string_value,
-            fixed_char_value: fixed_char_value,
-            date_value: date_value,
-            timestamp_value: timestamp_value,
-            sub_object_value: sub_object_value,
-            sub_object_array: sub_object_array,
+            number_value,
+            string_value,
+            fixed_char_value,
+            date_value,
+            timestamp_value,
+            sub_object_value,
+            sub_object_array,
         }
     }
 
@@ -403,7 +403,7 @@ struct UdtArray {
 
 impl UdtArray {
     fn new(val: Vec<Option<i32>>) -> UdtArray {
-        UdtArray { val: val }
+        UdtArray { val }
     }
 
     fn from_oracle_object(coll: Collection) -> Result<UdtArray> {

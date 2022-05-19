@@ -129,7 +129,7 @@ impl RefCursor {
         chkerr!(conn.ctxt, dpiStmt_addRef(handle));
         let mut stmt = Stmt::new(conn, handle, query_params, "".into());
         stmt.init_row(num_query_columns as usize)?;
-        Ok(RefCursor { stmt: stmt })
+        Ok(RefCursor { stmt })
     }
 
     /// Gets rows as an iterator of [`Row`]s.

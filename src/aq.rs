@@ -244,7 +244,7 @@ where
         Ok(Queue {
             conn: conn.conn.clone(),
             handle: DpiQueue::new(handle),
-            payload_type: payload_type,
+            payload_type,
             enq_options: None,
             deq_options: None,
             phantom: PhantomData,
@@ -565,10 +565,7 @@ pub struct DeqOptions {
 
 impl DeqOptions {
     fn new(ctxt: &'static Context, handle: *mut dpiDeqOptions) -> DeqOptions {
-        DeqOptions {
-            ctxt: ctxt,
-            handle: handle,
-        }
+        DeqOptions { ctxt, handle }
     }
 
     /// Returns the condition that must be satisfied in order for a message to be
@@ -801,10 +798,7 @@ pub struct EnqOptions {
 
 impl EnqOptions {
     fn new(ctxt: &'static Context, handle: *mut dpiEnqOptions) -> EnqOptions {
-        EnqOptions {
-            ctxt: ctxt,
-            handle: handle,
-        }
+        EnqOptions { ctxt, handle }
     }
 
     /// Returns the transformation of the message to be enqueued.
@@ -914,9 +908,9 @@ where
         payload_type: Option<ObjectType>,
     ) -> MsgProps<T> {
         MsgProps {
-            conn: conn,
-            handle: handle,
-            payload_type: payload_type,
+            conn,
+            handle,
+            payload_type,
             phantom: PhantomData,
         }
     }

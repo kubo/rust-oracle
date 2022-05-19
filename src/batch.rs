@@ -130,9 +130,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         batch_size: usize,
     ) -> BatchBuilder<'conn, 'sql> {
         BatchBuilder {
-            conn: conn,
-            sql: sql,
-            batch_size: batch_size,
+            conn,
+            sql,
+            batch_size,
             with_batch_errors: false,
             with_row_counts: false,
             query_params: QueryParams::new(),
@@ -220,15 +220,15 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             }
         };
         Ok(Batch {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             statement_type: StatementType::from_enum(info.statementType),
-            bind_count: bind_count,
-            bind_names: bind_names,
-            bind_values: bind_values,
+            bind_count,
+            bind_names,
+            bind_values,
             bind_types: vec![None; bind_count],
             batch_index: 0,
-            batch_size: batch_size,
+            batch_size,
             with_batch_errors: self.with_batch_errors,
             with_row_counts: self.with_row_counts,
             query_params: self.query_params.clone(),
@@ -811,9 +811,9 @@ mod tests {
     impl TestData {
         const fn new(int_val: i32, string_val: &'static str, error_code: Option<i32>) -> TestData {
             TestData {
-                int_val: int_val,
-                string_val: string_val,
-                error_code: error_code,
+                int_val,
+                string_val,
+                error_code,
             }
         }
     }

@@ -126,8 +126,8 @@ impl Timestamp {
             nanosecond: ts.fsecond as u32,
             tz_hour_offset: ts.tzHourOffset as i32,
             tz_minute_offset: ts.tzMinuteOffset as i32,
-            precision: precision,
-            with_tz: with_tz,
+            precision,
+            with_tz,
         }
     }
 
@@ -155,13 +155,13 @@ impl Timestamp {
         nanosecond: u32,
     ) -> Timestamp {
         Timestamp {
-            year: year,
-            month: month,
-            day: day,
-            hour: hour,
-            minute: minute,
-            second: second,
-            nanosecond: nanosecond,
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
+            nanosecond,
             tz_hour_offset: 0,
             tz_minute_offset: 0,
             precision: 9,
@@ -203,10 +203,7 @@ impl Timestamp {
     /// It doesn't affect comparison.
     #[inline]
     pub fn and_prec(&self, precision: u8) -> Timestamp {
-        Timestamp {
-            precision: precision,
-            ..*self
-        }
+        Timestamp { precision, ..*self }
     }
 
     /// Returns the year number from -4713 to 9999.

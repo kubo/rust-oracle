@@ -48,7 +48,7 @@ impl AttrValue {
         AttrValue {
             ctxt: conn.ctxt(),
             handle: Handle::Conn(conn.handle(), handle_type),
-            attr_num: attr_num,
+            attr_num,
         }
     }
 
@@ -56,7 +56,7 @@ impl AttrValue {
         AttrValue {
             ctxt: stmt.ctxt(),
             handle: Handle::Stmt(stmt.handle()),
-            attr_num: attr_num,
+            attr_num,
         }
     }
 

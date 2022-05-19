@@ -112,8 +112,8 @@ impl IntervalDS {
             minutes: it.minutes,
             seconds: it.seconds,
             nanoseconds: it.fseconds,
-            lfprec: lfprec,
-            fsprec: fsprec,
+            lfprec,
+            fsprec,
         }
     }
 
@@ -133,11 +133,11 @@ impl IntervalDS {
     /// All arguments must be zero or negative to create a negative interval.
     pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
         IntervalDS {
-            days: days,
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            nanoseconds: nanoseconds,
+            days,
+            hours,
+            minutes,
+            seconds,
+            nanoseconds,
             lfprec: 9,
             fsprec: 9,
         }
@@ -151,8 +151,8 @@ impl IntervalDS {
     /// They don't affect comparison.
     pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> IntervalDS {
         IntervalDS {
-            lfprec: lfprec,
-            fsprec: fsprec,
+            lfprec,
+            fsprec,
             ..*self
         }
     }

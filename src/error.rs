@@ -97,7 +97,7 @@ pub struct ParseOracleTypeError {
 
 impl ParseOracleTypeError {
     pub fn new(typename: &'static str) -> ParseOracleTypeError {
-        ParseOracleTypeError { typename: typename }
+        ParseOracleTypeError { typename }
     }
 }
 
@@ -142,11 +142,11 @@ impl DbError {
         action: String,
     ) -> DbError {
         DbError {
-            code: code,
-            offset: offset,
-            message: message,
-            fn_name: fn_name,
-            action: action,
+            code,
+            offset,
+            message,
+            fn_name,
+            action,
         }
     }
 

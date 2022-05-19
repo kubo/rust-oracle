@@ -114,8 +114,8 @@ impl IntervalYM {
     /// All arguments must be zero or negative to create a negative interval.
     pub fn new(years: i32, months: i32) -> IntervalYM {
         IntervalYM {
-            years: years,
-            months: months,
+            years,
+            months,
             precision: 9,
         }
     }
@@ -125,10 +125,7 @@ impl IntervalYM {
     /// The precision affects text representation of IntervalYM.
     /// It doesn't affect comparison.
     pub fn and_prec(&self, precision: u8) -> IntervalYM {
-        IntervalYM {
-            precision: precision,
-            ..*self
-        }
+        IntervalYM { precision, ..*self }
     }
 
     /// Returns years component.

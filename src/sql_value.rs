@@ -152,17 +152,17 @@ impl SqlValue {
         array_size: u32,
     ) -> SqlValue {
         SqlValue {
-            conn: conn,
+            conn,
             handle: ptr::null_mut(),
             data: ptr::null_mut(),
             native_type: NativeType::Int64,
             oratype: None,
-            array_size: array_size,
+            array_size,
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
             keep_dpiobj: ptr::null_mut(),
-            lob_bind_type: lob_bind_type,
-            query_params: query_params,
+            lob_bind_type,
+            query_params,
         }
     }
 
@@ -182,10 +182,10 @@ impl SqlValue {
     ) -> Result<SqlValue> {
         let (_, native_type, _, _) = oratype.var_create_param()?;
         Ok(SqlValue {
-            conn: conn,
+            conn,
             handle: ptr::null_mut(),
             data: data as *mut dpiData,
-            native_type: native_type,
+            native_type,
             oratype: Some(oratype.clone()),
             array_size: 0,
             buffer_row_index: BufferRowIndex::Owned(0),

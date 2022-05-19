@@ -540,7 +540,7 @@ impl InnerConn {
         conn_params: &dpiConnCreateParams,
     ) -> InnerConn {
         InnerConn {
-            ctxt: ctxt,
+            ctxt,
             handle: DpiConn::new(handle),
             autocommit: Mutex::new(false),
             objtype_cache: Mutex::new(HashMap::new()),
@@ -659,7 +659,7 @@ impl Connection {
     }
 
     pub(crate) fn from_conn(conn: Conn) -> Connection {
-        Connection { conn: conn }
+        Connection { conn }
     }
 
     pub(crate) fn from_dpi_handle(

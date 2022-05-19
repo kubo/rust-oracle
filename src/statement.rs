@@ -90,8 +90,8 @@ pub struct StatementBuilder<'conn, 'sql> {
 impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     pub(crate) fn new(conn: &'conn Connection, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
         StatementBuilder {
-            conn: conn,
-            sql: sql,
+            conn,
+            sql,
             query_params: QueryParams::new(),
             scrollable: false,
             tag: "".into(),
@@ -403,13 +403,13 @@ impl Stmt {
         tag: String,
     ) -> Stmt {
         Stmt {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             column_info: Vec::new(),
             row: None,
             shared_buffer_row_index: Rc::new(RefCell::new(0)),
-            query_params: query_params,
-            tag: tag,
+            query_params,
+            tag,
         }
     }
 
@@ -603,9 +603,9 @@ impl<'conn> Statement<'conn> {
             stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone(), tag),
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
-            bind_count: bind_count,
-            bind_names: bind_names,
-            bind_values: bind_values,
+            bind_count,
+            bind_names,
+            bind_values,
             phantom: PhantomData,
         })
     }

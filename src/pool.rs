@@ -576,7 +576,7 @@ impl PoolBuilder {
             )
         );
         Ok(Pool {
-            ctxt: ctxt,
+            ctxt,
             handle: DpiPool::new(handle),
         })
     }

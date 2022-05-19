@@ -84,9 +84,9 @@ pub struct Collection {
 impl Collection {
     pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Collection {
         Collection {
-            conn: conn,
-            handle: handle,
-            objtype: objtype,
+            conn,
+            handle,
+            objtype,
         }
     }
 
@@ -369,9 +369,9 @@ pub struct Object {
 impl Object {
     pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Object {
         Object {
-            conn: conn,
-            handle: handle,
-            objtype: objtype,
+            conn,
+            handle,
+            objtype,
         }
     }
 
@@ -678,8 +678,8 @@ impl ObjectTypeAttr {
         let info = unsafe { info.assume_init() };
         Ok(ObjectTypeAttr {
             oratype: OracleType::from_type_info(&conn, &info.typeInfo)?,
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             name: to_rust_str(info.name, info.nameLength),
         })
     }
@@ -767,12 +767,12 @@ impl ObjectTypeInternal {
             (None, attrs?)
         };
         Ok(ObjectTypeInternal {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             schema: to_rust_str(info.schema, info.schemaLength),
             name: to_rust_str(info.name, info.nameLength),
-            elem_oratype: elem_oratype,
-            attrs: attrs,
+            elem_oratype,
+            attrs,
         })
     }
 }

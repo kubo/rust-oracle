@@ -34,8 +34,8 @@ impl<'a> Scanner<'a> {
         let mut chars = s.chars();
         let char = chars.next();
         Scanner {
-            chars: chars,
-            char: char,
+            chars,
+            char,
             ndigits: 0,
         }
     }

@@ -61,8 +61,8 @@ impl LobLocator {
     fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<LobLocator> {
         chkerr!(ctxt, dpiLob_addRef(handle));
         Ok(LobLocator {
-            ctxt: ctxt,
-            handle: handle,
+            ctxt,
+            handle,
             pos: 0,
         })
     }

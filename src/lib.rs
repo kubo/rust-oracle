@@ -333,13 +333,13 @@ macro_rules! define_dpi_data_with_refcount {
 
             impl [<Dpi $name>] {
                 fn new(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
-                    [<Dpi $name>] { raw: raw }
+                    [<Dpi $name>] { raw }
                 }
 
                 #[allow(dead_code)]
                 fn with_add_ref(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
                     unsafe { [<dpi $name _addRef>](raw) };
-                    [<Dpi $name>] { raw: raw }
+                    [<Dpi $name>] { raw }
                 }
 
                 pub(crate) fn raw(&self) -> *mut [<dpi $name>] {
