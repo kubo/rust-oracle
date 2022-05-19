@@ -83,7 +83,7 @@ macro_rules! define_fn_to_int {
                 NativeType::Double =>
                     flt_to_int!(self.get_f64_unchecked()?, f64, $type),
                 NativeType::Char |
-                NativeType::CLOB |
+                NativeType::Clob |
                 NativeType::Number =>
                     Ok(self.get_string()?.parse()?),
                 _ =>
@@ -407,7 +407,7 @@ impl SqlValue {
     fn get_string(&self) -> Result<String> {
         match self.native_type {
             NativeType::Char | NativeType::Number => self.get_string_unchecked(),
-            NativeType::CLOB => self.get_clob_as_string_unchecked(),
+            NativeType::Clob => self.get_clob_as_string_unchecked(),
             _ => self.invalid_conversion_to_rust_type("String"),
         }
     }
@@ -855,7 +855,7 @@ impl SqlValue {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()?.try_into()?),
             NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, i64),
             NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, i64),
-            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+            NativeType::Char | NativeType::Clob | NativeType::Number => {
                 Ok(self.get_string()?.parse()?)
             }
             _ => self.invalid_conversion_to_rust_type("i64"),
@@ -887,7 +887,7 @@ impl SqlValue {
             NativeType::UInt64 => self.get_u64_unchecked(),
             NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, u64),
             NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, u64),
-            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+            NativeType::Char | NativeType::Clob | NativeType::Number => {
                 Ok(self.get_string()?.parse()?)
             }
             _ => self.invalid_conversion_to_rust_type("u64"),
@@ -902,7 +902,7 @@ impl SqlValue {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f32),
             NativeType::Float => self.get_f32_unchecked(),
             NativeType::Double => Ok(self.get_f64_unchecked()? as f32),
-            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+            NativeType::Char | NativeType::Clob | NativeType::Number => {
                 Ok(self.get_string()?.parse()?)
             }
             _ => self.invalid_conversion_to_rust_type("f32"),
@@ -917,7 +917,7 @@ impl SqlValue {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f64),
             NativeType::Float => Ok(self.get_f32_unchecked()? as f64),
             NativeType::Double => self.get_f64_unchecked(),
-            NativeType::Char | NativeType::CLOB | NativeType::Number => {
+            NativeType::Char | NativeType::Clob | NativeType::Number => {
                 Ok(self.get_string()?.parse()?)
             }
             _ => self.invalid_conversion_to_rust_type("f64"),
@@ -936,8 +936,8 @@ impl SqlValue {
             NativeType::Timestamp => Ok(self.get_timestamp_unchecked()?.to_string()),
             NativeType::IntervalDS => Ok(self.get_interval_ds_unchecked()?.to_string()),
             NativeType::IntervalYM => Ok(self.get_interval_ym_unchecked()?.to_string()),
-            NativeType::CLOB => self.get_clob_as_string_unchecked(),
-            NativeType::BLOB => self.get_blob_as_hex_string_unchecked(),
+            NativeType::Clob => self.get_clob_as_string_unchecked(),
+            NativeType::Blob => self.get_blob_as_hex_string_unchecked(),
             NativeType::Object(ref objtype) => {
                 if objtype.is_collection() {
                     Ok(self.get_collection_unchecked(objtype)?.to_string())
@@ -959,8 +959,8 @@ impl SqlValue {
     pub(crate) fn to_bytes(&self) -> Result<Vec<u8>> {
         match self.native_type {
             NativeType::Raw => self.get_raw_unchecked(),
-            NativeType::BLOB => self.get_blob_unchecked(),
-            NativeType::Char | NativeType::CLOB => Ok(parse_str_into_raw(&self.get_string()?)?),
+            NativeType::Blob => self.get_blob_unchecked(),
+            NativeType::Char | NativeType::Clob => Ok(parse_str_into_raw(&self.get_string()?)?),
             _ => self.invalid_conversion_to_rust_type("raw"),
         }
     }
@@ -970,7 +970,7 @@ impl SqlValue {
     pub(crate) fn to_timestamp(&self) -> Result<Timestamp> {
         match self.native_type {
             NativeType::Timestamp => self.get_timestamp_unchecked(),
-            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            NativeType::Char | NativeType::Clob => Ok(self.get_string()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("Timestamp"),
         }
     }
@@ -980,7 +980,7 @@ impl SqlValue {
     pub(crate) fn to_interval_ds(&self) -> Result<IntervalDS> {
         match self.native_type {
             NativeType::IntervalDS => self.get_interval_ds_unchecked(),
-            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            NativeType::Char | NativeType::Clob => Ok(self.get_string()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("IntervalDS"),
         }
     }
@@ -990,7 +990,7 @@ impl SqlValue {
     pub(crate) fn to_interval_ym(&self) -> Result<IntervalYM> {
         match self.native_type {
             NativeType::IntervalYM => self.get_interval_ym_unchecked(),
-            NativeType::Char | NativeType::CLOB => Ok(self.get_string()?.parse()?),
+            NativeType::Char | NativeType::Clob => Ok(self.get_string()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("IntervalYM"),
         }
     }
@@ -1033,7 +1033,7 @@ impl SqlValue {
     pub(crate) fn to_bfile(&self) -> Result<Bfile> {
         if self.oratype == Some(OracleType::BFILE) {
             match self.native_type {
-                NativeType::BLOB => return Bfile::from_raw(self.ctxt(), self.get_lob_unchecked()?),
+                NativeType::Blob => return Bfile::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Bfile"),
                 _ => (),
             }
@@ -1044,7 +1044,7 @@ impl SqlValue {
     pub(crate) fn to_blob(&self) -> Result<Blob> {
         if self.oratype == Some(OracleType::BLOB) {
             match self.native_type {
-                NativeType::BLOB => return Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
+                NativeType::Blob => return Blob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Blob"),
                 _ => (),
             }
@@ -1055,7 +1055,7 @@ impl SqlValue {
     pub(crate) fn to_clob(&self) -> Result<Clob> {
         if self.oratype == Some(OracleType::CLOB) {
             match self.native_type {
-                NativeType::CLOB => return Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
+                NativeType::Clob => return Clob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Clob"),
                 _ => (),
             }
@@ -1066,7 +1066,7 @@ impl SqlValue {
     pub(crate) fn to_nclob(&self) -> Result<Nclob> {
         if self.oratype == Some(OracleType::NCLOB) {
             match self.native_type {
-                NativeType::CLOB => return Nclob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
+                NativeType::Clob => return Nclob::from_raw(self.ctxt(), self.get_lob_unchecked()?),
                 NativeType::Raw => return self.lob_locator_is_not_set("Nclob"),
                 _ => (),
             }
@@ -1154,8 +1154,8 @@ impl SqlValue {
             NativeType::Timestamp => self.set_timestamp_unchecked(&val.parse()?),
             NativeType::IntervalDS => self.set_interval_ds_unchecked(&val.parse()?),
             NativeType::IntervalYM => self.set_interval_ym_unchecked(&val.parse()?),
-            NativeType::CLOB => self.set_string_to_clob_unchecked(val),
-            NativeType::BLOB => self.set_raw_to_blob_unchecked(&parse_str_into_raw(val)?),
+            NativeType::Clob => self.set_string_to_clob_unchecked(val),
+            NativeType::Blob => self.set_raw_to_blob_unchecked(&parse_str_into_raw(val)?),
             _ => self.invalid_conversion_from_rust_type("&str"),
         }
     }
@@ -1164,7 +1164,7 @@ impl SqlValue {
     pub(crate) fn set_bytes(&mut self, val: &[u8]) -> Result<()> {
         match self.native_type {
             NativeType::Raw => self.set_raw_unchecked(val),
-            NativeType::BLOB => self.set_raw_to_blob_unchecked(val),
+            NativeType::Blob => self.set_raw_to_blob_unchecked(val),
             _ => self.invalid_conversion_from_rust_type("&[u8]"),
         }
     }
@@ -1224,7 +1224,7 @@ impl SqlValue {
     pub(crate) fn set_bfile(&mut self, val: &Bfile) -> Result<()> {
         if self.oratype == Some(OracleType::BFILE) {
             match self.native_type {
-                NativeType::BLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Blob => return self.set_lob_unchecked(val.lob.handle),
                 NativeType::Raw => return self.lob_locator_is_not_set("Bfile"),
                 _ => (),
             }
@@ -1235,7 +1235,7 @@ impl SqlValue {
     pub(crate) fn set_blob(&mut self, val: &Blob) -> Result<()> {
         if self.oratype == Some(OracleType::BLOB) {
             match self.native_type {
-                NativeType::BLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Blob => return self.set_lob_unchecked(val.lob.handle),
                 NativeType::Raw => return self.lob_locator_is_not_set("Blob"),
                 _ => (),
             }
@@ -1246,7 +1246,7 @@ impl SqlValue {
     pub(crate) fn set_clob(&mut self, val: &Clob) -> Result<()> {
         if self.oratype == Some(OracleType::CLOB) {
             match self.native_type {
-                NativeType::CLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Clob => return self.set_lob_unchecked(val.lob.handle),
                 NativeType::Raw => return self.lob_locator_is_not_set("Clob"),
                 _ => (),
             }
@@ -1257,7 +1257,7 @@ impl SqlValue {
     pub(crate) fn set_nclob(&mut self, val: &Nclob) -> Result<()> {
         if self.oratype == Some(OracleType::NCLOB) {
             match self.native_type {
-                NativeType::CLOB => return self.set_lob_unchecked(val.lob.handle),
+                NativeType::Clob => return self.set_lob_unchecked(val.lob.handle),
                 NativeType::Raw => return self.lob_locator_is_not_set("Nclob"),
                 _ => (),
             }
@@ -1307,7 +1307,7 @@ impl fmt::Debug for SqlValue {
             write!(f, "SqlValue {{ val: ")?;
             match self.to_string() {
                 Ok(s) => match self.native_type {
-                    NativeType::Char | NativeType::Raw | NativeType::CLOB | NativeType::BLOB => {
+                    NativeType::Char | NativeType::Raw | NativeType::Clob | NativeType::Blob => {
                         write!(f, "{:?}", s)
                     }
                     _ => write!(f, "{}", s),
