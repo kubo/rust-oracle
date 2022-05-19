@@ -814,15 +814,13 @@ impl<'conn> Statement<'conn> {
                     method_name
                 )))
             }
+        } else if self.statement_type != StatementType::Select {
+            Ok(())
         } else {
-            if self.statement_type != StatementType::Select {
-                Ok(())
-            } else {
-                Err(Error::InvalidOperation(format!(
-                    "Could not use the `{}` method for select statements",
-                    method_name
-                )))
-            }
+            Err(Error::InvalidOperation(format!(
+                "Could not use the `{}` method for select statements",
+                method_name
+            )))
         }
     }
 
@@ -881,10 +879,8 @@ impl<'conn> Statement<'conn> {
                 _ => (),
             }
         }
-        if self.statement_type == StatementType::Select {
-            if self.stmt.row.is_none() {
-                self.stmt.init_row(num_query_columns as usize)?;
-            }
+        if self.statement_type == StatementType::Select && self.stmt.row.is_none() {
+            self.stmt.init_row(num_query_columns as usize)?;
         }
         if self.is_returning {
             for val in self.bind_values.iter_mut() {
