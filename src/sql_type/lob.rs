@@ -73,14 +73,23 @@ impl LobLocator {
     }
 
     fn read_bytes(&mut self, amount: usize, buf: &mut [u8]) -> Result<usize> {
-        let mut len = buf.len() as u64;
+        unsafe { self.read_bytes_unsafe(amount, buf.as_mut_ptr(), buf.len()) }
+    }
+
+    unsafe fn read_bytes_unsafe(
+        &mut self,
+        amount: usize,
+        buf: *mut u8,
+        len: usize,
+    ) -> Result<usize> {
+        let mut len = len as u64;
         chkerr!(
             self.ctxt,
             dpiLob_readBytes(
                 self.handle,
                 self.pos + 1,
                 amount as u64,
-                buf.as_mut_ptr() as *mut c_char,
+                buf as *mut c_char,
                 &mut len
             )
         );
@@ -136,11 +145,10 @@ impl LobLocator {
         let rest_size: usize = (lob_size - self.pos)
             .try_into()
             .map_err(|_| too_long_data_err())?;
-        let buf_len = buf.len();
         let rest_byte_size = rest_size
             .checked_mul(nls_ratio)
             .filter(|n| {
-                if let Some(len) = buf_len.checked_add(*n) {
+                if let Some(len) = buf.len().checked_add(*n) {
                     len <= isize::MAX as usize
                 } else {
                     false
@@ -148,14 +156,15 @@ impl LobLocator {
             })
             .ok_or_else(too_long_data_err)?;
         buf.reserve(rest_byte_size);
-        unsafe {
-            buf.set_len(buf_len + rest_byte_size);
+        match unsafe {
+            self.read_bytes_unsafe(rest_size, buf.as_mut_ptr().add(buf.len()), rest_byte_size)
+        } {
+            Ok(size) => {
+                unsafe { buf.set_len(buf.len() + size) };
+                Ok(size)
+            }
+            Err(err) => map_to_io_error(Err(err)),
         }
-        let result = self.read_bytes(rest_size, &mut buf[buf_len..]);
-        unsafe {
-            buf.set_len(buf_len + result.as_ref().unwrap_or(&0));
-        }
-        map_to_io_error(result)
     }
 
     /// read_to_end for `BLOB` and `BFILE`
