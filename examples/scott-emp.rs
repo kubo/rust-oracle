@@ -39,7 +39,7 @@ fn main() -> Result<()> {
             info.oracle_type()
         );
     }
-    println!("");
+    println!();
 
     for row_result in rows {
         let row = row_result?;

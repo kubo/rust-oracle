@@ -35,7 +35,7 @@ fn main() -> Result<()> {
         }
         print!("{}", info);
     }
-    println!("");
+    println!();
 
     for row_result in rows {
         // print column values
@@ -45,7 +45,7 @@ fn main() -> Result<()> {
             }
             print!("{}", val);
         }
-        println!("");
+        println!();
     }
     Ok(())
 }
