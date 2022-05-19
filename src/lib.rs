@@ -496,6 +496,7 @@ fn to_odpi_str(s: &str) -> OdpiStr {
 }
 
 impl OdpiStr {
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         to_rust_str(self.ptr, self.len)
     }
