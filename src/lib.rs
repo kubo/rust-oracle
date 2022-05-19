@@ -465,22 +465,6 @@ impl Context {
     }
 }
 
-impl Default for dpiTimestamp {
-    fn default() -> dpiTimestamp {
-        dpiTimestamp {
-            year: 0,
-            month: 0,
-            day: 0,
-            hour: 0,
-            minute: 0,
-            second: 0,
-            fsecond: 0,
-            tzHourOffset: 0,
-            tzMinuteOffset: 0,
-        }
-    }
-}
-
 //
 // Utility struct to convert Rust strings from/to ODPI-C strings
 //
