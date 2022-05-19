@@ -192,7 +192,7 @@ impl RefCursor {
     /// }
     /// # Ok::<(), Error>(())
     /// ```
-    pub fn query_as<'a, T>(&'a mut self) -> Result<ResultSet<'a, T>>
+    pub fn query_as<T>(&mut self) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {
