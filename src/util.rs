@@ -119,7 +119,7 @@ pub fn check_number_format(s: &str) -> result::Result<(), ParseOracleTypeError> 
         }
         _ => (),
     }
-    if let Some(_) = s.char() {
+    if s.char().is_some() {
         return Err(err());
     }
     Ok(())
