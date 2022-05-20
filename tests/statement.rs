@@ -181,8 +181,7 @@ fn query() -> Result<()> {
         common::assert_test_string_row(idx + 3, &row);
     }
 
-    let res_vec: Vec<_> = stmt.query(&[&2])?.collect();
-    for (idx, row_result) in res_vec.into_iter().enumerate() {
+    for (idx, row_result) in stmt.query(&[&2])?.enumerate() {
         let row = row_result?;
         common::assert_test_string_row(idx + 2, &row);
     }
