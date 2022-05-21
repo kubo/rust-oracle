@@ -26,14 +26,14 @@ fn main() -> Result<()> {
 
     // stmt.define("HIREDATE", OracleType::Varchar2(60))?;
 
-    println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
+    println!(" {:-30} {:-8} {:0}", "Name", "Null?", "Type");
     println!(
-        " {:-30} {:-8} {}",
+        " {:-30} {:-8} {:0}",
         "------------------------------", "--------", "----------------------------"
     );
     for info in rows.column_info() {
         println!(
-            " {:-30} {:-8} {}",
+            " {:-30} {:-8} {:0}",
             info.name(),
             if info.nullable() { "" } else { "NOT NULL" },
             info.oracle_type()
