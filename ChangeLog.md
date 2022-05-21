@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.6 (20XX-XX-XX)
+
+Internal Changes:
+
+* Update ODPI-C to 4.4.1. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
+
 ## 0.5.5 (2022-05-11)
 
 New features:
