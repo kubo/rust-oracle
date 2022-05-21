@@ -265,7 +265,7 @@ fn dml_returning() -> Result<()> {
     // update 10 rows
     stmt.execute(&[&1])?;
     let mut updated_int_col: Vec<i32> = stmt.returned_values(2)?;
-    updated_int_col.sort();
+    updated_int_col.sort_unstable();
     assert_eq!(updated_int_col, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
     // update no rows
