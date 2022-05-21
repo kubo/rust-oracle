@@ -182,8 +182,16 @@ impl RowValue for TestString {
     }
 }
 
+type TestStringsTableRow = (
+    i32,
+    &'static str,
+    &'static [u8],
+    &'static str,
+    Option<&'static str>,
+);
+
 #[allow(dead_code)]
-const VALUES_IN_TEST_STRINGS: [(i32, &str, &[u8], &str, Option<&str>); 11] = [
+const VALUES_IN_TEST_STRINGS: [TestStringsTableRow; 11] = [
     (0, "", b"", "", None),
     (
         1,
