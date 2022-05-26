@@ -11,7 +11,7 @@ This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md).
 
 ## Build-time Requirements
-
+* Rust 1.54.0 or newer
 * C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
 
 ## Run-time Requirements
