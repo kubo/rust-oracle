@@ -162,7 +162,7 @@ impl RefCursor {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn query(&mut self) -> Result<ResultSet<Row>> {
-        Ok(ResultSet::<Row>::new(&self.stmt))
+        Ok(ResultSet::<Row>::new(&mut self.stmt))
     }
 
     /// Gets rows as an itertor of the specified type.
@@ -196,7 +196,7 @@ impl RefCursor {
     where
         T: RowValue,
     {
-        Ok(ResultSet::<T>::new(&self.stmt))
+        Ok(ResultSet::<T>::new(&mut self.stmt))
     }
 
     /// Gets one row as [`Row`].

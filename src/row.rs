@@ -107,7 +107,7 @@ impl fmt::Debug for Row {
 
 #[derive(Debug)]
 enum StmtHolder<'a> {
-    Borrowed(&'a Stmt),
+    Borrowed(&'a mut Stmt),
     Owned(Stmt),
 }
 
@@ -144,7 +144,7 @@ impl<'a, T> ResultSet<'a, T>
 where
     T: RowValue,
 {
-    pub(crate) fn new(stmt: &'a Stmt) -> ResultSet<'a, T> {
+    pub(crate) fn new(stmt: &'a mut Stmt) -> ResultSet<'a, T> {
         ResultSet {
             stmt: StmtHolder::Borrowed(stmt),
             phantom: PhantomData,
@@ -160,8 +160,15 @@ where
 
     fn stmt(&self) -> &Stmt {
         match self.stmt {
-            StmtHolder::Borrowed(stmt) => stmt,
+            StmtHolder::Borrowed(ref stmt) => stmt,
             StmtHolder::Owned(ref stmt) => stmt,
+        }
+    }
+
+    fn stmt_mut(&mut self) -> &mut Stmt {
+        match self.stmt {
+            StmtHolder::Borrowed(ref mut stmt) => stmt,
+            StmtHolder::Owned(ref mut stmt) => stmt,
         }
     }
 
@@ -179,7 +186,7 @@ where
     type Item = Result<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.stmt()
+        self.stmt_mut()
             .next()
             .map(|row_result| row_result.and_then(|row| row.get_as::<T>()))
     }

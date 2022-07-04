@@ -430,7 +430,7 @@ impl Stmt {
         Ok(())
     }
 
-    fn try_next(&self) -> Result<Option<&Row>> {
+    fn try_next(&mut self) -> Result<Option<&Row>> {
         let mut found = 0;
         let mut buffer_row_index = 0;
         chkerr!(
@@ -447,7 +447,7 @@ impl Stmt {
         })
     }
 
-    pub fn next(&self) -> Option<Result<&Row>> {
+    pub fn next(&mut self) -> Option<Result<&Row>> {
         self.try_next().transpose()
     }
 
@@ -565,7 +565,7 @@ impl Statement {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query(&mut self, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
         self.exec(params, true, "query")?;
-        Ok(ResultSet::<Row>::new(&self.stmt))
+        Ok(ResultSet::<Row>::new(&mut self.stmt))
     }
 
     /// Executes the prepared statement using named parameters and returns a result set containing [`Row`]s.
@@ -575,7 +575,7 @@ impl Statement {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
         self.exec_named(params, true, "query_named")?;
-        Ok(ResultSet::<Row>::new(&self.stmt))
+        Ok(ResultSet::<Row>::new(&mut self.stmt))
     }
 
     /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
@@ -588,7 +588,7 @@ impl Statement {
         T: RowValue,
     {
         self.exec(params, true, "query_as")?;
-        Ok(ResultSet::new(&self.stmt))
+        Ok(ResultSet::new(&mut self.stmt))
     }
 
     /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
@@ -616,7 +616,7 @@ impl Statement {
         T: RowValue,
     {
         self.exec_named(params, true, "query_as_named")?;
-        Ok(ResultSet::new(&self.stmt))
+        Ok(ResultSet::new(&mut self.stmt))
     }
 
     /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
