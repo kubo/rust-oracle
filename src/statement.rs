@@ -360,6 +360,8 @@ pub(crate) struct Stmt {
     pub(crate) handle: DpiStmt,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Arc<AtomicU32>,
+    last_buffer_row_index: u32,
+    more_rows: bool,
     pub(crate) query_params: QueryParams,
     tag: String,
 }
@@ -371,6 +373,8 @@ impl Stmt {
             handle,
             row: None,
             shared_buffer_row_index: Arc::new(AtomicU32::new(0)),
+            last_buffer_row_index: 0,
+            more_rows: false,
             query_params,
             tag,
         }
@@ -395,6 +399,12 @@ impl Stmt {
     }
 
     pub(crate) fn init_row(&mut self, num_cols: usize) -> Result<()> {
+        self.shared_buffer_row_index.store(0, Ordering::Relaxed);
+        self.last_buffer_row_index = 0;
+        self.more_rows = true;
+        if self.row.is_some() {
+            return Ok(());
+        }
         let mut column_info = Vec::with_capacity(num_cols);
         let mut column_values = Vec::with_capacity(num_cols);
 
@@ -431,24 +441,42 @@ impl Stmt {
     }
 
     fn try_next(&mut self) -> Result<Option<&Row>> {
-        let mut found = 0;
-        let mut buffer_row_index = 0;
-        chkerr!(
-            self.ctxt(),
-            dpiStmt_fetch(self.handle(), &mut found, &mut buffer_row_index)
-        );
-        Ok(if found != 0 {
+        let index = self.shared_buffer_row_index.load(Ordering::Relaxed);
+        let last_index = self.last_buffer_row_index;
+        if index + 1 < last_index {
             self.shared_buffer_row_index
-                .store(buffer_row_index, Ordering::Relaxed);
-            // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
-            Some(self.row.as_ref().unwrap())
+                .store(index + 1, Ordering::Relaxed);
+            Ok(Some(self.row.as_ref().unwrap()))
+        } else if self.more_rows && self.fetch_rows()? {
+            Ok(Some(self.row.as_ref().unwrap()))
         } else {
-            None
-        })
+            Ok(None)
+        }
     }
 
     pub fn next(&mut self) -> Option<Result<&Row>> {
         self.try_next().transpose()
+    }
+
+    pub fn fetch_rows(&mut self) -> Result<bool> {
+        let mut new_index = 0;
+        let mut num_rows = 0;
+        let mut more_rows = 0;
+        chkerr!(
+            self.ctxt(),
+            dpiStmt_fetchRows(
+                self.handle(),
+                self.query_params.fetch_array_size,
+                &mut new_index,
+                &mut num_rows,
+                &mut more_rows
+            )
+        );
+        self.shared_buffer_row_index
+            .store(new_index, Ordering::Relaxed);
+        self.last_buffer_row_index = new_index + num_rows;
+        self.more_rows = more_rows != 0;
+        Ok(num_rows != 0)
     }
 
     pub fn row_count(&self) -> Result<u64> {
@@ -814,7 +842,7 @@ impl Statement {
                 _ => (),
             }
         }
-        if self.statement_type == StatementType::Select && self.stmt.row.is_none() {
+        if self.statement_type == StatementType::Select {
             self.stmt.init_row(num_query_columns as usize)?;
         }
         if self.is_returning {
