@@ -14,13 +14,13 @@
 //-----------------------------------------------------------------------------
 
 use std::borrow::ToOwned;
-use std::cell::RefCell;
 use std::fmt;
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::binding::*;
 use crate::chkerr;
@@ -390,7 +390,7 @@ pub(crate) struct Stmt {
     pub(crate) handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
-    shared_buffer_row_index: Rc<RefCell<u32>>,
+    shared_buffer_row_index: Rc<AtomicU32>,
     pub(crate) query_params: QueryParams,
     tag: String,
 }
@@ -407,7 +407,7 @@ impl Stmt {
             handle,
             column_info: Vec::new(),
             row: None,
-            shared_buffer_row_index: Rc::new(RefCell::new(0)),
+            shared_buffer_row_index: Rc::new(AtomicU32::new(0)),
             query_params,
             tag,
         }
@@ -474,7 +474,8 @@ impl Stmt {
         let mut buffer_row_index = 0;
         if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
             if found != 0 {
-                *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
+                self.shared_buffer_row_index
+                    .store(buffer_row_index, Ordering::Relaxed);
                 // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
                 Some(Ok(self.row.as_ref().unwrap()))
             } else {

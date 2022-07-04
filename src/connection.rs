@@ -18,6 +18,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::mem::{self, MaybeUninit};
 use std::ptr;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -526,7 +527,7 @@ pub(crate) type Conn = Arc<InnerConn>;
 pub(crate) struct InnerConn {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: DpiConn,
-    pub(crate) autocommit: Mutex<bool>,
+    pub(crate) autocommit: AtomicBool,
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
     tag_found: bool,
@@ -542,7 +543,7 @@ impl InnerConn {
         InnerConn {
             ctxt,
             handle: DpiConn::new(handle),
-            autocommit: Mutex::new(false),
+            autocommit: AtomicBool::new(false),
             objtype_cache: Mutex::new(HashMap::new()),
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
             tag_found: conn_params.outTagFound != 0,
@@ -551,7 +552,7 @@ impl InnerConn {
     }
 
     pub fn autocommit(&self) -> bool {
-        *self.autocommit.lock().unwrap()
+        self.autocommit.load(Ordering::Relaxed)
     }
 
     pub fn clear_object_type_cache(&self) -> Result<()> {
@@ -1027,7 +1028,7 @@ impl Connection {
     /// Enables or disables autocommit mode.
     /// It is disabled by default.
     pub fn set_autocommit(&mut self, autocommit: bool) {
-        *self.conn.autocommit.lock().unwrap() = autocommit;
+        self.conn.autocommit.store(autocommit, Ordering::Relaxed)
     }
 
     /// Cancels execution of running statements in the connection

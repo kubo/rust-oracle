@@ -13,13 +13,13 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cell::RefCell;
 use std::convert::TryInto;
 use std::fmt;
 use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
 use std::str;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::binding::*;
 use crate::binding_impl::DPI_MAX_BASIC_BUFFER_SIZE;
@@ -119,7 +119,7 @@ macro_rules! define_fn_set_int {
 }
 
 pub enum BufferRowIndex {
-    Shared(Rc<RefCell<u32>>),
+    Shared(Rc<AtomicU32>),
     Owned(u32),
 }
 
@@ -298,7 +298,7 @@ impl SqlValue {
 
     fn buffer_row_index(&self) -> u32 {
         match self.buffer_row_index {
-            BufferRowIndex::Shared(ref idx) => *idx.borrow(),
+            BufferRowIndex::Shared(ref idx) => idx.load(Ordering::Relaxed),
             BufferRowIndex::Owned(idx) => idx,
         }
     }
