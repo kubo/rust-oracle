@@ -82,7 +82,7 @@ for row_result in conn.query_as::<(i32, String)>(sql_text, &[])? { // row_result
 }
 ```
 
-When you know the column types of a query result by names, I recommend you use the [`RowValue`][] derive macro.
+When you know the column types of a query result by names, I recommend you use the [`RowValue` derive macro][].
 
 ```rust
 use oracle::RowValue;
@@ -233,6 +233,7 @@ other considerations; [library cache][], [cursor sharing][],
 [`Row`]: https://docs.rs/oracle/*/oracle/struct.Row.html
 [RowValue]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
+[`RowValue` derive macro]: https://docs.rs/oracle/latest/oracle/derive.RowValue.html
 [ToSql]: https://docs.rs/oracle/*/oracle/trait.ToSql.html
 [library cache]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0
 [cursor sharing]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-971F4652-3950-4662-82DE-713DDEED317C
