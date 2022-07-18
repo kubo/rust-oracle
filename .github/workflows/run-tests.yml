@@ -60,3 +60,34 @@ jobs:
         env:
           ODPIC_TEST_CONNECT_STRING: ${{ env.TWO_TASK }}
           NLS_LANG: AMERICAN_AMERICA.AL32UTF8
+
+  build_only:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        rust: [1.54.0]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Check rust-version in Cargo.toml
+        if: matrix.rust != 'stable'
+        shell: bash
+        run: |
+          if ! grep '^rust-version *= *"${{ matrix.rust }}"' Cargo.toml; then grep '^rust-version' Cargo.toml; false; fi
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          default: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --all-features

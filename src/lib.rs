@@ -28,6 +28,13 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 
 * Oracle client 11.2 or later. See [ODPI-C installation document][].
 
+## Supported Rust Versions
+
+The oracle crate supports **at least** 6 rust minor versions including the stable
+release at the time when the crate was released. The MSRV (minimum supported
+rust version) may be changed when a patch version is incremented though it will
+not be changed frequently. The current MSRV is 1.54.0.
+
 ## Usage
 
 Put this in your `Cargo.toml`:

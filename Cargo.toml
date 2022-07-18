@@ -11,6 +11,7 @@ keywords = ["oracle", "database"]
 readme = "README.md"
 description = "Oracle binding"
 edition = "2018"
+rust-version = "1.54.0"
 
 [package.metadata.docs.rs]
 all-features = true
