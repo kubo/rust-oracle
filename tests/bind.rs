@@ -23,7 +23,7 @@ macro_rules! test_in_out {
 #[test]
 fn in_out_same_values() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
+    let mut stmt = conn.statement("begin :1 := :2; end;").build()?;
 
     test_in_out!(stmt, i8, -123i8);
     test_in_out!(stmt, i16, -12345i16);
@@ -83,7 +83,7 @@ macro_rules! test_to_string {
 #[test]
 fn to_string_in_rust_oracle() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
+    let mut stmt = conn.statement("begin :1 := :2; end;").build()?;
     let raw_data = vec![0x01u8, 0x19u8, 0x9au8, 0xafu8, 0xf0u8];
 
     conn.execute(
@@ -152,7 +152,7 @@ macro_rules! test_from_string {
 #[test]
 fn from_string_in_rust_oracle() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
+    let mut stmt = conn.statement("begin :1 := :2; end;").build()?;
 
     conn.execute(
         "alter session set nls_timestamp_format = 'yyyy-mm-dd hh24:mi:ss.ff9'",
@@ -208,7 +208,7 @@ fn bind_named() -> Result<()> {
     let outval: String = stmt.bind_value("out")?;
     assert_eq!(outval, "12345");
 
-    let mut stmt = conn.prepare("begin :out := :in; end;", &[])?;
+    let mut stmt = conn.statement("begin :out := :in; end;").build()?;
     let inval: Option<&str> = Some("12345");
     stmt.execute_named(&[("out", &OracleType::Varchar2(10)), ("in", &inval)])?;
     let outval: Option<String> = stmt.bind_value("out")?;

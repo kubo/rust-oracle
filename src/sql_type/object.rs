@@ -527,7 +527,9 @@ impl fmt::Debug for Object {
 /// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
-/// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;
+/// let mut stmt = conn
+///     .statement("select loc from location where name = '...'")
+///     .build()?;
 /// let rows = stmt.query(&[])?;
 /// let objtype = if let OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {
 ///     objtype

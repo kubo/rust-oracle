@@ -71,7 +71,7 @@ impl Row {
     /// ```no_run
     /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
+    /// let mut stmt = conn.statement("select empno, ename from emp").build()?;
     ///
     /// for result in stmt.query(&[])? {
     ///     let row = result?;
@@ -209,7 +209,7 @@ impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
 /// }
 ///
 /// let conn = Connection::connect("scott", "tiger", "")?;
-/// let mut stmt = conn.prepare("select * from emp", &[])?;
+/// let mut stmt = conn.statement("select * from emp").build()?;
 ///
 /// // Gets rows as Emp
 /// for result in stmt.query_as::<Emp>(&[])? {

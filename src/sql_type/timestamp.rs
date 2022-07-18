@@ -84,7 +84,7 @@ use crate::ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[])?;
+/// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &ts, // bind the ts variable
 ///               ])?;

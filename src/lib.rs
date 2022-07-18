@@ -200,7 +200,7 @@ use oracle::Connection;
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 // Create a prepared statement
-let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
+let mut stmt = conn.statement("insert into person values (:1, :2)").build()?;
 // Insert one row
 stmt.execute(&[&1, &"John"])?;
 // Insert another row

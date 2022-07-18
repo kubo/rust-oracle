@@ -161,7 +161,8 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// # conn.execute("delete from TestClobs", &[])?;
     /// # conn.execute("insert into TestClobs values (:1, :2)", &[&1i32, &"clob data"])?;
     /// # let mut out = vec![0u8; 0];
-    /// let mut stmt = conn.statement("select ClobCol from TestClobs where IntCol = :1")
+    /// let mut stmt = conn
+    ///     .statement("select ClobCol from TestClobs where IntCol = :1")
     ///     .lob_locator()
     ///     .build()?;
     /// let mut clob = stmt.query_row_as::<Clob>(&[&1i32])?;
@@ -768,11 +769,15 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (113, 'John')")
+    ///     .build()?;
     /// stmt.execute(&[])?;
     ///
     /// // execute a statement with binding parameters by position
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (:1, :2)")
+    ///     .build()?;
     /// stmt.execute(&[&114, &"Smith"])?;
     /// stmt.execute(&[&115, &"Paul"])?;  // execute with other values.
     ///
@@ -794,7 +799,9 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (:id, :name)")
+    ///     .build()?;
     /// stmt.execute_named(&[("id", &114),
     ///                      ("name", &"Smith")])?;
     /// stmt.execute_named(&[("id", &115),
@@ -901,11 +908,11 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // SQL statements
-    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[])?;
+    /// let stmt = conn.statement("select :val1, :val2, :val1 from dual").build()?;
     /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
     ///
     /// // PL/SQL statements
-    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[])?;
+    /// let stmt = conn.statement("begin :val1 := :val1 || :val2; end;").build()?;
     /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
     /// # Ok::<(), Error>(())
     /// ```
@@ -923,7 +930,7 @@ impl<'conn> Statement<'conn> {
     /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
-    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
+    /// let stmt = conn.statement("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").build()?;
     /// assert_eq!(stmt.bind_count(), 3);
     /// let bind_names = stmt.bind_names();
     /// assert_eq!(bind_names.len(), 3);
@@ -947,7 +954,7 @@ impl<'conn> Statement<'conn> {
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
     /// stmt.bind(1, &OracleType::Varchar2(60))?;
@@ -990,7 +997,7 @@ impl<'conn> Statement<'conn> {
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
     /// // sets "to be upper-case" to the second and then executes it.
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     /// stmt.execute(&[&OracleType::Varchar2(60),
     ///              &"to be upper-case"])?;
     ///
@@ -1083,7 +1090,9 @@ impl<'conn> Statement<'conn> {
     /// assert_eq!(stmt.row_count()?, 5);
     ///
     /// // number of fetched rows
-    /// let mut stmt = conn.statement("select * from TestStrings where IntCol >= :1").build()?;
+    /// let mut stmt = conn
+    ///     .statement("select * from TestStrings where IntCol >= :1")
+    ///     .build()?;
     /// assert_eq!(stmt.row_count()?, 0); // before fetch
     /// let mut nrows = 0;
     /// for _ in stmt.query(&[&6])? {
@@ -1250,7 +1259,7 @@ impl<'conn> Statement<'conn> {
 /// ```no_run
 /// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
-/// let mut stmt = conn.prepare("select * from emp", &[])?;
+/// let mut stmt = conn.statement("select * from emp").build()?;
 /// let rows = stmt.query(&[])?;
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
 /// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");

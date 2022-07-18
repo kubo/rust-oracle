@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     let sql = "select * from emp";
 
     let conn = Connection::connect(username, password, database)?;
-    let mut stmt = conn.prepare(sql, &[])?;
+    let mut stmt = conn.statement(sql).build()?;
     let rows = stmt.query(&[])?;
 
     // print column types

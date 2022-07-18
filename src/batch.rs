@@ -306,7 +306,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// }
 ///
 /// // Check the inserted rows.
-/// let mut stmt = conn.prepare("select count(*) from TestTempTable where intCol = :1", &[])?;
+/// let mut stmt = conn
+///     .statement("select count(*) from TestTempTable where intCol = :1")
+///     .build()?;
 /// assert_eq!(stmt.query_row_as::<i32>(&[&1])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&2])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&3])?, 0);
@@ -358,7 +360,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// }
 ///
 /// // Check the inserted rows.
-/// let mut stmt = conn.prepare("select count(*) from TestTempTable where intCol = :1", &[])?;
+/// let mut stmt = conn
+///     .statement("select count(*) from TestTempTable where intCol = :1")
+///     .build()?;
 /// assert_eq!(stmt.query_row_as::<i32>(&[&1])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&2])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&3])?, 0); // value too large for column

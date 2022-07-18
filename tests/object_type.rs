@@ -48,7 +48,9 @@ fn udt_objectdatatypes() -> Result<()> {
 #[test]
 fn udt_objectdatatypes_in_query() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[])?;
+    let mut stmt = conn
+        .statement("select ObjectCol from TestObjectDataTypes where 1 = 0")
+        .build()?;
     let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_objectdatatypes(objtype),
@@ -100,7 +102,9 @@ fn udt_object() -> Result<()> {
 #[test]
 fn udt_object_in_query() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0", &[])?;
+    let mut stmt = conn
+        .statement("select ObjectCol from TestObjects where 1 = 0")
+        .build()?;
     let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_object(objtype),

@@ -72,7 +72,7 @@ use crate::ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[])?;
+/// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&[&OracleType::Date, // bind null as date
 ///                &intvl, // bind the intvl variable
 ///               ])?;

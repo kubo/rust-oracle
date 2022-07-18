@@ -18,10 +18,9 @@ use oracle::{Connection, Result};
 
 fn main() -> Result<()> {
     let conn = Connection::connect("scott", "tiger", "")?;
-    let mut stmt = conn.prepare(
-        "select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp",
-        &[],
-    )?;
+    let mut stmt = conn
+        .statement("select empno, ename, job, mgr, hiredate, sal, comm, deptno from emp")
+        .build()?;
     let rows = stmt.query(&[])?;
 
     // stmt.define("HIREDATE", OracleType::Varchar2(60))?;
@@ -66,7 +65,7 @@ fn main() -> Result<()> {
     }
 
     // Set/Get bind values
-    let mut stmt = conn.prepare("begin :1 := :2; end;", &[])?;
+    let mut stmt = conn.statement("begin :1 := :2; end;").build()?;
     stmt.bind(1, &OracleType::Varchar2(5))?;
     stmt.bind(2, &123)?;
     stmt.execute(&[])?;

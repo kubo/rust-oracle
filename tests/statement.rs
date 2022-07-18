@@ -16,14 +16,14 @@
 mod common;
 
 use oracle::sql_type::{IntervalDS, Timestamp};
-use oracle::{Result, StatementType, StmtParam};
+use oracle::{Result, StatementType};
 use std::{thread, time};
 
 #[test]
 fn statement_type() -> Result<()> {
     let conn = common::connect()?;
 
-    let stmt = conn.prepare("SELECT ...", &[])?;
+    let stmt = conn.statement("SELECT ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Select);
     assert_eq!(stmt_type.to_string(), "select");
@@ -32,7 +32,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("INSERT ...", &[])?;
+    let stmt = conn.statement("INSERT ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Insert);
     assert_eq!(stmt_type.to_string(), "insert");
@@ -41,7 +41,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), true);
 
-    let stmt = conn.prepare("UPDATE ...", &[])?;
+    let stmt = conn.statement("UPDATE ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Update);
     assert_eq!(stmt_type.to_string(), "update");
@@ -50,7 +50,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), true);
 
-    let stmt = conn.prepare("DELETE ...", &[])?;
+    let stmt = conn.statement("DELETE ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Delete);
     assert_eq!(stmt_type.to_string(), "delete");
@@ -59,7 +59,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), true);
 
-    let stmt = conn.prepare("MERGE ...", &[])?;
+    let stmt = conn.statement("MERGE ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Merge);
     assert_eq!(stmt_type.to_string(), "merge");
@@ -68,7 +68,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), true);
 
-    let stmt = conn.prepare("CREATE ...", &[])?;
+    let stmt = conn.statement("CREATE ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Create);
     assert_eq!(stmt_type.to_string(), "create");
@@ -77,7 +77,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), true);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("ALTER ...", &[])?;
+    let stmt = conn.statement("ALTER ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Alter);
     assert_eq!(stmt_type.to_string(), "alter");
@@ -86,7 +86,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), true);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("DROP ...", &[])?;
+    let stmt = conn.statement("DROP ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Drop);
     assert_eq!(stmt_type.to_string(), "drop");
@@ -95,7 +95,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), true);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("BEGIN ...", &[])?;
+    let stmt = conn.statement("BEGIN ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Begin);
     assert_eq!(stmt_type.to_string(), "PL/SQL(begin)");
@@ -104,7 +104,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("DECLARE ...", &[])?;
+    let stmt = conn.statement("DECLARE ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Declare);
     assert_eq!(stmt_type.to_string(), "PL/SQL(declare)");
@@ -113,7 +113,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("COMMIT ...", &[])?;
+    let stmt = conn.statement("COMMIT ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Commit);
     assert_eq!(stmt_type.to_string(), "commit");
@@ -122,7 +122,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("ROLLBACK ...", &[])?;
+    let stmt = conn.statement("ROLLBACK ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::Rollback);
     assert_eq!(stmt_type.to_string(), "rollback");
@@ -131,7 +131,7 @@ fn statement_type() -> Result<()> {
     assert_eq!(stmt.is_ddl(), false);
     assert_eq!(stmt.is_dml(), false);
 
-    let stmt = conn.prepare("EXPLAIN PLAN FOR ...", &[])?;
+    let stmt = conn.statement("EXPLAIN PLAN FOR ...").build()?;
     let stmt_type = stmt.statement_type();
     assert_eq!(stmt_type, StatementType::ExplainPlan);
     assert_eq!(stmt_type.to_string(), "explain plan");
@@ -146,7 +146,9 @@ fn statement_type() -> Result<()> {
 fn bind_names() -> Result<()> {
     let conn = common::connect()?;
 
-    let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
+    let stmt = conn
+        .statement("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;")
+        .build()?;
     assert_eq!(stmt.bind_count(), 3);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -154,7 +156,9 @@ fn bind_names() -> Result<()> {
     assert_eq!(bind_names[1], "VAL2");
     assert_eq!(bind_names[2], "aàáâãäå".to_uppercase());
 
-    let stmt = conn.prepare("SELECT :val1, :val2, :val1, :aàáâãäå from dual", &[])?;
+    let stmt = conn
+        .statement("SELECT :val1, :val2, :val1, :aàáâãäå from dual")
+        .build()?;
     assert_eq!(stmt.bind_count(), 4);
     let bind_names = stmt.bind_names();
     assert_eq!(bind_names.len(), 3);
@@ -169,7 +173,7 @@ fn query() -> Result<()> {
     let conn = common::connect()?;
     let sql = "select * from TestStrings where IntCol >= :icol order by IntCol";
 
-    let mut stmt = conn.prepare(sql, &[StmtParam::FetchArraySize(3)])?;
+    let mut stmt = conn.statement(sql).fetch_array_size(3).build()?;
 
     for (idx, row_result) in stmt.query(&[&2])?.enumerate() {
         let row = row_result?;
@@ -222,7 +226,7 @@ fn query_row() -> Result<()> {
     let conn = common::connect()?;
     let sql = "select * from TestStrings where IntCol = :icol";
 
-    let mut stmt = conn.prepare(sql, &[StmtParam::FetchArraySize(1)])?;
+    let mut stmt = conn.statement(sql).fetch_array_size(1).build()?;
 
     let row = stmt.query_row(&[&2])?;
     common::assert_test_string_row(2, &row);
@@ -247,7 +251,7 @@ fn dml_returning() -> Result<()> {
     let conn = common::connect()?;
     let sql = "update TestStrings set StringCol = StringCol where IntCol >= :1 returning IntCol into :icol";
 
-    let mut stmt = conn.prepare(sql, &[])?;
+    let mut stmt = conn.statement(sql).build()?;
     assert_eq!(stmt.is_returning(), true);
 
     stmt.bind(2, &None::<i32>)?;
@@ -419,7 +423,9 @@ fn row_count() -> Result<()> {
     assert_eq!(stmt.row_count()?, 5);
 
     // rows fetched
-    let mut stmt = conn.prepare("select * from TestStrings where IntCol >= :1", &[])?;
+    let mut stmt = conn
+        .statement("select * from TestStrings where IntCol >= :1")
+        .build()?;
     assert_eq!(stmt.row_count()?, 0); // before fetch
     for _row in stmt.query(&[&6])? {}
     assert_eq!(stmt.row_count()?, 5); // after fetch

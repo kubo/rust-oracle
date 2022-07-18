@@ -108,7 +108,9 @@ pub fn test_from_sql<T>(
 where
     T: FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq,
 {
-    let mut stmt = conn.prepare(&format!("select {} from dual", column_literal), &[])?;
+    let mut stmt = conn
+        .statement(&format!("select {} from dual", column_literal))
+        .build()?;
     let mut rows = stmt
         .query_as::<T>(&[])
         .unwrap_or_else(|_| panic!("error at {}:{}", file, line));
@@ -151,7 +153,9 @@ pub fn test_to_sql<T>(
 where
     T: ToSql,
 {
-    let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal), &[])?;
+    let mut stmt = conn
+        .statement(&format!("begin :out := {}; end;", input_literal))
+        .build()?;
     stmt.bind(1, &OracleType::Varchar2(4000))?;
     stmt.bind(2, input_data)?;
     stmt.execute(&[])
