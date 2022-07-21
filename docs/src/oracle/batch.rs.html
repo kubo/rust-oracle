@@ -961,6 +961,10 @@
 <span id="956">956</span>
 <span id="957">957</span>
 <span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -1269,7 +1273,9 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // Check the inserted rows.</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(&quot;select count(*) from TestTempTable where intCol = :1&quot;, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn</span>
+<span class="doccomment">///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)</span>
+<span class="doccomment">///     .build()?;</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0);</span>
@@ -1321,7 +1327,9 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // Check the inserted rows.</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(&quot;select count(*) from TestTempTable where intCol = :1&quot;, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn</span>
+<span class="doccomment">///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)</span>
+<span class="doccomment">///     .build()?;</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);</span>
 <span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0); // value too large for column</span>
@@ -1920,5 +1928,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

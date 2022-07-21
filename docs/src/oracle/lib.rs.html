@@ -602,6 +602,13 @@
 <span id="597">597</span>
 <span id="598">598</span>
 <span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -631,6 +638,13 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 ## Run-time Requirements
 
 * Oracle client 11.2 or later. See [ODPI-C installation document][].
+
+## Supported Rust Versions
+
+The oracle crate supports **at least** 6 rust minor versions including the stable
+release at the time when the crate was released. The MSRV (minimum supported
+rust version) may be changed when a patch version is incremented though it will
+not be changed frequently. The current MSRV is 1.54.0.
 
 ## Usage
 
@@ -797,7 +811,7 @@ use oracle::Connection;
 let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;//localhost/XE&quot;)?;
 
 // Create a prepared statement
-let mut stmt = conn.prepare(&quot;insert into person values (:1, :2)&quot;, &amp;[])?;
+let mut stmt = conn.statement(&quot;insert into person values (:1, :2)&quot;).build()?;
 // Insert one row
 stmt.execute(&amp;[&amp;1, &amp;&quot;John&quot;])?;
 // Insert another row
@@ -1202,5 +1216,5 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

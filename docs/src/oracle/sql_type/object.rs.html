@@ -819,6 +819,8 @@
 <span id="814">814</span>
 <span id="815">815</span>
 <span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -1348,7 +1350,9 @@
 <span class="doccomment">/// # use oracle::*; use oracle::sql_type::*;</span>
 <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
 <span class="doccomment">/// // conn.execute(&quot;create table location (name varchar2(60), loc sdo_geometry)&quot;, &amp;[]);</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(&quot;select loc from location where name = &#39;...&#39;&quot;, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn</span>
+<span class="doccomment">///     .statement(&quot;select loc from location where name = &#39;...&#39;&quot;)</span>
+<span class="doccomment">///     .build()?;</span>
 <span class="doccomment">/// let rows = stmt.query(&amp;[])?;</span>
 <span class="doccomment">/// let objtype = if let OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {</span>
 <span class="doccomment">///     objtype</span>
@@ -1636,5 +1640,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Crate oracle</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.5.5<br/>(in development)</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li><li><a href="#derives">Derive Macros</a></li></ul></div></section><div id="sidebar-vars" data-name="oracle" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../oracle/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oracle</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/oracle/lib.rs.html#16-599">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This is an <a href="https://www.oracle.com/database/index.html">Oracle database</a> driver for <a href="https://www.rust-lang.org/">Rust</a> based on <a href="https://oracle.github.io/odpi/">ODPI-C</a>.</p>
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oracle</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/oracle/lib.rs.html#16-606">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This is an <a href="https://www.oracle.com/database/index.html">Oracle database</a> driver for <a href="https://www.rust-lang.org/">Rust</a> based on <a href="https://oracle.github.io/odpi/">ODPI-C</a>.</p>
 <h3 id="change-log"><a href="#change-log">Change Log</a></h3>
 <p>See <a href="https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md">ChangeLog.md</a>.</p>
 <h3 id="build-time-requirements"><a href="#build-time-requirements">Build-time Requirements</a></h3>
@@ -15,6 +15,11 @@
 <ul>
 <li>Oracle client 11.2 or later. See <a href="https://oracle.github.io/odpi/doc/installation.html">ODPI-C installation document</a>.</li>
 </ul>
+<h3 id="supported-rust-versions"><a href="#supported-rust-versions">Supported Rust Versions</a></h3>
+<p>The oracle crate supports <strong>at least</strong> 6 rust minor versions including the stable
+release at the time when the crate was released. The MSRV (minimum supported
+rust version) may be changed when a patch version is incremented though it will
+not be changed frequently. The current MSRV is 1.54.0.</p>
 <h3 id="usage"><a href="#usage">Usage</a></h3>
 <p>Put this in your <code>Cargo.toml</code>:</p>
 <div class="example-wrap"><pre class="language-text"><code>[dependencies]
@@ -147,7 +152,7 @@ oracle = { version = &quot;0.5&quot;, features = [&quot;chrono&quot;] }</code></
 <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Connection::connect</span>(<span class="string">&quot;scott&quot;</span>, <span class="string">&quot;tiger&quot;</span>, <span class="string">&quot;//localhost/XE&quot;</span>)<span class="question-mark">?</span>;
 
 <span class="comment">// Create a prepared statement</span>
-<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="string">&quot;insert into person values (:1, :2)&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">statement</span>(<span class="string">&quot;insert into person values (:1, :2)&quot;</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
 <span class="comment">// Insert one row</span>
 <span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="string">&quot;John&quot;</span>])<span class="question-mark">?</span>;
 <span class="comment">// Insert another row</span>
@@ -234,5 +239,5 @@ This appears only in boxed data associated with <a href="enum.Error.html#variant
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="oracle::Result type">Result</a></div><div class="item-right docblock-short"></div></div></div><h2 id="derives" class="small-section-header"><a href="#derives">Derive Macros</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="derive" href="derive.RowValue.html" title="oracle::RowValue derive">RowValue</a></div><div class="item-right docblock-short"><p>A derive macro to implement the <a href="trait.RowValue.html"><code>RowValue</code></a> trait</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

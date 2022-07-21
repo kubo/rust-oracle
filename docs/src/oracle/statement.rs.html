@@ -1492,6 +1492,15 @@
 <span id="1487">1487</span>
 <span id="1488">1488</span>
 <span id="1489">1489</span>
+<span id="1490">1490</span>
+<span id="1491">1491</span>
+<span id="1492">1492</span>
+<span id="1493">1493</span>
+<span id="1494">1494</span>
+<span id="1495">1495</span>
+<span id="1496">1496</span>
+<span id="1497">1497</span>
+<span id="1498">1498</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -1655,7 +1664,8 @@
     <span class="doccomment">/// # conn.execute(&quot;delete from TestClobs&quot;, &amp;[])?;</span>
     <span class="doccomment">/// # conn.execute(&quot;insert into TestClobs values (:1, :2)&quot;, &amp;[&amp;1i32, &amp;&quot;clob data&quot;])?;</span>
     <span class="doccomment">/// # let mut out = vec![0u8; 0];</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(&quot;select ClobCol from TestClobs where IntCol = :1&quot;)</span>
+    <span class="doccomment">/// let mut stmt = conn</span>
+    <span class="doccomment">///     .statement(&quot;select ClobCol from TestClobs where IntCol = :1&quot;)</span>
     <span class="doccomment">///     .lob_locator()</span>
     <span class="doccomment">///     .build()?;</span>
     <span class="doccomment">/// let mut clob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1i32])?;</span>
@@ -2262,11 +2272,15 @@
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // execute a statement without bind parameters</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;insert into emp(empno, ename) values (113, &#39;John&#39;)&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn</span>
+    <span class="doccomment">///     .statement(&quot;insert into emp(empno, ename) values (113, &#39;John&#39;)&quot;)</span>
+    <span class="doccomment">///     .build()?;</span>
     <span class="doccomment">/// stmt.execute(&amp;[])?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // execute a statement with binding parameters by position</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;insert into emp(empno, ename) values (:1, :2)&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn</span>
+    <span class="doccomment">///     .statement(&quot;insert into emp(empno, ename) values (:1, :2)&quot;)</span>
+    <span class="doccomment">///     .build()?;</span>
     <span class="doccomment">/// stmt.execute(&amp;[&amp;114, &amp;&quot;Smith&quot;])?;</span>
     <span class="doccomment">/// stmt.execute(&amp;[&amp;115, &amp;&quot;Paul&quot;])?;  // execute with other values.</span>
     <span class="doccomment">///</span>
@@ -2288,7 +2302,9 @@
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // execute a statement with binding parameters by name</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;insert into emp(empno, ename) values (:id, :name)&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn</span>
+    <span class="doccomment">///     .statement(&quot;insert into emp(empno, ename) values (:id, :name)&quot;)</span>
+    <span class="doccomment">///     .build()?;</span>
     <span class="doccomment">/// stmt.execute_named(&amp;[(&quot;id&quot;, &amp;114),</span>
     <span class="doccomment">///                      (&quot;name&quot;, &amp;&quot;Smith&quot;)])?;</span>
     <span class="doccomment">/// stmt.execute_named(&amp;[(&quot;id&quot;, &amp;115),</span>
@@ -2395,11 +2411,11 @@
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // SQL statements</span>
-    <span class="doccomment">/// let stmt = conn.prepare(&quot;select :val1, :val2, :val1 from dual&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let stmt = conn.statement(&quot;select :val1, :val2, :val1 from dual&quot;).build()?;</span>
     <span class="doccomment">/// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // PL/SQL statements</span>
-    <span class="doccomment">/// let stmt = conn.prepare(&quot;begin :val1 := :val1 || :val2; end;&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let stmt = conn.statement(&quot;begin :val1 := :val1 || :val2; end;&quot;).build()?;</span>
     <span class="doccomment">/// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2</span>
     <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
     <span class="doccomment">/// ```</span>
@@ -2417,7 +2433,7 @@
     <span class="doccomment">/// # use oracle::*;</span>
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let stmt = conn.prepare(&quot;BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let stmt = conn.statement(&quot;BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;&quot;).build()?;</span>
     <span class="doccomment">/// assert_eq!(stmt.bind_count(), 3);</span>
     <span class="doccomment">/// let bind_names = stmt.bind_names();</span>
     <span class="doccomment">/// assert_eq!(bind_names.len(), 3);</span>
@@ -2441,7 +2457,7 @@
     <span class="doccomment">/// ```no_run</span>
     <span class="doccomment">/// # use oracle::*; use oracle::sql_type::*;</span>
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;begin :outval := upper(:inval); end;&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn.statement(&quot;begin :outval := upper(:inval); end;&quot;).build()?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.</span>
     <span class="doccomment">/// stmt.bind(1, &amp;OracleType::Varchar2(60))?;</span>
@@ -2484,7 +2500,7 @@
     <span class="doccomment">/// // Prepares &quot;begin :outval := upper(:inval); end;&quot;,</span>
     <span class="doccomment">/// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,</span>
     <span class="doccomment">/// // sets &quot;to be upper-case&quot; to the second and then executes it.</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;begin :outval := upper(:inval); end;&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn.statement(&quot;begin :outval := upper(:inval); end;&quot;).build()?;</span>
     <span class="doccomment">/// stmt.execute(&amp;[&amp;OracleType::Varchar2(60),</span>
     <span class="doccomment">///              &amp;&quot;to be upper-case&quot;])?;</span>
     <span class="doccomment">///</span>
@@ -2577,7 +2593,9 @@
     <span class="doccomment">/// assert_eq!(stmt.row_count()?, 5);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // number of fetched rows</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(&quot;select * from TestStrings where IntCol &gt;= :1&quot;).build()?;</span>
+    <span class="doccomment">/// let mut stmt = conn</span>
+    <span class="doccomment">///     .statement(&quot;select * from TestStrings where IntCol &gt;= :1&quot;)</span>
+    <span class="doccomment">///     .build()?;</span>
     <span class="doccomment">/// assert_eq!(stmt.row_count()?, 0); // before fetch</span>
     <span class="doccomment">/// let mut nrows = 0;</span>
     <span class="doccomment">/// for _ in stmt.query(&amp;[&amp;6])? {</span>
@@ -2744,7 +2762,7 @@
 <span class="doccomment">/// ```no_run</span>
 <span class="doccomment">/// # use oracle::*;</span>
 <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(&quot;select * from emp&quot;, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn.statement(&quot;select * from emp&quot;).build()?;</span>
 <span class="doccomment">/// let rows = stmt.query(&amp;[])?;</span>
 <span class="doccomment">/// println!(&quot; {:-30} {:-8} {}&quot;, &quot;Name&quot;, &quot;Null?&quot;, &quot;Type&quot;);</span>
 <span class="doccomment">/// println!(&quot; {:-30} {:-8} {}&quot;, &quot;------------------------------&quot;, &quot;--------&quot;, &quot;----------------------------&quot;);</span>
@@ -2982,5 +3000,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

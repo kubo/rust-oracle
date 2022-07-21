@@ -488,7 +488,7 @@
     <span class="doccomment">/// ```no_run</span>
     <span class="doccomment">/// # use oracle::*;</span>
     <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-    <span class="doccomment">/// let mut stmt = conn.prepare(&quot;select empno, ename from emp&quot;, &amp;[])?;</span>
+    <span class="doccomment">/// let mut stmt = conn.statement(&quot;select empno, ename from emp&quot;).build()?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// for result in stmt.query(&amp;[])? {</span>
     <span class="doccomment">///     let row = result?;</span>
@@ -626,7 +626,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(&quot;select * from emp&quot;, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn.statement(&quot;select * from emp&quot;).build()?;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // Gets rows as Emp</span>
 <span class="doccomment">/// for result in stmt.query_as::&lt;Emp&gt;(&amp;[])? {</span>
@@ -828,5 +828,5 @@
      (<span class="number">40</span>,<span class="ident">T40</span>)(<span class="number">41</span>,<span class="ident">T41</span>)(<span class="number">42</span>,<span class="ident">T42</span>)(<span class="number">43</span>,<span class="ident">T43</span>)(<span class="number">44</span>,<span class="ident">T44</span>)(<span class="number">45</span>,<span class="ident">T45</span>)(<span class="number">46</span>,<span class="ident">T46</span>)(<span class="number">47</span>,<span class="ident">T47</span>)(<span class="number">48</span>,<span class="ident">T48</span>)(<span class="number">49</span>,<span class="ident">T49</span>)],
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

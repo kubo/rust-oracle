@@ -539,7 +539,7 @@
 <span class="doccomment">/// let sql = &quot;begin \</span>
 <span class="doccomment">///              :outval := to_timestamp(&#39;2017-08-09&#39;, &#39;yyyy-mm-dd&#39;) + :inval; \</span>
 <span class="doccomment">///            end;&quot;;</span>
-<span class="doccomment">/// let mut stmt = conn.prepare(sql, &amp;[])?;</span>
+<span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
 <span class="doccomment">/// stmt.execute(&amp;[&amp;OracleType::Timestamp(3), // bind null as timestamp(3)</span>
 <span class="doccomment">///                &amp;intvl, // bind the intvl variable</span>
 <span class="doccomment">///               ])?;</span>
@@ -912,5 +912,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
