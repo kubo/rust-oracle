@@ -537,6 +537,11 @@ fn to_rust_slice<'a>(ptr: *const c_char, len: u32) -> &'a [u8] {
     }
 }
 
+/// Tries to get the Oracle Client context, returning the error if unable to
+pub fn can_get_context() -> Result<()> {
+    Context::get().map(|_| ())
+}
+
 mod private {
     use std::os::raw::c_void;
 
