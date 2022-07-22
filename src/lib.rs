@@ -537,9 +537,17 @@ fn to_rust_slice<'a>(ptr: *const c_char, len: u32) -> &'a [u8] {
     }
 }
 
-/// Tries to get the Oracle Client context, returning the error if unable to
-pub fn can_get_context() -> Result<()> {
-    Context::get().map(|_| ())
+/// Tries to get the Oracle Client context, returning the false if unable to
+pub fn can_get_context() -> bool {
+    match Context::get() {
+        Ok(_) => {
+            false
+        },
+        Err(e) => match e {
+            Error::DpiError(e) => e.action() == "load library",
+            _ => false
+        },
+    }
 }
 
 mod private {
