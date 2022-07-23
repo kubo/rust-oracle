@@ -168,7 +168,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// let mut clob = stmt.query_row_as::<Clob>(&[&1i32])?;
     ///
     /// // Copy contents of clob using 1MB buffer.
-    /// let mut buf = [0u8; 1 * 1024 * 1024];
+    /// let mut buf = vec![0u8; 1 * 1024 * 1024];
     /// loop {
     ///   let size = clob.read(&mut buf)?;
     ///   if size == 0 {
