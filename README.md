@@ -1,5 +1,5 @@
 # Rust-oracle
-[![Build Status](https://travis-ci.com/kubo/rust-oracle.svg?branch=master)](https://travis-ci.com/kubo/rust-oracle/branches)
+[![Test](https://img.shields.io/github/workflow/status/kubo/rust-oracle/Run%20tests?label=test)](https://github.com/kubo/rust-oracle/actions/workflows/run-tests.yml)
 [![Crates.io](https://img.shields.io/crates/v/oracle.svg)](https://crates.io/crates/oracle)
 [![Docs](https://docs.rs/oracle/badge.svg)](https://docs.rs/oracle)
 [![Docs (in development)](https://img.shields.io/badge/docs-in_development-486D9F)](https://www.jiubao.org/rust-oracle/oracle/)
