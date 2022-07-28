@@ -71,7 +71,7 @@ pub fn derive_row_value(input: TokenStream) -> TokenStream {
                 let result = #ident {
                     #(#fields)*
                 };
-                Ok(result)
+                ::std::result::Result::Ok(result)
             }
         }
     };
