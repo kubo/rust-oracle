@@ -1788,6 +1788,11 @@
 <span id="1783">1783</span>
 <span id="1784">1784</span>
 <span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
 <span class="comment">//</span>
 <span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
@@ -2584,6 +2589,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```no_run</span>
     <span class="doccomment">/// # use oracle::*;</span>
+    <span class="doccomment">/// # #[allow(deprecated)]</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;()&gt; {</span>
     <span class="doccomment">/// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">/// let mut stmt = conn.prepare(&quot;insert into emp(empno, ename) values (:id, :name)&quot;, &amp;[])?;</span>
     <span class="doccomment">///</span>
@@ -2608,7 +2615,7 @@
     <span class="doccomment">/// for emp in &amp;emp_list {</span>
     <span class="doccomment">///    stmt.execute_named(&amp;[(&quot;id&quot;, &amp;emp.0), (&quot;name&quot;, &amp;emp.1)])?;</span>
     <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
+    <span class="doccomment">/// # Ok(()) }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Query methods in Connection allocate memory for 100 rows by default</span>
@@ -2618,6 +2625,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```no_run</span>
     <span class="doccomment">/// # use oracle::*;</span>
+    <span class="doccomment">/// # #[allow(deprecated)]</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;()&gt; {</span>
     <span class="doccomment">/// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
     <span class="doccomment">/// // fetch top 10 rows.</span>
     <span class="doccomment">/// let mut stmt = conn.prepare(&quot;select * from (select empno, ename from emp order by empno) where rownum &lt;= 10&quot;,</span>
@@ -2626,9 +2635,10 @@
     <span class="doccomment">///     let (empno, ename) = row_result?;</span>
     <span class="doccomment">///     println!(&quot;empno: {}, ename: {}&quot;, empno, ename);</span>
     <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
+    <span class="doccomment">/// # Ok(()) }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">StmtParam</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
         <span class="ident">Statement::from_params</span>(<span class="self">self</span>, <span class="ident">sql</span>, <span class="ident">params</span>)
     }

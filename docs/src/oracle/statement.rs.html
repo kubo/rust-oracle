@@ -1671,7 +1671,7 @@
     <span class="doccomment">/// let mut clob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1i32])?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// // Copy contents of clob using 1MB buffer.</span>
-    <span class="doccomment">/// let mut buf = [0u8; 1 * 1024 * 1024];</span>
+    <span class="doccomment">/// let mut buf = vec![0u8; 1 * 1024 * 1024];</span>
     <span class="doccomment">/// loop {</span>
     <span class="doccomment">///   let size = clob.read(&amp;mut buf)?;</span>
     <span class="doccomment">///   if size == 0 {</span>
