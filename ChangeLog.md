@@ -2,6 +2,10 @@
 
 ## 0.5.6 (20XX-XX-XX)
 
+Fixed Issues:
+
+* Fix RowValue which can reference an invalid Ok that defined outside (contributed by [GH-62])
+
 Changes:
 
 * [`Connection::prepare`] was marked as deprecated.
@@ -9,6 +13,8 @@ Changes:
 Internal Changes:
 
 * Update ODPI-C to 4.4.1. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
+* Suppress 'cargo clippy' warnings
+* Use atomic types instead of RefCell and Mutex
 
 ## 0.5.5 (2022-05-11)
 
@@ -353,6 +359,7 @@ Incompatible changes:
 [GH-49]: https://github.com/kubo/rust-oracle/issues/49
 [GH-50]: https://github.com/kubo/rust-oracle/issues/50
 [GH-54]: https://github.com/kubo/rust-oracle/issues/54
+[GH-62]: https://github.com/kubo/rust-oracle/pull/62
 [`pool`]: https://docs.rs/oracle/latest/oracle/pool/index.html
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
