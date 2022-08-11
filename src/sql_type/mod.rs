@@ -22,6 +22,7 @@ use crate::SqlValue;
 
 #[cfg(feature = "chrono")]
 mod chrono;
+pub mod collection;
 mod interval_ds;
 mod interval_ym;
 mod lob;

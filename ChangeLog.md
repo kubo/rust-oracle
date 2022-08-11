@@ -5,8 +5,9 @@
 New features:
 
 * Add `stmt_without_lifetime` feature flag.
-* Add [`ObjectType::package_name`]
-* Add [`Statement::last_row_id`]
+* Add [`ObjectType::package_name()`]
+* Add [`Statement::last_row_id()`]
+* Add [`iter()`][`Collection::iter()`], [`indices()`][`Collection::indices()`] and [`values()`][`Collection::values()`] methods, which creates iterators over [`Collection`] elements.
 
 Fixed Issues:
 
@@ -383,6 +384,10 @@ Incompatible changes:
 [chrono]: https://docs.rs/chrono/latest/chrono/index.html
 [`pool`]: https://docs.rs/oracle/latest/oracle/pool/index.html
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
+[`Collection`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html
+[`Collection::indices()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.indices
+[`Collection::iter()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.iter
+[`Collection::values()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.values
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
 [`Connection.call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.call_timeout
@@ -418,7 +423,7 @@ Incompatible changes:
 [`ObjectType.new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection
 [`ObjectType.new_object()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_object
 [`ObjectType.schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
-[`ObjectType::package_name`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.ObjectType.html#method.package_name
+[`ObjectType::package_name()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.ObjectType.html#method.package_name
 [`ObjectTypeAttr.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
 [`ResultSet.column_info()`]: https://docs.rs/oracle/*/oracle/struct.ResultSet.html#method.column_info
 [`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values
@@ -426,7 +431,7 @@ Incompatible changes:
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
 [`Statement::close`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.close
-[`Statement::last_row_id`]: https://docs.rs/oracle/latest/oracle/struct.Statement.html#method.last_row_id
+[`Statement::last_row_id()`]: https://docs.rs/oracle/latest/oracle/struct.Statement.html#method.last_row_id
 [`Statement.execute()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute
 [`Statement.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute_named
 [`Statement.query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query

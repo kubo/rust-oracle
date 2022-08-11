@@ -23,6 +23,7 @@ use std::sync::Arc;
 use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
+use crate::sql_type::collection::{Indices, Iter, Values};
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
@@ -107,6 +108,145 @@ impl Collection {
         let mut size = 0;
         chkerr!(self.ctxt(), dpiObject_getSize(self.handle, &mut size));
         Ok(size)
+    }
+
+    /// Returns an iterator visiting all values with indices in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates VARRAY type and gets the type information
+    /// conn.execute("create or replace type string_varray is varray(20) of varchar2(60)", &[])?;
+    /// let objtype = conn.object_type("STRING_VARRAY")?;
+    ///
+    /// // Creates a VARRAY instance and appends three elements.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&"First Element")?;
+    /// coll.push(&"Second Element")?;
+    /// coll.push(&"Third Element")?;
+    ///
+    /// let vec = coll
+    ///     .iter::<String>() // iterator returning Result<(i32, String)>
+    ///     .collect::<Result<Vec<_>>>()?;
+    /// assert_eq!(vec[0], (0, "First Element".to_string()));
+    /// assert_eq!(vec[1], (1, "Second Element".to_string()));
+    /// assert_eq!(vec[2], (2, "Third Element".to_string()));
+    ///
+    /// // Creates Table type and gets the type information
+    /// conn.execute("create or replace type string_table is table of varchar2(60)", &[])?;
+    /// let objtype = conn.object_type("STRING_TABLE")?;
+    ///
+    /// // Creates a TABLE instance, appends four elements and makes a hole.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&"First Element")?;
+    /// coll.push(&"Second Element")?;
+    /// coll.push(&"Third Element")?;
+    /// coll.push(&"Fourth Element")?;
+    /// coll.remove(2)?; // Remove "Third Element"
+    ///
+    /// // iterator returning Result<(i32, String)>
+    /// let mut iter = coll.iter::<String>();
+    /// assert_eq!(iter.next().unwrap()?, (0, "First Element".to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (1, "Second Element".to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (3, "Fourth Element".to_string()));
+    /// assert!(iter.next().is_none());
+    /// # // check fused
+    /// # assert!(iter.next().is_none());
+    /// # // backward
+    /// # assert_eq!(iter.next_back().unwrap()?, (3, "Fourth Element".to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (1, "Second Element".to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (0, "First Element".to_string()));
+    /// # assert!(iter.next_back().is_none());
+    /// # // check fused
+    /// # assert!(iter.next_back().is_none());
+    ///
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn iter<T>(&self) -> Iter<T>
+    where
+        T: FromSql,
+    {
+        Iter::new(self)
+    }
+
+    /// Returns an iterator visiting all indices in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates Table type and gets the type information
+    /// conn.execute("create or replace type string_table is table of varchar2(60)", &[])?;
+    /// let objtype = conn.object_type("STRING_TABLE")?;
+    ///
+    /// // Creates a TABLE instance, appends four elements and makes a hole.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&"First Element")?; // index 0
+    /// coll.push(&"Second Element")?; // index 1
+    /// coll.push(&"Third Element")?; // index 2
+    /// coll.push(&"Fourth Element")?; // index 3
+    /// coll.remove(2)?; // remote index 2
+    /// // coll's indices are 0, 1 and 3.
+    ///
+    /// let mut indices = coll.indices();
+    /// assert_eq!(indices.next().unwrap().unwrap(), 0);
+    /// assert_eq!(indices.next().unwrap().unwrap(), 1);
+    /// assert_eq!(indices.next().unwrap().unwrap(), 3);
+    /// assert!(indices.next().is_none());
+    /// # // check fused or not
+    /// # assert!(indices.next().is_none());
+    /// # // backward
+    /// # assert_eq!(indices.next_back().unwrap()?, 3);
+    /// # assert_eq!(indices.next_back().unwrap()?, 1);
+    /// # assert_eq!(indices.next_back().unwrap()?, 0);
+    /// # assert!(indices.next_back().is_none());
+    /// # // check fused or not
+    /// # assert!(indices.next_back().is_none());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn indices(&self) -> Indices {
+        Indices::new(self)
+    }
+
+    /// Returns an iterator visiting all values in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates VARRAY type and gets the type information
+    /// conn.execute("create or replace type string_varray3 is varray(20) of varchar2(60)", &[])?;
+    /// let objtype = conn.object_type("STRING_VARRAY3")?;
+    ///
+    /// // Creates a VARRAY instance and appends three elements.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&"First Element");
+    /// coll.push(&"Second Element");
+    /// coll.push(&"Third Element");
+    ///
+    /// let mut iter = coll.values::<String>();
+    /// assert_eq!(iter.next().unwrap()?, "First Element".to_string());
+    /// assert_eq!(iter.next().unwrap()?, "Second Element".to_string());
+    /// assert_eq!(iter.next().unwrap()?, "Third Element".to_string());
+    /// assert!(iter.next().is_none());
+    /// # // check fused
+    /// # assert!(iter.next().is_none());
+    /// # // backward
+    /// # assert_eq!(iter.next_back().unwrap()?, "Third Element".to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, "Second Element".to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, "First Element".to_string());
+    /// # assert!(iter.next_back().is_none());
+    /// # // check fused
+    /// # assert!(iter.next_back().is_none());
+    ///
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn values<T>(&self) -> Values<T>
+    where
+        T: FromSql,
+    {
+        Values::new(self)
     }
 
     /// Returns the first index.
