@@ -12,10 +12,15 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: get metadata.docs.rs.features in Cargo.toml
+        run: |
+          docs_features=$(cargo read-manifest  | jq -r '.metadata.docs.rs.features | join(",")')
+          echo DOCS_FEATURES=$docs_features
+          echo DOCS_FEATURES=$docs_features >> $GITHUB_ENV
       - uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --no-deps --all-features
+          args: --no-deps --features "${{ env.DOCS_FEATURES }}"
       - name: push docs
         run: |
           git fetch --depth=1 origin gh-pages

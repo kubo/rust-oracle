@@ -13,8 +13,11 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+#[cfg(feature = "stmt_without_lifetime")]
+use oracle_procmacro::remove_stmt_lifetime;
 use std::borrow::ToOwned;
 use std::fmt;
+#[cfg(not(feature = "stmt_without_lifetime"))]
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::os::raw::c_char;
@@ -87,6 +90,7 @@ pub struct StatementBuilder<'conn, 'sql> {
     exclude_from_cache: bool,
 }
 
+#[cfg_attr(feature = "stmt_without_lifetime", remove_stmt_lifetime)]
 impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     pub(crate) fn new(conn: &'conn Connection, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
         StatementBuilder {
@@ -502,6 +506,7 @@ impl Drop for Stmt {
 }
 
 /// Statement
+#[cfg_attr(feature = "stmt_without_lifetime", remove_stmt_lifetime)]
 #[derive(Debug)]
 pub struct Statement<'conn> {
     pub(crate) stmt: Stmt,
@@ -510,9 +515,11 @@ pub struct Statement<'conn> {
     bind_count: usize,
     bind_names: Vec<String>,
     bind_values: Vec<SqlValue>,
+    #[cfg(not(feature = "stmt_without_lifetime"))]
     phantom: PhantomData<&'conn ()>,
 }
 
+#[cfg_attr(feature = "stmt_without_lifetime", remove_stmt_lifetime)]
 impl<'conn> Statement<'conn> {
     pub(crate) fn from_params(
         conn: &'conn Connection,
@@ -536,7 +543,7 @@ impl<'conn> Statement<'conn> {
         builder.build()
     }
 
-    fn new<'sql>(builder: &StatementBuilder<'conn, 'sql>) -> Result<Statement<'conn>> {
+    fn new(builder: &StatementBuilder<'conn, '_>) -> Result<Statement<'conn>> {
         let conn = builder.conn;
         let sql = to_odpi_str(builder.sql);
         let tag = to_odpi_str(&builder.tag);
@@ -608,6 +615,7 @@ impl<'conn> Statement<'conn> {
             bind_count,
             bind_names,
             bind_values,
+            #[cfg(not(feature = "stmt_without_lifetime"))]
             phantom: PhantomData,
         })
     }
@@ -1496,3 +1504,13 @@ mod tests {
         Ok(())
     }
 }
+
+#[cfg_attr(feature = "stmt_without_lifetime", doc = "```")]
+#[cfg_attr(not(feature = "stmt_without_lifetime"), doc = "```compile_fail")]
+/// # use oracle::Statement;
+/// struct Statements {
+///   stmts: Vec<Statement>,
+/// }
+/// ```
+#[cfg(doctest)]
+struct TestStmtWithoutLifetime;

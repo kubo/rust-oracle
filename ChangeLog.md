@@ -1,6 +1,12 @@
 # Change Log
 
-## 0.5.6 (20XX-XX-XX)
+## 0.5.7 (2022-XX-XX)
+
+New features:
+
+* Add `stmt_without_lifetime` feature flag.
+
+## 0.5.6 (2022-08-09)
 
 Fixed Issues:
 

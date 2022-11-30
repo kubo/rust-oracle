@@ -98,6 +98,12 @@ jobs:
           command: test
           args: --features ${{ env.rust_features }} -- --nocapture
 
+      - name: cargo test (x86_64-unknown-linux-gnu) with stmt_without_lifetime
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features ${{ env.rust_features }},stmt_without_lifetime -- --nocapture
+
       - name: cargo test (x86_64-pc-windows-gnu)
         uses: actions-rs/cargo@v1
         with:

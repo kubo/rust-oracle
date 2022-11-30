@@ -22,9 +22,16 @@
 use proc_macro::TokenStream;
 
 mod derive_row_value;
+mod remove_stmt_lifetime;
 
 #[doc = include_str!("../docs/row_value.md")]
 #[proc_macro_derive(RowValue, attributes(row_value))]
 pub fn derive_row_value(input: TokenStream) -> TokenStream {
     derive_row_value::derive_row_value(input)
+}
+
+#[doc(hidden)]
+#[proc_macro_attribute]
+pub fn remove_stmt_lifetime(_args: TokenStream, input: TokenStream) -> TokenStream {
+    remove_stmt_lifetime::remove_stmt_lifetime(input)
 }

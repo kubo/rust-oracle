@@ -33,14 +33,15 @@ Put this in your `Cargo.toml`:
 [dependencies]
 oracle = "0.5"
 ```
+## Optional Features
 
-When you need to fetch or bind [chrono](https://docs.rs/chrono/0.4/chrono/)
-data types, enable `chrono` feature:
+The following features can be enabled from Cargo.toml:
 
-```text
-[dependencies]
-oracle = { version = "0.5", features = ["chrono"] }
-```
+Feature	| Description | available version
+---|---|---
+`chrono` | Implements [`ToSql`] and [`FromSql`] for [chrono] data types. | any
+`stmt_without_lifetime` | Removes `conn` lifetime from [`Statement`]. This is available to avoid lifetime conflicts. | since&nbsp;0.5.6
+`aq_unstable` | Enables [Oracle Advanced Queuing support][aq]. This is unstable. It may be changed incompatibly by minor version upgrades. | since&nbsp;0.5.5
 
 ## Examples
 
@@ -250,13 +251,19 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-[Rust]:                 https://www.rust-lang.org/
-[ODPI-C]:               https://oracle.github.io/odpi/
+[Rust]: https://www.rust-lang.org/
+[ODPI-C]: https://oracle.github.io/odpi/
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
+[`FromSql`]: https://docs.rs/oracle/latest/oracle/sql_type/trait.FromSql.html
+[`Connection`]: https://docs.rs/oracle/latest/oracle/struct.Connection.html
+[`Statement`]: https://docs.rs/oracle/latest/oracle/struct.Statement.html
+[`ToSql`]: https://docs.rs/oracle/latest/oracle/sql_type/trait.ToSql.html
+[aq]: https://docs.rs/oracle/latest/oracle/aq/index.html
 [bb8]: https://crates.io/crates/bb8
 [bb8-oracle]: https://crates.io/crates/bb8-oracle
+[chrono]: https://docs.rs/chrono/0.4/chrono/
 [include-sql]: https://crates.io/crates/include-sql
 [include-oracle-sql]: https://crates.io/crates/include-oracle-sql
 [r2d2]: https://crates.io/crates/r2d2
