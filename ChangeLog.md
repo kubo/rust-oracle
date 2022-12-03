@@ -6,6 +6,10 @@ New features:
 
 * Add `stmt_without_lifetime` feature flag.
 
+Fixed Issues:
+
+* [`FromSql::from_sql`] for [chrono] data types returns [`Error::OutOfRange`] instead of panics when an invalid timestamp is retrieved from Oracle.
+
 Changes:
 
 * The [`Eq`] trait was implemented for enum types.
@@ -370,6 +374,7 @@ Incompatible changes:
 [GH-50]: https://github.com/kubo/rust-oracle/issues/50
 [GH-54]: https://github.com/kubo/rust-oracle/issues/54
 [GH-62]: https://github.com/kubo/rust-oracle/pull/62
+[chrono]: https://docs.rs/chrono/latest/chrono/index.html
 [`pool`]: https://docs.rs/oracle/latest/oracle/pool/index.html
 [`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
 [`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
@@ -401,6 +406,7 @@ Incompatible changes:
 [`Eq`]: https://doc.rust-lang.org/std/cmp/trait.Eq.html
 [`Error::NoDataFound`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
+[`FromSql::from_sql`]: https://docs.rs/oracle/latest/oracle/sql_type/trait.FromSql.html#method.from_sql
 [`ObjectType.attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
 [`ObjectType.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
 [`ObjectType.new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection

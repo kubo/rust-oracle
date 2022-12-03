@@ -30,6 +30,11 @@ use chrono::naive::NaiveDateTime;
 use chrono::offset::LocalResult;
 use chrono::Duration;
 
+fn fixed_offset_from_sql(ts: &Timestamp) -> Result<FixedOffset> {
+    FixedOffset::east_opt(ts.tz_offset())
+        .ok_or_else(|| Error::OutOfRange(format!("invalid time zone offset: {}", ts.tz_offset())))
+}
+
 //
 // chrono::DateTime<Utc>
 // chrono::DateTime<Local>
@@ -40,7 +45,20 @@ fn datetime_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<DateTime<Tz>>
 where
     Tz: TimeZone,
 {
-    Ok(date_from_sql(tz, ts)?.and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
+    date_from_sql(tz, ts)?
+        .and_hms_nano_opt(ts.hour(), ts.minute(), ts.second(), ts.nanosecond())
+        .ok_or_else(|| {
+            Error::OutOfRange(format!(
+                "invalid year-month-day: {}-{}-{} {}:{}:{}.{:09}",
+                ts.year(),
+                ts.month(),
+                ts.day(),
+                ts.hour(),
+                ts.minute(),
+                ts.second(),
+                ts.nanosecond()
+            ))
+        })
 }
 
 impl FromSql for DateTime<Utc> {
@@ -60,7 +78,7 @@ impl FromSql for DateTime<Local> {
 impl FromSql for DateTime<FixedOffset> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<FixedOffset>> {
         let ts = val.to_timestamp()?;
-        datetime_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
+        datetime_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
     }
 }
 
@@ -134,7 +152,7 @@ impl FromSql for Date<Local> {
 impl FromSql for Date<FixedOffset> {
     fn from_sql(val: &SqlValue) -> Result<Date<FixedOffset>> {
         let ts = val.to_timestamp()?;
-        date_from_sql(&FixedOffset::east(ts.tz_offset()), &ts)
+        date_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
     }
 }
 
@@ -166,17 +184,27 @@ where
 // chrono::naive::NaiveDateTime
 //
 
-impl FromSql for NaiveDateTime {
-    fn from_sql(val: &SqlValue) -> Result<NaiveDateTime> {
-        let ts = val.to_timestamp()?;
-        Ok(
-            NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(
+fn naive_date_time_from_sql(ts: &Timestamp) -> Result<NaiveDateTime> {
+    naive_date_from_sql(ts)?
+        .and_hms_nano_opt(ts.hour(), ts.minute(), ts.second(), ts.nanosecond())
+        .ok_or_else(|| {
+            Error::OutOfRange(format!(
+                "invalid year-month-day: {}-{}-{} {}:{}:{}.{:09}",
+                ts.year(),
+                ts.month(),
+                ts.day(),
                 ts.hour(),
                 ts.minute(),
                 ts.second(),
-                ts.nanosecond(),
-            ),
-        )
+                ts.nanosecond()
+            ))
+        })
+}
+
+impl FromSql for NaiveDateTime {
+    fn from_sql(val: &SqlValue) -> Result<NaiveDateTime> {
+        let ts = val.to_timestamp()?;
+        naive_date_time_from_sql(&ts)
     }
 }
 
@@ -209,10 +237,21 @@ impl ToSql for NaiveDateTime {
 // chrono::naive::NaiveDate
 //
 
+fn naive_date_from_sql(ts: &Timestamp) -> Result<NaiveDate> {
+    NaiveDate::from_ymd_opt(ts.year(), ts.month(), ts.day()).ok_or_else(|| {
+        Error::OutOfRange(format!(
+            "invalid year-month-day: {}-{}-{}",
+            ts.year(),
+            ts.month(),
+            ts.day()
+        ))
+    })
+}
+
 impl FromSql for NaiveDate {
     fn from_sql(val: &SqlValue) -> Result<NaiveDate> {
         let ts = val.to_timestamp()?;
-        Ok(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()))
+        naive_date_from_sql(&ts)
     }
 }
 
