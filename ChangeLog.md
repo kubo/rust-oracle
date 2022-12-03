@@ -5,6 +5,7 @@
 New features:
 
 * Add `stmt_without_lifetime` feature flag.
+* Add [`ObjectType::package_name`]
 
 Fixed Issues:
 
@@ -416,6 +417,7 @@ Incompatible changes:
 [`ObjectType.new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection
 [`ObjectType.new_object()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_object
 [`ObjectType.schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
+[`ObjectType::package_name`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.ObjectType.html#method.package_name
 [`ObjectTypeAttr.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
 [`ResultSet.column_info()`]: https://docs.rs/oracle/*/oracle/struct.ResultSet.html#method.column_info
 [`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values

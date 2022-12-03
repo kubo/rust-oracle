@@ -563,6 +563,16 @@ impl ObjectType {
         &self.internal.name
     }
 
+    /// Gets package name if it is a PL/SQL type.
+    /// Otherwise, `None`.
+    pub fn package_name(&self) -> Option<&str> {
+        if let Some(ref pkg_name) = self.internal.package_name {
+            Some(pkg_name)
+        } else {
+            None
+        }
+    }
+
     /// True when it is a collectoin. Otherwise false.
     pub fn is_collection(&self) -> bool {
         self.internal.elem_oratype.is_some()
@@ -728,6 +738,7 @@ pub(crate) struct ObjectTypeInternal {
     handle: DpiObjectType,
     schema: String,
     name: String,
+    package_name: Option<String>,
     elem_oratype: Option<OracleType>,
     attrs: Vec<ObjectTypeAttr>,
 }
@@ -772,6 +783,11 @@ impl ObjectTypeInternal {
             handle,
             schema: to_rust_str(info.schema, info.schemaLength),
             name: to_rust_str(info.name, info.nameLength),
+            package_name: if info.packageNameLength != 0 {
+                Some(to_rust_str(info.packageName, info.packageNameLength))
+            } else {
+                None
+            },
             elem_oratype,
             attrs,
         })

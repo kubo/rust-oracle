@@ -80,6 +80,7 @@ fn assert_udt_objectdatatypes(objtype: &ObjectType) {
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_OBJECTDATATYPES");
+    assert_eq!(objtype.package_name(), None);
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
     assert_eq!(objtype.num_attributes(), expected_attrs.len());
@@ -118,6 +119,7 @@ fn assert_udt_object(objtype: &ObjectType) {
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_OBJECT");
+    assert_eq!(objtype.package_name(), None);
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
     assert_eq!(objtype.num_attributes(), 7);
@@ -147,6 +149,7 @@ fn assert_udt_object(objtype: &ObjectType) {
         OracleType::Object(ref attrtype) => {
             assert_eq!(attrtype.schema(), username);
             assert_eq!(attrtype.name(), "UDT_OBJECTARRAY");
+            assert_eq!(attrtype.package_name(), None);
             assert_eq!(attrtype.is_collection(), true);
             match attrtype.element_oracle_type() {
                 Some(elem_type) => assert_udt_subobject(elem_type),
@@ -166,6 +169,7 @@ fn assert_udt_subobject(oratype: &OracleType) {
         OracleType::Object(ref attrtype) => {
             assert_eq!(attrtype.schema(), username);
             assert_eq!(attrtype.name(), "UDT_SUBOBJECT");
+            assert_eq!(attrtype.package_name(), None);
             assert_eq!(attrtype.is_collection(), false);
             assert_eq!(attrtype.element_oracle_type(), None);
             assert_eq!(attrtype.num_attributes(), 2);
@@ -188,6 +192,7 @@ fn udt_array() -> Result<()> {
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_ARRAY");
+    assert_eq!(objtype.package_name(), None);
     assert_eq!(objtype.is_collection(), true);
     assert_eq!(
         objtype.element_oracle_type(),
@@ -210,6 +215,7 @@ fn pkg_testnumberarrays_udt_numberlist() -> Result<()> {
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_NUMBERLIST");
+    assert_eq!(objtype.package_name(), Some("PKG_TESTNUMBERARRAYS"));
     assert_eq!(objtype.is_collection(), true);
     assert_eq!(
         objtype.element_oracle_type(),
@@ -232,6 +238,7 @@ fn pkg_testrecords_udt_record() -> Result<()> {
 
     assert_eq!(objtype.schema(), username);
     assert_eq!(objtype.name(), "UDT_RECORD");
+    assert_eq!(objtype.package_name(), Some("PKG_TESTRECORDS"));
     assert_eq!(objtype.is_collection(), false);
     assert_eq!(objtype.element_oracle_type(), None);
     assert_eq!(objtype.num_attributes(), 7);
