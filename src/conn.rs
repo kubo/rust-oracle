@@ -23,7 +23,7 @@ use crate::Connection;
 /// The mode to use when closing connections to the database
 ///
 /// See [`Connection::close_with_mode`].
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum CloseMode<'a> {
     /// The connection is returned to the connection pool for
     /// future use.
@@ -38,7 +38,7 @@ pub enum CloseMode<'a> {
     Retag(&'a str),
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
 pub enum Purity {
     /// Must use a new session

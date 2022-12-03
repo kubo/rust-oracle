@@ -370,7 +370,7 @@ where
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// Delivery mode used for filtering messages when dequeuing messages from a queue
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
@@ -407,7 +407,7 @@ impl MessageDeliveryMode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// Possible states for messages in a queue
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
@@ -437,7 +437,7 @@ impl MessageState {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// Modes that are possible when dequeuing messages from a queue
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
@@ -480,7 +480,7 @@ impl DeqMode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// method used for determining which message is to be dequeued from a queue
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
@@ -522,7 +522,7 @@ impl DeqNavigation {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// visibility of messages in advanced queuing
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.

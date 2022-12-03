@@ -73,7 +73,7 @@ unsafe impl OciAttr for ServerStatus {
 /// Database startup mode
 ///
 /// See [`Connection::startup_database`]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum StartupMode {
     /// Shuts down a running instance (if there is any) using ABORT before
     /// starting a new one. This mode should be used only in unusual circumstances.
@@ -87,7 +87,7 @@ pub enum StartupMode {
 /// Database shutdown mode
 ///
 /// See [`Connection::shutdown_database`].
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ShutdownMode {
     /// Further connects are prohibited. Waits for users to disconnect from
     /// the database.
@@ -122,7 +122,7 @@ pub enum ShutdownMode {
 /// [Administrative privilege](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-633842B8-4B19-4F96-A757-783BF62825A7)
 ///
 /// See [`Connector::privilege`].
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Privilege {
     /// Connects as [SYSDBA](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
     ///
@@ -161,7 +161,7 @@ impl Privilege {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Connection status
 pub enum ConnStatus {
     /// The connection is alive. See [`Connection::status`] for details.

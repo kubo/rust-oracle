@@ -6,6 +6,10 @@ New features:
 
 * Add `stmt_without_lifetime` feature flag.
 
+Changes:
+
+* The [`Eq`] trait was implemented for enum types.
+
 ## 0.5.6 (2022-08-09)
 
 Fixed Issues:
@@ -394,6 +398,7 @@ Incompatible changes:
 [`DbError.fn_name()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.fn_name
 [`DbError.message()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.message
 [`DbError.offset()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.offset
+[`Eq`]: https://doc.rust-lang.org/std/cmp/trait.Eq.html
 [`Error::NoDataFound`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
 [`ObjectType.attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes

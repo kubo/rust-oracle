@@ -39,7 +39,7 @@ use std::time::Duration;
 /// The mode to use when closing pools
 ///
 /// See [`Pool::close`].
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum CloseMode {
     /// If there are any active connections in the pool an
     /// error is returned.
@@ -60,7 +60,7 @@ impl CloseMode {
 }
 
 /// The mode to use when getting connections from a connection pool
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum GetMode {
     /// The caller should block until a
     /// connection is available from the pool.
@@ -114,7 +114,7 @@ impl GetMode {
 }
 
 /// Whether a connection pool is homogeneous or heterogeneous.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PoolType {
     /// The default pool type.
     /// All connections in the pool are authenticated with the
@@ -155,7 +155,7 @@ impl I32Seconds {
 /// Additional options to get a connection from a pool
 ///
 /// This is used as the argument of [`Pool::get_with_options`].
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PoolOptions {
     username: String,
     password: String,

@@ -57,7 +57,7 @@ const SQLFNCODE_CREATE_TYPE: u16 = 77;
 const SQLFNCODE_ALTER_TYPE: u16 = 80;
 const SQLFNCODE_DROP_TYPE: u16 = 78;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LobBindType {
     Locator,
     Bytes,
@@ -269,7 +269,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
 /// No new variants are added to this enum in the future. That's because
 /// a new variant causes breaking changes. New configuration parameters
 /// are set via [`StatementBuilder`][] instead.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StmtParam {
     /// The array size used for performing fetches.
     ///
@@ -291,7 +291,7 @@ pub enum StmtParam {
 }
 
 /// Statement type returned by [`Statement::statement_type`].
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum StatementType {
     /// SELECT statement
     Select,
