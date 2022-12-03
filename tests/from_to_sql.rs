@@ -810,6 +810,7 @@ fn interval_ym_to_sql() -> Result<()> {
 }
 
 #[cfg(feature = "chrono")]
+#[allow(deprecated)]
 mod chrono {
     use super::common;
     use super::test_from_sql;

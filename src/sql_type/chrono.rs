@@ -119,7 +119,12 @@ where
 // chrono::Date<Local>
 // chrono::Date<FixedOffset>
 //
+// chrono::Date has been deprecated since chrono 0.4.23.
+// However it cannot be removed without a breaking change.
+// So `#[allow(deprecated)]` was added for each trait implementation
+// to suppress warnings.
 
+#[allow(deprecated)]
 fn date_from_sql<Tz>(tz: &Tz, ts: &Timestamp) -> Result<Date<Tz>>
 where
     Tz: TimeZone,
@@ -135,6 +140,7 @@ where
     }
 }
 
+#[allow(deprecated)]
 impl FromSql for Date<Utc> {
     fn from_sql(val: &SqlValue) -> Result<Date<Utc>> {
         let ts = val.to_timestamp()?;
@@ -142,6 +148,7 @@ impl FromSql for Date<Utc> {
     }
 }
 
+#[allow(deprecated)]
 impl FromSql for Date<Local> {
     fn from_sql(val: &SqlValue) -> Result<Date<Local>> {
         let ts = val.to_timestamp()?;
@@ -149,6 +156,7 @@ impl FromSql for Date<Local> {
     }
 }
 
+#[allow(deprecated)]
 impl FromSql for Date<FixedOffset> {
     fn from_sql(val: &SqlValue) -> Result<Date<FixedOffset>> {
         let ts = val.to_timestamp()?;
@@ -156,6 +164,7 @@ impl FromSql for Date<FixedOffset> {
     }
 }
 
+#[allow(deprecated)]
 impl<Tz> ToSqlNull for Date<Tz>
 where
     Tz: TimeZone,
@@ -165,6 +174,7 @@ where
     }
 }
 
+#[allow(deprecated)]
 impl<Tz> ToSql for Date<Tz>
 where
     Tz: TimeZone,
