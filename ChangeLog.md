@@ -14,6 +14,10 @@ Changes:
 
 * The [`Eq`] trait was implemented for enum types.
 
+Internal Changes:
+
+* Update ODPI-C to 4.6.0. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
+
 ## 0.5.6 (2022-08-09)
 
 Fixed Issues:
