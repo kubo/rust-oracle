@@ -106,7 +106,7 @@ impl AttrValue {
     }
 
     unsafe fn set_bool(&mut self, val: bool) -> Result<()> {
-        let val: i32 = if val { 1 } else { 0 };
+        let val = i32::from(val);
         self.set_ptr_len(&val as *const i32 as *mut c_void, 4)
     }
 

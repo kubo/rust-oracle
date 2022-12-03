@@ -920,9 +920,7 @@ impl Connection {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Row> {
         let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
-        if let Err(err) = stmt.query_row(params) {
-            return Err(err);
-        };
+        stmt.query_row(params)?;
         Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
     }
 
@@ -933,9 +931,7 @@ impl Connection {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
         let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
-        if let Err(err) = stmt.query_row_named(params) {
-            return Err(err);
-        };
+        stmt.query_row_named(params)?;
         Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
     }
 

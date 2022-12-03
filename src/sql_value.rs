@@ -788,7 +788,7 @@ impl SqlValue {
     /// Sets bool to the SQL value. The native_type must be
     /// NativeType::Boolean. Otherwise, this may cause access violation.
     fn set_bool_unchecked(&mut self, val: bool) -> Result<()> {
-        unsafe { dpiData_setBool(self.data(), if val { 1 } else { 0 }) }
+        unsafe { dpiData_setBool(self.data(), i32::from(val)) }
         Ok(())
     }
 

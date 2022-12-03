@@ -314,7 +314,7 @@ impl<'a> ToSql for &'a [u8] {
         Ok(OracleType::Raw(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        val.set_bytes(*self)
+        val.set_bytes(self)
     }
 }
 
@@ -323,7 +323,8 @@ impl<'a, const N: usize> ToSql for &'a [u8; N] {
         Ok(OracleType::Raw(self.len() as u32))
     }
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        val.set_bytes(*self)
+        // Use self.as_slice() instead of &self[..] when MSRV become 1.57 or later.
+        val.set_bytes(&self[..])
     }
 }
 

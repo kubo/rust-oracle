@@ -239,11 +239,11 @@ impl PoolOptions {
         if let Some(privilege) = self.privilege {
             conn_params.authMode |= privilege.to_dpi();
         }
-        conn_params.externalAuth = if self.external_auth { 1 } else { 0 };
+        conn_params.externalAuth = i32::from(self.external_auth);
         let s = to_odpi_str(&self.tag);
         conn_params.tag = s.ptr;
         conn_params.tagLength = s.len;
-        conn_params.matchAnyTag = if self.match_any_tag { 1 } else { 0 };
+        conn_params.matchAnyTag = i32::from(self.match_any_tag);
         if let Some(purity) = self.purity {
             conn_params.purity = purity.to_dpi();
         }
@@ -483,7 +483,7 @@ impl PoolBuilder {
             pool_params.homogeneous = val;
         }
         if let Some(val) = self.external_auth {
-            pool_params.externalAuth = if val { 1 } else { 0 };
+            pool_params.externalAuth = i32::from(val);
         }
         if let Some(val) = self.get_mode {
             pool_params.getMode = val.to_dpi_value();
@@ -948,7 +948,7 @@ impl Pool {
     /// See also [`Pool::soda_metadata_cache`].
     #[doc(hidden)] // uncomment when SODA is supported.
     pub fn set_soda_metadata_cache(&mut self, enabled: bool) -> Result<()> {
-        let enabled = if enabled { 1 } else { 0 };
+        let enabled = i32::from(enabled);
         chkerr!(
             self.ctxt,
             dpiPool_setSodaMetadataCache(self.handle(), enabled)

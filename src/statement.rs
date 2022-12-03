@@ -552,7 +552,7 @@ impl<'conn> Statement<'conn> {
             conn.ctxt(),
             dpiConn_prepareStmt(
                 conn.handle(),
-                if builder.scrollable { 1 } else { 0 },
+                i32::from(builder.scrollable),
                 sql.ptr,
                 sql.len,
                 tag.ptr,
@@ -1380,7 +1380,7 @@ impl<'a> BindIndex for &'a str {
     }
 
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
-        let s = to_odpi_str(*self);
+        let s = to_odpi_str(self);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }
@@ -1408,7 +1408,7 @@ impl ColumnIndex for usize {
 impl<'a> ColumnIndex for &'a str {
     fn idx(&self, column_names: &[String]) -> Result<usize> {
         for (idx, colname) in column_names.iter().enumerate() {
-            if colname.as_str().eq_ignore_ascii_case(*self) {
+            if colname.as_str().eq_ignore_ascii_case(self) {
                 return Ok(idx);
             }
         }

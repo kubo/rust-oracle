@@ -795,7 +795,7 @@ impl<'a> BatchBindIndex for &'a str {
 
     #[doc(hidden)]
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
-        let s = to_odpi_str(*self);
+        let s = to_odpi_str(self);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }
