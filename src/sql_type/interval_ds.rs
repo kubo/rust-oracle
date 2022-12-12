@@ -13,7 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
+use std::cmp::{self, Ordering};
 use std::fmt;
 use std::str;
 
@@ -80,7 +80,7 @@ use crate::ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[])?;
+/// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &intvl, // bind the intvl variable
 ///               ])?;
@@ -112,8 +112,8 @@ impl IntervalDS {
             minutes: it.minutes,
             seconds: it.seconds,
             nanoseconds: it.fseconds,
-            lfprec: lfprec,
-            fsprec: fsprec,
+            lfprec,
+            fsprec,
         }
     }
 
@@ -133,11 +133,11 @@ impl IntervalDS {
     /// All arguments must be zero or negative to create a negative interval.
     pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
         IntervalDS {
-            days: days,
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            nanoseconds: nanoseconds,
+            days,
+            hours,
+            minutes,
+            seconds,
+            nanoseconds,
             lfprec: 9,
             fsprec: 9,
         }
@@ -151,8 +151,8 @@ impl IntervalDS {
     /// They don't affect comparison.
     pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> IntervalDS {
         IntervalDS {
-            lfprec: lfprec,
-            fsprec: fsprec,
+            lfprec,
+            fsprec,
             ..*self
         }
     }
@@ -267,38 +267,40 @@ impl str::FromStr for IntervalDS {
             }
             _ => false,
         };
-        let days = s.read_digits().ok_or(err())? as i32;
+        let days = s.read_digits().ok_or_else(err)? as i32;
         let lfprec = s.ndigits();
         if let Some(' ') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let hours = s.read_digits().ok_or(err())? as i32;
+        let hours = s.read_digits().ok_or_else(err)? as i32;
         if let Some(':') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let minutes = s.read_digits().ok_or(err())? as i32;
+        let minutes = s.read_digits().ok_or_else(err)? as i32;
         if let Some(':') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let seconds = s.read_digits().ok_or(err())? as i32;
+        let seconds = s.read_digits().ok_or_else(err)? as i32;
         let mut nsecs = 0;
         let mut fsprec = 0;
         if let Some('.') = s.char() {
             s.next();
-            nsecs = s.read_digits().ok_or(err())? as i32;
+            nsecs = s.read_digits().ok_or_else(err)? as i32;
             let ndigit = s.ndigits();
             fsprec = ndigit;
-            if ndigit < 9 {
-                nsecs *= 10i32.pow(9 - ndigit);
-            } else if ndigit > 9 {
-                nsecs /= 10i32.pow(ndigit - 9);
-                fsprec = 9;
+            match ndigit.cmp(&9) {
+                Ordering::Less => nsecs *= 10i32.pow(9 - ndigit),
+                Ordering::Equal => (),
+                Ordering::Greater => {
+                    nsecs /= 10i32.pow(ndigit - 9);
+                    fsprec = 9;
+                }
             }
         }
         if s.char().is_some() {

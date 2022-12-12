@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2022 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -14,13 +14,13 @@
 //-----------------------------------------------------------------------------
 
 use std::borrow::ToOwned;
-use std::cell::RefCell;
 use std::fmt;
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::binding::*;
 use crate::chkerr;
@@ -33,6 +33,8 @@ use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::RefCursor;
 use crate::sql_type::ToSql;
+#[cfg(doc)]
+use crate::sql_type::{Blob, Clob, Nclob};
 use crate::sql_value::BufferRowIndex;
 use crate::to_odpi_str;
 use crate::to_rust_str;
@@ -44,6 +46,8 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::SqlValue;
+#[cfg(doc)]
+use std::io::Read;
 
 // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;
@@ -80,16 +84,18 @@ pub struct StatementBuilder<'conn, 'sql> {
     query_params: QueryParams,
     scrollable: bool,
     tag: String,
+    exclude_from_cache: bool,
 }
 
 impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     pub(crate) fn new(conn: &'conn Connection, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
         StatementBuilder {
-            conn: conn,
-            sql: sql,
+            conn,
+            sql,
             query_params: QueryParams::new(),
             scrollable: false,
             tag: "".into(),
+            exclude_from_cache: false,
         }
     }
 
@@ -135,6 +141,43 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         self
     }
 
+    /// Enables lob data types to be fetched or bound as [`Clob`], [`Nclob`] or [`Blob`].
+    ///
+    /// Lob data types are internally bound as string or bytes by default.
+    /// It is proper for small data but not for big data. That's because
+    /// when a lob contains 1 gigabyte data, the whole data are copied to the client
+    /// and consume 1 gigabyte or more memory. When `lob_locator` is set and
+    /// a column is fetched as [`Clob`], data are copied using [`Read::read`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Connection;
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::Clob;
+    /// # use oracle::test_util;
+    /// # use std::io::{Read, Write};
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute("delete from TestClobs", &[])?;
+    /// # conn.execute("insert into TestClobs values (:1, :2)", &[&1i32, &"clob data"])?;
+    /// # let mut out = vec![0u8; 0];
+    /// let mut stmt = conn
+    ///     .statement("select ClobCol from TestClobs where IntCol = :1")
+    ///     .lob_locator()
+    ///     .build()?;
+    /// let mut clob = stmt.query_row_as::<Clob>(&[&1i32])?;
+    ///
+    /// // Copy contents of clob using 1MB buffer.
+    /// let mut buf = vec![0u8; 1 * 1024 * 1024];
+    /// loop {
+    ///   let size = clob.read(&mut buf)?;
+    ///   if size == 0 {
+    ///     break;
+    ///   }
+    ///   out.write(&buf[0..size]);
+    /// }
+    /// # Ok::<(), Box::<dyn std::error::Error>>(())
+    /// ```
     pub fn lob_locator<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
         self.query_params.lob_bind_type = LobBindType::Locator;
         self
@@ -146,12 +189,69 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         self
     }
 
-    // make the visibility public when statement caching is supported.
-    fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
+    /// Specifies the key to be used for searching for the statement in the statement cache.
+    /// If the key is not found, the SQL text specified by [`Connection::statement`] is used
+    /// to create a statement.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    ///
+    /// // When both SQL text and a tag are specifed and the tag is not found
+    /// // in the statement cache, the SQL text is used to make a statement.
+    /// // The statement is backed to the cache with the tag when
+    /// // it is closed.
+    /// let mut stmt = conn.statement("select 1 from dual").tag("query one").build()?;
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// // When only a tag is specified and the tag is found in the cache,
+    /// // the statement with the tag is returned.
+    /// let mut stmt = conn.statement("").tag("query one").build()?;
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// // When only a tag is specified and the tag isn't found in the cache,
+    /// // ORA-24431 is returned.
+    /// let err = conn.statement("").tag("not existing tag").build().unwrap_err();
+    /// match err {
+    ///   Error::OciError(err) if err.code() == 24431 => {
+    ///     // ORA-24431: Statement does not exist in the cache
+    ///   },
+    ///   _ => panic!("unexpected err {:?}", err),
+    /// }
+    ///
+    /// // WARNING: The SQL statement is not checked when the tag is found.
+    /// let mut stmt = conn.statement("select 2 from dual").tag("query one").build()?;
+    /// // The result must be 2 if the SQL text is used. However it is 1
+    /// // because the statement tagged with "query one" is "select 1 from dual".
+    /// assert_eq!(stmt.query_row_as::<i32>(&[])?, 1);
+    /// stmt.close()?;
+    ///
+    /// # // test whether the statement is tagged when it is closed by drop.
+    /// # {
+    /// #    let mut stmt = conn.statement("select 2 from dual").tag("query two").build()?;
+    /// #    assert_eq!(stmt.query_row_as::<i32>(&[])?, 2);
+    /// #    // stmt is dropped here.
+    /// # }
+    /// # let mut stmt = conn.statement("").tag("query two").build()?;
+    /// # assert_eq!(stmt.query_row_as::<i32>(&[])?, 2);
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
     where
         T: Into<String>,
     {
         self.tag = tag_name.into();
+        self
+    }
+
+    /// Excludes the statement from the cache even when stmt_cache_size is not zero.
+    pub fn exclude_from_cache<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
+        self.exclude_from_cache = true;
         self
     }
 
@@ -179,7 +279,7 @@ pub enum StmtParam {
     /// `StmtParam::FetchArraySize(1)`.
     FetchArraySize(u32),
 
-    /// Reserved for when statement caching is supported.
+    /// See [`StatementBuilder::tag`].
     Tag(String),
 
     /// Reserved for when scrollable cursors are supported.
@@ -266,21 +366,21 @@ impl StatementType {
 impl fmt::Display for StatementType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &StatementType::Select => write!(f, "select"),
-            &StatementType::Insert => write!(f, "insert"),
-            &StatementType::Update => write!(f, "update"),
-            &StatementType::Delete => write!(f, "delete"),
-            &StatementType::Merge => write!(f, "merge"),
-            &StatementType::Create => write!(f, "create"),
-            &StatementType::Alter => write!(f, "alter"),
-            &StatementType::Drop => write!(f, "drop"),
-            &StatementType::Begin => write!(f, "PL/SQL(begin)"),
-            &StatementType::Declare => write!(f, "PL/SQL(declare)"),
-            &StatementType::Commit => write!(f, "commit"),
-            &StatementType::Rollback => write!(f, "rollback"),
-            &StatementType::ExplainPlan => write!(f, "explain plan"),
-            &StatementType::Call => write!(f, "call"),
-            &StatementType::Unknown => write!(f, "unknown"),
+            StatementType::Select => write!(f, "select"),
+            StatementType::Insert => write!(f, "insert"),
+            StatementType::Update => write!(f, "update"),
+            StatementType::Delete => write!(f, "delete"),
+            StatementType::Merge => write!(f, "merge"),
+            StatementType::Create => write!(f, "create"),
+            StatementType::Alter => write!(f, "alter"),
+            StatementType::Drop => write!(f, "drop"),
+            StatementType::Begin => write!(f, "PL/SQL(begin)"),
+            StatementType::Declare => write!(f, "PL/SQL(declare)"),
+            StatementType::Commit => write!(f, "commit"),
+            StatementType::Rollback => write!(f, "rollback"),
+            StatementType::ExplainPlan => write!(f, "explain plan"),
+            StatementType::Call => write!(f, "call"),
+            StatementType::Unknown => write!(f, "unknown"),
         }
     }
 }
@@ -291,19 +391,26 @@ pub(crate) struct Stmt {
     pub(crate) handle: *mut dpiStmt,
     pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
-    shared_buffer_row_index: Rc<RefCell<u32>>,
+    shared_buffer_row_index: Rc<AtomicU32>,
     pub(crate) query_params: QueryParams,
+    tag: String,
 }
 
 impl Stmt {
-    pub(crate) fn new(conn: Conn, handle: *mut dpiStmt, query_params: QueryParams) -> Stmt {
+    pub(crate) fn new(
+        conn: Conn,
+        handle: *mut dpiStmt,
+        query_params: QueryParams,
+        tag: String,
+    ) -> Stmt {
         Stmt {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             column_info: Vec::new(),
             row: None,
-            shared_buffer_row_index: Rc::new(RefCell::new(0)),
-            query_params: query_params,
+            shared_buffer_row_index: Rc::new(AtomicU32::new(0)),
+            query_params,
+            tag,
         }
     }
 
@@ -320,14 +427,8 @@ impl Stmt {
     }
 
     fn close(&mut self) -> Result<()> {
-        self.close_internal("")
-    }
-
-    fn close_internal(&mut self, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-
+        let tag = to_odpi_str(&self.tag);
         chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
-        self.handle = ptr::null_mut();
         Ok(())
     }
 
@@ -374,7 +475,8 @@ impl Stmt {
         let mut buffer_row_index = 0;
         if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
             if found != 0 {
-                *self.shared_buffer_row_index.borrow_mut() = buffer_row_index;
+                self.shared_buffer_row_index
+                    .store(buffer_row_index, Ordering::Relaxed);
                 // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
                 Some(Ok(self.row.as_ref().unwrap()))
             } else {
@@ -394,6 +496,7 @@ impl Stmt {
 
 impl Drop for Stmt {
     fn drop(&mut self) {
+        let _ = self.close();
         unsafe { dpiStmt_release(self.handle) };
     }
 }
@@ -419,13 +522,13 @@ impl<'conn> Statement<'conn> {
         let mut builder = conn.statement(sql);
         for param in params {
             match param {
-                &StmtParam::FetchArraySize(size) => {
-                    builder.fetch_array_size(size);
+                StmtParam::FetchArraySize(size) => {
+                    builder.fetch_array_size(*size);
                 }
-                &StmtParam::Scrollable => {
+                StmtParam::Scrollable => {
                     builder.scrollable(true);
                 }
-                &StmtParam::Tag(ref name) => {
+                StmtParam::Tag(name) => {
                     builder.tag(name);
                 }
             }
@@ -490,13 +593,21 @@ impl<'conn> Statement<'conn> {
                 ));
             }
         };
+        let tag = if builder.exclude_from_cache {
+            chkerr!(conn.ctxt(), dpiStmt_deleteFromCache(handle), unsafe {
+                dpiStmt_release(handle);
+            });
+            String::new()
+        } else {
+            builder.tag.clone()
+        };
         Ok(Statement {
-            stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone()),
+            stmt: Stmt::new(conn.conn.clone(), handle, builder.query_params.clone(), tag),
             statement_type: StatementType::from_enum(info.statementType),
             is_returning: info.isReturning != 0,
-            bind_count: bind_count,
-            bind_names: bind_names,
-            bind_values: bind_values,
+            bind_count,
+            bind_names,
+            bind_values,
             phantom: PhantomData,
         })
     }
@@ -551,6 +662,21 @@ impl<'conn> Statement<'conn> {
         Ok(ResultSet::new(&self.stmt))
     }
 
+    /// Executes the prepared statement and returns a result set containing [`RowValue`]s.
+    ///
+    /// This is the same as [`Statement::query_as()`], but takes ownership of the [`Statement`].
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
+    pub fn into_result_set<'a, T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
+    where
+        T: RowValue,
+    {
+        self.exec(params, true, "into_result_set")?;
+        Ok(ResultSet::from_stmt(self.stmt))
+    }
+
     /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
     ///
     /// See [Query Methods][].
@@ -565,6 +691,24 @@ impl<'conn> Statement<'conn> {
     {
         self.exec_named(params, true, "query_as_named")?;
         Ok(ResultSet::new(&self.stmt))
+    }
+
+    /// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
+    ///
+    /// This is the same as [`Statement::query_as_named()`], but takes ownership of the [`Statement`].
+    ///
+    /// See [Query Methods][].
+    ///
+    /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
+    pub fn into_result_set_named<'a, T>(
+        mut self,
+        params: &[(&str, &dyn ToSql)],
+    ) -> Result<ResultSet<'a, T>>
+    where
+        T: RowValue,
+    {
+        self.exec_named(params, true, "into_result_set_named")?;
+        Ok(ResultSet::from_stmt(self.stmt))
     }
 
     /// Gets one row from the prepared statement using positoinal bind parameters.
@@ -625,11 +769,15 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (113, 'John')", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (113, 'John')")
+    ///     .build()?;
     /// stmt.execute(&[])?;
     ///
     /// // execute a statement with binding parameters by position
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:1, :2)", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (:1, :2)")
+    ///     .build()?;
     /// stmt.execute(&[&114, &"Smith"])?;
     /// stmt.execute(&[&115, &"Paul"])?;  // execute with other values.
     ///
@@ -651,7 +799,9 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
+    /// let mut stmt = conn
+    ///     .statement("insert into emp(empno, ename) values (:id, :name)")
+    ///     .build()?;
     /// stmt.execute_named(&[("id", &114),
     ///                      ("name", &"Smith")])?;
     /// stmt.execute_named(&[("id", &115),
@@ -672,15 +822,13 @@ impl<'conn> Statement<'conn> {
                     method_name
                 )))
             }
+        } else if self.statement_type != StatementType::Select {
+            Ok(())
         } else {
-            if self.statement_type != StatementType::Select {
-                Ok(())
-            } else {
-                Err(Error::InvalidOperation(format!(
-                    "Could not use the `{}` method for select statements",
-                    method_name
-                )))
-            }
+            Err(Error::InvalidOperation(format!(
+                "Could not use the `{}` method for select statements",
+                method_name
+            )))
         }
     }
 
@@ -691,8 +839,8 @@ impl<'conn> Statement<'conn> {
         method_name: &str,
     ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
-        for i in 0..params.len() {
-            self.bind(i + 1, params[i])?;
+        for (i, param) in params.iter().enumerate() {
+            self.bind(i + 1, *param)?;
         }
         self.exec_common()
     }
@@ -704,8 +852,8 @@ impl<'conn> Statement<'conn> {
         method_name: &str,
     ) -> Result<()> {
         self.check_stmt_type(must_be_query, method_name)?;
-        for i in 0..params.len() {
-            self.bind(params[i].0, params[i].1)?;
+        for param in params {
+            self.bind(param.0, param.1)?;
         }
         self.exec_common()
     }
@@ -739,10 +887,8 @@ impl<'conn> Statement<'conn> {
                 _ => (),
             }
         }
-        if self.statement_type == StatementType::Select {
-            if self.stmt.row.is_none() {
-                self.stmt.init_row(num_query_columns as usize)?;
-            }
+        if self.statement_type == StatementType::Select && self.stmt.row.is_none() {
+            self.stmt.init_row(num_query_columns as usize)?;
         }
         if self.is_returning {
             for val in self.bind_values.iter_mut() {
@@ -762,11 +908,11 @@ impl<'conn> Statement<'conn> {
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // SQL statements
-    /// let stmt = conn.prepare("select :val1, :val2, :val1 from dual", &[])?;
+    /// let stmt = conn.statement("select :val1, :val2, :val1 from dual").build()?;
     /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
     ///
     /// // PL/SQL statements
-    /// let stmt = conn.prepare("begin :val1 := :val1 || :val2; end;", &[])?;
+    /// let stmt = conn.statement("begin :val1 := :val1 || :val2; end;").build()?;
     /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
     /// # Ok::<(), Error>(())
     /// ```
@@ -784,7 +930,7 @@ impl<'conn> Statement<'conn> {
     /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
-    /// let stmt = conn.prepare("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;", &[])?;
+    /// let stmt = conn.statement("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").build()?;
     /// assert_eq!(stmt.bind_count(), 3);
     /// let bind_names = stmt.bind_names();
     /// assert_eq!(bind_names.len(), 3);
@@ -808,7 +954,7 @@ impl<'conn> Statement<'conn> {
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
     /// stmt.bind(1, &OracleType::Varchar2(60))?;
@@ -825,7 +971,7 @@ impl<'conn> Statement<'conn> {
     where
         I: BindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         let conn = Connection::from_conn(self.conn().clone());
         if self.bind_values[pos].init_handle(&value.oratype(&conn)?)? {
             chkerr!(
@@ -851,7 +997,7 @@ impl<'conn> Statement<'conn> {
     /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
     /// // sets "to be upper-case" to the second and then executes it.
-    /// let mut stmt = conn.prepare("begin :outval := upper(:inval); end;", &[])?;
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     /// stmt.execute(&[&OracleType::Varchar2(60),
     ///              &"to be upper-case"])?;
     ///
@@ -869,7 +1015,7 @@ impl<'conn> Statement<'conn> {
         I: BindIndex,
         T: FromSql,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         self.bind_values[pos].get()
     }
 
@@ -918,7 +1064,7 @@ impl<'conn> Statement<'conn> {
         if rows == 0 {
             return Ok(vec![]);
         }
-        let mut sqlval = self.bind_values[bindidx.idx(&self)?].unsafely_clone();
+        let mut sqlval = self.bind_values[bindidx.idx(self)?].unsafely_clone();
         if rows > sqlval.array_size as u64 {
             rows = sqlval.array_size as u64;
         }
@@ -932,6 +1078,36 @@ impl<'conn> Statement<'conn> {
 
     /// Returns the number of rows fetched when the SQL statement is a query.
     /// Otherwise, the number of rows affected.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util::{self, check_version, VER12_1};
+    /// # let conn = test_util::connect()?;
+    /// // number of affected rows
+    /// let stmt = conn.execute("update TestStrings set StringCol = StringCol where IntCol >= :1", &[&6])?;
+    /// assert_eq!(stmt.row_count()?, 5);
+    ///
+    /// // number of fetched rows
+    /// let mut stmt = conn
+    ///     .statement("select * from TestStrings where IntCol >= :1")
+    ///     .build()?;
+    /// assert_eq!(stmt.row_count()?, 0); // before fetch
+    /// let mut nrows = 0;
+    /// for _ in stmt.query(&[&6])? {
+    ///   nrows += 1;
+    /// }
+    /// assert_eq!(stmt.row_count()?, nrows); // after fetch
+    ///
+    /// // fetch again using same stmt with a different bind value.
+    /// let mut nrows = 0;
+    /// for _ in stmt.query(&[&4])? {
+    ///   nrows += 1;
+    /// }
+    /// assert_eq!(stmt.row_count()?, nrows); // after fetch
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn row_count(&self) -> Result<u64> {
         self.stmt.row_count()
     }
@@ -1021,29 +1197,29 @@ impl<'conn> Statement<'conn> {
 
     /// Returns true when the SQL statement is a PL/SQL block.
     pub fn is_plsql(&self) -> bool {
-        match self.statement_type {
-            StatementType::Begin | StatementType::Declare | StatementType::Call => true,
-            _ => false,
-        }
+        matches!(
+            self.statement_type,
+            StatementType::Begin | StatementType::Declare | StatementType::Call
+        )
     }
 
     /// Returns true when the SQL statement is DDL (data definition language).
     pub fn is_ddl(&self) -> bool {
-        match self.statement_type {
-            StatementType::Create | StatementType::Drop | StatementType::Alter => true,
-            _ => false,
-        }
+        matches!(
+            self.statement_type,
+            StatementType::Create | StatementType::Drop | StatementType::Alter
+        )
     }
 
     /// Returns true when the SQL statement is DML (data manipulation language).
     pub fn is_dml(&self) -> bool {
-        match self.statement_type {
+        matches!(
+            self.statement_type,
             StatementType::Insert
-            | StatementType::Update
-            | StatementType::Delete
-            | StatementType::Merge => true,
-            _ => false,
-        }
+                | StatementType::Update
+                | StatementType::Delete
+                | StatementType::Merge
+        )
     }
 
     /// Returns true when the SQL statement has a `RETURNING INTO` clause.
@@ -1083,7 +1259,7 @@ impl<'conn> Statement<'conn> {
 /// ```no_run
 /// # use oracle::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
-/// let mut stmt = conn.prepare("select * from emp", &[])?;
+/// let mut stmt = conn.statement("select * from emp").build()?;
 /// let rows = stmt.query(&[])?;
 /// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
 /// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
@@ -1207,11 +1383,11 @@ impl<'a> BindIndex for &'a str {
 pub trait ColumnIndex: private::Sealed {
     /// Returns the index of the column specified by `self`.
     #[doc(hidden)]
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize>;
+    fn idx(&self, column_names: &[String]) -> Result<usize>;
 }
 
 impl ColumnIndex for usize {
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+    fn idx(&self, column_names: &[String]) -> Result<usize> {
         let ncols = column_names.len();
         if *self < ncols {
             Ok(*self)
@@ -1222,7 +1398,7 @@ impl ColumnIndex for usize {
 }
 
 impl<'a> ColumnIndex for &'a str {
-    fn idx(&self, column_names: &Vec<String>) -> Result<usize> {
+    fn idx(&self, column_names: &[String]) -> Result<usize> {
         for (idx, colname) in column_names.iter().enumerate() {
             if colname.as_str().eq_ignore_ascii_case(*self) {
                 return Ok(idx);

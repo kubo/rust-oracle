@@ -1,5 +1,5 @@
 # Rust-oracle
-[![Build Status](https://travis-ci.com/kubo/rust-oracle.svg?branch=master)](https://travis-ci.com/kubo/rust-oracle/branches)
+[![Test](https://img.shields.io/github/workflow/status/kubo/rust-oracle/Run%20tests?label=test)](https://github.com/kubo/rust-oracle/actions/workflows/run-tests.yml)
 [![Crates.io](https://img.shields.io/crates/v/oracle.svg)](https://crates.io/crates/oracle)
 [![Docs](https://docs.rs/oracle/badge.svg)](https://docs.rs/oracle)
 [![Docs (in development)](https://img.shields.io/badge/docs-in_development-486D9F)](https://www.jiubao.org/rust-oracle/oracle/)
@@ -17,6 +17,13 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 ## Run-time Requirements
 
 * Oracle client 11.2 or later. See [ODPI-C installation document][].
+
+## Supported Rust Versions
+
+The oracle crate supports **at least** 6 rust minor versions including the stable
+release at the time when the crate was released. The MSRV (minimum supported
+rust version) may be changed when a patch version is incremented though it will
+not be changed frequently. The current MSRV is 1.54.0.
 
 ## Usage
 
@@ -175,7 +182,7 @@ use oracle::Connection;
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 // Create a prepared statement
-let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
+let mut stmt = conn.statement("insert into person values (:1, :2)").build()?;
 // Insert one row
 stmt.execute(&[&1, &"John"])?;
 // Insert another row
@@ -220,12 +227,21 @@ required.
 
 ## TODO
 
-* Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * [BFILEs (External LOBs)](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5834BC49-4053-40FF-BE39-B14342B1201E) (Note: Reading contents of BFILEs as `Vec<u8>` is supported.)
 * Scrollable cursors
 * Better Oracle object type support
 * XML data type
 * [JSON data type](https://oracle-base.com/articles/21c/json-data-type-21c)
+
+## Related Projects
+
+Other crates for connecting to Oracle:
+* [Sibyl]: an OCI-based interface supporting both blocking (threads) and nonblocking (async) API
+
+Oracle-related crates:
+* [r2d2-oracle]: Oracle support for the [r2d2] connection pool
+* [bb8-oracle]: [bb8] connection pool support for oracle
+* [include-oracle-sql]: an extension of [include-sql] using [Sibyl] for database access
 
 ## License
 
@@ -239,5 +255,10 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
-[ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
+[bb8]: https://crates.io/crates/bb8
+[bb8-oracle]: https://crates.io/crates/bb8-oracle
+[include-sql]: https://crates.io/crates/include-sql
+[include-oracle-sql]: https://crates.io/crates/include-oracle-sql
+[r2d2]: https://crates.io/crates/r2d2
 [r2d2-oracle]: https://crates.io/crates/r2d2-oracle
+[Sibyl]: https://crates.io/crates/sibyl

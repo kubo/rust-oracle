@@ -87,11 +87,11 @@ impl BindType {
     fn new(oratype: &OracleType) -> BindType {
         BindType {
             oratype: match oratype {
-                &OracleType::Varchar2(size) => Some(OracleType::Varchar2(po2(size))),
-                &OracleType::NVarchar2(size) => Some(OracleType::NVarchar2(po2(size))),
-                &OracleType::Char(size) => Some(OracleType::Char(po2(size))),
-                &OracleType::NChar(size) => Some(OracleType::NChar(po2(size))),
-                &OracleType::Raw(size) => Some(OracleType::Raw(po2(size))),
+                OracleType::Varchar2(size) => Some(OracleType::Varchar2(po2(*size))),
+                OracleType::NVarchar2(size) => Some(OracleType::NVarchar2(po2(*size))),
+                OracleType::Char(size) => Some(OracleType::Char(po2(*size))),
+                OracleType::NChar(size) => Some(OracleType::NChar(po2(*size))),
+                OracleType::Raw(size) => Some(OracleType::Raw(po2(*size))),
                 _ => None,
             },
         }
@@ -130,9 +130,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
         batch_size: usize,
     ) -> BatchBuilder<'conn, 'sql> {
         BatchBuilder {
-            conn: conn,
-            sql: sql,
-            batch_size: batch_size,
+            conn,
+            sql,
+            batch_size,
             with_batch_errors: false,
             with_row_counts: false,
             query_params: QueryParams::new(),
@@ -220,15 +220,15 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             }
         };
         Ok(Batch {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             statement_type: StatementType::from_enum(info.statementType),
-            bind_count: bind_count,
-            bind_names: bind_names,
-            bind_values: bind_values,
+            bind_count,
+            bind_names,
+            bind_values,
             bind_types: vec![None; bind_count],
             batch_index: 0,
-            batch_size: batch_size,
+            batch_size,
             with_batch_errors: self.with_batch_errors,
             with_row_counts: self.with_row_counts,
             query_params: self.query_params.clone(),
@@ -306,7 +306,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// }
 ///
 /// // Check the inserted rows.
-/// let mut stmt = conn.prepare("select count(*) from TestTempTable where intCol = :1", &[])?;
+/// let mut stmt = conn
+///     .statement("select count(*) from TestTempTable where intCol = :1")
+///     .build()?;
 /// assert_eq!(stmt.query_row_as::<i32>(&[&1])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&2])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&3])?, 0);
@@ -358,7 +360,9 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 /// }
 ///
 /// // Check the inserted rows.
-/// let mut stmt = conn.prepare("select count(*) from TestTempTable where intCol = :1", &[])?;
+/// let mut stmt = conn
+///     .statement("select count(*) from TestTempTable where intCol = :1")
+///     .build()?;
 /// assert_eq!(stmt.query_row_as::<i32>(&[&1])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&2])?, 1);
 /// assert_eq!(stmt.query_row_as::<i32>(&[&3])?, 0); // value too large for column
@@ -452,16 +456,16 @@ impl<'conn> Batch<'conn> {
 
     pub fn append_row(&mut self, params: &[&dyn ToSql]) -> Result<()> {
         self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(i + 1, params[i])?;
+        for (i, param) in params.iter().enumerate() {
+            self.bind_internal(i + 1, *param)?;
         }
         self.append_row_common()
     }
 
     pub fn append_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<()> {
         self.check_batch_index()?;
-        for i in 0..params.len() {
-            self.bind_internal(params[i].0, params[i].1)?;
+        for param in params {
+            self.bind_internal(param.0, param.1)?;
         }
         self.append_row_common()
     }
@@ -525,7 +529,7 @@ impl<'conn> Batch<'conn> {
                 );
                 unsafe { errs.set_len(errnum as usize) };
                 return Err(Error::BatchErrors(
-                    errs.iter().map(|err| dberror_from_dpi_error(err)).collect(),
+                    errs.iter().map(dberror_from_dpi_error).collect(),
                 ));
             }
         }
@@ -593,7 +597,7 @@ impl<'conn> Batch<'conn> {
     where
         I: BatchBindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         if self.bind_types[pos].is_some() {
             return Err(Error::InvalidOperation(format!(
                 "The bind parameter type at {} has been specified already.",
@@ -644,7 +648,7 @@ impl<'conn> Batch<'conn> {
     where
         I: BatchBindIndex,
     {
-        let pos = bindidx.idx(&self)?;
+        let pos = bindidx.idx(self)?;
         if self.bind_types[pos].is_none() {
             // When the parameter type has not bee specified yet,
             // assume the type from the value
@@ -725,21 +729,21 @@ impl<'conn> Batch<'conn> {
 
     /// Returns true when the SQL statement is a PL/SQL block.
     pub fn is_plsql(&self) -> bool {
-        match self.statement_type {
-            StatementType::Begin | StatementType::Declare | StatementType::Call => true,
-            _ => false,
-        }
+        matches!(
+            self.statement_type,
+            StatementType::Begin | StatementType::Declare | StatementType::Call
+        )
     }
 
     /// Returns true when the SQL statement is DML (data manipulation language).
     pub fn is_dml(&self) -> bool {
-        match self.statement_type {
+        matches!(
+            self.statement_type,
             StatementType::Insert
-            | StatementType::Update
-            | StatementType::Delete
-            | StatementType::Merge => true,
-            _ => false,
-        }
+                | StatementType::Update
+                | StatementType::Delete
+                | StatementType::Merge
+        )
     }
 }
 
@@ -811,9 +815,9 @@ mod tests {
     impl TestData {
         const fn new(int_val: i32, string_val: &'static str, error_code: Option<i32>) -> TestData {
             TestData {
-                int_val: int_val,
-                string_val: string_val,
-                error_code: error_code,
+                int_val,
+                string_val,
+                error_code,
             }
         }
     }
@@ -916,7 +920,7 @@ mod tests {
                 assert_eq!(dberr.code(), errcode);
             }
             x => {
-                assert!(false, "got {:?}", x);
+                panic!("got {:?}", x);
             }
         }
         check_rows_inserted(&conn, &expected_rows).unwrap();

@@ -239,25 +239,24 @@ impl ToSql for NaiveDate {
 
 impl FromSql for Duration {
     fn from_sql(val: &SqlValue) -> Result<Duration> {
-        let err =
-            |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it.to_string()));
+        let err = |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it));
         let it = val.to_interval_ds()?;
         let d = Duration::milliseconds(0);
         let d = d
             .checked_add(&Duration::days(it.days() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::hours(it.hours() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::minutes(it.minutes() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::seconds(it.seconds() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         let d = d
             .checked_add(&Duration::nanoseconds(it.nanoseconds() as i64))
-            .ok_or(err(it))?;
+            .ok_or_else(|| err(it))?;
         Ok(d)
     }
 }
@@ -283,10 +282,7 @@ impl ToSql for Duration {
         let minutes = secs / 60;
         let secs = secs % 60;
         if days.abs() >= 1000000000 {
-            return Err(Error::OutOfRange(format!(
-                "too large days: {}",
-                self.to_string()
-            )));
+            return Err(Error::OutOfRange(format!("too large days: {}", self)));
         }
         let it = IntervalDS::new(
             days as i32,

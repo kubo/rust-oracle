@@ -97,7 +97,7 @@ pub struct ParseOracleTypeError {
 
 impl ParseOracleTypeError {
     pub fn new(typename: &'static str) -> ParseOracleTypeError {
-        ParseOracleTypeError { typename: typename }
+        ParseOracleTypeError { typename }
     }
 }
 
@@ -144,12 +144,12 @@ impl DbError {
         is_warning: bool,
     ) -> DbError {
         DbError {
-            code: code,
-            offset: offset,
-            message: message,
-            fn_name: fn_name,
-            action: action,
-            is_warning: is_warning,
+            code,
+            offset,
+            message,
+            fn_name,
+            action,
+            is_warning,
         }
     }
 
@@ -377,17 +377,13 @@ pub(crate) fn error_may_from_context(ctxt: &Context) -> Result<(), Error> {
 macro_rules! chkerr {
     ($ctxt:expr, $code:expr) => {{
         #[allow(unused_unsafe)]
-        if unsafe { $code } == DPI_SUCCESS as i32 {
-            ()
-        } else {
+        if unsafe { $code } != DPI_SUCCESS as i32 {
             return Err($crate::error::error_from_context($ctxt));
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
         #[allow(unused_unsafe)]
-        if unsafe { $code } == DPI_SUCCESS as i32 {
-            ()
-        } else {
+        if unsafe { $code } != DPI_SUCCESS as i32 {
             let err = $crate::error::error_from_context($ctxt);
             $cleanup
             return Err(err);

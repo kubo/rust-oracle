@@ -56,11 +56,11 @@ impl Version {
     /// Creates a new version information
     pub const fn new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -> Version {
         Version {
-            major: major,
-            minor: minor,
-            update: update,
-            patch: patch,
-            port_update: port_update,
+            major,
+            minor,
+            update,
+            patch,
+            port_update,
         }
     }
 

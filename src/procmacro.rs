@@ -13,9 +13,8 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-#[allow(clippy::module_inception)]
-mod binding;
-mod binding_impl;
+// This file is used only for doctest to run documentation tests for macros
+// defined in the oracle_procmacro crate.
 
-pub use binding::*;
-pub use binding_impl::*;
+#[doc = include_str!("../oracle_procmacro/docs/row_value.md")]
+struct RowValue;

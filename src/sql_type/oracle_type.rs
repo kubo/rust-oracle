@@ -37,8 +37,8 @@ pub enum NativeType {
     Timestamp,  // oracle::Timestamp in rust
     IntervalDS, // oracle::IntervalDS in rust
     IntervalYM, // oracle::IntervalYM in rust
-    CLOB,
-    BLOB,
+    Clob,
+    Blob,
     Object(ObjectType),
     Stmt,
     Boolean, // bool in rust
@@ -58,8 +58,8 @@ impl NativeType {
             NativeType::Timestamp => DPI_NATIVE_TYPE_TIMESTAMP,
             NativeType::IntervalDS => DPI_NATIVE_TYPE_INTERVAL_DS,
             NativeType::IntervalYM => DPI_NATIVE_TYPE_INTERVAL_YM,
-            NativeType::CLOB => DPI_NATIVE_TYPE_LOB,
-            NativeType::BLOB => DPI_NATIVE_TYPE_LOB,
+            NativeType::Clob => DPI_NATIVE_TYPE_LOB,
+            NativeType::Blob => DPI_NATIVE_TYPE_LOB,
             NativeType::Object(_) => DPI_NATIVE_TYPE_OBJECT,
             NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
             NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
@@ -292,10 +292,10 @@ impl OracleType {
             OracleType::IntervalYM(_) => {
                 Ok((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, 0, 0))
             }
-            OracleType::CLOB => Ok((DPI_ORACLE_TYPE_CLOB, NativeType::CLOB, 0, 0)),
-            OracleType::NCLOB => Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::CLOB, 0, 0)),
-            OracleType::BLOB => Ok((DPI_ORACLE_TYPE_BLOB, NativeType::BLOB, 0, 0)),
-            OracleType::BFILE => Ok((DPI_ORACLE_TYPE_BFILE, NativeType::BLOB, 0, 0)),
+            OracleType::CLOB => Ok((DPI_ORACLE_TYPE_CLOB, NativeType::Clob, 0, 0)),
+            OracleType::NCLOB => Ok((DPI_ORACLE_TYPE_NCLOB, NativeType::Clob, 0, 0)),
+            OracleType::BLOB => Ok((DPI_ORACLE_TYPE_BLOB, NativeType::Blob, 0, 0)),
+            OracleType::BFILE => Ok((DPI_ORACLE_TYPE_BFILE, NativeType::Blob, 0, 0)),
             OracleType::RefCursor => Ok((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, 0, 0)),
             OracleType::Boolean => Ok((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, 0, 0)),
             OracleType::Object(ref objtype) => Ok((

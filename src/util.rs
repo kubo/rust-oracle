@@ -34,8 +34,8 @@ impl<'a> Scanner<'a> {
         let mut chars = s.chars();
         let char = chars.next();
         Scanner {
-            chars: chars,
-            char: char,
+            chars,
+            char,
             ndigits: 0,
         }
     }
@@ -119,7 +119,7 @@ pub fn check_number_format(s: &str) -> result::Result<(), ParseOracleTypeError> 
         }
         _ => (),
     }
-    if let Some(_) = s.char() {
+    if s.char().is_some() {
         return Err(err());
     }
     Ok(())

@@ -67,21 +67,38 @@ let rows = conn.query_as_named::<(i32, String)>(sql_text, &[("deptno", &10), ("s
 
 ## With and without `_as`
 
-When the column types in a query result are predictable and columns
-are retrieved by positions, use methods including `_as`. Otherwise,
-use methods not including `_as`.
+When the column types in a query result are predictable, use methods including `_as`.
+Otherwise use methods not including `_as`.
+
+When you know the column types of a query result by positions, fetch the result as tuples.
 
 ```rust
-// When you know the column types of the statement is number and character,
-// fetch the result as tuples of `i32` and `String`.
 let sql_text = "select empno, ename from emp where deptno = 10 and sal >= 1000";
-let rows = conn.query_as::<(i32, String)>(sql_text, &[])?;
-// This is same with the following:
-//   let rows: ResultSet<(i32, String)> = conn.query_as(sql_text, &[])?;
 
-for row_result in rows { // row_result: Result<(i32, String)>
+// query the statement as (`i32`, `String`).
+for row_result in conn.query_as::<(i32, String)>(sql_text, &[])? { // row_result: Result<(i32, String)>
     let (empno, ename) = row_result?; // empno: i32, ename: String
     println!("empno: {}, ename: {}", empno, ename);
+}
+```
+
+When you know the column types of a query result by names, I recommend you use the [`RowValue` derive macro][].
+
+```rust
+use oracle::RowValue;
+
+#[derive(RowValue)]
+struct EmpRow {
+    empno: i32,
+    ename: String,
+}
+
+let sql_text = "select empno, ename from emp where deptno = 10 and sal >= 1000";
+
+// query the statement as EmpRow.
+for row_result in conn.query_as::<EmpRow>(sql_text, &[])?
+    let row = row_result?; // row: EmpRow
+    println!("empno: {}, ename: {}", row.empno, row.ename);
 }
 ```
 
@@ -92,19 +109,18 @@ an iterator result and then converts column values in it into `i32` and
 `String`.
 
 ```rust
-// The rows are fetched as `Row`.
 let sql_text = "select empno, ename from emp where deptno = 10 and sal >= 1000";
-let rows = conn.query(sql_text, &[])?;
 
-for row_result in rows { // Internal Row data are cloned to make iterator results.
+// query the statement as Row and then column values by names.
+for row_result in conn.query(sql_text, &[])? {
     let row = row_result?; // row: Row
-    let empno: i32 = row.get(0)?;
-    let ename: String = row.get(1)?;
+    let empno: i32 = row.get("empno")?;
+    let ename: String = row.get("ename")?;
     println!("empno: {}, ename: {}", empno, ename);
 }
 ```
 
-When column types are unpredicted at compile time, `_as` methods aren't available.
+When column types are unpredictable in advance, `_as` methods aren't available.
 Use methods not including `_as`.
 
 ```rust
@@ -121,49 +137,6 @@ if stmt.is_query() {
             println!("  {}: {}", column_info[colidx].name(), val.to_string());
         }
     }
-}
-```
-
-Even when column types are predicted, `_as` methods aren't available if
-you need to get column values by their names. Use `row.get("column_name")`
-as follows.
-
-```rust
-let sql_text = "select empno, ename from emp where deptno = 10 and sal >= 1000";
-let rows = conn.query(sql_text, &[])?;
-
-for row_result in rows {
-    let row = row_result?;
-    let empno: i32 = row.get("empno")?;
-    let ename: String = row.get("ename")?;
-    println!("empno: {}, ename: {}", empno, ename);
-}
-```
-
-If you implement [`RowValue`][] for your type, you can fetch rows as the type.
-
-```rust
-struct EmpRow {
-    empno: i32,
-    ename: String,
-}
-
-impl RowValue for EmpRow {
-    type Item = EmpRow;
-    fn get(row: &Row) -> Result<EmpRow> {
-        Ok(EmpRow {
-            empno: row.get("empno")?,
-            ename: row.get("ename")?,
-        })
-    }
-}
-
-let sql_text = "select empno, ename from emp where deptno = 10 and sal >= 1000";
-let rows = conn.query_as::<EmpRow>(sql_text, &[])?;
-
-for row_result in rows {
-    let row = row_result?; // row: EmpRow
-    println!("empno: {}, ename: {}", row.empno, row.ename);
 }
 ```
 
@@ -260,6 +233,7 @@ other considerations; [library cache][], [cursor sharing][],
 [`Row`]: https://docs.rs/oracle/*/oracle/struct.Row.html
 [RowValue]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
 [`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
+[`RowValue` derive macro]: https://docs.rs/oracle/latest/oracle/derive.RowValue.html
 [ToSql]: https://docs.rs/oracle/*/oracle/trait.ToSql.html
 [library cache]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-DE757E9C-3437-408A-8598-3EB4C8E2A3B0
 [cursor sharing]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-971F4652-3950-4662-82DE-713DDEED317C

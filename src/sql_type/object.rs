@@ -21,7 +21,6 @@ use std::ptr;
 use std::sync::Arc;
 
 use crate::binding::*;
-use crate::binding_impl::DPI_NUMBER_AS_TEXT_CHARS;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::FromSql;
@@ -84,9 +83,9 @@ pub struct Collection {
 impl Collection {
     pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Collection {
         Collection {
-            conn: conn,
-            handle: handle,
-            objtype: objtype,
+            conn,
+            handle,
+            objtype,
         }
     }
 
@@ -369,9 +368,9 @@ pub struct Object {
 impl Object {
     pub(crate) fn new(conn: Conn, handle: *mut dpiObject, objtype: ObjectType) -> Object {
         Object {
-            conn: conn,
-            handle: handle,
-            objtype: objtype,
+            conn,
+            handle,
+            objtype,
         }
     }
 
@@ -527,7 +526,9 @@ impl fmt::Debug for Object {
 /// # use oracle::*; use oracle::sql_type::*;
 /// let conn = Connection::connect("scott", "tiger", "")?;
 /// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &[]);
-/// let mut stmt = conn.prepare("select loc from location where name = '...'", &[])?;
+/// let mut stmt = conn
+///     .statement("select loc from location where name = '...'")
+///     .build()?;
 /// let rows = stmt.query(&[])?;
 /// let objtype = if let OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {
 ///     objtype
@@ -678,8 +679,8 @@ impl ObjectTypeAttr {
         let info = unsafe { info.assume_init() };
         Ok(ObjectTypeAttr {
             oratype: OracleType::from_type_info(&conn, &info.typeInfo)?,
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             name: to_rust_str(info.name, info.nameLength),
         })
     }
@@ -746,38 +747,33 @@ impl ObjectTypeInternal {
             }
         } else {
             let attrnum = info.numAttributes as usize;
-            let mut attr_handles = vec![ptr::null_mut(); attrnum];
+            let mut handles = Vec::<DpiObjectAttr>::with_capacity(attrnum);
             chkerr!(
                 conn.ctxt,
                 dpiObjectType_getAttributes(
                     handle.raw(),
                     info.numAttributes,
-                    attr_handles.as_mut_ptr()
+                    // The following code works only when
+                    // the size of `*mut dpiObjectAttr` equals to that of `DpiObjectAttr`.
+                    handles.as_mut_ptr() as *mut *mut dpiObjectAttr
                 )
             );
-            let mut attrs = Vec::with_capacity(attrnum);
-            for i in 0..attrnum {
-                match ObjectTypeAttr::new(conn.clone(), DpiObjectAttr::new(attr_handles[i])) {
-                    Ok(attr) => attrs.push(attr),
-                    Err(err) => {
-                        for j in (i + 1)..attrnum {
-                            unsafe {
-                                dpiObjectAttr_release(attr_handles[j]);
-                            }
-                        }
-                        return Err(err);
-                    }
-                }
+            unsafe {
+                handles.set_len(attrnum);
             }
-            (None, attrs)
+            let attrs: Result<Vec<_>> = handles
+                .into_iter()
+                .map(|handle| ObjectTypeAttr::new(conn.clone(), handle))
+                .collect();
+            (None, attrs?)
         };
         Ok(ObjectTypeInternal {
-            conn: conn,
-            handle: handle,
+            conn,
+            handle,
             schema: to_rust_str(info.schema, info.schemaLength),
             name: to_rust_str(info.name, info.nameLength),
-            elem_oratype: elem_oratype,
-            attrs: attrs,
+            elem_oratype,
+            attrs,
         })
     }
 }

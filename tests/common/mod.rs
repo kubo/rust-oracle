@@ -108,10 +108,12 @@ pub fn test_from_sql<T>(
 where
     T: FromSql + ::std::fmt::Debug + ::std::cmp::PartialEq,
 {
-    let mut stmt = conn.prepare(&format!("select {} from dual", column_literal), &[])?;
+    let mut stmt = conn
+        .statement(&format!("select {} from dual", column_literal))
+        .build()?;
     let mut rows = stmt
         .query_as::<T>(&[])
-        .expect(format!("error at {}:{}", file, line).as_str());
+        .unwrap_or_else(|_| panic!("error at {}:{}", file, line));
     assert_eq!(
         rows.column_info()[0].oracle_type(),
         column_type,
@@ -151,11 +153,13 @@ pub fn test_to_sql<T>(
 where
     T: ToSql,
 {
-    let mut stmt = conn.prepare(&format!("begin :out := {}; end;", input_literal), &[])?;
+    let mut stmt = conn
+        .statement(&format!("begin :out := {}; end;", input_literal))
+        .build()?;
     stmt.bind(1, &OracleType::Varchar2(4000))?;
     stmt.bind(2, input_data)?;
     stmt.execute(&[])
-        .expect(format!("error at {}:{}", file, line).as_str());
+        .unwrap_or_else(|_| panic!("error at {}:{}", file, line));
     let result: String = stmt.bind_value(1)?;
     assert_eq!(&result, expected_result, "called by {}:{}", file, line);
     Ok(())
@@ -182,8 +186,16 @@ impl RowValue for TestString {
     }
 }
 
+type TestStringsTableRow = (
+    i32,
+    &'static str,
+    &'static [u8],
+    &'static str,
+    Option<&'static str>,
+);
+
 #[allow(dead_code)]
-const VALUES_IN_TEST_STRINGS: [(i32, &str, &[u8], &str, Option<&str>); 11] = [
+const VALUES_IN_TEST_STRINGS: [TestStringsTableRow; 11] = [
     (0, "", b"", "", None),
     (
         1,

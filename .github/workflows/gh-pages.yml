@@ -15,7 +15,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --no-deps
+          args: --no-deps --all-features
       - name: push docs
         run: |
           git fetch --depth=1 origin gh-pages

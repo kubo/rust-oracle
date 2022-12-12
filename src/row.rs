@@ -40,12 +40,10 @@ pub struct Row {
 
 impl Row {
     pub(crate) fn new(column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
-        let shared = RowSharedData {
-            column_names: column_names,
-        };
+        let shared = RowSharedData { column_names };
         Ok(Row {
             shared: Rc::new(shared),
-            column_values: column_values,
+            column_values,
         })
     }
 
@@ -67,13 +65,13 @@ impl Row {
     /// Gets column values as specified type.
     ///
     /// Type inference for the return type doesn't work. You need to specify
-    /// it explicitly such as `row.get_as::<(i32, String>()`.
+    /// it explicitly such as `row.get_as::<(i32, String)>()`.
     /// See [`RowValue`] for available return types.
     ///
     /// ```no_run
     /// # use oracle::*;
     /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("select empno, ename from emp", &[])?;
+    /// let mut stmt = conn.statement("select empno, ename from emp").build()?;
     ///
     /// for result in stmt.query(&[])? {
     ///     let row = result?;
@@ -136,9 +134,9 @@ where
     }
 
     fn stmt(&self) -> &Stmt {
-        match &self.stmt {
-            &StmtHolder::Borrowed(stmt) => stmt,
-            &StmtHolder::Owned(ref stmt) => stmt,
+        match self.stmt {
+            StmtHolder::Borrowed(stmt) => stmt,
+            StmtHolder::Owned(ref stmt) => stmt,
         }
     }
 
@@ -211,7 +209,7 @@ impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
 /// }
 ///
 /// let conn = Connection::connect("scott", "tiger", "")?;
-/// let mut stmt = conn.prepare("select * from emp", &[])?;
+/// let mut stmt = conn.statement("select * from emp").build()?;
 ///
 /// // Gets rows as Emp
 /// for result in stmt.query_as::<Emp>(&[])? {
@@ -233,14 +231,14 @@ impl RowValue for Row {
         }
         Ok(Row {
             shared: row.shared.clone(),
-            column_values: column_values,
+            column_values,
         })
     }
 }
 
 impl<T: FromSql> RowValue for T {
     fn get(row: &Row) -> Result<T> {
-        Ok(row.get::<usize, T>(0)?)
+        row.get::<usize, T>(0)
     }
 }
 

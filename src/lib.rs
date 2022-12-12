@@ -28,6 +28,13 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 
 * Oracle client 11.2 or later. See [ODPI-C installation document][].
 
+## Supported Rust Versions
+
+The oracle crate supports **at least** 6 rust minor versions including the stable
+release at the time when the crate was released. The MSRV (minimum supported
+rust version) may be changed when a patch version is incremented though it will
+not be changed frequently. The current MSRV is 1.54.0.
+
 ## Usage
 
 Put this in your `Cargo.toml`:
@@ -193,7 +200,7 @@ use oracle::Connection;
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
 
 // Create a prepared statement
-let mut stmt = conn.prepare("insert into person values (:1, :2)", &[])?;
+let mut stmt = conn.statement("insert into person values (:1, :2)").build()?;
 // Insert one row
 stmt.execute(&[&1, &"John"])?;
 // Insert another row
@@ -241,7 +248,6 @@ required.
 
 ## TODO
 
-* Connection pooling using [ODPI-C Pool Functions][] (Note: [r2d2-oracle][] is available for connection pooling.)
 * [BFILEs (External LOBs)](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-5834BC49-4053-40FF-BE39-B14342B1201E) (Note: Reading contents of BFILEs as `Vec<u8>` is supported.)
 * Scrollable cursors
 * Better Oracle object type support
@@ -260,8 +266,6 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
-[ODPI-C Pool Functions]: https://oracle.github.io/odpi/doc/functions/dpiPool.html
-[r2d2-oracle]: https://crates.io/crates/r2d2-oracle
 */
 
 use lazy_static::lazy_static;
@@ -271,19 +275,22 @@ use std::ptr;
 use std::result;
 use std::slice;
 
+#[cfg(feature = "aq_unstable")]
+pub mod aq;
 mod batch;
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
-#[allow(unknown_lints)] // See: https://github.com/rust-lang/rust-bindgen/issues/1651#issuecomment-848479168
-#[allow(deref_nullptr)] // ditto
 mod binding;
-mod binding_impl;
+pub mod conn;
 mod connection;
 mod error;
 pub mod io;
 pub mod oci_attr;
+pub mod pool;
+#[cfg(doctest)]
+mod procmacro;
 mod row;
 pub mod sql_type;
 mod sql_value;
@@ -315,6 +322,7 @@ pub use crate::statement::StatementBuilder;
 pub use crate::statement::StatementType;
 pub use crate::statement::StmtParam;
 pub use crate::version::Version;
+pub use oracle_procmacro::RowValue;
 
 use crate::binding::*;
 
@@ -329,13 +337,13 @@ macro_rules! define_dpi_data_with_refcount {
 
             impl [<Dpi $name>] {
                 fn new(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
-                    [<Dpi $name>] { raw: raw }
+                    [<Dpi $name>] { raw }
                 }
 
                 #[allow(dead_code)]
                 fn with_add_ref(raw: *mut [<dpi $name>]) -> [<Dpi $name>] {
                     unsafe { [<dpi $name _addRef>](raw) };
-                    [<Dpi $name>] { raw: raw }
+                    [<Dpi $name>] { raw }
                 }
 
                 pub(crate) fn raw(&self) -> *mut [<dpi $name>] {
@@ -365,11 +373,20 @@ macro_rules! define_dpi_data_with_refcount {
 // define DpiConn wrapping *mut dpiConn.
 define_dpi_data_with_refcount!(Conn);
 
+// define DpiMsgProps wrapping *mut dpiMsgProps.
+define_dpi_data_with_refcount!(MsgProps);
+
 // define DpiObjectType wrapping *mut dpiObjectType.
 define_dpi_data_with_refcount!(ObjectType);
 
+// define DpiPool wrapping *mut dpiPool.
+define_dpi_data_with_refcount!(Pool);
+
 // define DpiObjectAttr wrapping *mut dpiObjectAttr.
 define_dpi_data_with_refcount!(ObjectAttr);
+
+// define DpiQueue wrapping *mut dpiQueue.
+define_dpi_data_with_refcount!(Queue);
 
 //
 // Context
@@ -434,10 +451,19 @@ impl Context {
             params
         }
     }
+
     pub fn conn_create_params(&self) -> dpiConnCreateParams {
         let mut params = MaybeUninit::uninit();
         unsafe {
             dpiContext_initConnCreateParams(self.context, params.as_mut_ptr());
+            params.assume_init()
+        }
+    }
+
+    pub fn pool_create_params(&self) -> dpiPoolCreateParams {
+        let mut params = MaybeUninit::uninit();
+        unsafe {
+            dpiContext_initPoolCreateParams(self.context, params.as_mut_ptr());
             params.assume_init()
         }
     }
@@ -460,7 +486,7 @@ fn new_odpi_str() -> OdpiStr {
 }
 
 fn to_odpi_str(s: &str) -> OdpiStr {
-    if s.len() == 0 {
+    if s.is_empty() {
         OdpiStr {
             ptr: ptr::null(),
             len: 0,
@@ -474,8 +500,20 @@ fn to_odpi_str(s: &str) -> OdpiStr {
 }
 
 impl OdpiStr {
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         to_rust_str(self.ptr, self.len)
+    }
+
+    #[cfg(feature = "aq_unstable")]
+    pub fn to_vec(&self) -> Vec<u8> {
+        if self.ptr.is_null() {
+            Vec::new()
+        } else {
+            let ptr = self.ptr as *mut u8;
+            let len = self.len as usize;
+            unsafe { Vec::from_raw_parts(ptr, len, len) }
+        }
     }
 }
 
@@ -537,6 +575,14 @@ pub mod test_util {
 
     pub fn main_password() -> String {
         env_var_or("ODPIC_TEST_MAIN_PASSWORD", "welcome")
+    }
+
+    pub fn edition_user() -> String {
+        env_var_or("ODPIC_TEST_EDITION_USER", "odpic_edition")
+    }
+
+    pub fn edition_password() -> String {
+        env_var_or("ODPIC_TEST_EDITION_PASSWORD", "welcome")
     }
 
     pub fn connect_string() -> String {

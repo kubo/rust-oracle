@@ -127,9 +127,9 @@ impl RefCursor {
             dpiStmt_getNumQueryColumns(handle, &mut num_query_columns)
         );
         chkerr!(conn.ctxt, dpiStmt_addRef(handle));
-        let mut stmt = Stmt::new(conn, handle, query_params);
+        let mut stmt = Stmt::new(conn, handle, query_params, "".into());
         stmt.init_row(num_query_columns as usize)?;
-        Ok(RefCursor { stmt: stmt })
+        Ok(RefCursor { stmt })
     }
 
     /// Gets rows as an iterator of [`Row`]s.
@@ -192,7 +192,7 @@ impl RefCursor {
     /// }
     /// # Ok::<(), Error>(())
     /// ```
-    pub fn query_as<'a, T>(&'a mut self) -> Result<ResultSet<'a, T>>
+    pub fn query_as<T>(&mut self) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {

@@ -72,7 +72,7 @@ use crate::ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[])?;
+/// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&[&OracleType::Date, // bind null as date
 ///                &intvl, // bind the intvl variable
 ///               ])?;
@@ -114,8 +114,8 @@ impl IntervalYM {
     /// All arguments must be zero or negative to create a negative interval.
     pub fn new(years: i32, months: i32) -> IntervalYM {
         IntervalYM {
-            years: years,
-            months: months,
+            years,
+            months,
             precision: 9,
         }
     }
@@ -125,10 +125,7 @@ impl IntervalYM {
     /// The precision affects text representation of IntervalYM.
     /// It doesn't affect comparison.
     pub fn and_prec(&self, precision: u8) -> IntervalYM {
-        IntervalYM {
-            precision: precision,
-            ..*self
-        }
+        IntervalYM { precision, ..*self }
     }
 
     /// Returns years component.
@@ -193,14 +190,14 @@ impl str::FromStr for IntervalYM {
             }
             _ => false,
         };
-        let years = s.read_digits().ok_or(err())? as i32;
+        let years = s.read_digits().ok_or_else(err)? as i32;
         let precision = s.ndigits();
         if let Some('-') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let months = s.read_digits().ok_or(err())? as i32;
+        let months = s.read_digits().ok_or_else(err)? as i32;
         if s.char().is_some() {
             return Err(err());
         }

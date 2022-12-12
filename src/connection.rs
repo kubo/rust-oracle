@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2021 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -18,12 +18,14 @@ use std::collections::HashMap;
 use std::fmt;
 use std::mem::{self, MaybeUninit};
 use std::ptr;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
 
 use crate::binding::*;
 use crate::chkerr;
+use crate::conn::{CloseMode, Purity};
 use crate::new_odpi_str;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::handle::ConnHandle;
@@ -31,6 +33,8 @@ use crate::oci_attr::handle::Server;
 use crate::oci_attr::mode::Read;
 use crate::oci_attr::mode::{ReadMode, WriteMode};
 use crate::oci_attr::OciAttr;
+#[cfg(doc)]
+use crate::pool::PoolOptions;
 use crate::sql_type::ObjectType;
 use crate::sql_type::ObjectTypeInternal;
 use crate::sql_type::ToSql;
@@ -143,13 +147,18 @@ pub enum Privilege {
     Sysrac,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-/// [Session Purity](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-12410EEC-FE79-42E2-8F6B-EAA9EDA59665)
-pub enum Purity {
-    /// Must use a new session
-    New,
-    /// Reuse a pooled session
-    Self_,
+impl Privilege {
+    pub(crate) fn to_dpi(self) -> dpiAuthMode {
+        match self {
+            Privilege::Sysdba => DPI_MODE_AUTH_SYSDBA,
+            Privilege::Sysoper => DPI_MODE_AUTH_SYSOPER,
+            Privilege::Sysasm => DPI_MODE_AUTH_SYSASM,
+            Privilege::Sysbackup => DPI_MODE_AUTH_SYSBKP,
+            Privilege::Sysdg => DPI_MODE_AUTH_SYSDGD,
+            Privilege::Syskm => DPI_MODE_AUTH_SYSKMT,
+            Privilege::Sysrac => DPI_MODE_AUTH_SYSRAC,
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -161,6 +170,59 @@ pub enum ConnStatus {
     NotConnected,
     /// The connection has been closed by [`Connection::close`].
     Closed,
+}
+
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct CommonCreateParamsBuilder {
+    events: bool,
+    edition: Option<String>,
+    driver_name: Option<String>,
+    stmt_cache_size: Option<u32>,
+}
+
+impl CommonCreateParamsBuilder {
+    pub fn events(&mut self, b: bool) {
+        self.events = b;
+    }
+
+    pub fn edition<S>(&mut self, edition: S)
+    where
+        S: Into<String>,
+    {
+        self.edition = Some(edition.into());
+    }
+
+    pub fn driver_name<S>(&mut self, driver_name: S)
+    where
+        S: Into<String>,
+    {
+        self.driver_name = Some(driver_name.into());
+    }
+
+    pub fn stmt_cache_size(&mut self, size: u32) {
+        self.stmt_cache_size = Some(size);
+    }
+
+    pub fn build(&self, ctxt: &'static Context) -> dpiCommonCreateParams {
+        let mut common_params = ctxt.common_create_params();
+        if self.events {
+            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
+        }
+        if let Some(ref s) = self.edition {
+            let s = to_odpi_str(s);
+            common_params.edition = s.ptr;
+            common_params.editionLength = s.len;
+        }
+        if let Some(ref s) = self.driver_name {
+            let s = to_odpi_str(s);
+            common_params.driverName = s.ptr;
+            common_params.driverNameLength = s.len;
+        }
+        if let Some(s) = self.stmt_cache_size {
+            common_params.stmtCacheSize = s;
+        }
+        common_params
+    }
 }
 
 /// Builder data type to create Connection.
@@ -179,11 +241,7 @@ pub struct Connector {
     purity: Option<Purity>,
     connection_class: String,
     app_context: Vec<(String, String, String)>,
-    tag: String,
-    match_any_tag: bool,
-    events: bool,
-    edition: String,
-    driver_name: String,
+    common_params: CommonCreateParamsBuilder,
 }
 
 impl Connector {
@@ -205,11 +263,7 @@ impl Connector {
             purity: None,
             connection_class: "".into(),
             app_context: vec![],
-            tag: "".into(),
-            match_any_tag: false,
-            events: false,
-            edition: "".into(),
-            driver_name: "".into(),
+            common_params: Default::default(),
         }
     }
 
@@ -321,9 +375,13 @@ impl Connector {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connector::new("scott", "tiger", "")
+    /// ```
+    /// # use oracle::{Connector, Error};
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let password = test_util::main_password();
+    /// # let connect_string = test_util::connect_string();
+    /// let conn = Connector::new(username, password, connect_string)
     ///               .app_context("CLIENTCONTEXT", "foo", "bar")
     ///               .app_context("CLIENTCONTEXT", "baz", "qux")
     ///               .connect()?;
@@ -344,25 +402,25 @@ impl Connector {
         self
     }
 
-    /// Reserved for when connection pooling is supported.
-    pub fn tag<S>(&mut self, tag: S) -> &mut Connector
+    // Remove later
+    #[doc(hidden)]
+    pub fn tag<S>(&mut self, _tag: S) -> &mut Connector
     where
         S: Into<String>,
     {
-        self.tag = tag.into();
         self
     }
 
-    /// Reserved for when connection pooling is supported.
-    pub fn match_any_tag(&mut self, b: bool) -> &mut Connector {
-        self.match_any_tag = b;
+    // Remove later
+    #[doc(hidden)]
+    pub fn match_any_tag(&mut self, _b: bool) -> &mut Connector {
         self
     }
 
     /// Reserved for when advanced queuing (AQ) or continuous query
     /// notification (CQN) is supported.
     pub fn events(&mut self, b: bool) -> &mut Connector {
-        self.events = b;
+        self.common_params.events(b);
         self
     }
 
@@ -373,7 +431,7 @@ impl Connector {
     where
         S: Into<String>,
     {
-        self.edition = edition.into();
+        self.common_params.edition(edition);
         self
     }
 
@@ -388,26 +446,44 @@ impl Connector {
     where
         S: Into<String>,
     {
-        self.driver_name = driver_name.into();
+        self.common_params.driver_name(driver_name);
+        self
+    }
+
+    /// Specifies the number of statements to retain in the statement cache. Use a
+    /// value of 0 to disable the statement cache completely.
+    ///
+    /// The default value is 20.
+    ///
+    /// See also [`Connection::stmt_cache_size`] and [`Connection::set_stmt_cache_size`]
+    pub fn stmt_cache_size(&mut self, size: u32) -> &mut Connector {
+        self.common_params.stmt_cache_size(size);
         self
     }
 
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
-        let mut common_params = ctxt.common_create_params();
+        let common_params = self.common_params.build(ctxt);
+        let (conn_params, _app_contexts) = self.to_dpi_conn_create_params(ctxt);
+        Connection::connect_internal(
+            ctxt,
+            &self.username,
+            &self.password,
+            &self.connect_string,
+            common_params,
+            conn_params,
+        )
+    }
+
+    fn to_dpi_conn_create_params(
+        &self,
+        ctxt: &'static Context,
+    ) -> (dpiConnCreateParams, Vec<dpiAppContext>) {
         let mut conn_params = ctxt.conn_create_params();
 
         if let Some(ref privilege) = self.privilege {
-            conn_params.authMode |= match privilege {
-                &Privilege::Sysdba => DPI_MODE_AUTH_SYSDBA,
-                &Privilege::Sysoper => DPI_MODE_AUTH_SYSOPER,
-                &Privilege::Sysasm => DPI_MODE_AUTH_SYSASM,
-                &Privilege::Sysbackup => DPI_MODE_AUTH_SYSBKP,
-                &Privilege::Sysdg => DPI_MODE_AUTH_SYSDGD,
-                &Privilege::Syskm => DPI_MODE_AUTH_SYSKMT,
-                &Privilege::Sysrac => DPI_MODE_AUTH_SYSRAC,
-            };
+            conn_params.authMode |= privilege.to_dpi();
         }
         if self.external_auth {
             conn_params.externalAuth = 1;
@@ -419,10 +495,7 @@ impl Connector {
         conn_params.newPassword = s.ptr;
         conn_params.newPasswordLength = s.len;
         if let Some(purity) = self.purity {
-            conn_params.purity = match purity {
-                Purity::New => DPI_PURITY_NEW,
-                Purity::Self_ => DPI_PURITY_SELF,
-            };
+            conn_params.purity = purity.to_dpi();
         }
         let s = to_odpi_str(&self.connection_class);
         conn_params.connectionClass = s.ptr;
@@ -441,32 +514,11 @@ impl Connector {
                 valueLength: value.len,
             });
         }
-        if app_context.len() != 0 {
+        if !app_context.is_empty() {
             conn_params.appContext = app_context.as_mut_ptr();
             conn_params.numAppContext = app_context.len() as u32;
         }
-        let s = to_odpi_str(&self.tag);
-        conn_params.tag = s.ptr;
-        conn_params.tagLength = s.len;
-        if self.match_any_tag {
-            conn_params.matchAnyTag = 1;
-        }
-        if self.events {
-            common_params.createMode |= DPI_MODE_CREATE_EVENTS;
-        }
-        let s = to_odpi_str(&self.edition);
-        common_params.edition = s.ptr;
-        common_params.editionLength = s.len;
-        let s = to_odpi_str(&self.driver_name);
-        common_params.driverName = s.ptr;
-        common_params.driverNameLength = s.len;
-        Connection::connect_internal(
-            &self.username,
-            &self.password,
-            &self.connect_string,
-            Some(common_params),
-            Some(conn_params),
-        )
+        (conn_params, app_context)
     }
 }
 
@@ -475,10 +527,11 @@ pub(crate) type Conn = Arc<InnerConn>;
 pub(crate) struct InnerConn {
     pub(crate) ctxt: &'static Context,
     pub(crate) handle: DpiConn,
-    pub(crate) autocommit: Mutex<bool>,
+    pub(crate) autocommit: AtomicBool,
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
     tag: String,
     tag_found: bool,
+    is_new_connection: bool,
 }
 
 impl InnerConn {
@@ -488,17 +541,18 @@ impl InnerConn {
         conn_params: &dpiConnCreateParams,
     ) -> InnerConn {
         InnerConn {
-            ctxt: ctxt,
+            ctxt,
             handle: DpiConn::new(handle),
-            autocommit: Mutex::new(false),
+            autocommit: AtomicBool::new(false),
             objtype_cache: Mutex::new(HashMap::new()),
             tag: to_rust_str(conn_params.outTag, conn_params.outTagLength),
             tag_found: conn_params.outTagFound != 0,
+            is_new_connection: conn_params.outNewSession != 0,
         }
     }
 
     pub fn autocommit(&self) -> bool {
-        *self.autocommit.lock().unwrap()
+        self.autocommit.load(Ordering::Relaxed)
     }
 
     pub fn clear_object_type_cache(&self) -> Result<()> {
@@ -515,7 +569,7 @@ impl fmt::Debug for InnerConn {
             self.handle.raw(),
             self.autocommit,
         )?;
-        if self.tag.len() != 0 {
+        if !self.tag.is_empty() {
             write!(f, ", tag: {:?}", self.tag)?;
         }
         if self.tag_found {
@@ -540,6 +594,7 @@ impl Connection {
     /// such as SYSDBA privilege, use [`Connector`] instead.
     ///
     /// # Examples
+    ///
     /// Connect to a local database.
     ///
     /// ```no_run
@@ -562,25 +617,25 @@ impl Connection {
         P: AsRef<str>,
         C: AsRef<str>,
     {
+        let ctxt = Context::get()?;
         Connection::connect_internal(
+            ctxt,
             username.as_ref(),
             password.as_ref(),
             connect_string.as_ref(),
-            None,
-            None,
+            ctxt.common_create_params(),
+            ctxt.conn_create_params(),
         )
     }
 
-    pub(crate) fn connect_internal(
+    fn connect_internal(
+        ctxt: &'static Context,
         username: &str,
         password: &str,
         connect_string: &str,
-        common_params: Option<dpiCommonCreateParams>,
-        conn_params: Option<dpiConnCreateParams>,
+        common_params: dpiCommonCreateParams,
+        mut conn_params: dpiConnCreateParams,
     ) -> Result<Connection> {
-        let ctxt = Context::get()?;
-        let common_params = common_params.unwrap_or(ctxt.common_create_params());
-        let mut conn_params = conn_params.unwrap_or(ctxt.conn_create_params());
         let username = to_odpi_str(username);
         let password = to_odpi_str(password);
         let connect_string = to_odpi_str(connect_string);
@@ -600,13 +655,22 @@ impl Connection {
                 &mut handle
             )
         );
-        Ok(Connection {
-            conn: Arc::new(InnerConn::new(ctxt, handle, &conn_params)),
-        })
+        conn_params.outNewSession = 1;
+        Ok(Connection::from_dpi_handle(ctxt, handle, &conn_params))
     }
 
     pub(crate) fn from_conn(conn: Conn) -> Connection {
-        Connection { conn: conn }
+        Connection { conn }
+    }
+
+    pub(crate) fn from_dpi_handle(
+        ctxt: &'static Context,
+        handle: *mut dpiConn,
+        params: &dpiConnCreateParams,
+    ) -> Connection {
+        Connection {
+            conn: Arc::new(InnerConn::new(ctxt, handle, params)),
+        }
     }
 
     pub(crate) fn ctxt(&self) -> &'static Context {
@@ -621,7 +685,21 @@ impl Connection {
     ///
     /// This fails when open statements or LOBs exist.
     pub fn close(&self) -> Result<()> {
-        self.close_internal(DPI_MODE_CONN_CLOSE_DEFAULT, "")
+        self.close_with_mode(CloseMode::Default)
+    }
+
+    pub fn close_with_mode(&self, mode: CloseMode) -> Result<()> {
+        let (mode, tag) = match mode {
+            CloseMode::Default => (DPI_MODE_CONN_CLOSE_DEFAULT, ""),
+            CloseMode::Drop => (DPI_MODE_CONN_CLOSE_DROP, ""),
+            CloseMode::Retag(tag) => (DPI_MODE_CONN_CLOSE_RETAG, tag),
+        };
+        let tag = to_odpi_str(tag);
+        chkerr!(
+            self.ctxt(),
+            dpiConn_close(self.handle(), mode, tag.ptr, tag.len)
+        );
+        Ok(())
     }
 
     /// Creates [`StatementBuilder`][] to create a [`Statement`][]
@@ -716,6 +794,8 @@ impl Connection {
     ///
     /// ```no_run
     /// # use oracle::*;
+    /// # #[allow(deprecated)]
+    /// # fn main() -> Result<()> {
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
     ///
@@ -740,7 +820,7 @@ impl Connection {
     /// for emp in &emp_list {
     ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
     /// }
-    /// # Ok::<(), Error>(())
+    /// # Ok(()) }
     /// ```
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
@@ -750,6 +830,8 @@ impl Connection {
     ///
     /// ```no_run
     /// # use oracle::*;
+    /// # #[allow(deprecated)]
+    /// # fn main() -> Result<()> {
     /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
     /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
@@ -758,9 +840,10 @@ impl Connection {
     ///     let (empno, ename) = row_result?;
     ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
-    /// # Ok::<(), Error>(())
+    /// # Ok(()) }
     /// ```
     ///
+    #[deprecated]
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::from_params(self, sql, params)
     }
@@ -950,10 +1033,42 @@ impl Connection {
     /// Enables or disables autocommit mode.
     /// It is disabled by default.
     pub fn set_autocommit(&mut self, autocommit: bool) {
-        *self.conn.autocommit.lock().unwrap() = autocommit;
+        self.conn.autocommit.store(autocommit, Ordering::Relaxed)
     }
 
     /// Cancels execution of running statements in the connection
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use std::sync::Arc;
+    /// # use std::thread::{self, sleep};
+    /// # use std::time::{Duration, Instant};
+    /// # let conn = test_util::connect()?;
+    ///
+    /// // Wrap conn with Arc to be share it with threads.
+    /// let conn = Arc::new(conn);
+    ///
+    /// let now = Instant::now();
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
+    ///
+    /// // Start a thread to cancel a query
+    /// let cloned_conn = conn.clone();
+    /// let join_handle = thread::spawn(move || {
+    ///   sleep(Duration::from_secs(3));
+    ///   cloned_conn.break_execution()
+    /// });
+    ///
+    /// // This query is canceled by break_execution.
+    /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
+    /// assert!(result.is_err());
+    /// let elapsed = now.elapsed();
+    /// assert!(range.contains(&elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
+    /// # join_handle.join().unwrap();
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn break_execution(&self) -> Result<()> {
         chkerr!(self.ctxt(), dpiConn_breakExecution(self.handle()));
         Ok(())
@@ -961,10 +1076,13 @@ impl Connection {
 
     /// Gets an object type information from name
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connection::connect("scott", "tiger", "")?;
-    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let objtype = conn.object_type("SDO_GEOMETRY")?;
+    /// assert_eq!(objtype.schema(), "MDSYS");
+    /// assert_eq!(objtype.name(), "SDO_GEOMETRY");
     /// # Ok::<(), Error>(())
     /// ```
     ///
@@ -1017,9 +1135,10 @@ impl Connection {
     ///
     /// # Examples
     ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// let conn = Connection::connect("scott", "tiger", "")?;
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
     /// let (version, banner) = conn.server_version()?;
     /// println!("Oracle Version: {}", version);
     /// println!("--- Version Banner ---");
@@ -1120,6 +1239,8 @@ impl Connection {
     }
 
     /// Gets the statement cache size
+    ///
+    /// See also [`Connector::stmt_cache_size`]
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut size = 0u32;
         chkerr!(
@@ -1130,6 +1251,8 @@ impl Connection {
     }
 
     /// Sets the statement cache size
+    ///
+    /// See also [`Connector::stmt_cache_size`]
     pub fn set_stmt_cache_size(&self, size: u32) -> Result<()> {
         chkerr!(self.ctxt(), dpiConn_setStmtCacheSize(self.handle(), size));
         Ok(())
@@ -1183,12 +1306,35 @@ impl Connection {
     /// complete successfully within the additional call timeout
     /// period. In this case an exception ORA-3114 is raised and the
     /// connection will no longer be usable. It should be closed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use std::time::{Duration, Instant};
+    /// # let conn = test_util::connect()?;
+    /// // Set timeout three seconds.
+    /// conn.set_call_timeout(Some(Duration::from_secs(3)))?;
+    ///
+    /// let now = Instant::now();
+    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
+    ///
+    /// // This query is canceled by timeout.
+    /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
+    /// assert!(result.is_err());
+    /// let elapsed = now.elapsed();
+    /// assert!(range.contains(&elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
         if let Some(dur) = dur {
-            let msecs = duration_to_msecs(dur).ok_or(Error::OutOfRange(format!(
-                "Too large duration {:?}. It must be less than 49.7 days",
-                dur
-            )))?;
+            let msecs = duration_to_msecs(dur).ok_or_else(|| {
+                Error::OutOfRange(format!(
+                    "Too large duration {:?}. It must be less than 49.7 days",
+                    dur
+                ))
+            })?;
             if msecs == 0 {
                 return Err(Error::OutOfRange(format!(
                     "Too short duration {:?}. It must not be submilliseconds",
@@ -1213,6 +1359,47 @@ impl Connection {
     }
 
     /// Sets current schema associated with the connection
+    ///
+    /// `conn.set_current_schema("MDSYS")` has same effect with the following SQL.
+    ///
+    /// ```sql
+    /// ALTER SESSION SET CURRENT_SCHEMA = MDSYS;
+    /// ```
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn1 = test_util::connect()?;
+    /// # let conn2 = test_util::connect()?;
+    ///
+    /// // Get the username and sid of connection 1.
+    /// let (username, sid) = conn1.query_row_as::<(String, i32)>("select user, sys_context('userenv', 'sid') from dual", &[])?;
+    ///
+    /// // Create a closure to get the schema name of connection 1 in the database side using connection 2.
+    /// let mut stmt = conn2.statement("select schemaname from v$session where sid = :1").build()?;
+    /// let mut schema_name = move || { stmt.query_row_as::<String>(&[&sid]) };
+    ///
+    /// // The default current schema is same with the username.
+    /// assert_eq!(schema_name()?, username);
+    ///
+    /// // Change the current schema of connection 1.
+    /// let new_schema_name = "MDSYS";
+    /// conn1.set_current_schema(new_schema_name)?;
+    ///
+    /// // The current schema of connection 1 in the database side has not been changed yet.
+    /// assert_eq!(schema_name()?, username);
+    ///
+    /// // Call a function sending packets to the database server.
+    /// // The new schema name is prepended to the packets.
+    /// let _ = conn1.query_row_as::<i32>("select 1 from dual", &[]);
+    ///
+    /// // The current schema of connection 1 in the database side is changed.
+    /// assert_eq!(schema_name()?, new_schema_name);
+    ///
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn set_current_schema(&self, current_schema: &str) -> Result<()> {
         let s = to_odpi_str(current_schema);
         chkerr!(
@@ -1481,23 +1668,92 @@ impl Connection {
         Ok(())
     }
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
+    /// Gets the tag of the connection that was acquired from a connection pool.
+    /// It is `""` if the connection is a standalone one or not tagged.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::{Connection, Error};
+    /// # use oracle::pool::{PoolBuilder, PoolOptions};
+    /// # use oracle::conn;
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let username = &username;
+    /// # let password = test_util::main_password();
+    /// # let password = &password;
+    /// # let connect_string = test_util::connect_string();
+    /// # let connect_string = &connect_string;
+    ///
+    /// // standalone connection
+    /// let conn = Connection::connect(username, password, connect_string)?;
+    /// assert_eq!(conn.tag(), "");
+    /// assert_eq!(conn.tag_found(), false);
+    ///
+    /// let pool = PoolBuilder::new(username, password, connect_string)
+    ///     .build()?;
+    /// let opts = PoolOptions::new().tag("NAME=VALUE");
+    ///
+    /// // No connections with tag "NAME=VALUE" exist in the pool at first.
+    /// let conn = pool.get_with_options(&opts)?;
+    /// assert_eq!(conn.tag(), "");
+    /// assert_eq!(conn.tag_found(), false);
+    /// // Close the connection with setting a new tag.
+    /// conn.close_with_mode(conn::CloseMode::Retag("NAME=VALUE"))?;
+    ///
+    /// // One connection with tag "NAME=VALUE" exists in the pool now.
+    /// let conn = pool.get_with_options(&opts)?;
+    /// assert_eq!(conn.tag_found(), true);
+    /// assert_eq!(conn.tag(), "NAME=VALUE");
+    /// # Ok::<(), Error>(())
+    /// ```
     pub fn tag(&self) -> &str {
         &self.conn.tag
     }
 
-    #[doc(hidden)] // hiden until connection pooling is supported.
+    /// Gets `true` when the connection is a standalone one
+    /// or it is a connection with the specified tag by
+    /// [`PoolOptions::tag`].
+    ///
+    /// Sea also [`Connection::tag`].
     pub fn tag_found(&self) -> bool {
         self.conn.tag_found
     }
 
-    fn close_internal(&self, mode: dpiConnCloseMode, tag: &str) -> Result<()> {
-        let tag = to_odpi_str(tag);
-        chkerr!(
-            self.ctxt(),
-            dpiConn_close(self.handle(), mode, tag.ptr, tag.len)
-        );
-        Ok(())
+    /// Returns `true` when the connection is a standalone one
+    /// or a newly created one by a connection pool.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Connection;
+    /// # use oracle::Error;
+    /// # use oracle::pool::PoolBuilder;
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let username = &username;
+    /// # let password = test_util::main_password();
+    /// # let password = &password;
+    /// # let connect_string = test_util::connect_string();
+    /// # let connect_string = &connect_string;
+    ///
+    /// let conn = Connection::connect(username, password, connect_string)?;
+    /// assert!(conn.is_new_connection(), "standalone connection");
+    ///
+    /// let pool = PoolBuilder::new(username, password, connect_string)
+    ///     .build()?;
+    ///
+    /// let conn = pool.get()?; // Get a newly created connection
+    /// assert!(conn.is_new_connection(), "new connectoin from the pool");
+    /// conn.close()?; // Back the connection to the pool
+    ///
+    /// let conn = pool.get()?; // Get a connection cached in the pool
+    /// assert!(!conn.is_new_connection(), "cached connectoin in the pool");
+    /// conn.close()?;
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn is_new_connection(&self) -> bool {
+        self.conn.is_new_connection
     }
 
     /// Gets an OCI handle attribute corresponding to the specified type parameter
@@ -1523,6 +1779,12 @@ impl Connection {
         let mut attr_value =
             AttrValue::from_conn(self, <T::HandleType>::HANDLE_TYPE, <T>::ATTR_NUM);
         unsafe { <T::DataType>::set(&mut attr_value, value) }
+    }
+}
+
+impl Drop for Connection {
+    fn drop(&mut self) {
+        let _ = self.clear_object_type_cache();
     }
 }
 

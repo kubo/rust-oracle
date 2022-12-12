@@ -149,14 +149,18 @@ fn string_from_sql() -> Result<()> {
 
     // Get boolean as bool and string
     if common::check_oracle_version("bind boolean", &conn, 12, 1)? {
-        let mut stmt = conn.prepare("declare b boolean; begin :1 := TRUE; end;", &[])?;
+        let mut stmt = conn
+            .statement("declare b boolean; begin :1 := TRUE; end;")
+            .build()?;
         stmt.execute(&[&None::<bool>])?;
         let val: bool = stmt.bind_value(1)?;
         assert_eq!(val, true);
         let val: String = stmt.bind_value(1)?;
         assert_eq!(val, "TRUE".to_string());
 
-        let mut stmt = conn.prepare("declare b boolean; begin :1 := FALSE; end;", &[])?;
+        let mut stmt = conn
+            .statement("declare b boolean; begin :1 := FALSE; end;")
+            .build()?;
         stmt.execute(&[&None::<bool>])?;
         let val: bool = stmt.bind_value(1)?;
         assert_eq!(val, false);
@@ -437,7 +441,7 @@ macro_rules! chk_num_to {
 #[test]
 fn numeric_to_sql() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("begin :out := to_char(:in); end;", &[])?;
+    let mut stmt = conn.statement("begin :out := to_char(:in); end;").build()?;
     chk_num_to!(stmt, i8);
     chk_num_to!(stmt, i16);
     chk_num_to!(stmt, i32);
@@ -1245,7 +1249,7 @@ mod chrono {
 
         // Overflow
         let d = Duration::days(1000000000);
-        let mut stmt = conn.prepare("begin :out := TO_CHAR(:1); end;", &[])?;
+        let mut stmt = conn.statement("begin :out := TO_CHAR(:1); end;").build()?;
         let bind_result = stmt.bind(2, &d);
         if let Err(Error::OutOfRange(_)) = bind_result { /* OK */
         } else {

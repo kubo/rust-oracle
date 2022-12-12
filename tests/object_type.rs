@@ -48,11 +48,13 @@ fn udt_objectdatatypes() -> Result<()> {
 #[test]
 fn udt_objectdatatypes_in_query() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("select ObjectCol from TestObjectDataTypes where 1 = 0", &[])?;
+    let mut stmt = conn
+        .statement("select ObjectCol from TestObjectDataTypes where 1 = 0")
+        .build()?;
     let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_objectdatatypes(objtype),
-        _ => assert!(false),
+        _ => panic!(),
     }
     Ok(())
 }
@@ -100,11 +102,13 @@ fn udt_object() -> Result<()> {
 #[test]
 fn udt_object_in_query() -> Result<()> {
     let conn = common::connect()?;
-    let mut stmt = conn.prepare("select ObjectCol from TestObjects where 1 = 0", &[])?;
+    let mut stmt = conn
+        .statement("select ObjectCol from TestObjects where 1 = 0")
+        .build()?;
     let rows = stmt.query(&[])?;
     match rows.column_info()[0].oracle_type() {
         &OracleType::Object(ref objtype) => assert_udt_object(objtype),
-        _ => assert!(false),
+        _ => panic!(),
     }
     Ok(())
 }
@@ -146,12 +150,12 @@ fn assert_udt_object(objtype: &ObjectType) {
             assert_eq!(attrtype.is_collection(), true);
             match attrtype.element_oracle_type() {
                 Some(elem_type) => assert_udt_subobject(elem_type),
-                None => assert!(false),
+                None => panic!(),
             }
             assert_eq!(attrtype.num_attributes(), 0);
             assert_eq!(attrtype.attributes().len(), 0);
         }
-        _ => assert!(false),
+        _ => panic!(),
     }
 }
 
@@ -172,7 +176,7 @@ fn assert_udt_subobject(oratype: &OracleType) {
             assert_eq!(attrs_in_attr[1].name(), "SUBSTRINGVALUE");
             assert_eq!(attrs_in_attr[1].oracle_type(), &OracleType::Varchar2(60));
         }
-        _ => assert!(false),
+        _ => panic!(),
     }
 }
 

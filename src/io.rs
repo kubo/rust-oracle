@@ -13,6 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+//! Type definitions for I/O in characters
 use std::io::{Result, SeekFrom};
 
 /// A cursor which can be moved within a stream of characters.

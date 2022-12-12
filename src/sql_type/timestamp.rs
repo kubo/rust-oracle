@@ -13,7 +13,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
+use std::cmp::{self, Ordering};
 use std::fmt;
 use std::str;
 
@@ -84,7 +84,7 @@ use crate::ParseOracleTypeError;
 /// let sql = "begin \
 ///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
 ///            end;";
-/// let mut stmt = conn.prepare(sql, &[])?;
+/// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&[&OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &ts, // bind the ts variable
 ///               ])?;
@@ -126,8 +126,8 @@ impl Timestamp {
             nanosecond: ts.fsecond as u32,
             tz_hour_offset: ts.tzHourOffset as i32,
             tz_minute_offset: ts.tzMinuteOffset as i32,
-            precision: precision,
-            with_tz: with_tz,
+            precision,
+            with_tz,
         }
     }
 
@@ -155,13 +155,13 @@ impl Timestamp {
         nanosecond: u32,
     ) -> Timestamp {
         Timestamp {
-            year: year,
-            month: month,
-            day: day,
-            hour: hour,
-            minute: minute,
-            second: second,
-            nanosecond: nanosecond,
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
+            nanosecond,
             tz_hour_offset: 0,
             tz_minute_offset: 0,
             precision: 9,
@@ -203,10 +203,7 @@ impl Timestamp {
     /// It doesn't affect comparison.
     #[inline]
     pub fn and_prec(&self, precision: u8) -> Timestamp {
-        Timestamp {
-            precision: precision,
-            ..*self
-        }
+        Timestamp { precision, ..*self }
     }
 
     /// Returns the year number from -4713 to 9999.
@@ -334,7 +331,7 @@ impl str::FromStr for Timestamp {
         } else {
             false
         };
-        let mut year = s.read_digits().ok_or(err())?;
+        let mut year = s.read_digits().ok_or_else(err)?;
         let mut month = 1;
         let mut day = 1;
         match s.char() {
@@ -347,10 +344,10 @@ impl str::FromStr for Timestamp {
             }
             Some('-') => {
                 s.next();
-                month = s.read_digits().ok_or(err())?;
+                month = s.read_digits().ok_or_else(err)?;
                 if let Some('-') = s.char() {
                     s.next();
-                    day = s.read_digits().ok_or(err())?
+                    day = s.read_digits().ok_or_else(err)?
                 }
             }
             _ => return Err(err()),
@@ -367,13 +364,13 @@ impl str::FromStr for Timestamp {
             match c {
                 'T' | ' ' => {
                     s.next();
-                    hour = s.read_digits().ok_or(err())?;
+                    hour = s.read_digits().ok_or_else(err)?;
                     if let Some(':') = s.char() {
                         s.next();
-                        min = s.read_digits().ok_or(err())?;
+                        min = s.read_digits().ok_or_else(err)?;
                         if let Some(':') = s.char() {
                             s.next();
-                            sec = s.read_digits().ok_or(err())?;
+                            sec = s.read_digits().ok_or_else(err)?;
                         }
                     } else if s.ndigits() == 6 {
                         // 123456 -> 12:34:56
@@ -388,14 +385,16 @@ impl str::FromStr for Timestamp {
             }
             if let Some('.') = s.char() {
                 s.next();
-                nsec = s.read_digits().ok_or(err())?;
+                nsec = s.read_digits().ok_or_else(err)?;
                 let ndigit = s.ndigits();
                 precision = ndigit;
-                if ndigit < 9 {
-                    nsec *= 10u64.pow(9 - ndigit);
-                } else if ndigit > 9 {
-                    nsec /= 10u64.pow(ndigit - 9);
-                    precision = 9;
+                match ndigit.cmp(&9) {
+                    Ordering::Less => nsec *= 10u64.pow(9 - ndigit),
+                    Ordering::Equal => (),
+                    Ordering::Greater => {
+                        nsec /= 10u64.pow(ndigit - 9);
+                        precision = 9;
+                    }
                 }
             }
             if let Some(' ') = s.char() {
@@ -404,10 +403,10 @@ impl str::FromStr for Timestamp {
             match s.char() {
                 Some('+') => {
                     s.next();
-                    tz_hour = s.read_digits().ok_or(err())? as i32;
+                    tz_hour = s.read_digits().ok_or_else(err)? as i32;
                     if let Some(':') = s.char() {
                         s.next();
-                        tz_min = s.read_digits().ok_or(err())? as i32;
+                        tz_min = s.read_digits().ok_or_else(err)? as i32;
                     } else {
                         tz_min = tz_hour % 100;
                         tz_hour /= 100;
@@ -416,10 +415,10 @@ impl str::FromStr for Timestamp {
                 }
                 Some('-') => {
                     s.next();
-                    tz_hour = s.read_digits().ok_or(err())? as i32;
+                    tz_hour = s.read_digits().ok_or_else(err)? as i32;
                     if let Some(':') = s.char() {
                         s.next();
-                        tz_min = s.read_digits().ok_or(err())? as i32;
+                        tz_min = s.read_digits().ok_or_else(err)? as i32;
                     } else {
                         tz_min = tz_hour % 100;
                         tz_hour /= 100;
