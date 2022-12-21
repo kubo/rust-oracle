@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -375,378 +370,377 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="doccomment">//! SQL data types</span>
+</span><span class="doccomment">//! SQL data types
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span><span class="kw">crate</span>::SqlValue;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">chrono</span>;
-<span class="kw">mod</span> <span class="ident">interval_ds</span>;
-<span class="kw">mod</span> <span class="ident">interval_ym</span>;
-<span class="kw">mod</span> <span class="ident">lob</span>;
-<span class="kw">mod</span> <span class="ident">object</span>;
-<span class="kw">mod</span> <span class="ident">oracle_type</span>;
-<span class="kw">mod</span> <span class="ident">ref_cursor</span>;
-<span class="kw">mod</span> <span class="ident">timestamp</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+</span><span class="kw">mod </span>chrono;
+<span class="kw">mod </span>interval_ds;
+<span class="kw">mod </span>interval_ym;
+<span class="kw">mod </span>lob;
+<span class="kw">mod </span>object;
+<span class="kw">mod </span>oracle_type;
+<span class="kw">mod </span>ref_cursor;
+<span class="kw">mod </span>timestamp;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::interval_ds::IntervalDS</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::interval_ym::IntervalYM</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lob::Bfile</span>; <span class="comment">// TODO: remove `(crate)`</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lob::Blob</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lob::Clob</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lob::Lob</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lob::Nclob</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::object::Collection</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::object::Object</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::object::ObjectType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::object::ObjectTypeAttr</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::object::ObjectTypeInternal</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::oracle_type::NativeType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::oracle_type::OracleType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ref_cursor::RefCursor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::timestamp::Timestamp</span>;
+<span class="kw">pub use </span><span class="self">self</span>::interval_ds::IntervalDS;
+<span class="kw">pub use </span><span class="self">self</span>::interval_ym::IntervalYM;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::lob::Bfile; <span class="comment">// TODO: remove `(crate)`
+</span><span class="kw">pub use </span><span class="self">self</span>::lob::Blob;
+<span class="kw">pub use </span><span class="self">self</span>::lob::Clob;
+<span class="kw">pub use </span><span class="self">self</span>::lob::Lob;
+<span class="kw">pub use </span><span class="self">self</span>::lob::Nclob;
+<span class="kw">pub use </span><span class="self">self</span>::object::Collection;
+<span class="kw">pub use </span><span class="self">self</span>::object::Object;
+<span class="kw">pub use </span><span class="self">self</span>::object::ObjectType;
+<span class="kw">pub use </span><span class="self">self</span>::object::ObjectTypeAttr;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::object::ObjectTypeInternal;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::oracle_type::NativeType;
+<span class="kw">pub use </span><span class="self">self</span>::oracle_type::OracleType;
+<span class="kw">pub use </span><span class="self">self</span>::ref_cursor::RefCursor;
+<span class="kw">pub use </span><span class="self">self</span>::timestamp::Timestamp;
 
-<span class="doccomment">/// Conversion from Oracle values to rust values.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Values in Oracle are converted to Rust type as possible as it can.</span>
-<span class="doccomment">/// The following table indicates supported conversions.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Oracle Type | Rust Type |</span>
-<span class="doccomment">/// | --- | --- |</span>
-<span class="doccomment">/// | character data types | String |</span>
-<span class="doccomment">/// |     &quot; | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` by using ``String::parse`` |</span>
-<span class="doccomment">/// |     &quot; | `Vec\&lt;u8&gt;` (The Oracle value must be in hexadecimal.) |</span>
-<span class="doccomment">/// |     &quot; | [`Timestamp`] by `String.parse()` |</span>
-<span class="doccomment">/// |     &quot; | [`IntervalDS`] by `String.parse()` |</span>
-<span class="doccomment">/// |     &quot; | [`IntervalYM`] by `String.parse()` |</span>
-<span class="doccomment">/// | numeric data types | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | `raw` | `Vec\&lt;u8&gt;` |</span>
-<span class="doccomment">/// |     &quot; | `String` (The Oracle value is converted to characters in hexadecimal.) |</span>
-<span class="doccomment">/// | timestamp data types | [`Timestamp`] |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | `interval day to second` | [`IntervalDS`] |</span>
-<span class="doccomment">/// |     &quot; | [`std::time::Duration`] (conversion error for negative durations) |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | `interval year to month` | [`IntervalYM`] |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | [Oracle object] except [Oracle collection] | [`Object`] |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | [Oracle collection] | [`Collection`] |</span>
-<span class="doccomment">/// |     &quot; | `String` |</span>
-<span class="doccomment">/// | `rowid` | `String` |</span>
-<span class="doccomment">/// | `ref cursor` | [`RefCursor`] |</span>
-<span class="doccomment">/// | `boolean` (PL/SQL only) | `bool` (Oracle client version &gt;= 12.1) |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When `chrono` feature is enabled, the following conversions are added.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Oracle Type | Rust Type |</span>
-<span class="doccomment">/// | --- | --- |</span>
-<span class="doccomment">/// | timestamp data types | [`chrono::DateTime`] |</span>
-<span class="doccomment">/// |     &quot; | [`chrono::Date`] |</span>
-<span class="doccomment">/// |     &quot; | [`chrono::naive::NaiveDateTime`] |</span>
-<span class="doccomment">/// |     &quot; | [`chrono::naive::NaiveDate`] |</span>
-<span class="doccomment">/// | interval day to second | [`chrono::Duration`] |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This conversion is used also to get values from output parameters.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Oracle object]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-8F0BA083-FA6D-4373-B440-50FDDA4D6E90</span>
-<span class="doccomment">/// [Oracle collection]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-1200DD46-95C0-4776-90BB-0ED0CD61267E</span>
-<span class="doccomment">/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html</span>
-<span class="doccomment">/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html</span>
-<span class="doccomment">/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromSql</span> {
-    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
+<span class="doccomment">/// Conversion from Oracle values to rust values.
+///
+/// Values in Oracle are converted to Rust type as possible as it can.
+/// The following table indicates supported conversions.
+///
+/// | Oracle Type | Rust Type |
+/// | --- | --- |
+/// | character data types | String |
+/// |     &quot; | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` by using ``String::parse`` |
+/// |     &quot; | `Vec\&lt;u8&gt;` (The Oracle value must be in hexadecimal.) |
+/// |     &quot; | [`Timestamp`] by `String.parse()` |
+/// |     &quot; | [`IntervalDS`] by `String.parse()` |
+/// |     &quot; | [`IntervalYM`] by `String.parse()` |
+/// | numeric data types | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` |
+/// |     &quot; | `String` |
+/// | `raw` | `Vec\&lt;u8&gt;` |
+/// |     &quot; | `String` (The Oracle value is converted to characters in hexadecimal.) |
+/// | timestamp data types | [`Timestamp`] |
+/// |     &quot; | `String` |
+/// | `interval day to second` | [`IntervalDS`] |
+/// |     &quot; | [`std::time::Duration`] (conversion error for negative durations) |
+/// |     &quot; | `String` |
+/// | `interval year to month` | [`IntervalYM`] |
+/// |     &quot; | `String` |
+/// | [Oracle object] except [Oracle collection] | [`Object`] |
+/// |     &quot; | `String` |
+/// | [Oracle collection] | [`Collection`] |
+/// |     &quot; | `String` |
+/// | `rowid` | `String` |
+/// | `ref cursor` | [`RefCursor`] |
+/// | `boolean` (PL/SQL only) | `bool` (Oracle client version &gt;= 12.1) |
+///
+/// When `chrono` feature is enabled, the following conversions are added.
+///
+/// | Oracle Type | Rust Type |
+/// | --- | --- |
+/// | timestamp data types | [`chrono::DateTime`] |
+/// |     &quot; | [`chrono::Date`] |
+/// |     &quot; | [`chrono::naive::NaiveDateTime`] |
+/// |     &quot; | [`chrono::naive::NaiveDate`] |
+/// | interval day to second | [`chrono::Duration`] |
+///
+/// This conversion is used also to get values from output parameters.
+///
+/// [Oracle object]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-8F0BA083-FA6D-4373-B440-50FDDA4D6E90
+/// [Oracle collection]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-1200DD46-95C0-4776-90BB-0ED0CD61267E
+/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+</span><span class="kw">pub trait </span>FromSql {
+    <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
 }
 
-<span class="doccomment">/// A trait specifying Oracle type to bind a null value.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is used only when binding a `None` value of `Option&lt;T&gt;`.</span>
-<span class="doccomment">/// The type of the null value is determined by the rust type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Rust Type | Oracle Type |</span>
-<span class="doccomment">/// | --- | --- |</span>
-<span class="doccomment">/// | `str`, `String` | `nvarchar2(0)` |</span>
-<span class="doccomment">/// | `i8`, `i16`, `i32`, `i64`, `u8`, `u16`, `u32`, `u64`, `f32`, `f64` | `number` |</span>
-<span class="doccomment">/// | `Vec\&lt;u8&gt;` | `raw(0)` |</span>
-<span class="doccomment">/// | `bool` | `boolean` (PL/SQL only) |</span>
-<span class="doccomment">/// | [`Timestamp`] | `timestamp(9) with time zone` |</span>
-<span class="doccomment">/// | [`IntervalDS`] | `interval day(9) to second(9)` |</span>
-<span class="doccomment">/// | [`IntervalYM`] | `interval year(9) to month` |</span>
-<span class="doccomment">/// | [`RefCursor`] | `ref cursor` |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When `chrono` feature is enabled, the followings are added.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Rust Type | Oracle Type |</span>
-<span class="doccomment">/// | --- | --- |</span>
-<span class="doccomment">/// | [`chrono::Date`] | `timestamp(0) with time zone` |</span>
-<span class="doccomment">/// | [`chrono::DateTime`] | `timestamp(9) with time zone` |</span>
-<span class="doccomment">/// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |</span>
-<span class="doccomment">/// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |</span>
-<span class="doccomment">/// | [`chrono::Duration`] | `interval day(9) to second(9)` |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html</span>
-<span class="doccomment">/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html</span>
-<span class="doccomment">/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToSqlNull</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A trait specifying Oracle type to bind a null value.
+///
+/// This trait is used only when binding a `None` value of `Option&lt;T&gt;`.
+/// The type of the null value is determined by the rust type.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | `str`, `String` | `nvarchar2(0)` |
+/// | `i8`, `i16`, `i32`, `i64`, `u8`, `u16`, `u32`, `u64`, `f32`, `f64` | `number` |
+/// | `Vec\&lt;u8&gt;` | `raw(0)` |
+/// | `bool` | `boolean` (PL/SQL only) |
+/// | [`Timestamp`] | `timestamp(9) with time zone` |
+/// | [`IntervalDS`] | `interval day(9) to second(9)` |
+/// | [`IntervalYM`] | `interval year(9) to month` |
+/// | [`RefCursor`] | `ref cursor` |
+///
+/// When `chrono` feature is enabled, the followings are added.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | [`chrono::Date`] | `timestamp(0) with time zone` |
+/// | [`chrono::DateTime`] | `timestamp(9) with time zone` |
+/// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |
+/// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |
+/// | [`chrono::Duration`] | `interval day(9) to second(9)` |
+///
+/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+</span><span class="kw">pub trait </span>ToSqlNull {
+    <span class="kw">fn </span>oratype_for_null(conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt;;
 }
 
-<span class="doccomment">/// Conversion from rust values to Oracle values.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The type of the Oracle value is determined by the rust type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Rust Type | Oracle Type | Oracle Value |</span>
-<span class="doccomment">/// | --- | --- | --- |</span>
-<span class="doccomment">/// | `str`, `String` | `nvarchar2(length of the rust value)` | The specified value |</span>
-<span class="doccomment">/// | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f32`, `f64` | `number` | The specified value |</span>
-<span class="doccomment">/// | `Vec\&lt;u8&gt;` | `raw(length of the rust value)` | The specified value |</span>
-<span class="doccomment">/// | `bool` | `boolean` (PL/SQL only) | The specified value |</span>
-<span class="doccomment">/// | [`Timestamp`] | `timestamp(9) with time zone` | The specified value |</span>
-<span class="doccomment">/// | [`IntervalDS`] | `interval day(9) to second(9)` | The specified value |</span>
-<span class="doccomment">/// | [`IntervalYM`] | `interval year(9) to month` | The specified value |</span>
-<span class="doccomment">/// | [`Collection`] | type returned by [`Collection::object_type`] | The specified value |</span>
-<span class="doccomment">/// | [`Object`] | type returned by [`Object::object_type`] | The specified value |</span>
-<span class="doccomment">/// | `Option\&lt;T&gt;` where T: `ToSql` + [`ToSqlNull`] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.</span>
-<span class="doccomment">/// | [`OracleType`] | type represented by the OracleType. | a null value |</span>
-<span class="doccomment">/// | `(&amp;ToSql, &amp;OracleType)` | type represented by the second element. | The value of the first element |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When you need to bind output parameters such as varchar2, use `OracleType`</span>
-<span class="doccomment">/// or `(&amp;ToSql, &amp;OracleType)` to specify the maximum length of data types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When `chrono` feature is enabled, the following conversions are added.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Rust Type | Oracle Type |</span>
-<span class="doccomment">/// | --- | --- |</span>
-<span class="doccomment">/// | [`chrono::Date`] | `timestamp(0) with time zone` |</span>
-<span class="doccomment">/// | [`chrono::DateTime`] | `timestamp(9) with time zone` |</span>
-<span class="doccomment">/// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |</span>
-<span class="doccomment">/// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |</span>
-<span class="doccomment">/// | [`chrono::Duration`] | `interval day(9) to second(9)` |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html</span>
-<span class="doccomment">/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html</span>
-<span class="doccomment">/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html</span>
-<span class="doccomment">/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToSql</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="doccomment">/// Conversion from rust values to Oracle values.
+///
+/// The type of the Oracle value is determined by the rust type.
+///
+/// | Rust Type | Oracle Type | Oracle Value |
+/// | --- | --- | --- |
+/// | `str`, `String` | `nvarchar2(length of the rust value)` | The specified value |
+/// | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f32`, `f64` | `number` | The specified value |
+/// | `Vec\&lt;u8&gt;` | `raw(length of the rust value)` | The specified value |
+/// | `bool` | `boolean` (PL/SQL only) | The specified value |
+/// | [`Timestamp`] | `timestamp(9) with time zone` | The specified value |
+/// | [`IntervalDS`] | `interval day(9) to second(9)` | The specified value |
+/// | [`IntervalYM`] | `interval year(9) to month` | The specified value |
+/// | [`Collection`] | type returned by [`Collection::object_type`] | The specified value |
+/// | [`Object`] | type returned by [`Object::object_type`] | The specified value |
+/// | `Option\&lt;T&gt;` where T: `ToSql` + [`ToSqlNull`] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
+/// | [`OracleType`] | type represented by the OracleType. | a null value |
+/// | `(&amp;ToSql, &amp;OracleType)` | type represented by the second element. | The value of the first element |
+///
+/// When you need to bind output parameters such as varchar2, use `OracleType`
+/// or `(&amp;ToSql, &amp;OracleType)` to specify the maximum length of data types.
+///
+/// When `chrono` feature is enabled, the following conversions are added.
+///
+/// | Rust Type | Oracle Type |
+/// | --- | --- |
+/// | [`chrono::Date`] | `timestamp(0) with time zone` |
+/// | [`chrono::DateTime`] | `timestamp(9) with time zone` |
+/// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |
+/// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |
+/// | [`chrono::Duration`] | `interval day(9) to second(9)` |
+///
+/// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+///
+</span><span class="kw">pub trait </span>ToSql {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt;;
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_from_sql</span> {
-    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> {
-            <span class="kw">fn</span> <span class="macro-nonterminal">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">type</span><span class="op">&gt;</span> {
-                <span class="macro-nonterminal">val</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>()
+<span class="macro">macro_rules! </span>impl_from_sql {
+    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$func</span>:ident) =&gt; {
+        <span class="kw">impl </span>FromSql <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+            <span class="kw">fn </span><span class="macro-nonterminal">from_sql</span>(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt; {
+                <span class="macro-nonterminal">val</span>.<span class="macro-nonterminal">$func</span>()
             }
         }
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_to_sql</span> {
-    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> {
-            <span class="kw">fn</span> <span class="macro-nonterminal">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>)
+<span class="macro">macro_rules! </span>impl_to_sql {
+    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$func</span>:ident, <span class="macro-nonterminal">$oratype</span>:expr) =&gt; {
+        <span class="kw">impl </span>ToSqlNull <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+            <span class="kw">fn </span><span class="macro-nonterminal">oratype_for_null</span>(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$oratype</span>)
             }
         }
-        <span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> {
-            <span class="kw">fn</span> <span class="macro-nonterminal">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>)
+        <span class="kw">impl </span>ToSql <span class="kw">for </span><span class="macro-nonterminal">$</span><span class="kw">type </span>{
+            <span class="kw">fn </span><span class="macro-nonterminal">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$oratype</span>)
             }
-            <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-                <span class="ident">val</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">func</span>(<span class="self">self</span>)
+            <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+                val.<span class="macro-nonterminal">$func</span>(<span class="self">self</span>)
             }
         }
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_from_and_to_sql</span> {
-    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="macro">impl_from_sql!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_func</span>);
-        <span class="macro">impl_to_sql!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_func</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>);
+<span class="macro">macro_rules! </span>impl_from_and_to_sql {
+    (<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>, <span class="macro-nonterminal">$to_func</span>:ident, <span class="macro-nonterminal">$set_func</span>:ident, <span class="macro-nonterminal">$oratype</span>:expr) =&gt; {
+        <span class="macro">impl_from_sql!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$to_func</span>);
+        <span class="macro">impl_to_sql!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>, <span class="macro-nonterminal">$set_func</span>, <span class="macro-nonterminal">$oratype</span>);
     };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_type</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_type</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_func</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="macro">impl_from_sql!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_type</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to_func</span>);
-        <span class="macro">impl_to_sql!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_type</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">set_func</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oratype</span>);
+    (<span class="macro-nonterminal">$to_type</span>:ty, <span class="macro-nonterminal">$to_func</span>:ident, <span class="macro-nonterminal">$set_type</span>:ty, <span class="macro-nonterminal">$set_func</span>:ident, <span class="macro-nonterminal">$oratype</span>:expr) =&gt; {
+        <span class="macro">impl_from_sql!</span>(<span class="macro-nonterminal">$to_type</span>, <span class="macro-nonterminal">$to_func</span>);
+        <span class="macro">impl_to_sql!</span>(<span class="macro-nonterminal">$set_type</span>, <span class="macro-nonterminal">$set_func</span>, <span class="macro-nonterminal">$oratype</span>);
     };
 }
 
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">i8</span>, <span class="ident">to_i8</span>, <span class="ident">set_i8</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">i16</span>, <span class="ident">to_i16</span>, <span class="ident">set_i16</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">i32</span>, <span class="ident">to_i32</span>, <span class="ident">set_i32</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">i64</span>, <span class="ident">to_i64</span>, <span class="ident">set_i64</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">isize</span>, <span class="ident">to_isize</span>, <span class="ident">set_isize</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">u8</span>, <span class="ident">to_u8</span>, <span class="ident">set_u8</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">u16</span>, <span class="ident">to_u16</span>, <span class="ident">set_u16</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">u32</span>, <span class="ident">to_u32</span>, <span class="ident">set_u32</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">u64</span>, <span class="ident">to_u64</span>, <span class="ident">set_u64</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">usize</span>, <span class="ident">to_usize</span>, <span class="ident">set_usize</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">f64</span>, <span class="ident">to_f64</span>, <span class="ident">set_f64</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">f32</span>, <span class="ident">to_f32</span>, <span class="ident">set_f32</span>, <span class="ident">OracleType::Number</span>(<span class="number">0</span>, <span class="number">0</span>));
-<span class="macro">impl_from_and_to_sql!</span>(<span class="ident">bool</span>, <span class="ident">to_bool</span>, <span class="ident">set_bool</span>, <span class="ident">OracleType::Boolean</span>);
-<span class="macro">impl_from_sql!</span>(<span class="ident">String</span>, <span class="ident">to_string</span>);
-<span class="macro">impl_from_sql!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">to_bytes</span>);
+<span class="macro">impl_from_and_to_sql!</span>(i8, to_i8, set_i8, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(i16, to_i16, set_i16, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(i32, to_i32, set_i32, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(i64, to_i64, set_i64, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(isize, to_isize, set_isize, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(u8, to_u8, set_u8, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(u16, to_u16, set_u16, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(u32, to_u32, set_u32, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(u64, to_u64, set_u64, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(usize, to_usize, set_usize, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(f64, to_f64, set_f64, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(f32, to_f32, set_f32, OracleType::Number(<span class="number">0</span>, <span class="number">0</span>));
+<span class="macro">impl_from_and_to_sql!</span>(bool, to_bool, set_bool, OracleType::Boolean);
+<span class="macro">impl_from_sql!</span>(String, to_string);
+<span class="macro">impl_from_sql!</span>(Vec&lt;u8&gt;, to_bytes);
 <span class="macro">impl_from_and_to_sql!</span>(
-    <span class="ident">Timestamp</span>,
-    <span class="ident">to_timestamp</span>,
-    <span class="ident">Timestamp</span>,
-    <span class="ident">set_timestamp</span>,
-    <span class="ident">OracleType::TimestampTZ</span>(<span class="number">9</span>)
+    Timestamp,
+    to_timestamp,
+    Timestamp,
+    set_timestamp,
+    OracleType::TimestampTZ(<span class="number">9</span>)
 );
 <span class="macro">impl_from_and_to_sql!</span>(
-    <span class="ident">IntervalDS</span>,
-    <span class="ident">to_interval_ds</span>,
-    <span class="ident">IntervalDS</span>,
-    <span class="ident">set_interval_ds</span>,
-    <span class="ident">OracleType::IntervalDS</span>(<span class="number">9</span>, <span class="number">9</span>)
+    IntervalDS,
+    to_interval_ds,
+    IntervalDS,
+    set_interval_ds,
+    OracleType::IntervalDS(<span class="number">9</span>, <span class="number">9</span>)
 );
 <span class="macro">impl_from_and_to_sql!</span>(
-    <span class="ident">IntervalYM</span>,
-    <span class="ident">to_interval_ym</span>,
-    <span class="ident">IntervalYM</span>,
-    <span class="ident">set_interval_ym</span>,
-    <span class="ident">OracleType::IntervalYM</span>(<span class="number">9</span>)
+    IntervalYM,
+    to_interval_ym,
+    IntervalYM,
+    set_interval_ym,
+    OracleType::IntervalYM(<span class="number">9</span>)
 );
 
-<span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="number">0</span>))
+<span class="kw">impl </span>ToSqlNull <span class="kw">for </span>String {
+    <span class="kw">fn </span>oratype_for_null(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::NVarchar2(<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>))
+<span class="kw">impl </span>ToSql <span class="kw">for </span>String {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::NVarchar2(<span class="self">self</span>.len() <span class="kw">as </span>u32))
     }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_string</span>(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="number">0</span>))
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_string(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_bytes</span>(<span class="self">self</span>)
+<span class="kw">impl </span>ToSqlNull <span class="kw">for </span>Vec&lt;u8&gt; {
+    <span class="kw">fn </span>oratype_for_null(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="number">0</span>))
+<span class="kw">impl </span>ToSql <span class="kw">for </span>Vec&lt;u8&gt; {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="self">self</span>.len() <span class="kw">as </span>u32))
+    }
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_bytes(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_string</span>(<span class="self">self</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToSqlNull <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    <span class="kw">fn </span>oratype_for_null(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::NVarchar2(<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="number">0</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToSql <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::NVarchar2(<span class="self">self</span>.len() <span class="kw">as </span>u32))
+    }
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_string(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_bytes</span>(<span class="kw-2">*</span><span class="self">self</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToSqlNull <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    <span class="kw">fn </span>oratype_for_null(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>; <span class="ident">N</span>] {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ToSql <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="self">self</span>.len() <span class="kw">as </span>u32))
     }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_bytes</span>(<span class="kw-2">*</span><span class="self">self</span>)
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_bytes(<span class="kw-2">*</span><span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromSql</span><span class="op">&gt;</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::from_sql</span>(<span class="ident">val</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">Error::NullValue</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="kw">const </span>N: usize&gt; ToSql <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8; N] {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="self">self</span>.len() <span class="kw">as </span>u32))
+    }
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_bytes(<span class="kw-2">*</span><span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl</span>&lt;T: FromSql&gt; FromSql <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
+    <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+        <span class="kw">match </span>&lt;T&gt;::from_sql(val) {
+            <span class="prelude-val">Ok</span>(v) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(v)),
+            <span class="prelude-val">Err</span>(Error::NullValue) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToSql</span> <span class="op">+</span> <span class="ident">ToSqlNull</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">oratype</span>(<span class="ident">conn</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::oratype_for_null</span>(<span class="ident">conn</span>),
+<span class="kw">impl</span>&lt;T: ToSql + ToSqlNull&gt; ToSql <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>t) =&gt; t.oratype(conn),
+            <span class="prelude-val">None </span>=&gt; &lt;T&gt;::oratype_for_null(conn),
         }
     }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">to_sql</span>(<span class="ident">val</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">val</span>.<span class="ident">set_null</span>(),
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>t) =&gt; t.to_sql(val),
+            <span class="prelude-val">None </span>=&gt; val.set_null(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">OracleType</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">clone</span>())
+<span class="kw">impl </span>ToSql <span class="kw">for </span>OracleType {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.clone())
     }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set_null</span>()<span class="question-mark">?</span>;
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set_null()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">ToSql</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">OracleType</span>) {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="number">1</span>.<span class="ident">clone</span>())
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: ToSql&gt; ToSql <span class="kw">for </span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>OracleType) {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="number">1</span>.clone())
     }
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">to_sql</span>(<span class="ident">val</span>)
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).to_sql(val)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

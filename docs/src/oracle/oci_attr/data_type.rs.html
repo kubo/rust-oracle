@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/data_type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/data_type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -368,371 +363,370 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="doccomment">//! The module defines types related to the associate type [`OciAttr::DataType`].</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::OciAttr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_rust_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Statement</span>;
-<span class="kw">use</span> <span class="ident">std::borrow::ToOwned</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
-<span class="kw">use</span> <span class="ident">std::slice</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</span><span class="doccomment">//! The module defines types related to the associate type [`OciAttr::DataType`].
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::OciAttr;
+<span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
+<span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span><span class="kw">crate</span>::Statement;
+<span class="kw">use </span>std::borrow::ToOwned;
+<span class="kw">use </span>std::convert::TryInto;
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::os::raw::c_void;
+<span class="kw">use </span>std::slice;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">enum</span> <span class="ident">Handle</span> {
-    <span class="ident">Conn</span>(<span class="kw-2">*mut</span> <span class="ident">dpiConn</span>, <span class="ident">u32</span>),
-    <span class="ident">Stmt</span>(<span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>),
+<span class="kw">enum </span>Handle {
+    Conn(<span class="kw-2">*mut </span>dpiConn, u32),
+    Stmt(<span class="kw-2">*mut </span>dpiStmt),
 }
 
-<span class="doccomment">/// Attribute value used in [`DataType`]. You have no need to use this except implementing [`DataType`] for your type.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AttrValue</span> {
-    <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-    <span class="ident">handle</span>: <span class="ident">Handle</span>,
-    <span class="ident">attr_num</span>: <span class="ident">u32</span>,
+<span class="doccomment">/// Attribute value used in [`DataType`]. You have no need to use this except implementing [`DataType`] for your type.
+</span><span class="kw">pub struct </span>AttrValue {
+    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    handle: Handle,
+    attr_num: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">AttrValue</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_conn</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>, <span class="ident">handle_type</span>: <span class="ident">u32</span>, <span class="ident">attr_num</span>: <span class="ident">u32</span>) -&gt; <span class="ident">AttrValue</span> {
-        <span class="ident">AttrValue</span> {
-            <span class="ident">ctxt</span>: <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">handle</span>: <span class="ident">Handle::Conn</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">handle_type</span>),
-            <span class="ident">attr_num</span>,
+<span class="kw">impl </span>AttrValue {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_conn(conn: <span class="kw-2">&amp;</span>Connection, handle_type: u32, attr_num: u32) -&gt; AttrValue {
+        AttrValue {
+            ctxt: conn.ctxt(),
+            handle: Handle::Conn(conn.handle(), handle_type),
+            attr_num,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_stmt</span>(<span class="ident">stmt</span>: <span class="kw-2">&amp;</span><span class="ident">Statement</span>, <span class="ident">attr_num</span>: <span class="ident">u32</span>) -&gt; <span class="ident">AttrValue</span> {
-        <span class="ident">AttrValue</span> {
-            <span class="ident">ctxt</span>: <span class="ident">stmt</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">handle</span>: <span class="ident">Handle::Stmt</span>(<span class="ident">stmt</span>.<span class="ident">handle</span>()),
-            <span class="ident">attr_num</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_stmt(stmt: <span class="kw-2">&amp;</span>Statement, attr_num: u32) -&gt; AttrValue {
+        AttrValue {
+            ctxt: stmt.ctxt(),
+            handle: Handle::Stmt(stmt.handle()),
+            attr_num,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">handle</span> {
-            <span class="ident">Handle::Conn</span>(<span class="ident">handle</span>, <span class="ident">handle_type</span>) =&gt; {
+    <span class="kw">fn </span>set_ptr_len(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: <span class="kw-2">*mut </span>c_void, len: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.handle {
+            Handle::Conn(handle, handle_type) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">ctxt</span>,
-                    <span class="ident">dpiConn_setOciAttr</span>(<span class="kw-2">*</span><span class="ident">handle</span>, <span class="kw-2">*</span><span class="ident">handle_type</span>, <span class="self">self</span>.<span class="ident">attr_num</span>, <span class="ident">ptr</span>, <span class="ident">len</span>)
+                    <span class="self">self</span>.ctxt,
+                    dpiConn_setOciAttr(<span class="kw-2">*</span>handle, <span class="kw-2">*</span>handle_type, <span class="self">self</span>.attr_num, ptr, len)
                 );
             }
-            <span class="ident">Handle::Stmt</span>(<span class="ident">handle</span>) =&gt; {
+            Handle::Stmt(handle) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">ctxt</span>,
-                    <span class="ident">dpiStmt_setOciAttr</span>(<span class="kw-2">*</span><span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">attr_num</span>, <span class="ident">ptr</span>, <span class="ident">len</span>)
+                    <span class="self">self</span>.ctxt,
+                    dpiStmt_setOciAttr(<span class="kw-2">*</span>handle, <span class="self">self</span>.attr_num, ptr, len)
                 );
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets a value to the attribute.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that if incorrect type parameter `T` is specified,</span>
-    <span class="doccomment">/// its behavior is undefined. It may cause an access violation.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">T::Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">DataType</span>,
+    <span class="doccomment">/// Sets a value to the attribute.
+    ///
+    /// Note that if incorrect type parameter `T` is specified,
+    /// its behavior is undefined. It may cause an access violation.
+    </span><span class="kw">pub unsafe fn </span>set&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>T::Type) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>T: DataType,
     {
-        <span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::set</span>(<span class="self">self</span>, <span class="ident">val</span>)
+        &lt;T&gt;::set(<span class="self">self</span>, val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_ub1</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">1</span>)
+    <span class="kw">unsafe fn </span>set_ub1(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">1</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_ub2</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u16</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">2</span>)
+    <span class="kw">unsafe fn </span>set_ub2(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>u16 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">2</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_ub4</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u32</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">4</span>)
+    <span class="kw">unsafe fn </span>set_ub4(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>u32 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">4</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_ub8</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u64</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">8</span>)
+    <span class="kw">unsafe fn </span>set_ub8(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>u64 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">8</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_bool</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">i32</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">4</span>)
+    <span class="kw">unsafe fn </span>set_bool(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val: i32 = <span class="kw">if </span>val { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>i32 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">4</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_pointer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(
-            <span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-            <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">u32</span>,
+    <span class="kw">unsafe fn </span>set_pointer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">*mut </span>c_void) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(
+            <span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const *mut </span>c_void <span class="kw">as </span><span class="kw-2">*mut </span>c_void,
+            mem::size_of::&lt;<span class="kw-2">*mut </span>c_void&gt;() <span class="kw">as </span>u32,
         )
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_string</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">val</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>);
-        <span class="ident">vec</span>.<span class="ident">extend_from_slice</span>(<span class="ident">val</span>.<span class="ident">as_bytes</span>());
-        <span class="ident">vec</span>.<span class="ident">push</span>(<span class="number">0</span>);
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="ident">vec</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>)
+    <span class="kw">unsafe fn </span>set_string(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>vec = Vec::with_capacity(val.len() + <span class="number">1</span>);
+        vec.extend_from_slice(val.as_bytes());
+        vec.push(<span class="number">0</span>);
+        <span class="self">self</span>.set_ptr_len(vec.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void, val.len() <span class="kw">as </span>u32)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_ptr_len</span>(<span class="ident">val</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>)
+    <span class="kw">unsafe fn </span>set_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.set_ptr_len(val.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void, val.len() <span class="kw">as </span>u32)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_data_buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">dpiDataBuffer</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem::zeroed</span>() };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">handle</span> {
-            <span class="ident">Handle::Conn</span>(<span class="ident">handle</span>, <span class="ident">handle_type</span>) =&gt; {
+    <span class="kw">fn </span>get_data_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(dpiDataBuffer, u32)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = <span class="kw">unsafe </span>{ mem::zeroed() };
+        <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.handle {
+            Handle::Conn(handle, handle_type) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">ctxt</span>,
-                    <span class="ident">dpiConn_getOciAttr</span>(<span class="kw-2">*</span><span class="ident">handle</span>, <span class="kw-2">*</span><span class="ident">handle_type</span>, <span class="self">self</span>.<span class="ident">attr_num</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">len</span>)
+                    <span class="self">self</span>.ctxt,
+                    dpiConn_getOciAttr(<span class="kw-2">*</span>handle, <span class="kw-2">*</span>handle_type, <span class="self">self</span>.attr_num, <span class="kw-2">&amp;mut </span>buf, <span class="kw-2">&amp;mut </span>len)
                 );
             }
-            <span class="ident">Handle::Stmt</span>(<span class="ident">handle</span>) =&gt; {
+            Handle::Stmt(handle) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">ctxt</span>,
-                    <span class="ident">dpiStmt_getOciAttr</span>(<span class="kw-2">*</span><span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">attr_num</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">len</span>)
+                    <span class="self">self</span>.ctxt,
+                    dpiStmt_getOciAttr(<span class="kw-2">*</span>handle, <span class="self">self</span>.attr_num, <span class="kw-2">&amp;mut </span>buf, <span class="kw-2">&amp;mut </span>len)
                 );
             }
         }
-        <span class="prelude-val">Ok</span>((<span class="ident">buf</span>, <span class="ident">len</span>))
+        <span class="prelude-val">Ok</span>((buf, len))
     }
 
-    <span class="doccomment">/// Gets a value from the attribute.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that if incorrect type parameter `T` is specified,</span>
-    <span class="doccomment">/// its behavior is undefined. It may cause an access violation.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T::Type</span> <span class="kw">as</span> <span class="ident">ToOwned</span><span class="op">&gt;</span><span class="ident">::Owned</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">DataType</span>,
+    <span class="doccomment">/// Gets a value from the attribute.
+    ///
+    /// Note that if incorrect type parameter `T` is specified,
+    /// its behavior is undefined. It may cause an access violation.
+    </span><span class="kw">pub unsafe fn </span>get&lt;T&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;T::Type <span class="kw">as </span>ToOwned&gt;::Owned&gt;
+    <span class="kw">where
+        </span>T: DataType,
     {
-        <span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::get</span>(<span class="self">self</span>)
+        &lt;T&gt;::get(<span class="self">self</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_ub1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asUint8</span>)
+    <span class="kw">unsafe fn </span>get_ub1(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asUint8)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_ub2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asUint16</span>)
+    <span class="kw">unsafe fn </span>get_ub2(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asUint16)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_ub4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asUint32</span>)
+    <span class="kw">unsafe fn </span>get_ub4(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asUint32)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_ub8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asUint64</span>)
+    <span class="kw">unsafe fn </span>get_ub8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asUint64)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asBoolean</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
+    <span class="kw">unsafe fn </span>get_bool(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asBoolean != <span class="number">0</span>)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_pointer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>.<span class="number">0</span>.<span class="ident">asRaw</span>)
+    <span class="kw">unsafe fn </span>get_pointer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>c_void&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>.<span class="number">0</span>.asRaw)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">to_rust_str</span>(<span class="ident">val</span>.<span class="number">0</span>.<span class="ident">asString</span>, <span class="ident">val</span>.<span class="number">1</span>))
+    <span class="kw">unsafe fn </span>get_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span>val = <span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(to_rust_str(val.<span class="number">0</span>.asString, val.<span class="number">1</span>))
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_binary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_data_buffer</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts</span>(<span class="ident">val</span>.<span class="number">0</span>.<span class="ident">asRaw</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span>, <span class="ident">val</span>.<span class="number">1</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_vec</span>())
-    }
-}
-
-<span class="doccomment">/// A trait to get and set OCI attributes as rust types. You have no need to use this except implementing [`OciAttr`] for your type.</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">DataType</span> {
-    <span class="kw">type</span> <span class="ident">Type</span>: <span class="ident">ToOwned</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Type</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Type</span> <span class="kw">as</span> <span class="ident">ToOwned</span><span class="op">&gt;</span><span class="ident">::Owned</span><span class="op">&gt;</span>;
-}
-
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">u8</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">u8</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_ub1</span>(<span class="kw-2">*</span><span class="ident">val</span>)
-    }
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_ub1</span>()
+    <span class="kw">unsafe fn </span>get_binary(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span>val = <span class="self">self</span>.get_data_buffer()<span class="question-mark">?</span>;
+        <span class="kw">let </span>s = slice::from_raw_parts(val.<span class="number">0</span>.asRaw <span class="kw">as </span><span class="kw-2">*const </span>u8, val.<span class="number">1</span>.try_into()<span class="question-mark">?</span>);
+        <span class="prelude-val">Ok</span>(s.to_vec())
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">u16</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">u16</span>;
+<span class="doccomment">/// A trait to get and set OCI attributes as rust types. You have no need to use this except implementing [`OciAttr`] for your type.
+</span><span class="kw">pub unsafe trait </span>DataType {
+    <span class="kw">type </span>Type: ToOwned + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_ub2</span>(<span class="kw-2">*</span><span class="ident">val</span>)
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span><span class="self">Self</span>::Type) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Type <span class="kw">as </span>ToOwned&gt;::Owned&gt;;
+}
+
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>u8 {
+    <span class="kw">type </span>Type = u8;
+
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>u8) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_ub1(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_ub2</span>()
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;u8&gt; {
+        attr.get_ub1()
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">u32</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">u32</span>;
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>u16 {
+    <span class="kw">type </span>Type = u16;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_ub4</span>(<span class="kw-2">*</span><span class="ident">val</span>)
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>u16) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_ub2(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_ub4</span>()
-    }
-}
-
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">u64</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">u64</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_ub8</span>(<span class="kw-2">*</span><span class="ident">val</span>)
-    }
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_ub8</span>()
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;u16&gt; {
+        attr.get_ub2()
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">bool</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">bool</span>;
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>u32 {
+    <span class="kw">type </span>Type = u32;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_bool</span>(<span class="kw-2">*</span><span class="ident">val</span>)
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_ub4(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_bool</span>()
-    }
-}
-
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_pointer</span>(<span class="kw-2">*</span><span class="ident">val</span>)
-    }
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_pointer</span>()
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        attr.get_ub4()
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">str</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">str</span>;
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>u64 {
+    <span class="kw">type </span>Type = u64;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_string</span>(<span class="ident">val</span>)
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_ub8(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_string</span>()
-    }
-}
-
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> [<span class="ident">u8</span>] {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> [<span class="ident">u8</span>];
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">set_binary</span>(<span class="ident">val</span>)
-    }
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">attr</span>.<span class="ident">get_binary</span>()
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
+        attr.get_ub8()
     }
 }
 
-<span class="doccomment">/// A type to get and set u64 microsecond attribute values as [`Duration`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a data type for [`CallTime`](super::CallTime`).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationUsecU64</span> {
-    <span class="ident">_unused</span>: [<span class="ident">usize</span>; <span class="number">0</span>],
-}
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>bool {
+    <span class="kw">type </span>Type = bool;
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">DurationUsecU64</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">Duration</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">_attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">_val</span>: <span class="kw-2">&amp;</span><span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// OCI_ATTR_CALL_TIME is read-only attribute.</span>
-        <span class="comment">// No need to implement `set`.</span>
-        <span class="comment">//</span>
-        <span class="comment">// Here is an example when `set` is required to be implemented.</span>
-        <span class="comment">//</span>
-        <span class="comment">//     let usecs = val.as_micros().try_into()?;</span>
-        <span class="comment">//     if usecs == 0 &amp;&amp; !val.is_zero() {</span>
-        <span class="comment">//         return Err(Error::OutOfRange(format!(&quot;too short duration: {:?}&quot;, val)));</span>
-        <span class="comment">//     }</span>
-        <span class="comment">//     attr.set::&lt;u64&gt;(&amp;usecs) // set microseconds as u64</span>
-        <span class="macro">unimplemented!</span>()
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_bool(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">attr</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_micros</span>(<span class="ident">val</span>))
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        attr.get_bool()
     }
 }
 
-<span class="doccomment">/// A type corresponding to the `init.ora` parameter [`MAX_STRING_SIZE`]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a data type for [`CallTime`](super::VarTypeMaxLenCompat`).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`MAX_STRING_SIZE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-D424D23B-0933-425F-BC69-9C0E6724693C</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MaxStringSize</span> {
-    <span class="doccomment">/// The maximum size is 4000 bytes for `VARCHAR2` and `NVARCHAR`, 2000 bytes for `RAW`.</span>
-    <span class="ident">Standard</span>,
-    <span class="doccomment">/// The maximum size is 32767 bytes for `VARCHAR2`, `NVARCHAR` and `RAW`.</span>
-    <span class="ident">Extended</span>,
-}
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span><span class="kw-2">*mut </span>c_void {
+    <span class="kw">type </span>Type = <span class="kw-2">*mut </span>c_void;
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">DataType</span> <span class="kw">for</span> <span class="ident">MaxStringSize</span> {
-    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">MaxStringSize</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">_attr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AttrValue</span>, <span class="ident">_val</span>: <span class="kw-2">&amp;</span><span class="ident">MaxStringSize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// OCI_ATTR_VARTYPE_MAXLEN_COMPAT is read-only attribute.</span>
-        <span class="comment">// No need to implement `set`.</span>
-        <span class="macro">unimplemented!</span>()
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;*mut </span>c_void) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_pointer(<span class="kw-2">*</span>val)
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">attr</span>: <span class="ident">AttrValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MaxStringSize</span><span class="op">&gt;</span> {
-        <span class="comment">// Constants defined in `oci.h` included in Oracle Instant Client SDK</span>
-        <span class="kw">const</span> <span class="ident">OCI_ATTR_MAXLEN_COMPAT_STANDARD</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">const</span> <span class="ident">OCI_ATTR_MAXLEN_COMPAT_EXTENDED</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>c_void&gt; {
+        attr.get_pointer()
+    }
+}
 
-        <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>()<span class="question-mark">?</span> {
-            <span class="ident">OCI_ATTR_MAXLEN_COMPAT_STANDARD</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MaxStringSize::Standard</span>),
-            <span class="ident">OCI_ATTR_MAXLEN_COMPAT_EXTENDED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MaxStringSize::Extended</span>),
-            <span class="ident">x</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid MaxStringSize {}&quot;</span>, <span class="ident">x</span>))),
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>str {
+    <span class="kw">type </span>Type = str;
+
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_string(val)
+    }
+
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        attr.get_string()
+    }
+}
+
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>[u8] {
+    <span class="kw">type </span>Type = [u8];
+
+    <span class="kw">unsafe fn </span>set(attr: <span class="kw-2">&amp;mut </span>AttrValue, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        attr.set_binary(val)
+    }
+
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        attr.get_binary()
+    }
+}
+
+<span class="doccomment">/// A type to get and set u64 microsecond attribute values as [`Duration`].
+///
+/// This is a data type for [`CallTime`](super::CallTime`).
+</span><span class="kw">pub struct </span>DurationUsecU64 {
+    _unused: [usize; <span class="number">0</span>],
+}
+
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>DurationUsecU64 {
+    <span class="kw">type </span>Type = Duration;
+
+    <span class="kw">unsafe fn </span>set(_attr: <span class="kw-2">&amp;mut </span>AttrValue, _val: <span class="kw-2">&amp;</span>Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// OCI_ATTR_CALL_TIME is read-only attribute.
+        // No need to implement `set`.
+        //
+        // Here is an example when `set` is required to be implemented.
+        //
+        //     let usecs = val.as_micros().try_into()?;
+        //     if usecs == 0 &amp;&amp; !val.is_zero() {
+        //         return Err(Error::OutOfRange(format!(&quot;too short duration: {:?}&quot;, val)));
+        //     }
+        //     attr.set::&lt;u64&gt;(&amp;usecs) // set microseconds as u64
+        </span><span class="macro">unimplemented!</span>()
+    }
+
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span>val = attr.get::&lt;u64&gt;()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Duration::from_micros(val))
+    }
+}
+
+<span class="doccomment">/// A type corresponding to the `init.ora` parameter [`MAX_STRING_SIZE`]
+///
+/// This is a data type for [`CallTime`](super::VarTypeMaxLenCompat`).
+///
+/// [`MAX_STRING_SIZE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-D424D23B-0933-425F-BC69-9C0E6724693C
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub enum </span>MaxStringSize {
+    <span class="doccomment">/// The maximum size is 4000 bytes for `VARCHAR2` and `NVARCHAR`, 2000 bytes for `RAW`.
+    </span>Standard,
+    <span class="doccomment">/// The maximum size is 32767 bytes for `VARCHAR2`, `NVARCHAR` and `RAW`.
+    </span>Extended,
+}
+
+<span class="kw">unsafe impl </span>DataType <span class="kw">for </span>MaxStringSize {
+    <span class="kw">type </span>Type = MaxStringSize;
+
+    <span class="kw">unsafe fn </span>set(_attr: <span class="kw-2">&amp;mut </span>AttrValue, _val: <span class="kw-2">&amp;</span>MaxStringSize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// OCI_ATTR_VARTYPE_MAXLEN_COMPAT is read-only attribute.
+        // No need to implement `set`.
+        </span><span class="macro">unimplemented!</span>()
+    }
+
+    <span class="kw">unsafe fn </span>get(attr: AttrValue) -&gt; <span class="prelude-ty">Result</span>&lt;MaxStringSize&gt; {
+        <span class="comment">// Constants defined in `oci.h` included in Oracle Instant Client SDK
+        </span><span class="kw">const </span>OCI_ATTR_MAXLEN_COMPAT_STANDARD: u8 = <span class="number">1</span>;
+        <span class="kw">const </span>OCI_ATTR_MAXLEN_COMPAT_EXTENDED: u8 = <span class="number">2</span>;
+
+        <span class="kw">match </span>attr.get::&lt;u8&gt;()<span class="question-mark">? </span>{
+            OCI_ATTR_MAXLEN_COMPAT_STANDARD =&gt; <span class="prelude-val">Ok</span>(MaxStringSize::Standard),
+            OCI_ATTR_MAXLEN_COMPAT_EXTENDED =&gt; <span class="prelude-val">Ok</span>(MaxStringSize::Extended),
+            x =&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(<span class="string">&quot;Invalid MaxStringSize {}&quot;</span>, x))),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/ref_cursor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ref_cursor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/ref_cursor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ref_cursor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -338,341 +333,340 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Conn</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::FromSql</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSqlNull</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::QueryParams</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::Stmt</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ResultSet</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Row</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RowValue</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Statement</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StatementBuilder</span>;
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::FromSql;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSqlNull;
+<span class="kw">use </span><span class="kw">crate</span>::statement::QueryParams;
+<span class="kw">use </span><span class="kw">crate</span>::statement::Stmt;
+<span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span><span class="kw">crate</span>::ResultSet;
+<span class="kw">use </span><span class="kw">crate</span>::Row;
+<span class="kw">use </span><span class="kw">crate</span>::RowValue;
+<span class="kw">use </span><span class="kw">crate</span>::SqlValue;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::Statement;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::StatementBuilder;
 
-<span class="doccomment">/// Result set output by or returned by a PL/SQL block or a stored procedure</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This struct has four query methods, which are similar to [`Statement`]&#39;s query methods</span>
-<span class="doccomment">/// excluding `params` arguments. The latter methods internally execute statements with</span>
-<span class="doccomment">/// specified `params` and then get query results. On the other hand, the former</span>
-<span class="doccomment">/// get query results executed in a PL/SQL block or a stored procedure. So there are no</span>
-<span class="doccomment">/// `params` arguments in this struct.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When settings about queries are set to [`StatementBuilder`], they are</span>
-<span class="doccomment">/// also applied to ref cursors output by a PL/SQL. It is worth to call</span>
-<span class="doccomment">/// [`StatementBuilder::fetch_array_size(1)`][`StatementBuilder::fetch_array_size]</span>
-<span class="doccomment">/// in order to reduce memory usage when a ref cursor contains at most one row.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Ref cursor as an output parameter</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// let sql = r#&quot;</span>
-<span class="doccomment">/// begin</span>
-<span class="doccomment">///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;</span>
-<span class="doccomment">/// end;</span>
-<span class="doccomment">/// &quot;#;</span>
-<span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
-<span class="doccomment">/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut cursor: RefCursor = stmt.bind_value(1)?;</span>
-<span class="doccomment">/// let mut n = 1;</span>
-<span class="doccomment">/// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {</span>
-<span class="doccomment">///     let (int_col, string_col) = row_result?;</span>
-<span class="doccomment">///     assert_eq!(int_col, n);</span>
-<span class="doccomment">///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));</span>
-<span class="doccomment">///     n += 1;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Ref cursor returned by a PL/SQL block</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-<span class="doccomment">/// # use oracle::test_util::{self, check_version, VER12_1};</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {</span>
-<span class="doccomment">/// #     return Ok(()); // skip this test</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// let sql = r#&quot;</span>
-<span class="doccomment">/// declare</span>
-<span class="doccomment">///   cursor1 SYS_REFCURSOR;</span>
-<span class="doccomment">/// begin</span>
-<span class="doccomment">///   open cursor1 for select IntCol, StringCol from TestStrings order by IntCol;</span>
-<span class="doccomment">///   dbms_sql.return_result(cursor1);</span>
-<span class="doccomment">/// end;</span>
-<span class="doccomment">/// &quot;#;</span>
-<span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
-<span class="doccomment">/// stmt.execute(&amp;[])?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get the result set.</span>
-<span class="doccomment">/// let mut opt_cursor = stmt.implicit_result()?;</span>
-<span class="doccomment">/// assert!(opt_cursor.is_some());</span>
-<span class="doccomment">/// let mut cursor = opt_cursor.unwrap();</span>
-<span class="doccomment">/// let mut n = 1;</span>
-<span class="doccomment">/// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {</span>
-<span class="doccomment">///     let (int_col, string_col) = row_result?;</span>
-<span class="doccomment">///     assert_eq!(int_col, n);</span>
-<span class="doccomment">///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));</span>
-<span class="doccomment">///     n += 1;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RefCursor</span> {
-    <span class="ident">stmt</span>: <span class="ident">Stmt</span>,
+<span class="doccomment">/// Result set output by or returned by a PL/SQL block or a stored procedure
+///
+/// This struct has four query methods, which are similar to [`Statement`]&#39;s query methods
+/// excluding `params` arguments. The latter methods internally execute statements with
+/// specified `params` and then get query results. On the other hand, the former
+/// get query results executed in a PL/SQL block or a stored procedure. So there are no
+/// `params` arguments in this struct.
+///
+/// When settings about queries are set to [`StatementBuilder`], they are
+/// also applied to ref cursors output by a PL/SQL. It is worth to call
+/// [`StatementBuilder::fetch_array_size(1)`][`StatementBuilder::fetch_array_size]
+/// in order to reduce memory usage when a ref cursor contains at most one row.
+///
+/// # Examples
+///
+/// Ref cursor as an output parameter
+/// ```
+/// # use oracle::Error;
+/// # use oracle::sql_type::RefCursor;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// let sql = r#&quot;
+/// begin
+///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;
+/// end;
+/// &quot;#;
+/// let mut stmt = conn.statement(sql).build()?;
+/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;
+///
+/// let mut cursor: RefCursor = stmt.bind_value(1)?;
+/// let mut n = 1;
+/// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {
+///     let (int_col, string_col) = row_result?;
+///     assert_eq!(int_col, n);
+///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));
+///     n += 1;
+/// }
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// Ref cursor returned by a PL/SQL block
+/// ```
+/// # use oracle::Error;
+/// # use oracle::sql_type::RefCursor;
+/// # use oracle::test_util::{self, check_version, VER12_1};
+/// # let conn = test_util::connect()?;
+/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {
+/// #     return Ok(()); // skip this test
+/// # }
+/// let sql = r#&quot;
+/// declare
+///   cursor1 SYS_REFCURSOR;
+/// begin
+///   open cursor1 for select IntCol, StringCol from TestStrings order by IntCol;
+///   dbms_sql.return_result(cursor1);
+/// end;
+/// &quot;#;
+/// let mut stmt = conn.statement(sql).build()?;
+/// stmt.execute(&amp;[])?;
+///
+/// // Get the result set.
+/// let mut opt_cursor = stmt.implicit_result()?;
+/// assert!(opt_cursor.is_some());
+/// let mut cursor = opt_cursor.unwrap();
+/// let mut n = 1;
+/// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {
+///     let (int_col, string_col) = row_result?;
+///     assert_eq!(int_col, n);
+///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));
+///     n += 1;
+/// }
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+</span><span class="kw">pub struct </span>RefCursor {
+    stmt: Stmt,
 }
 
-<span class="kw">impl</span> <span class="ident">RefCursor</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_raw</span>(
-        <span class="ident">conn</span>: <span class="ident">Conn</span>,
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>,
-        <span class="ident">query_params</span>: <span class="ident">QueryParams</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RefCursor</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>RefCursor {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(
+        conn: Conn,
+        handle: <span class="kw-2">*mut </span>dpiStmt,
+        query_params: QueryParams,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;RefCursor&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiStmt_setFetchArraySize</span>(<span class="ident">handle</span>, <span class="ident">query_params</span>.<span class="ident">fetch_array_size</span>)
+            conn.ctxt,
+            dpiStmt_setFetchArraySize(handle, query_params.fetch_array_size)
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_query_columns</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_query_columns = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiStmt_getNumQueryColumns</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num_query_columns</span>)
+            conn.ctxt,
+            dpiStmt_getNumQueryColumns(handle, <span class="kw-2">&amp;mut </span>num_query_columns)
         );
-        <span class="macro">chkerr!</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>, <span class="ident">dpiStmt_addRef</span>(<span class="ident">handle</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">Stmt::new</span>(<span class="ident">conn</span>, <span class="ident">handle</span>, <span class="ident">query_params</span>, <span class="string">&quot;&quot;</span>.<span class="ident">into</span>());
-        <span class="ident">stmt</span>.<span class="ident">init_row</span>(<span class="ident">num_query_columns</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">RefCursor</span> { <span class="ident">stmt</span> })
+        <span class="macro">chkerr!</span>(conn.ctxt, dpiStmt_addRef(handle));
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = Stmt::new(conn, handle, query_params, <span class="string">&quot;&quot;</span>.into());
+        stmt.init_row(num_query_columns <span class="kw">as </span>usize)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(RefCursor { stmt })
     }
 
-    <span class="doccomment">/// Gets rows as an iterator of [`Row`]s.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// let sql = r#&quot;</span>
-    <span class="doccomment">/// begin</span>
-    <span class="doccomment">///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;</span>
-    <span class="doccomment">/// end;</span>
-    <span class="doccomment">/// &quot;#;</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
-    <span class="doccomment">/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut cursor: RefCursor = stmt.bind_value(1)?;</span>
-    <span class="doccomment">/// let mut n = 1;</span>
-    <span class="doccomment">/// for row_result in cursor.query()? {</span>
-    <span class="doccomment">///     let row = row_result?;</span>
-    <span class="doccomment">///     let int_col: i32 = row.get(0)?;</span>
-    <span class="doccomment">///     let string_col: String = row.get(1)?;</span>
-    <span class="doccomment">///     assert_eq!(int_col, n);</span>
-    <span class="doccomment">///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));</span>
-    <span class="doccomment">///     n += 1;</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stmt</span>))
+    <span class="doccomment">/// Gets rows as an iterator of [`Row`]s.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::RefCursor;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let sql = r#&quot;
+    /// begin
+    ///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;
+    /// end;
+    /// &quot;#;
+    /// let mut stmt = conn.statement(sql).build()?;
+    /// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;
+    ///
+    /// let mut cursor: RefCursor = stmt.bind_value(1)?;
+    /// let mut n = 1;
+    /// for row_result in cursor.query()? {
+    ///     let row = row_result?;
+    ///     let int_col: i32 = row.get(0)?;
+    ///     let string_col: String = row.get(1)?;
+    ///     assert_eq!(int_col, n);
+    ///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));
+    ///     n += 1;
+    /// }
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>query(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
+        <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
-    <span class="doccomment">/// Gets rows as an itertor of the specified type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// let sql = r#&quot;</span>
-    <span class="doccomment">/// begin</span>
-    <span class="doccomment">///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;</span>
-    <span class="doccomment">/// end;</span>
-    <span class="doccomment">/// &quot;#;</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
-    <span class="doccomment">/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut cursor: RefCursor = stmt.bind_value(1)?;</span>
-    <span class="doccomment">/// let mut n = 1;</span>
-    <span class="doccomment">/// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {</span>
-    <span class="doccomment">///     let (int_col, string_col) = row_result?;</span>
-    <span class="doccomment">///     assert_eq!(int_col, n);</span>
-    <span class="doccomment">///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));</span>
-    <span class="doccomment">///     n += 1;</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">RowValue</span>,
+    <span class="doccomment">/// Gets rows as an itertor of the specified type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::RefCursor;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let sql = r#&quot;
+    /// begin
+    ///   open :cursor for select IntCol, StringCol from TestStrings order by IntCol;
+    /// end;
+    /// &quot;#;
+    /// let mut stmt = conn.statement(sql).build()?;
+    /// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;])?;
+    ///
+    /// let mut cursor: RefCursor = stmt.bind_value(1)?;
+    /// let mut n = 1;
+    /// for row_result in cursor.query_as::&lt;(i32, String)&gt;()? {
+    ///     let (int_col, string_col) = row_result?;
+    ///     assert_eq!(int_col, n);
+    ///     assert_eq!(string_col, format!(&quot;String {}&quot;, n));
+    ///     n += 1;
+    /// }
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>query_as&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;T&gt;&gt;
+    <span class="kw">where
+        </span>T: RowValue,
     {
-        <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stmt</span>))
+        <span class="prelude-val">Ok</span>(ResultSet::&lt;T&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
-    <span class="doccomment">/// Gets one row as [`Row`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// let sql = r#&quot;</span>
-    <span class="doccomment">/// begin</span>
-    <span class="doccomment">///   open :cursor for select StringCol from TestStrings where IntCol = :IntCol;</span>
-    <span class="doccomment">/// end;</span>
-    <span class="doccomment">/// &quot;#;</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(sql).fetch_array_size(1).build()?;</span>
-    <span class="doccomment">/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;, &amp;1])?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut cursor: RefCursor = stmt.bind_value(1)?;</span>
-    <span class="doccomment">/// let string_col: String = cursor.query_row()?.get(0)?;</span>
-    <span class="doccomment">/// assert_eq!(string_col, &quot;String 1&quot;);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">query</span>()<span class="question-mark">?</span>.<span class="ident">next</span>().<span class="ident">unwrap_or</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::NoDataFound</span>))
+    <span class="doccomment">/// Gets one row as [`Row`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::RefCursor;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let sql = r#&quot;
+    /// begin
+    ///   open :cursor for select StringCol from TestStrings where IntCol = :IntCol;
+    /// end;
+    /// &quot;#;
+    /// let mut stmt = conn.statement(sql).fetch_array_size(1).build()?;
+    /// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;, &amp;1])?;
+    ///
+    /// let mut cursor: RefCursor = stmt.bind_value(1)?;
+    /// let string_col: String = cursor.query_row()?.get(0)?;
+    /// assert_eq!(string_col, &quot;String 1&quot;);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>query_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
+        <span class="self">self</span>.query()<span class="question-mark">?</span>.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
     }
 
-    <span class="doccomment">/// Gets one row as the specified type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::sql_type::RefCursor;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// let sql = r#&quot;</span>
-    <span class="doccomment">/// begin</span>
-    <span class="doccomment">///   open :cursor for select StringCol from TestStrings where IntCol = :IntCol;</span>
-    <span class="doccomment">/// end;</span>
-    <span class="doccomment">/// &quot;#;</span>
-    <span class="doccomment">/// let mut stmt = conn.statement(sql).fetch_array_size(1).build()?;</span>
-    <span class="doccomment">/// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;, &amp;1])?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut cursor: RefCursor = stmt.bind_value(1)?;</span>
-    <span class="doccomment">/// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, &quot;String 1&quot;);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_row_as</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">RowValue</span>,
+    <span class="doccomment">/// Gets one row as the specified type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::sql_type::RefCursor;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let sql = r#&quot;
+    /// begin
+    ///   open :cursor for select StringCol from TestStrings where IntCol = :IntCol;
+    /// end;
+    /// &quot;#;
+    /// let mut stmt = conn.statement(sql).fetch_array_size(1).build()?;
+    /// stmt.execute(&amp;[&amp;None::&lt;RefCursor&gt;, &amp;1])?;
+    ///
+    /// let mut cursor: RefCursor = stmt.bind_value(1)?;
+    /// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, &quot;String 1&quot;);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>query_row_as&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+    <span class="kw">where
+        </span>T: RowValue,
     {
-        <span class="self">self</span>.<span class="ident">query_as</span>()<span class="question-mark">?</span>.<span class="ident">next</span>().<span class="ident">unwrap_or</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::NoDataFound</span>))
+        <span class="self">self</span>.query_as()<span class="question-mark">?</span>.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSqlNull</span> <span class="kw">for</span> <span class="ident">RefCursor</span> {
-    <span class="kw">fn</span> <span class="ident">oratype_for_null</span>(<span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::RefCursor</span>)
+<span class="kw">impl </span>ToSqlNull <span class="kw">for </span>RefCursor {
+    <span class="kw">fn </span>oratype_for_null(_conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::RefCursor)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">RefCursor</span> {
-    <span class="kw">fn</span> <span class="ident">oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">OracleType::RefCursor</span>)
+<span class="kw">impl </span>ToSql <span class="kw">for </span>RefCursor {
+    <span class="kw">fn </span>oratype(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="prelude-val">Ok</span>(OracleType::RefCursor)
     }
 
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidOperation</span>(
-            <span class="string">&quot;Cannot bind RefCursor as an IN parameter&quot;</span>.<span class="ident">into</span>(),
+    <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, _val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="prelude-val">Err</span>(Error::InvalidOperation(
+            <span class="string">&quot;Cannot bind RefCursor as an IN parameter&quot;</span>.into(),
         ))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromSql</span> <span class="kw">for</span> <span class="ident">RefCursor</span> {
-    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">SqlValue</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">to_ref_cursor</span>()
+<span class="kw">impl </span>FromSql <span class="kw">for </span>RefCursor {
+    <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        val.to_ref_cursor()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::LobBindType</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::statement::LobBindType;
+    <span class="kw">use </span><span class="kw">crate</span>::test_util;
 
-    <span class="kw">fn</span> <span class="ident">params_from_ref_cursor</span>(<span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="ident">RefCursor</span>) -&gt; (<span class="ident">LobBindType</span>, <span class="ident">QueryParams</span>) {
-        <span class="kw">let</span> <span class="ident">sql_value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">stmt</span>.<span class="ident">row</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">column_values</span>[<span class="number">0</span>];
-        (<span class="ident">sql_value</span>.<span class="ident">lob_bind_type</span>, <span class="ident">sql_value</span>.<span class="ident">query_params</span>.<span class="ident">clone</span>())
+    <span class="kw">fn </span>params_from_ref_cursor(cursor: <span class="kw-2">&amp;</span>RefCursor) -&gt; (LobBindType, QueryParams) {
+        <span class="kw">let </span>sql_value = <span class="kw-2">&amp;</span>cursor.stmt.row.as_ref().unwrap().column_values[<span class="number">0</span>];
+        (sql_value.lob_bind_type, sql_value.query_params.clone())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">out_ref_cursor</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="string">&quot;begin pkg_TestOutCursors.TestOutCursor(:1, :2); end;&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">statement</span>(<span class="ident">sql</span>).<span class="ident">build</span>()<span class="question-mark">?</span>;
-        <span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>::<span class="op">&lt;</span><span class="ident">RefCursor</span><span class="op">&gt;</span>])<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ref_cursor</span>: <span class="ident">RefCursor</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">bind_value</span>(<span class="number">2</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">ref_cursor</span>.<span class="ident">query_row_as</span>::<span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">String</span>)<span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">0</span>, <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">1</span>, <span class="string">&quot;String 1&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>out_ref_cursor() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        <span class="kw">let </span>sql = <span class="string">&quot;begin pkg_TestOutCursors.TestOutCursor(:1, :2); end;&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(sql).build()<span class="question-mark">?</span>;
+        stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>::&lt;RefCursor&gt;])<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ref_cursor: RefCursor = stmt.bind_value(<span class="number">2</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>row = ref_cursor.query_row_as::&lt;(i32, String)&gt;()<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(row.<span class="number">0</span>, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(row.<span class="number">1</span>, <span class="string">&quot;String 1&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">params_from_ref_cursor</span>(<span class="kw-2">&amp;</span><span class="ident">ref_cursor</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">0</span>, <span class="ident">LobBindType::Bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">fetch_array_size</span>, <span class="ident">DPI_DEFAULT_FETCH_ARRAY_SIZE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">prefetch_rows</span>, <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">lob_bind_type</span>, <span class="ident">LobBindType::Bytes</span>);
+        <span class="kw">let </span>params = params_from_ref_cursor(<span class="kw-2">&amp;</span>ref_cursor);
+        <span class="macro">assert_eq!</span>(params.<span class="number">0</span>, LobBindType::Bytes);
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.fetch_array_size, DPI_DEFAULT_FETCH_ARRAY_SIZE);
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.prefetch_rows, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.lob_bind_type, LobBindType::Bytes);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">out_ref_cursor_with_statement_builder_options</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="string">&quot;begin pkg_TestOutCursors.TestOutCursor(:1, :2); end;&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>
-            .<span class="ident">statement</span>(<span class="ident">sql</span>)
-            .<span class="ident">fetch_array_size</span>(<span class="number">2</span>)
-            .<span class="ident">prefetch_rows</span>(<span class="number">3</span>)
-            .<span class="ident">lob_locator</span>()
-            .<span class="ident">build</span>()<span class="question-mark">?</span>;
-        <span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>::<span class="op">&lt;</span><span class="ident">RefCursor</span><span class="op">&gt;</span>])<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ref_cursor</span>: <span class="ident">RefCursor</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">bind_value</span>(<span class="number">2</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">ref_cursor</span>.<span class="ident">query_row_as</span>::<span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">String</span>)<span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">0</span>, <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">1</span>, <span class="string">&quot;String 1&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>out_ref_cursor_with_statement_builder_options() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        <span class="kw">let </span>sql = <span class="string">&quot;begin pkg_TestOutCursors.TestOutCursor(:1, :2); end;&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn
+            .statement(sql)
+            .fetch_array_size(<span class="number">2</span>)
+            .prefetch_rows(<span class="number">3</span>)
+            .lob_locator()
+            .build()<span class="question-mark">?</span>;
+        stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>::&lt;RefCursor&gt;])<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ref_cursor: RefCursor = stmt.bind_value(<span class="number">2</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>row = ref_cursor.query_row_as::&lt;(i32, String)&gt;()<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(row.<span class="number">0</span>, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(row.<span class="number">1</span>, <span class="string">&quot;String 1&quot;</span>);
 
-        <span class="comment">// Options specified by StatementBuilder propagates to ref cursors.</span>
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">params_from_ref_cursor</span>(<span class="kw-2">&amp;</span><span class="ident">ref_cursor</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">0</span>, <span class="ident">LobBindType::Locator</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">fetch_array_size</span>, <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">prefetch_rows</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="number">1</span>.<span class="ident">lob_bind_type</span>, <span class="ident">LobBindType::Locator</span>);
+        <span class="comment">// Options specified by StatementBuilder propagates to ref cursors.
+        </span><span class="kw">let </span>params = params_from_ref_cursor(<span class="kw-2">&amp;</span>ref_cursor);
+        <span class="macro">assert_eq!</span>(params.<span class="number">0</span>, LobBindType::Locator);
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.fetch_array_size, <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.prefetch_rows, <span class="prelude-val">Some</span>(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(params.<span class="number">1</span>.lob_bind_type, LobBindType::Locator);
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

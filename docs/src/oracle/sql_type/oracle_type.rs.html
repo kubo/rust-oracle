@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/oracle_type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>oracle_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/oracle_type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>oracle_type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -399,402 +394,401 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
+</span><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::ptr;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Conn</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiObjectType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectType;
+<span class="kw">use </span><span class="kw">crate</span>::DpiObjectType;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
 
-<span class="comment">// NativeType corresponds to dpiNativeTypeNum in ODPI</span>
-<span class="comment">// except Char, Number, Raw, CLOB and BLOB.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NativeType</span> {
-    <span class="ident">Int64</span>,      <span class="comment">// i64 in rust</span>
-    <span class="ident">UInt64</span>,     <span class="comment">// u64 in rust</span>
-    <span class="ident">Float</span>,      <span class="comment">// f32 in rust</span>
-    <span class="ident">Double</span>,     <span class="comment">// f64 in rust</span>
-    <span class="ident">Char</span>,       <span class="comment">// String or `str in rust</span>
-    <span class="ident">Number</span>,     <span class="comment">// string represention of Oracle number</span>
-    <span class="ident">Raw</span>,        <span class="comment">// Vec&lt;u8&gt; in rust</span>
-    <span class="ident">Timestamp</span>,  <span class="comment">// oracle::Timestamp in rust</span>
-    <span class="ident">IntervalDS</span>, <span class="comment">// oracle::IntervalDS in rust</span>
-    <span class="ident">IntervalYM</span>, <span class="comment">// oracle::IntervalYM in rust</span>
-    <span class="ident">Clob</span>,
-    <span class="ident">Blob</span>,
-    <span class="ident">Object</span>(<span class="ident">ObjectType</span>),
-    <span class="ident">Stmt</span>,
-    <span class="ident">Boolean</span>, <span class="comment">// bool in rust</span>
-    <span class="ident">Rowid</span>,
+<span class="comment">// NativeType corresponds to dpiNativeTypeNum in ODPI
+// except Char, Number, Raw, CLOB and BLOB.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>NativeType {
+    Int64,      <span class="comment">// i64 in rust
+    </span>UInt64,     <span class="comment">// u64 in rust
+    </span>Float,      <span class="comment">// f32 in rust
+    </span>Double,     <span class="comment">// f64 in rust
+    </span>Char,       <span class="comment">// String or `str in rust
+    </span>Number,     <span class="comment">// string represention of Oracle number
+    </span>Raw,        <span class="comment">// Vec&lt;u8&gt; in rust
+    </span>Timestamp,  <span class="comment">// oracle::Timestamp in rust
+    </span>IntervalDS, <span class="comment">// oracle::IntervalDS in rust
+    </span>IntervalYM, <span class="comment">// oracle::IntervalYM in rust
+    </span>Clob,
+    Blob,
+    Object(ObjectType),
+    Stmt,
+    Boolean, <span class="comment">// bool in rust
+    </span>Rowid,
 }
 
-<span class="kw">impl</span> <span class="ident">NativeType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_native_type_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiNativeTypeNum</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">NativeType::Int64</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_INT64</span>,
-            <span class="ident">NativeType::UInt64</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_UINT64</span>,
-            <span class="ident">NativeType::Float</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_FLOAT</span>,
-            <span class="ident">NativeType::Double</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_DOUBLE</span>,
-            <span class="ident">NativeType::Char</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_BYTES</span>,
-            <span class="ident">NativeType::Number</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_BYTES</span>,
-            <span class="ident">NativeType::Raw</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_BYTES</span>,
-            <span class="ident">NativeType::Timestamp</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_TIMESTAMP</span>,
-            <span class="ident">NativeType::IntervalDS</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_INTERVAL_DS</span>,
-            <span class="ident">NativeType::IntervalYM</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_INTERVAL_YM</span>,
-            <span class="ident">NativeType::Clob</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_LOB</span>,
-            <span class="ident">NativeType::Blob</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_LOB</span>,
-            <span class="ident">NativeType::Object</span>(<span class="kw">_</span>) =&gt; <span class="ident">DPI_NATIVE_TYPE_OBJECT</span>,
-            <span class="ident">NativeType::Stmt</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_STMT</span>,
-            <span class="ident">NativeType::Boolean</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_BOOLEAN</span>,
-            <span class="ident">NativeType::Rowid</span> =&gt; <span class="ident">DPI_NATIVE_TYPE_ROWID</span>,
+<span class="kw">impl </span>NativeType {
+    <span class="kw">pub fn </span>to_native_type_num(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiNativeTypeNum {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            NativeType::Int64 =&gt; DPI_NATIVE_TYPE_INT64,
+            NativeType::UInt64 =&gt; DPI_NATIVE_TYPE_UINT64,
+            NativeType::Float =&gt; DPI_NATIVE_TYPE_FLOAT,
+            NativeType::Double =&gt; DPI_NATIVE_TYPE_DOUBLE,
+            NativeType::Char =&gt; DPI_NATIVE_TYPE_BYTES,
+            NativeType::Number =&gt; DPI_NATIVE_TYPE_BYTES,
+            NativeType::Raw =&gt; DPI_NATIVE_TYPE_BYTES,
+            NativeType::Timestamp =&gt; DPI_NATIVE_TYPE_TIMESTAMP,
+            NativeType::IntervalDS =&gt; DPI_NATIVE_TYPE_INTERVAL_DS,
+            NativeType::IntervalYM =&gt; DPI_NATIVE_TYPE_INTERVAL_YM,
+            NativeType::Clob =&gt; DPI_NATIVE_TYPE_LOB,
+            NativeType::Blob =&gt; DPI_NATIVE_TYPE_LOB,
+            NativeType::Object(<span class="kw">_</span>) =&gt; DPI_NATIVE_TYPE_OBJECT,
+            NativeType::Stmt =&gt; DPI_NATIVE_TYPE_STMT,
+            NativeType::Boolean =&gt; DPI_NATIVE_TYPE_BOOLEAN,
+            NativeType::Rowid =&gt; DPI_NATIVE_TYPE_ROWID,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_object_type_handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">dpiObjectType</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">NativeType::Object</span>(<span class="kw-2">ref</span> <span class="ident">objtype</span>) =&gt; <span class="ident">objtype</span>.<span class="ident">handle</span>().<span class="ident">raw</span>(),
-            <span class="kw">_</span> =&gt; <span class="ident">ptr::null_mut</span>(),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_object_type_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiObjectType {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            NativeType::Object(<span class="kw-2">ref </span>objtype) =&gt; objtype.handle().raw(),
+            <span class="kw">_ </span>=&gt; ptr::null_mut(),
         }
     }
 }
 
-<span class="doccomment">/// Oracle data type</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OracleType</span> {
-    <span class="doccomment">/// VARCHAR2(size)</span>
-    <span class="ident">Varchar2</span>(<span class="ident">u32</span>),
+<span class="doccomment">/// Oracle data type
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>OracleType {
+    <span class="doccomment">/// VARCHAR2(size)
+    </span>Varchar2(u32),
 
-    <span class="doccomment">/// NVARCHAR2(size)</span>
-    <span class="ident">NVarchar2</span>(<span class="ident">u32</span>),
+    <span class="doccomment">/// NVARCHAR2(size)
+    </span>NVarchar2(u32),
 
-    <span class="doccomment">/// CHAR(size)</span>
-    <span class="ident">Char</span>(<span class="ident">u32</span>),
+    <span class="doccomment">/// CHAR(size)
+    </span>Char(u32),
 
-    <span class="doccomment">/// NCHAR(size)</span>
-    <span class="ident">NChar</span>(<span class="ident">u32</span>),
+    <span class="doccomment">/// NCHAR(size)
+    </span>NChar(u32),
 
-    <span class="doccomment">/// ROWID</span>
-    <span class="ident">Rowid</span>,
+    <span class="doccomment">/// ROWID
+    </span>Rowid,
 
-    <span class="doccomment">/// RAW(size)</span>
-    <span class="ident">Raw</span>(<span class="ident">u32</span>),
+    <span class="doccomment">/// RAW(size)
+    </span>Raw(u32),
 
-    <span class="doccomment">/// BINARY_FLOAT</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// IEEE 754 single-precision (32-bit) floating-point number</span>
-    <span class="ident">BinaryFloat</span>,
+    <span class="doccomment">/// BINARY_FLOAT
+    ///
+    /// IEEE 754 single-precision (32-bit) floating-point number
+    </span>BinaryFloat,
 
-    <span class="doccomment">/// BINARY_DOUBLE</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// IEEE 754 double-precision (64-bit) floating-point number</span>
-    <span class="ident">BinaryDouble</span>,
+    <span class="doccomment">/// BINARY_DOUBLE
+    ///
+    /// IEEE 754 double-precision (64-bit) floating-point number
+    </span>BinaryDouble,
 
-    <span class="doccomment">/// NUMBER(precision, scale)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `precision` is between 0 and 38. When it is 0, its actual precision is</span>
-    <span class="doccomment">/// 38 and `(precision, scale)` is omitted in text represention.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `scale` is between -87 and 127. When it is 0, this is represented</span>
-    <span class="doccomment">/// as `NUMBER(precision)` in text.</span>
-    <span class="ident">Number</span>(<span class="ident">u8</span>, <span class="ident">i8</span>),
+    <span class="doccomment">/// NUMBER(precision, scale)
+    ///
+    /// `precision` is between 0 and 38. When it is 0, its actual precision is
+    /// 38 and `(precision, scale)` is omitted in text represention.
+    ///
+    /// `scale` is between -87 and 127. When it is 0, this is represented
+    /// as `NUMBER(precision)` in text.
+    </span>Number(u8, i8),
 
-    <span class="doccomment">/// FLOAT(precision)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a subtype of NUMBER. The internal format is same with NUMBER,</span>
-    <span class="doccomment">/// which means that numbers are stored as decimal not as binary.</span>
-    <span class="doccomment">/// Use BINARY_DOUBLE or BINARY_FLOAT to store f64 or f32 rust types.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `precision` is between 0 and 126. When it is 126, `(precision)` is</span>
-    <span class="doccomment">/// omitted in text represention.</span>
-    <span class="ident">Float</span>(<span class="ident">u8</span>),
+    <span class="doccomment">/// FLOAT(precision)
+    ///
+    /// This is a subtype of NUMBER. The internal format is same with NUMBER,
+    /// which means that numbers are stored as decimal not as binary.
+    /// Use BINARY_DOUBLE or BINARY_FLOAT to store f64 or f32 rust types.
+    ///
+    /// `precision` is between 0 and 126. When it is 126, `(precision)` is
+    /// omitted in text represention.
+    </span>Float(u8),
 
-    <span class="doccomment">/// DATE data type</span>
-    <span class="ident">Date</span>,
+    <span class="doccomment">/// DATE data type
+    </span>Date,
 
-    <span class="doccomment">/// TIMESTAMP(fsprec)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Timestamp data type without time zone.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `fsprec` is fractional seconds precision between 0 and 9. When it is</span>
-    <span class="doccomment">/// 6, `(fsprec)` is omitted in text represention.</span>
-    <span class="ident">Timestamp</span>(<span class="ident">u8</span>),
+    <span class="doccomment">/// TIMESTAMP(fsprec)
+    ///
+    /// Timestamp data type without time zone.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    </span>Timestamp(u8),
 
-    <span class="doccomment">/// TIMESTAMP(fsprec) WITH TIME ZONE</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Timestamp data type with time zone.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `fsprec` is fractional seconds precision between 0 and 9. When it is</span>
-    <span class="doccomment">/// 6, `(fsprec)` is omitted in text represention.</span>
-    <span class="ident">TimestampTZ</span>(<span class="ident">u8</span>),
+    <span class="doccomment">/// TIMESTAMP(fsprec) WITH TIME ZONE
+    ///
+    /// Timestamp data type with time zone.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    </span>TimestampTZ(u8),
 
-    <span class="doccomment">/// TIMESTAMP(fsprec) WITH LOCAL TIME ZONE</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Timestamp data type in local session time zone. Clients in different</span>
-    <span class="doccomment">/// session time zones retrieves different timestamp.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `fsprec` is fractional seconds precision between 0 and 9. When it is</span>
-    <span class="doccomment">/// 6, `(fsprec)` is omitted in text represention.</span>
-    <span class="ident">TimestampLTZ</span>(<span class="ident">u8</span>),
+    <span class="doccomment">/// TIMESTAMP(fsprec) WITH LOCAL TIME ZONE
+    ///
+    /// Timestamp data type in local session time zone. Clients in different
+    /// session time zones retrieves different timestamp.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    </span>TimestampLTZ(u8),
 
-    <span class="doccomment">/// INTERVAL DAY(lfprec) TO SECOND(fsprec)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `lfprec` is leading field precision between 0 and 9. When it is 2,</span>
-    <span class="doccomment">/// `(lfprec)` is omitted in text represention.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `fsprec` is fractional seconds precision between 0 and 9. When it is</span>
-    <span class="doccomment">/// 6, `(fsprec)` is omitted in text represention.</span>
-    <span class="ident">IntervalDS</span>(<span class="ident">u8</span>, <span class="ident">u8</span>),
+    <span class="doccomment">/// INTERVAL DAY(lfprec) TO SECOND(fsprec)
+    ///
+    /// `lfprec` is leading field precision between 0 and 9. When it is 2,
+    /// `(lfprec)` is omitted in text represention.
+    ///
+    /// `fsprec` is fractional seconds precision between 0 and 9. When it is
+    /// 6, `(fsprec)` is omitted in text represention.
+    </span>IntervalDS(u8, u8),
 
-    <span class="doccomment">/// INTERVAL YEAR(lfprec) TO MONTH</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `lfprec` is leading field precision between 0 and 9. When it is 2,</span>
-    <span class="doccomment">/// `(lfprec)` is omitted in text represention.</span>
-    <span class="ident">IntervalYM</span>(<span class="ident">u8</span>),
+    <span class="doccomment">/// INTERVAL YEAR(lfprec) TO MONTH
+    ///
+    /// `lfprec` is leading field precision between 0 and 9. When it is 2,
+    /// `(lfprec)` is omitted in text represention.
+    </span>IntervalYM(u8),
 
-    <span class="doccomment">/// CLOB</span>
-    <span class="ident">CLOB</span>,
+    <span class="doccomment">/// CLOB
+    </span>CLOB,
 
-    <span class="doccomment">/// NCLOB</span>
-    <span class="ident">NCLOB</span>,
+    <span class="doccomment">/// NCLOB
+    </span>NCLOB,
 
-    <span class="doccomment">/// BLOB</span>
-    <span class="ident">BLOB</span>,
+    <span class="doccomment">/// BLOB
+    </span>BLOB,
 
-    <span class="doccomment">/// BFILE</span>
-    <span class="ident">BFILE</span>,
+    <span class="doccomment">/// BFILE
+    </span>BFILE,
 
-    <span class="doccomment">/// REF CURSOR (not supported)</span>
-    <span class="ident">RefCursor</span>,
+    <span class="doccomment">/// REF CURSOR (not supported)
+    </span>RefCursor,
 
-    <span class="doccomment">/// BOOLEAN (not supported)</span>
-    <span class="ident">Boolean</span>,
+    <span class="doccomment">/// BOOLEAN (not supported)
+    </span>Boolean,
 
-    <span class="doccomment">/// Object</span>
-    <span class="ident">Object</span>(<span class="ident">ObjectType</span>),
+    <span class="doccomment">/// Object
+    </span>Object(ObjectType),
 
-    <span class="doccomment">/// LONG</span>
-    <span class="ident">Long</span>,
+    <span class="doccomment">/// LONG
+    </span>Long,
 
-    <span class="doccomment">/// LONG RAW</span>
-    <span class="ident">LongRaw</span>,
+    <span class="doccomment">/// LONG RAW
+    </span>LongRaw,
 
-    <span class="doccomment">/// JSON data type introduced in Oracle 21c</span>
-    <span class="ident">Json</span>,
+    <span class="doccomment">/// JSON data type introduced in Oracle 21c
+    </span>Json,
 
-    <span class="doccomment">/// Integer type in Oracle object type attributes. This will be renamed to Integer in future.</span>
-    <span class="ident">Int64</span>,
+    <span class="doccomment">/// Integer type in Oracle object type attributes. This will be renamed to Integer in future.
+    </span>Int64,
 
-    <span class="doccomment">/// Not an Oracle type, used only internally to bind/define values as u64</span>
-    <span class="ident">UInt64</span>,
+    <span class="doccomment">/// Not an Oracle type, used only internally to bind/define values as u64
+    </span>UInt64,
 }
 
-<span class="kw">impl</span> <span class="ident">OracleType</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_type_info</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Conn</span>, <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">dpiDataTypeInfo</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">oracleTypeNum</span> {
-            <span class="ident">DPI_ORACLE_TYPE_VARCHAR</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">info</span>.<span class="ident">dbSizeInBytes</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_NVARCHAR</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">info</span>.<span class="ident">sizeInChars</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_CHAR</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Char</span>(<span class="ident">info</span>.<span class="ident">dbSizeInBytes</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_NCHAR</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">info</span>.<span class="ident">sizeInChars</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_ROWID</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Rowid</span>),
-            <span class="ident">DPI_ORACLE_TYPE_RAW</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">info</span>.<span class="ident">dbSizeInBytes</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_NATIVE_FLOAT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BinaryFloat</span>),
-            <span class="ident">DPI_ORACLE_TYPE_NATIVE_DOUBLE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BinaryDouble</span>),
-            <span class="ident">DPI_ORACLE_TYPE_NATIVE_INT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Int64</span>),
-            <span class="ident">DPI_ORACLE_TYPE_NUMBER</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">precision</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">info</span>.<span class="ident">scale</span> <span class="op">==</span> <span class="op">-</span><span class="number">127</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Float</span>(<span class="ident">info</span>.<span class="ident">precision</span> <span class="kw">as</span> <span class="ident">u8</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Number</span>(<span class="ident">info</span>.<span class="ident">precision</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">info</span>.<span class="ident">scale</span>))
+<span class="kw">impl </span>OracleType {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_type_info(conn: <span class="kw-2">&amp;</span>Conn, info: <span class="kw-2">&amp;</span>dpiDataTypeInfo) -&gt; <span class="prelude-ty">Result</span>&lt;OracleType&gt; {
+        <span class="kw">match </span>info.oracleTypeNum {
+            DPI_ORACLE_TYPE_VARCHAR =&gt; <span class="prelude-val">Ok</span>(OracleType::Varchar2(info.dbSizeInBytes)),
+            DPI_ORACLE_TYPE_NVARCHAR =&gt; <span class="prelude-val">Ok</span>(OracleType::NVarchar2(info.sizeInChars)),
+            DPI_ORACLE_TYPE_CHAR =&gt; <span class="prelude-val">Ok</span>(OracleType::Char(info.dbSizeInBytes)),
+            DPI_ORACLE_TYPE_NCHAR =&gt; <span class="prelude-val">Ok</span>(OracleType::NChar(info.sizeInChars)),
+            DPI_ORACLE_TYPE_ROWID =&gt; <span class="prelude-val">Ok</span>(OracleType::Rowid),
+            DPI_ORACLE_TYPE_RAW =&gt; <span class="prelude-val">Ok</span>(OracleType::Raw(info.dbSizeInBytes)),
+            DPI_ORACLE_TYPE_NATIVE_FLOAT =&gt; <span class="prelude-val">Ok</span>(OracleType::BinaryFloat),
+            DPI_ORACLE_TYPE_NATIVE_DOUBLE =&gt; <span class="prelude-val">Ok</span>(OracleType::BinaryDouble),
+            DPI_ORACLE_TYPE_NATIVE_INT =&gt; <span class="prelude-val">Ok</span>(OracleType::Int64),
+            DPI_ORACLE_TYPE_NUMBER =&gt; {
+                <span class="kw">if </span>info.precision != <span class="number">0 </span>&amp;&amp; info.scale == -<span class="number">127 </span>{
+                    <span class="prelude-val">Ok</span>(OracleType::Float(info.precision <span class="kw">as </span>u8))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Ok</span>(OracleType::Number(info.precision <span class="kw">as </span>u8, info.scale))
                 }
             }
-            <span class="ident">DPI_ORACLE_TYPE_DATE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Date</span>),
-            <span class="ident">DPI_ORACLE_TYPE_TIMESTAMP</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Timestamp</span>(<span class="ident">info</span>.<span class="ident">fsPrecision</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_TIMESTAMP_TZ</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::TimestampTZ</span>(<span class="ident">info</span>.<span class="ident">fsPrecision</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_TIMESTAMP_LTZ</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::TimestampLTZ</span>(<span class="ident">info</span>.<span class="ident">fsPrecision</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_INTERVAL_DS</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::IntervalDS</span>(
-                <span class="ident">info</span>.<span class="ident">precision</span> <span class="kw">as</span> <span class="ident">u8</span>,
-                <span class="ident">info</span>.<span class="ident">fsPrecision</span>,
+            DPI_ORACLE_TYPE_DATE =&gt; <span class="prelude-val">Ok</span>(OracleType::Date),
+            DPI_ORACLE_TYPE_TIMESTAMP =&gt; <span class="prelude-val">Ok</span>(OracleType::Timestamp(info.fsPrecision)),
+            DPI_ORACLE_TYPE_TIMESTAMP_TZ =&gt; <span class="prelude-val">Ok</span>(OracleType::TimestampTZ(info.fsPrecision)),
+            DPI_ORACLE_TYPE_TIMESTAMP_LTZ =&gt; <span class="prelude-val">Ok</span>(OracleType::TimestampLTZ(info.fsPrecision)),
+            DPI_ORACLE_TYPE_INTERVAL_DS =&gt; <span class="prelude-val">Ok</span>(OracleType::IntervalDS(
+                info.precision <span class="kw">as </span>u8,
+                info.fsPrecision,
             )),
-            <span class="ident">DPI_ORACLE_TYPE_INTERVAL_YM</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::IntervalYM</span>(<span class="ident">info</span>.<span class="ident">precision</span> <span class="kw">as</span> <span class="ident">u8</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_CLOB</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::CLOB</span>),
-            <span class="ident">DPI_ORACLE_TYPE_NCLOB</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::NCLOB</span>),
-            <span class="ident">DPI_ORACLE_TYPE_BLOB</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BLOB</span>),
-            <span class="ident">DPI_ORACLE_TYPE_BFILE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::BFILE</span>),
-            <span class="ident">DPI_ORACLE_TYPE_STMT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::RefCursor</span>),
-            <span class="ident">DPI_ORACLE_TYPE_BOOLEAN</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Boolean</span>),
-            <span class="ident">DPI_ORACLE_TYPE_OBJECT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Object</span>(<span class="ident">ObjectType::from_dpi_object_type</span>(
-                <span class="ident">conn</span>.<span class="ident">clone</span>(),
-                <span class="ident">DpiObjectType::with_add_ref</span>(<span class="ident">info</span>.<span class="ident">objectType</span>),
+            DPI_ORACLE_TYPE_INTERVAL_YM =&gt; <span class="prelude-val">Ok</span>(OracleType::IntervalYM(info.precision <span class="kw">as </span>u8)),
+            DPI_ORACLE_TYPE_CLOB =&gt; <span class="prelude-val">Ok</span>(OracleType::CLOB),
+            DPI_ORACLE_TYPE_NCLOB =&gt; <span class="prelude-val">Ok</span>(OracleType::NCLOB),
+            DPI_ORACLE_TYPE_BLOB =&gt; <span class="prelude-val">Ok</span>(OracleType::BLOB),
+            DPI_ORACLE_TYPE_BFILE =&gt; <span class="prelude-val">Ok</span>(OracleType::BFILE),
+            DPI_ORACLE_TYPE_STMT =&gt; <span class="prelude-val">Ok</span>(OracleType::RefCursor),
+            DPI_ORACLE_TYPE_BOOLEAN =&gt; <span class="prelude-val">Ok</span>(OracleType::Boolean),
+            DPI_ORACLE_TYPE_OBJECT =&gt; <span class="prelude-val">Ok</span>(OracleType::Object(ObjectType::from_dpi_object_type(
+                conn.clone(),
+                DpiObjectType::with_add_ref(info.objectType),
             )<span class="question-mark">?</span>)),
-            <span class="ident">DPI_ORACLE_TYPE_LONG_VARCHAR</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Long</span>),
-            <span class="ident">DPI_ORACLE_TYPE_LONG_RAW</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::LongRaw</span>),
-            <span class="ident">DPI_ORACLE_TYPE_JSON</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">OracleType::Json</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+            DPI_ORACLE_TYPE_LONG_VARCHAR =&gt; <span class="prelude-val">Ok</span>(OracleType::Long),
+            DPI_ORACLE_TYPE_LONG_RAW =&gt; <span class="prelude-val">Ok</span>(OracleType::LongRaw),
+            DPI_ORACLE_TYPE_JSON =&gt; <span class="prelude-val">Ok</span>(OracleType::Json),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;Unknown oracle type number: {}&quot;</span>,
-                <span class="ident">info</span>.<span class="ident">oracleTypeNum</span>
+                info.oracleTypeNum
             ))),
         }
     }
 
-    <span class="comment">// Returns parameters to create a dpiVar handle.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">var_create_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">NativeType</span>, <span class="ident">u32</span>, <span class="ident">i32</span>)<span class="op">&gt;</span> {
-        <span class="comment">// The followings are basically same with dpiAllOracleTypes[] in</span>
-        <span class="comment">// dpiOracleType.c. If enum OracleType has an attribute corresponding</span>
-        <span class="comment">// to defaultNativeTypeNum of dpiQueryInfo, this mapping is not needed.</span>
-        <span class="comment">// However I don&#39;t want to do it to hide internal information such</span>
-        <span class="comment">// as dpiNativeTypeNum.</span>
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_VARCHAR</span>, <span class="ident">NativeType::Char</span>, <span class="ident">size</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NVARCHAR</span>, <span class="ident">NativeType::Char</span>, <span class="ident">size</span>, <span class="number">0</span>))
+    <span class="comment">// Returns parameters to create a dpiVar handle.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>var_create_param(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, NativeType, u32, i32)&gt; {
+        <span class="comment">// The followings are basically same with dpiAllOracleTypes[] in
+        // dpiOracleType.c. If enum OracleType has an attribute corresponding
+        // to defaultNativeTypeNum of dpiQueryInfo, this mapping is not needed.
+        // However I don&#39;t want to do it to hide internal information such
+        // as dpiNativeTypeNum.
+        </span><span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            OracleType::Varchar2(size) =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_VARCHAR, NativeType::Char, size, <span class="number">0</span>)),
+            OracleType::NVarchar2(size) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NVARCHAR, NativeType::Char, size, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::Char</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_CHAR</span>, <span class="ident">NativeType::Char</span>, <span class="ident">size</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::NChar</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NCHAR</span>, <span class="ident">NativeType::Char</span>, <span class="ident">size</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Rowid</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_ROWID</span>, <span class="ident">NativeType::Rowid</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_RAW</span>, <span class="ident">NativeType::Raw</span>, <span class="ident">size</span>, <span class="number">1</span>)),
-            <span class="ident">OracleType::BinaryFloat</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NATIVE_FLOAT</span>, <span class="ident">NativeType::Float</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::BinaryDouble</span> =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NATIVE_DOUBLE</span>, <span class="ident">NativeType::Double</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::Char(size) =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_CHAR, NativeType::Char, size, <span class="number">0</span>)),
+            OracleType::NChar(size) =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NCHAR, NativeType::Char, size, <span class="number">0</span>)),
+            OracleType::Rowid =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_ROWID, NativeType::Rowid, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::Raw(size) =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_RAW, NativeType::Raw, size, <span class="number">1</span>)),
+            OracleType::BinaryFloat =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NATIVE_FLOAT, NativeType::Float, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::BinaryDouble =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NATIVE_DOUBLE, NativeType::Double, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::Number</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">OracleType::Float</span>(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NUMBER</span>, <span class="ident">NativeType::Number</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::Number(<span class="kw">_</span>, <span class="kw">_</span>) | OracleType::Float(<span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NUMBER, NativeType::Number, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::Date</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_DATE</span>, <span class="ident">NativeType::Timestamp</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Timestamp</span>(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_TIMESTAMP</span>, <span class="ident">NativeType::Timestamp</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::Date =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_DATE, NativeType::Timestamp, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::Timestamp(<span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_TIMESTAMP, NativeType::Timestamp, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::TimestampTZ</span>(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_TIMESTAMP_TZ</span>, <span class="ident">NativeType::Timestamp</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::TimestampTZ(<span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_TIMESTAMP_TZ, NativeType::Timestamp, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::TimestampLTZ</span>(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_TIMESTAMP_LTZ</span>, <span class="ident">NativeType::Timestamp</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::TimestampLTZ(<span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_TIMESTAMP_LTZ, NativeType::Timestamp, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::IntervalDS</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_INTERVAL_DS</span>, <span class="ident">NativeType::IntervalDS</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::IntervalDS(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_INTERVAL_DS, NativeType::IntervalDS, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::IntervalYM</span>(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_INTERVAL_YM</span>, <span class="ident">NativeType::IntervalYM</span>, <span class="number">0</span>, <span class="number">0</span>))
+            OracleType::IntervalYM(<span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_INTERVAL_YM, NativeType::IntervalYM, <span class="number">0</span>, <span class="number">0</span>))
             }
-            <span class="ident">OracleType::CLOB</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_CLOB</span>, <span class="ident">NativeType::Clob</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::NCLOB</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NCLOB</span>, <span class="ident">NativeType::Clob</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::BLOB</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_BLOB</span>, <span class="ident">NativeType::Blob</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::BFILE</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_BFILE</span>, <span class="ident">NativeType::Blob</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::RefCursor</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_STMT</span>, <span class="ident">NativeType::Stmt</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Boolean</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_BOOLEAN</span>, <span class="ident">NativeType::Boolean</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Object</span>(<span class="kw-2">ref</span> <span class="ident">objtype</span>) =&gt; <span class="prelude-val">Ok</span>((
-                <span class="ident">DPI_ORACLE_TYPE_OBJECT</span>,
-                <span class="ident">NativeType::Object</span>(<span class="ident">objtype</span>.<span class="ident">clone</span>()),
+            OracleType::CLOB =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_CLOB, NativeType::Clob, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::NCLOB =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NCLOB, NativeType::Clob, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::BLOB =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_BLOB, NativeType::Blob, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::BFILE =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_BFILE, NativeType::Blob, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::RefCursor =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_STMT, NativeType::Stmt, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::Boolean =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_BOOLEAN, NativeType::Boolean, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::Object(<span class="kw-2">ref </span>objtype) =&gt; <span class="prelude-val">Ok</span>((
+                DPI_ORACLE_TYPE_OBJECT,
+                NativeType::Object(objtype.clone()),
                 <span class="number">0</span>,
                 <span class="number">0</span>,
             )),
-            <span class="ident">OracleType::Long</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_LONG_VARCHAR</span>, <span class="ident">NativeType::Char</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::LongRaw</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_LONG_RAW</span>, <span class="ident">NativeType::Raw</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::Int64</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NATIVE_INT</span>, <span class="ident">NativeType::Int64</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">OracleType::UInt64</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">DPI_ORACLE_TYPE_NATIVE_UINT</span>, <span class="ident">NativeType::UInt64</span>, <span class="number">0</span>, <span class="number">0</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+            OracleType::Long =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::LongRaw =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::Int64 =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, <span class="number">0</span>, <span class="number">0</span>)),
+            OracleType::UInt64 =&gt; <span class="prelude-val">Ok</span>((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, <span class="number">0</span>, <span class="number">0</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;Unsupported Oracle type {}&quot;</span>,
-                <span class="self">self</span>
-            ))),
+                <span class="self">self
+            </span>))),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">OracleType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;VARCHAR2({})&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NVARCHAR2({})&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">OracleType::Char</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;CHAR({})&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">OracleType::NChar</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NCHAR({})&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">OracleType::Rowid</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;ROWID&quot;</span>),
-            <span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;RAW({})&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">OracleType::BinaryFloat</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BINARY_FLOAT&quot;</span>),
-            <span class="ident">OracleType::BinaryDouble</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BINARY_DOUBLE&quot;</span>),
-            <span class="ident">OracleType::Number</span>(<span class="ident">prec</span>, <span class="ident">scale</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">prec</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NUMBER&quot;</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">scale</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NUMBER({})&quot;</span>, <span class="ident">prec</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NUMBER({},{})&quot;</span>, <span class="ident">prec</span>, <span class="ident">scale</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>OracleType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            OracleType::Varchar2(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;VARCHAR2({})&quot;</span>, size),
+            OracleType::NVarchar2(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NVARCHAR2({})&quot;</span>, size),
+            OracleType::Char(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;CHAR({})&quot;</span>, size),
+            OracleType::NChar(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NCHAR({})&quot;</span>, size),
+            OracleType::Rowid =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ROWID&quot;</span>),
+            OracleType::Raw(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;RAW({})&quot;</span>, size),
+            OracleType::BinaryFloat =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BINARY_FLOAT&quot;</span>),
+            OracleType::BinaryDouble =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BINARY_DOUBLE&quot;</span>),
+            OracleType::Number(prec, scale) =&gt; {
+                <span class="kw">if </span>prec == <span class="number">0 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;NUMBER&quot;</span>)
+                } <span class="kw">else if </span>scale == <span class="number">0 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;NUMBER({})&quot;</span>, prec)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;NUMBER({},{})&quot;</span>, prec, scale)
                 }
             }
-            <span class="ident">OracleType::Float</span>(<span class="ident">prec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">prec</span> <span class="op">==</span> <span class="number">126</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;FLOAT&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;FLOAT({})&quot;</span>, <span class="ident">prec</span>)
+            OracleType::Float(prec) =&gt; {
+                <span class="kw">if </span>prec == <span class="number">126 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;FLOAT&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;FLOAT({})&quot;</span>, prec)
                 }
             }
-            <span class="ident">OracleType::Date</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;DATE&quot;</span>),
-            <span class="ident">OracleType::Timestamp</span>(<span class="ident">fsprec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">fsprec</span> <span class="op">==</span> <span class="number">6</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP({})&quot;</span>, <span class="ident">fsprec</span>)
+            OracleType::Date =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;DATE&quot;</span>),
+            OracleType::Timestamp(fsprec) =&gt; {
+                <span class="kw">if </span>fsprec == <span class="number">6 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP({})&quot;</span>, fsprec)
                 }
             }
-            <span class="ident">OracleType::TimestampTZ</span>(<span class="ident">fsprec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">fsprec</span> <span class="op">==</span> <span class="number">6</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP WITH TIME ZONE&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP({}) WITH TIME ZONE&quot;</span>, <span class="ident">fsprec</span>)
+            OracleType::TimestampTZ(fsprec) =&gt; {
+                <span class="kw">if </span>fsprec == <span class="number">6 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP WITH TIME ZONE&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP({}) WITH TIME ZONE&quot;</span>, fsprec)
                 }
             }
-            <span class="ident">OracleType::TimestampLTZ</span>(<span class="ident">fsprec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">fsprec</span> <span class="op">==</span> <span class="number">6</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP WITH LOCAL TIME ZONE&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;TIMESTAMP({}) WITH LOCAL TIME ZONE&quot;</span>, <span class="ident">fsprec</span>)
+            OracleType::TimestampLTZ(fsprec) =&gt; {
+                <span class="kw">if </span>fsprec == <span class="number">6 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP WITH LOCAL TIME ZONE&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;TIMESTAMP({}) WITH LOCAL TIME ZONE&quot;</span>, fsprec)
                 }
             }
-            <span class="ident">OracleType::IntervalDS</span>(<span class="ident">lfprec</span>, <span class="ident">fsprec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">lfprec</span> <span class="op">==</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="ident">fsprec</span> <span class="op">==</span> <span class="number">6</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;INTERVAL DAY TO SECOND&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;INTERVAL DAY({}) TO SECOND({})&quot;</span>, <span class="ident">lfprec</span>, <span class="ident">fsprec</span>)
+            OracleType::IntervalDS(lfprec, fsprec) =&gt; {
+                <span class="kw">if </span>lfprec == <span class="number">2 </span>&amp;&amp; fsprec == <span class="number">6 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;INTERVAL DAY TO SECOND&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;INTERVAL DAY({}) TO SECOND({})&quot;</span>, lfprec, fsprec)
                 }
             }
-            <span class="ident">OracleType::IntervalYM</span>(<span class="ident">lfprec</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">lfprec</span> <span class="op">==</span> <span class="number">2</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;INTERVAL YEAR TO MONTH&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;INTERVAL YEAR({}) TO MONTH&quot;</span>, <span class="ident">lfprec</span>)
+            OracleType::IntervalYM(lfprec) =&gt; {
+                <span class="kw">if </span>lfprec == <span class="number">2 </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;INTERVAL YEAR TO MONTH&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;INTERVAL YEAR({}) TO MONTH&quot;</span>, lfprec)
                 }
             }
-            <span class="ident">OracleType::CLOB</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;CLOB&quot;</span>),
-            <span class="ident">OracleType::NCLOB</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;NCLOB&quot;</span>),
-            <span class="ident">OracleType::BLOB</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BLOB&quot;</span>),
-            <span class="ident">OracleType::BFILE</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BFILE&quot;</span>),
-            <span class="ident">OracleType::RefCursor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;REF CURSOR&quot;</span>),
-            <span class="ident">OracleType::Boolean</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BOOLEAN&quot;</span>),
-            <span class="ident">OracleType::Object</span>(<span class="kw-2">ref</span> <span class="ident">ty</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}.{}&quot;</span>, <span class="ident">ty</span>.<span class="ident">schema</span>(), <span class="ident">ty</span>.<span class="ident">name</span>()),
-            <span class="ident">OracleType::Long</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;LONG&quot;</span>),
-            <span class="ident">OracleType::LongRaw</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;LONG RAW&quot;</span>),
-            <span class="ident">OracleType::Json</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;JSON&quot;</span>),
-            <span class="ident">OracleType::Int64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;INT64 used internally&quot;</span>),
-            <span class="ident">OracleType::UInt64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UINT64 used internally&quot;</span>),
+            OracleType::CLOB =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;CLOB&quot;</span>),
+            OracleType::NCLOB =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NCLOB&quot;</span>),
+            OracleType::BLOB =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BLOB&quot;</span>),
+            OracleType::BFILE =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BFILE&quot;</span>),
+            OracleType::RefCursor =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;REF CURSOR&quot;</span>),
+            OracleType::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BOOLEAN&quot;</span>),
+            OracleType::Object(<span class="kw-2">ref </span>ty) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}.{}&quot;</span>, ty.schema(), ty.name()),
+            OracleType::Long =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;LONG&quot;</span>),
+            OracleType::LongRaw =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;LONG RAW&quot;</span>),
+            OracleType::Json =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;JSON&quot;</span>),
+            OracleType::Int64 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;INT64 used internally&quot;</span>),
+            OracleType::UInt64 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;UINT64 used internally&quot;</span>),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

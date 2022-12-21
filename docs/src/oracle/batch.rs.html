@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -965,968 +960,967 @@
 <span id="960">960</span>
 <span id="961">961</span>
 <span id="962">962</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">// ------------------------------------------------------</span>
-<span class="comment">//</span>
-<span class="comment">// Copyright 2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;</span>
-<span class="comment">//</span>
-<span class="comment">// Redistribution and use in source and binary forms, with or without modification, are</span>
-<span class="comment">// permitted provided that the following conditions are met:</span>
-<span class="comment">//</span>
-<span class="comment">//    1. Redistributions of source code must retain the above copyright notice, this list of</span>
-<span class="comment">//       conditions and the following disclaimer.</span>
-<span class="comment">//</span>
-<span class="comment">//    2. Redistributions in binary form must reproduce the above copyright notice, this list</span>
-<span class="comment">//       of conditions and the following disclaimer in the documentation and/or other materials</span>
-<span class="comment">//       provided with the distribution.</span>
-<span class="comment">//</span>
-<span class="comment">// THIS SOFTWARE IS PROVIDED BY THE AUTHORS &#39;&#39;AS IS&#39;&#39; AND ANY EXPRESS OR IMPLIED</span>
-<span class="comment">// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND</span>
-<span class="comment">// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; OR</span>
-<span class="comment">// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
-<span class="comment">// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR</span>
-<span class="comment">// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON</span>
-<span class="comment">// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING</span>
-<span class="comment">// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF</span>
-<span class="comment">// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-<span class="comment">//</span>
-<span class="comment">// The views and conclusions contained in the software and documentation are those of the</span>
-<span class="comment">// authors and should not be interpreted as representing official policies, either expressed</span>
-<span class="comment">// or implied, of the authors.</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+// ------------------------------------------------------
+//
+// Copyright 2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;
+//
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+//
+//    1. Redistributions of source code must retain the above copyright notice, this list of
+//       conditions and the following disclaimer.
+//
+//    2. Redistributions in binary form must reproduce the above copyright notice, this list
+//       of conditions and the following disclaimer in the documentation and/or other materials
+//       provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHORS &#39;&#39;AS IS&#39;&#39; AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// The views and conclusions contained in the software and documentation are those of the
+// authors and should not be interpreted as representing official policies, either expressed
+// or implied, of the authors.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::dberror_from_dpi_error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::private</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ToSql</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_value::BufferRowIndex</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::QueryParams</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_rust_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SqlValue</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Statement</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StatementType</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::slice</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="kw">use </span><span class="kw">crate</span>::error::dberror_from_dpi_error;
+<span class="kw">use </span><span class="kw">crate</span>::private;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
+<span class="kw">use </span><span class="kw">crate</span>::sql_value::BufferRowIndex;
+<span class="kw">use </span><span class="kw">crate</span>::statement::QueryParams;
+<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
+<span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
+<span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span><span class="kw">crate</span>::SqlValue;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::Statement;
+<span class="kw">use </span><span class="kw">crate</span>::StatementType;
+<span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::slice;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">const</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
-<span class="kw">const</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">64</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">const </span>MINIMUM_TYPE_LENGTH: u32 = <span class="number">1</span>;
+<span class="attribute">#[cfg(not(test))]
+</span><span class="kw">const </span>MINIMUM_TYPE_LENGTH: u32 = <span class="number">64</span>;
 
-<span class="comment">// round up to the nearest power of two</span>
-<span class="kw">fn</span> <span class="ident">po2</span>(<span class="kw-2">mut</span> <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-    <span class="kw">if</span> <span class="ident">size</span> <span class="op">&lt;</span> <span class="ident">MINIMUM_TYPE_LENGTH</span> {
-        <span class="ident">size</span> <span class="op">=</span> <span class="ident">MINIMUM_TYPE_LENGTH</span>;
+<span class="comment">// round up to the nearest power of two
+</span><span class="kw">fn </span>po2(<span class="kw-2">mut </span>size: u32) -&gt; u32 {
+    <span class="kw">if </span>size &lt; MINIMUM_TYPE_LENGTH {
+        size = MINIMUM_TYPE_LENGTH;
     }
-    <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">32</span> <span class="op">-</span> (<span class="ident">size</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">leading_zeros</span>())
+    <span class="number">1u32 </span>&lt;&lt; (<span class="number">32 </span>- (size - <span class="number">1</span>).leading_zeros())
 }
 
-<span class="kw">fn</span> <span class="ident">oratype_size</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">oratype</span> {
-        <span class="kw-2">&amp;</span><span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>)
-        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>)
-        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::Char</span>(<span class="ident">size</span>)
-        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::NChar</span>(<span class="ident">size</span>)
-        <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">size</span>),
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">fn </span>oratype_size(oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+    <span class="kw">match </span>oratype {
+        <span class="kw-2">&amp;</span>OracleType::Varchar2(size)
+        | <span class="kw-2">&amp;</span>OracleType::NVarchar2(size)
+        | <span class="kw-2">&amp;</span>OracleType::Char(size)
+        | <span class="kw-2">&amp;</span>OracleType::NChar(size)
+        | <span class="kw-2">&amp;</span>OracleType::Raw(size) =&gt; <span class="prelude-val">Some</span>(size),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">BindType</span> {
-    <span class="ident">oratype</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OracleType</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">struct </span>BindType {
+    oratype: <span class="prelude-ty">Option</span>&lt;OracleType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">BindType</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="ident">BindType</span> {
-        <span class="ident">BindType</span> {
-            <span class="ident">oratype</span>: <span class="kw">match</span> <span class="ident">oratype</span> {
-                <span class="ident">OracleType::Varchar2</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="kw-2">*</span><span class="ident">size</span>))),
-                <span class="ident">OracleType::NVarchar2</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="kw-2">*</span><span class="ident">size</span>))),
-                <span class="ident">OracleType::Char</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="kw-2">*</span><span class="ident">size</span>))),
-                <span class="ident">OracleType::NChar</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="kw-2">*</span><span class="ident">size</span>))),
-                <span class="ident">OracleType::Raw</span>(<span class="ident">size</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="kw-2">*</span><span class="ident">size</span>))),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>BindType {
+    <span class="kw">fn </span>new(oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; BindType {
+        BindType {
+            oratype: <span class="kw">match </span>oratype {
+                OracleType::Varchar2(size) =&gt; <span class="prelude-val">Some</span>(OracleType::Varchar2(po2(<span class="kw-2">*</span>size))),
+                OracleType::NVarchar2(size) =&gt; <span class="prelude-val">Some</span>(OracleType::NVarchar2(po2(<span class="kw-2">*</span>size))),
+                OracleType::Char(size) =&gt; <span class="prelude-val">Some</span>(OracleType::Char(po2(<span class="kw-2">*</span>size))),
+                OracleType::NChar(size) =&gt; <span class="prelude-val">Some</span>(OracleType::NChar(po2(<span class="kw-2">*</span>size))),
+                OracleType::Raw(size) =&gt; <span class="prelude-val">Some</span>(OracleType::Raw(po2(<span class="kw-2">*</span>size))),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reset_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">u32</span>) {
-        <span class="self">self</span>.<span class="ident">oratype</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">oratype</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Varchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NVarchar2</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Char</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::NChar</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">OracleType::Raw</span>(<span class="ident">po2</span>(<span class="ident">new_size</span>))),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">fn </span>reset_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_size: u32) {
+        <span class="self">self</span>.oratype = <span class="kw">match </span><span class="self">self</span>.oratype {
+            <span class="prelude-val">Some</span>(OracleType::Varchar2(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(OracleType::Varchar2(po2(new_size))),
+            <span class="prelude-val">Some</span>(OracleType::NVarchar2(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(OracleType::NVarchar2(po2(new_size))),
+            <span class="prelude-val">Some</span>(OracleType::Char(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(OracleType::Char(po2(new_size))),
+            <span class="prelude-val">Some</span>(OracleType::NChar(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(OracleType::NChar(po2(new_size))),
+            <span class="prelude-val">Some</span>(OracleType::Raw(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(OracleType::Raw(po2(new_size))),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
     }
 
-    <span class="kw">fn</span> <span class="ident">as_oratype</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">OracleType</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">oratype</span>.<span class="ident">as_ref</span>()
+    <span class="kw">fn </span>as_oratype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>OracleType&gt; {
+        <span class="self">self</span>.oratype.as_ref()
     }
 }
 
-<span class="doccomment">/// A builder to create a [`Batch`] with various configuration</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="ident">Connection</span>,
-    <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>,
-    <span class="ident">batch_size</span>: <span class="ident">usize</span>,
-    <span class="ident">with_batch_errors</span>: <span class="ident">bool</span>,
-    <span class="ident">with_row_counts</span>: <span class="ident">bool</span>,
-    <span class="ident">query_params</span>: <span class="ident">QueryParams</span>,
+<span class="doccomment">/// A builder to create a [`Batch`] with various configuration
+</span><span class="kw">pub struct </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
+    sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+    batch_size: usize,
+    with_batch_errors: bool,
+    with_row_counts: bool,
+    query_params: QueryParams,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="ident">Connection</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql</span> <span class="ident">str</span>,
-        <span class="ident">batch_size</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
-        <span class="ident">BatchBuilder</span> {
-            <span class="ident">conn</span>,
-            <span class="ident">sql</span>,
-            <span class="ident">batch_size</span>,
-            <span class="ident">with_batch_errors</span>: <span class="bool-val">false</span>,
-            <span class="ident">with_row_counts</span>: <span class="bool-val">false</span>,
-            <span class="ident">query_params</span>: <span class="ident">QueryParams::new</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+        batch_size: usize,
+    ) -&gt; BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+        BatchBuilder {
+            conn,
+            sql,
+            batch_size,
+            with_batch_errors: <span class="bool-val">false</span>,
+            with_row_counts: <span class="bool-val">false</span>,
+            query_params: QueryParams::new(),
         }
     }
 
-    <span class="doccomment">/// See [&quot;Error Handling&quot;](Batch#error-handling)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_batch_errors</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_batch_errors</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// See [&quot;Error Handling&quot;](Batch#error-handling)
+    </span><span class="kw">pub fn </span>with_batch_errors&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+        <span class="self">self</span>.with_batch_errors = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_row_counts</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BatchBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_row_counts</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)
+    </span><span class="kw">pub fn </span>with_row_counts&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+        <span class="self">self</span>.with_row_counts = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">batch_size</span> <span class="op">=</span> <span class="ident">u32::try_from</span>(<span class="self">self</span>.<span class="ident">batch_size</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;too large batch_size: {}&quot;</span>, <span class="self">self</span>.<span class="ident">batch_size</span>)))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>;
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="self">self</span>.<span class="ident">sql</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Batch&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+        <span class="kw">let </span>batch_size = u32::try_from(<span class="self">self</span>.batch_size)
+            .map_err(|<span class="kw">_</span>| Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;too large batch_size: {}&quot;</span>, <span class="self">self</span>.batch_size)))<span class="question-mark">?</span>;
+        <span class="kw">let </span>conn = <span class="self">self</span>.conn;
+        <span class="kw">let </span>sql = to_odpi_str(<span class="self">self</span>.sql);
+        <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>dpiStmt = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_prepareStmt</span>(
-                <span class="ident">conn</span>.<span class="ident">handle</span>(),
+            conn.ctxt(),
+            dpiConn_prepareStmt(
+                conn.handle(),
                 <span class="number">0</span>,
-                <span class="ident">sql</span>.<span class="ident">ptr</span>,
-                <span class="ident">sql</span>.<span class="ident">len</span>,
-                <span class="ident">ptr::null</span>(),
+                sql.ptr,
+                sql.len,
+                ptr::null(),
                 <span class="number">0</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
+                <span class="kw-2">&amp;mut </span>handle
             )
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>info = MaybeUninit::uninit();
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_getInfo</span>(<span class="ident">handle</span>, <span class="ident">info</span>.<span class="ident">as_mut_ptr</span>()),
-            <span class="kw">unsafe</span> {
-                <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
+            conn.ctxt(),
+            dpiStmt_getInfo(handle, info.as_mut_ptr()),
+            <span class="kw">unsafe </span>{
+                dpiStmt_release(handle);
             }
         );
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">info</span>.<span class="ident">assume_init</span>() };
-        <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">isDML</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">info</span>.<span class="ident">isPLSQL</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">unsafe</span> {
-                <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
+        <span class="kw">let </span>info = <span class="kw">unsafe </span>{ info.assume_init() };
+        <span class="kw">if </span>info.isDML == <span class="number">0 </span>&amp;&amp; info.isPLSQL == <span class="number">0 </span>{
+            <span class="kw">unsafe </span>{
+                dpiStmt_release(handle);
             }
-            <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format!</span>(
+            <span class="kw">let </span>msg = <span class="macro">format!</span>(
                 <span class="string">&quot;Could not use {} statement&quot;</span>,
-                <span class="ident">StatementType::from_enum</span>(<span class="ident">info</span>.<span class="ident">statementType</span>)
+                StatementType::from_enum(info.statementType)
             );
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidOperation</span>(<span class="ident">msg</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(msg));
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_getBindCount</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num</span>),
-            <span class="kw">unsafe</span> {
-                <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
+            conn.ctxt(),
+            dpiStmt_getBindCount(handle, <span class="kw-2">&amp;mut </span>num),
+            <span class="kw">unsafe </span>{
+                dpiStmt_release(handle);
             }
         );
-        <span class="kw">let</span> <span class="ident">bind_count</span> <span class="op">=</span> <span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bind_names</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">bind_count</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bind_values</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">bind_count</span>);
-        <span class="kw">if</span> <span class="ident">bind_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">c_char</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ptr::null_mut</span>(); <span class="ident">bind_count</span>];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lengths</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">bind_count</span>];
+        <span class="kw">let </span>bind_count = num <span class="kw">as </span>usize;
+        <span class="kw">let </span><span class="kw-2">mut </span>bind_names = Vec::with_capacity(bind_count);
+        <span class="kw">let </span><span class="kw-2">mut </span>bind_values = Vec::with_capacity(bind_count);
+        <span class="kw">if </span>bind_count &gt; <span class="number">0 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>names: Vec&lt;<span class="kw-2">*const </span>c_char&gt; = <span class="macro">vec!</span>[ptr::null_mut(); bind_count];
+            <span class="kw">let </span><span class="kw-2">mut </span>lengths = <span class="macro">vec!</span>[<span class="number">0</span>; bind_count];
             <span class="macro">chkerr!</span>(
-                <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiStmt_getBindNames</span>(<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num</span>, <span class="ident">names</span>.<span class="ident">as_mut_ptr</span>(), <span class="ident">lengths</span>.<span class="ident">as_mut_ptr</span>()),
-                <span class="kw">unsafe</span> {
-                    <span class="ident">dpiStmt_release</span>(<span class="ident">handle</span>);
+                conn.ctxt(),
+                dpiStmt_getBindNames(handle, <span class="kw-2">&amp;mut </span>num, names.as_mut_ptr(), lengths.as_mut_ptr()),
+                <span class="kw">unsafe </span>{
+                    dpiStmt_release(handle);
                 }
             );
-            <span class="ident">bind_names</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>);
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>) {
-                <span class="ident">bind_names</span>.<span class="ident">push</span>(<span class="ident">to_rust_str</span>(<span class="ident">names</span>[<span class="ident">i</span>], <span class="ident">lengths</span>[<span class="ident">i</span>]));
-                <span class="ident">bind_values</span>.<span class="ident">push</span>(<span class="ident">SqlValue::for_bind</span>(
-                    <span class="ident">conn</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">clone</span>(),
-                    <span class="ident">batch_size</span>,
+            bind_names = Vec::with_capacity(num <span class="kw">as </span>usize);
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..(num <span class="kw">as </span>usize) {
+                bind_names.push(to_rust_str(names[i], lengths[i]));
+                bind_values.push(SqlValue::for_bind(
+                    conn.conn.clone(),
+                    <span class="self">self</span>.query_params.clone(),
+                    batch_size,
                 ));
             }
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">Batch</span> {
-            <span class="ident">conn</span>,
-            <span class="ident">handle</span>,
-            <span class="ident">statement_type</span>: <span class="ident">StatementType::from_enum</span>(<span class="ident">info</span>.<span class="ident">statementType</span>),
-            <span class="ident">bind_count</span>,
-            <span class="ident">bind_names</span>,
-            <span class="ident">bind_values</span>,
-            <span class="ident">bind_types</span>: <span class="macro">vec!</span>[<span class="prelude-val">None</span>; <span class="ident">bind_count</span>],
-            <span class="ident">batch_index</span>: <span class="number">0</span>,
-            <span class="ident">batch_size</span>,
-            <span class="ident">with_batch_errors</span>: <span class="self">self</span>.<span class="ident">with_batch_errors</span>,
-            <span class="ident">with_row_counts</span>: <span class="self">self</span>.<span class="ident">with_row_counts</span>,
-            <span class="ident">query_params</span>: <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">clone</span>(),
+        <span class="prelude-val">Ok</span>(Batch {
+            conn,
+            handle,
+            statement_type: StatementType::from_enum(info.statementType),
+            bind_count,
+            bind_names,
+            bind_values,
+            bind_types: <span class="macro">vec!</span>[<span class="prelude-val">None</span>; bind_count],
+            batch_index: <span class="number">0</span>,
+            batch_size,
+            with_batch_errors: <span class="self">self</span>.with_batch_errors,
+            with_row_counts: <span class="self">self</span>.with_row_counts,
+            query_params: <span class="self">self</span>.query_params.clone(),
         })
     }
 }
 
-<span class="doccomment">/// Statement batch, which inserts, updates or deletes more than one row at once</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Batching is efficient when the network distance between the client and</span>
-<span class="doccomment">/// the server is long. When a network round trip requires 1ms, inserting</span>
-<span class="doccomment">/// 10k rows using [`Statement`] consumes at least 10s excluding time spent</span>
-<span class="doccomment">/// in the client and the server. If 1000 rows are sent in a batch, it</span>
-<span class="doccomment">/// decreases to 10ms.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 1. [`conn.batch(sql_stmt, batch_size).build()`](Connection::batch) to create [`Batch`].</span>
-<span class="doccomment">/// 2. [`append_row()`](#method.append_row) for each row. Rows in the batch are sent to</span>
-<span class="doccomment">///    the server when the number of appended rows reaches the batch size.  </span>
-<span class="doccomment">///    **Note:** The &quot;batch errors&quot; option mentioned later changes this behavior.</span>
-<span class="doccomment">/// 3. [`execute()`](#method.execute) in the end to send rows which</span>
-<span class="doccomment">///    have not been sent by `append_row()`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-<span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;</span>
-<span class="doccomment">/// let batch_size = 100;</span>
-<span class="doccomment">/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;</span>
-<span class="doccomment">/// for i in 0..1234 { // iterate 1234 times.</span>
-<span class="doccomment">///     // send rows internally every 100 iterations.</span>
-<span class="doccomment">///     batch.append_row(&amp;[&amp;i, &amp;format!(&quot;value {}&quot;, i)])?;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// batch.execute()?; // send the rest 34 rows.</span>
-<span class="doccomment">/// // Check the number of inserted rows.</span>
-<span class="doccomment">/// assert_eq!(conn.query_row_as::&lt;i32&gt;(&quot;select count(*) from TestTempTable&quot;, &amp;[])?, 1234);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Error Handling</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There are two modes when invalid data are in a batch.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 1. Stop executions at the first failure and return the error information.</span>
-<span class="doccomment">/// 2. Execute all rows in the batch and return an array of the error information.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Default Error Handling</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `append_row()` and `execute()` stop executions at the first failure and return</span>
-<span class="doccomment">/// the error information. There are no ways to know which row fails.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-<span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;</span>
-<span class="doccomment">/// let batch_size = 10;</span>
-<span class="doccomment">/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;</span>
-<span class="doccomment">/// let result = batch.execute();</span>
-<span class="doccomment">/// match result {</span>
-<span class="doccomment">///     Err(Error::OciError(dberr)) =&gt; {</span>
-<span class="doccomment">///         assert_eq!(dberr.code(), 1);</span>
-<span class="doccomment">///         assert!(dberr.message().starts_with(&quot;ORA-00001: &quot;));</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Check the inserted rows.</span>
-<span class="doccomment">/// let mut stmt = conn</span>
-<span class="doccomment">///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0);</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;4])?, 0);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Error Handling with batch errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`BatchBuilder::with_batch_errors`] changes</span>
-<span class="doccomment">/// the behavior of `Batch` as follows:</span>
-<span class="doccomment">/// * `execute()` executes all rows in the batch and return an array of the error information</span>
-<span class="doccomment">///   with row positions in the batch when the errors are caused by invalid data.</span>
-<span class="doccomment">/// * `append_row()` doesn&#39;t send rows internally when the number of appended rows reaches</span>
-<span class="doccomment">///   the batch size. It returns an error when the number exceeds the size instead.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util::{self, check_version, VER12_1};</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {</span>
-<span class="doccomment">/// #     return Ok(()); // skip this test</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-<span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;</span>
-<span class="doccomment">/// let batch_size = 10;</span>
-<span class="doccomment">/// let mut batch = conn.batch(sql_stmt, batch_size).with_batch_errors().build()?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;</span>
-<span class="doccomment">/// let result = batch.execute();</span>
-<span class="doccomment">/// match result {</span>
-<span class="doccomment">///     Err(Error::BatchErrors(mut errs)) =&gt; {</span>
-<span class="doccomment">///         // sort by position because errs may not preserve order.</span>
-<span class="doccomment">///         errs.sort_by(|a, b| a.offset().cmp(&amp;b.offset()));</span>
-<span class="doccomment">///         assert_eq!(errs.len(), 2);</span>
-<span class="doccomment">///         assert_eq!(errs[0].code(), 1);</span>
-<span class="doccomment">///         assert_eq!(errs[1].code(), 12899);</span>
-<span class="doccomment">///         assert_eq!(errs[0].offset(), 2); // position of `[&amp;1, &amp;&quot;first row again&quot;]`</span>
-<span class="doccomment">///         assert_eq!(errs[1].offset(), 3); // position of `[&amp;3, &amp;&quot;third row &quot;.repeat(11)]`</span>
-<span class="doccomment">///         assert!(errs[0].message().starts_with(&quot;ORA-00001: &quot;));</span>
-<span class="doccomment">///         assert!(errs[1].message().starts_with(&quot;ORA-12899: &quot;));</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Check the inserted rows.</span>
-<span class="doccomment">/// let mut stmt = conn</span>
-<span class="doccomment">///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0); // value too large for column</span>
-<span class="doccomment">/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;4])?, 1);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Affected Rows</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Use [`BatchBuilder::with_row_counts`] and [`Batch::row_counts`] to get affected rows</span>
-<span class="doccomment">/// for each input row.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::sql_type::OracleType;</span>
-<span class="doccomment">/// # use oracle::test_util::{self, check_version, VER12_1};</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {</span>
-<span class="doccomment">/// #     return Ok(()); // skip this test</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-<span class="doccomment">/// # let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;</span>
-<span class="doccomment">/// # let batch_size = 10;</span>
-<span class="doccomment">/// # let mut batch = conn.batch(sql_stmt, batch_size).build()?;</span>
-<span class="doccomment">/// # batch.set_type(1, &amp;OracleType::Int64)?;</span>
-<span class="doccomment">/// # batch.set_type(2, &amp;OracleType::Varchar2(1))?;</span>
-<span class="doccomment">/// # for i in 0..10 {</span>
-<span class="doccomment">/// #    batch.append_row(&amp;[&amp;i])?;</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # batch.execute()?;</span>
-<span class="doccomment">/// let sql_stmt = &quot;update TestTempTable set stringCol = :stringCol where intCol &gt;= :intCol&quot;;</span>
-<span class="doccomment">/// let mut batch = conn.batch(sql_stmt, 3).with_row_counts().build()?;</span>
-<span class="doccomment">/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;a&quot;), (&quot;intCol&quot;, &amp;9)])?; // update 1 row</span>
-<span class="doccomment">/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;b&quot;), (&quot;intCol&quot;, &amp;7)])?; // update 3 rows</span>
-<span class="doccomment">/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;c&quot;), (&quot;intCol&quot;, &amp;5)])?; // update 5 rows</span>
-<span class="doccomment">/// batch.execute()?;</span>
-<span class="doccomment">/// assert_eq!(batch.row_counts()?, &amp;[1, 3, 5]);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Bind Parameter Types</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Parameter types are decided by the value of [`Batch::append_row`], [`Batch::append_row_named`]</span>
-<span class="doccomment">/// or [`Batch::set`]; or by the type specified by [`Batch::set_type`]. Once the</span>
-<span class="doccomment">/// type is determined, there are no ways to change it except the following case.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For user&#39;s convenience, when the length of character data types is too short,</span>
-<span class="doccomment">/// the length is extended automatically. For example:</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::sql_type::OracleType;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let conn = test_util::connect()?;</span>
-<span class="doccomment">/// # let sql_stmt = &quot;dummy&quot;;</span>
-<span class="doccomment">/// # let batch_size = 10;</span>
-<span class="doccomment">/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;&quot;first row&quot;])?; // allocate 64 bytes for each row</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;&quot;second row&quot;])?;</span>
-<span class="doccomment">/// //....</span>
-<span class="doccomment">/// // The following line extends the internal buffer length for each row.</span>
-<span class="doccomment">/// batch.append_row(&amp;[&amp;&quot;assume that data length is over 64 bytes&quot;])?;</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// Note that extending the internal buffer needs memory copy from existing buffer</span>
-<span class="doccomment">/// to newly allocated buffer. If you know the maximum data length, it is better</span>
-<span class="doccomment">/// to set the size by [`Batch::set_type`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn</span> <span class="ident">Connection</span>,
-    <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>,
-    <span class="ident">statement_type</span>: <span class="ident">StatementType</span>,
-    <span class="ident">bind_count</span>: <span class="ident">usize</span>,
-    <span class="ident">bind_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">bind_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SqlValue</span><span class="op">&gt;</span>,
-    <span class="ident">bind_types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BindType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">batch_index</span>: <span class="ident">u32</span>,
-    <span class="ident">batch_size</span>: <span class="ident">u32</span>,
-    <span class="ident">with_batch_errors</span>: <span class="ident">bool</span>,
-    <span class="ident">with_row_counts</span>: <span class="ident">bool</span>,
-    <span class="ident">query_params</span>: <span class="ident">QueryParams</span>,
+<span class="doccomment">/// Statement batch, which inserts, updates or deletes more than one row at once
+///
+/// Batching is efficient when the network distance between the client and
+/// the server is long. When a network round trip requires 1ms, inserting
+/// 10k rows using [`Statement`] consumes at least 10s excluding time spent
+/// in the client and the server. If 1000 rows are sent in a batch, it
+/// decreases to 10ms.
+///
+/// # Usage
+///
+/// 1. [`conn.batch(sql_stmt, batch_size).build()`](Connection::batch) to create [`Batch`].
+/// 2. [`append_row()`](#method.append_row) for each row. Rows in the batch are sent to
+///    the server when the number of appended rows reaches the batch size.  
+///    **Note:** The &quot;batch errors&quot; option mentioned later changes this behavior.
+/// 3. [`execute()`](#method.execute) in the end to send rows which
+///    have not been sent by `append_row()`.
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// let batch_size = 100;
+/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// for i in 0..1234 { // iterate 1234 times.
+///     // send rows internally every 100 iterations.
+///     batch.append_row(&amp;[&amp;i, &amp;format!(&quot;value {}&quot;, i)])?;
+/// }
+/// batch.execute()?; // send the rest 34 rows.
+/// // Check the number of inserted rows.
+/// assert_eq!(conn.query_row_as::&lt;i32&gt;(&quot;select count(*) from TestTempTable&quot;, &amp;[])?, 1234);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// # Error Handling
+///
+/// There are two modes when invalid data are in a batch.
+///
+/// 1. Stop executions at the first failure and return the error information.
+/// 2. Execute all rows in the batch and return an array of the error information.
+///
+/// ## Default Error Handling
+///
+/// `append_row()` and `execute()` stop executions at the first failure and return
+/// the error information. There are no ways to know which row fails.
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// let batch_size = 10;
+/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;
+/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;
+/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.
+/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column
+/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;
+/// let result = batch.execute();
+/// match result {
+///     Err(Error::OciError(dberr)) =&gt; {
+///         assert_eq!(dberr.code(), 1);
+///         assert!(dberr.message().starts_with(&quot;ORA-00001: &quot;));
+///     }
+///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),
+/// }
+///
+/// // Check the inserted rows.
+/// let mut stmt = conn
+///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)
+///     .build()?;
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0);
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;4])?, 0);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// ## Error Handling with batch errors
+///
+/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
+///
+/// [`BatchBuilder::with_batch_errors`] changes
+/// the behavior of `Batch` as follows:
+/// * `execute()` executes all rows in the batch and return an array of the error information
+///   with row positions in the batch when the errors are caused by invalid data.
+/// * `append_row()` doesn&#39;t send rows internally when the number of appended rows reaches
+///   the batch size. It returns an error when the number exceeds the size instead.
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util::{self, check_version, VER12_1};
+/// # let conn = test_util::connect()?;
+/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {
+/// #     return Ok(()); // skip this test
+/// # }
+/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// let batch_size = 10;
+/// let mut batch = conn.batch(sql_stmt, batch_size).with_batch_errors().build()?;
+/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;
+/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;
+/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.
+/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column
+/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;
+/// let result = batch.execute();
+/// match result {
+///     Err(Error::BatchErrors(mut errs)) =&gt; {
+///         // sort by position because errs may not preserve order.
+///         errs.sort_by(|a, b| a.offset().cmp(&amp;b.offset()));
+///         assert_eq!(errs.len(), 2);
+///         assert_eq!(errs[0].code(), 1);
+///         assert_eq!(errs[1].code(), 12899);
+///         assert_eq!(errs[0].offset(), 2); // position of `[&amp;1, &amp;&quot;first row again&quot;]`
+///         assert_eq!(errs[1].offset(), 3); // position of `[&amp;3, &amp;&quot;third row &quot;.repeat(11)]`
+///         assert!(errs[0].message().starts_with(&quot;ORA-00001: &quot;));
+///         assert!(errs[1].message().starts_with(&quot;ORA-12899: &quot;));
+///     }
+///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),
+/// }
+///
+/// // Check the inserted rows.
+/// let mut stmt = conn
+///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)
+///     .build()?;
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;3])?, 0); // value too large for column
+/// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;4])?, 1);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// # Affected Rows
+///
+/// **Note:** This feature is available only when both the client and the server are Oracle 12.1 or upper.
+///
+/// Use [`BatchBuilder::with_row_counts`] and [`Batch::row_counts`] to get affected rows
+/// for each input row.
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::sql_type::OracleType;
+/// # use oracle::test_util::{self, check_version, VER12_1};
+/// # let conn = test_util::connect()?;
+/// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {
+/// #     return Ok(()); // skip this test
+/// # }
+/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+/// # let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// # let batch_size = 10;
+/// # let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// # batch.set_type(1, &amp;OracleType::Int64)?;
+/// # batch.set_type(2, &amp;OracleType::Varchar2(1))?;
+/// # for i in 0..10 {
+/// #    batch.append_row(&amp;[&amp;i])?;
+/// # }
+/// # batch.execute()?;
+/// let sql_stmt = &quot;update TestTempTable set stringCol = :stringCol where intCol &gt;= :intCol&quot;;
+/// let mut batch = conn.batch(sql_stmt, 3).with_row_counts().build()?;
+/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;a&quot;), (&quot;intCol&quot;, &amp;9)])?; // update 1 row
+/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;b&quot;), (&quot;intCol&quot;, &amp;7)])?; // update 3 rows
+/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;c&quot;), (&quot;intCol&quot;, &amp;5)])?; // update 5 rows
+/// batch.execute()?;
+/// assert_eq!(batch.row_counts()?, &amp;[1, 3, 5]);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// # Bind Parameter Types
+///
+/// Parameter types are decided by the value of [`Batch::append_row`], [`Batch::append_row_named`]
+/// or [`Batch::set`]; or by the type specified by [`Batch::set_type`]. Once the
+/// type is determined, there are no ways to change it except the following case.
+///
+/// For user&#39;s convenience, when the length of character data types is too short,
+/// the length is extended automatically. For example:
+/// ```no_run
+/// # use oracle::Error;
+/// # use oracle::sql_type::OracleType;
+/// # use oracle::test_util;
+/// # let conn = test_util::connect()?;
+/// # let sql_stmt = &quot;dummy&quot;;
+/// # let batch_size = 10;
+/// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
+/// batch.append_row(&amp;[&amp;&quot;first row&quot;])?; // allocate 64 bytes for each row
+/// batch.append_row(&amp;[&amp;&quot;second row&quot;])?;
+/// //....
+/// // The following line extends the internal buffer length for each row.
+/// batch.append_row(&amp;[&amp;&quot;assume that data length is over 64 bytes&quot;])?;
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+/// Note that extending the internal buffer needs memory copy from existing buffer
+/// to newly allocated buffer. If you know the maximum data length, it is better
+/// to set the size by [`Batch::set_type`].
+</span><span class="kw">pub struct </span>Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
+    handle: <span class="kw-2">*mut </span>dpiStmt,
+    statement_type: StatementType,
+    bind_count: usize,
+    bind_names: Vec&lt;String&gt;,
+    bind_values: Vec&lt;SqlValue&gt;,
+    bind_types: Vec&lt;<span class="prelude-ty">Option</span>&lt;BindType&gt;&gt;,
+    batch_index: u32,
+    batch_size: u32,
+    with_batch_errors: bool,
+    with_row_counts: bool,
+    query_params: QueryParams,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Closes the batch before the end of its lifetime.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiStmt_close</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">ptr::null</span>(), <span class="number">0</span>));
-        <span class="self">self</span>.<span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
+    <span class="doccomment">/// Closes the batch before the end of its lifetime.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.conn.ctxt(), dpiStmt_close(<span class="self">self</span>.handle, ptr::null(), <span class="number">0</span>));
+        <span class="self">self</span>.handle = ptr::null_mut();
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">check_batch_index</span>()<span class="question-mark">?</span>;
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">param</span>) <span class="kw">in</span> <span class="ident">params</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="kw-2">*</span><span class="ident">param</span>)<span class="question-mark">?</span>;
+    <span class="kw">pub fn </span>append_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.check_batch_index()<span class="question-mark">?</span>;
+        <span class="kw">for </span>(i, param) <span class="kw">in </span>params.iter().enumerate() {
+            <span class="self">self</span>.bind_internal(i + <span class="number">1</span>, <span class="kw-2">*</span>param)<span class="question-mark">?</span>;
         }
-        <span class="self">self</span>.<span class="ident">append_row_common</span>()
+        <span class="self">self</span>.append_row_common()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_row_named</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">check_batch_index</span>()<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">params</span> {
-            <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">param</span>.<span class="number">0</span>, <span class="ident">param</span>.<span class="number">1</span>)<span class="question-mark">?</span>;
+    <span class="kw">pub fn </span>append_row_named(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.check_batch_index()<span class="question-mark">?</span>;
+        <span class="kw">for </span>param <span class="kw">in </span>params {
+            <span class="self">self</span>.bind_internal(param.<span class="number">0</span>, param.<span class="number">1</span>)<span class="question-mark">?</span>;
         }
-        <span class="self">self</span>.<span class="ident">append_row_common</span>()
+        <span class="self">self</span>.append_row_common()
     }
 
-    <span class="kw">fn</span> <span class="ident">append_row_common</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_batch_errors</span> {
-            <span class="self">self</span>.<span class="ident">set_batch_index</span>(<span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">+</span> <span class="number">1</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">set_batch_index</span>(<span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">batch_size</span> {
-                <span class="self">self</span>.<span class="ident">execute</span>()<span class="question-mark">?</span>;
+    <span class="kw">fn </span>append_row_common(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.with_batch_errors {
+            <span class="self">self</span>.set_batch_index(<span class="self">self</span>.batch_index + <span class="number">1</span>);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.set_batch_index(<span class="self">self</span>.batch_index + <span class="number">1</span>);
+            <span class="kw">if </span><span class="self">self</span>.batch_index == <span class="self">self</span>.batch_size {
+                <span class="self">self</span>.execute()<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">execute_sub</span>();
-        <span class="comment">// reset all values to null regardless of the result</span>
-        <span class="kw">let</span> <span class="ident">num_rows</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch_index</span>;
-        <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_rows</span> {
-                <span class="ident">bind_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="ident">i</span>);
-                <span class="ident">bind_value</span>.<span class="ident">set_null</span>()<span class="question-mark">?</span>;
+    <span class="kw">pub fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>result = <span class="self">self</span>.execute_sub();
+        <span class="comment">// reset all values to null regardless of the result
+        </span><span class="kw">let </span>num_rows = <span class="self">self</span>.batch_index;
+        <span class="self">self</span>.batch_index = <span class="number">0</span>;
+        <span class="kw">for </span>bind_value <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.bind_values {
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_rows {
+                bind_value.buffer_row_index = BufferRowIndex::Owned(i);
+                bind_value.set_null()<span class="question-mark">?</span>;
             }
-            <span class="ident">bind_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="number">0</span>);
+            bind_value.buffer_row_index = BufferRowIndex::Owned(<span class="number">0</span>);
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">fn</span> <span class="ident">execute_sub</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">fn </span>execute_sub(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.batch_index == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exec_mode</span> <span class="op">=</span> <span class="ident">DPI_MODE_EXEC_DEFAULT</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">autocommit</span>() {
-            <span class="ident">exec_mode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_EXEC_COMMIT_ON_SUCCESS</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>exec_mode = DPI_MODE_EXEC_DEFAULT;
+        <span class="kw">if </span><span class="self">self</span>.conn.autocommit() {
+            exec_mode |= DPI_MODE_EXEC_COMMIT_ON_SUCCESS;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_batch_errors</span> {
-            <span class="ident">exec_mode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_EXEC_BATCH_ERRORS</span>;
+        <span class="kw">if </span><span class="self">self</span>.with_batch_errors {
+            exec_mode |= DPI_MODE_EXEC_BATCH_ERRORS;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_row_counts</span> {
-            <span class="ident">exec_mode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_EXEC_ARRAY_DML_ROWCOUNTS</span>;
+        <span class="kw">if </span><span class="self">self</span>.with_row_counts {
+            exec_mode |= DPI_MODE_EXEC_ARRAY_DML_ROWCOUNTS;
         }
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_executeMany</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">exec_mode</span>, <span class="self">self</span>.<span class="ident">batch_index</span>)
+            <span class="self">self</span>.conn.ctxt(),
+            dpiStmt_executeMany(<span class="self">self</span>.handle, exec_mode, <span class="self">self</span>.batch_index)
         );
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_batch_errors</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errnum</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">if </span><span class="self">self</span>.with_batch_errors {
+            <span class="kw">let </span><span class="kw-2">mut </span>errnum = <span class="number">0</span>;
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiStmt_getBatchErrorCount</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">errnum</span>)
+                <span class="self">self</span>.conn.ctxt(),
+                dpiStmt_getBatchErrorCount(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>errnum)
             );
-            <span class="kw">if</span> <span class="ident">errnum</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errs</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">errnum</span> <span class="kw">as</span> <span class="ident">usize</span>);
+            <span class="kw">if </span>errnum != <span class="number">0 </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>errs = Vec::with_capacity(errnum <span class="kw">as </span>usize);
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                    <span class="ident">dpiStmt_getBatchErrors</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">errnum</span>, <span class="ident">errs</span>.<span class="ident">as_mut_ptr</span>())
+                    <span class="self">self</span>.conn.ctxt(),
+                    dpiStmt_getBatchErrors(<span class="self">self</span>.handle, errnum, errs.as_mut_ptr())
                 );
-                <span class="kw">unsafe</span> { <span class="ident">errs</span>.<span class="ident">set_len</span>(<span class="ident">errnum</span> <span class="kw">as</span> <span class="ident">usize</span>) };
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::BatchErrors</span>(
-                    <span class="ident">errs</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">dberror_from_dpi_error</span>).<span class="ident">collect</span>(),
+                <span class="kw">unsafe </span>{ errs.set_len(errnum <span class="kw">as </span>usize) };
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BatchErrors(
+                    errs.iter().map(dberror_from_dpi_error).collect(),
                 ));
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the number of bind parameters</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-    <span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;</span>
-    <span class="doccomment">/// let mut batch = conn.batch(sql_stmt, 100).build()?;</span>
-    <span class="doccomment">/// assert_eq!(batch.bind_count(), 2);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">bind_count</span>
+    <span class="doccomment">/// Returns the number of bind parameters
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// assert_eq!(batch.bind_count(), 2);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>bind_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.bind_count
     }
 
-    <span class="doccomment">/// Returns an array of bind parameter names</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-    <span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;</span>
-    <span class="doccomment">/// let batch = conn.batch(sql_stmt, 100).build()?;</span>
-    <span class="doccomment">/// assert_eq!(batch.bind_names(), &amp;[&quot;INTCOL&quot;, &quot;STRINGCOL&quot;]);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bind_names</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">bind_names</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">as_str</span>()).<span class="ident">collect</span>()
+    <span class="doccomment">/// Returns an array of bind parameter names
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// let batch = conn.batch(sql_stmt, 100).build()?;
+    /// assert_eq!(batch.bind_names(), &amp;[&quot;INTCOL&quot;, &quot;STRINGCOL&quot;]);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>bind_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.bind_names.iter().map(|name| name.as_str()).collect()
     }
 
-    <span class="kw">fn</span> <span class="ident">check_batch_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">batch_size</span> {
+    <span class="kw">fn </span>check_batch_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.batch_index &lt; <span class="self">self</span>.batch_size {
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
                 <span class="string">&quot;Over the max batch size {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">batch_size</span>
+                <span class="self">self</span>.batch_size
             )))
         }
     }
 
-    <span class="doccomment">/// Set the data type of a bind parameter</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # use oracle::sql_type::OracleType;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-    <span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;</span>
-    <span class="doccomment">/// let mut batch = conn.batch(sql_stmt, 100).build()?;</span>
-    <span class="doccomment">/// batch.set_type(1, &amp;OracleType::Int64)?;</span>
-    <span class="doccomment">/// batch.set_type(2, &amp;OracleType::Varchar2(10))?;</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_type</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
+    <span class="doccomment">/// Set the data type of a bind parameter
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # use oracle::sql_type::OracleType;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// batch.set_type(1, &amp;OracleType::Int64)?;
+    /// batch.set_type(2, &amp;OracleType::Varchar2(10))?;
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>set_type&lt;I&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bindidx: I, oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>I: BatchBindIndex,
     {
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">bindidx</span>.<span class="ident">idx</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>].<span class="ident">is_some</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidOperation</span>(<span class="macro">format!</span>(
+        <span class="kw">let </span>pos = bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.bind_types[pos].is_some() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
                 <span class="string">&quot;The bind parameter type at {} has been specified already.&quot;</span>,
-                <span class="ident">bindidx</span>
+                bindidx
             )));
         }
-        <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">init_handle</span>(<span class="ident">oratype</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.bind_values[pos].init_handle(oratype)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">bindidx</span>.<span class="ident">bind</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">handle</span>)
+            <span class="self">self</span>.conn.ctxt(),
+            bindidx.bind(<span class="self">self</span>.handle, <span class="self">self</span>.bind_values[pos].handle)
         );
-        <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BindType::new</span>(<span class="ident">oratype</span>));
+        <span class="self">self</span>.bind_types[pos] = <span class="prelude-val">Some</span>(BindType::new(oratype));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Set a parameter value</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let conn = test_util::connect()?;</span>
-    <span class="doccomment">/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;</span>
-    <span class="doccomment">/// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;</span>
-    <span class="doccomment">/// let mut batch = conn.batch(sql_stmt, 100).build()?;</span>
-    <span class="doccomment">/// // The below three lines are same with `batch.append_row(&amp;[&amp;100, &amp;&quot;hundred&quot;])?`.</span>
-    <span class="doccomment">/// batch.set(1, &amp;100)?; // set by position 1</span>
-    <span class="doccomment">/// batch.set(2, &amp;&quot;hundred&quot;)?; // set at position 2</span>
-    <span class="doccomment">/// batch.append_row(&amp;[])?;</span>
-    <span class="doccomment">/// // The below three lines are same with `batch.append_row(&amp;[(&quot;intCol&quot;, &amp;101), (&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)])?`</span>
-    <span class="doccomment">/// batch.set(&quot;intCol&quot;, &amp;101)?; // set by name &quot;intCol&quot;</span>
-    <span class="doccomment">/// batch.set(&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)?; // set by name &quot;stringCol&quot;</span>
-    <span class="doccomment">/// batch.append_row(&amp;[])?;</span>
-    <span class="doccomment">/// batch.execute()?;</span>
-    <span class="doccomment">/// let sql_stmt = &quot;select * from TestTempTable where intCol = :1&quot;;</span>
-    <span class="doccomment">/// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;100])?, (100, &quot;hundred&quot;.to_string()));</span>
-    <span class="doccomment">/// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;101])?, (101, &quot;hundred one&quot;.to_string()));</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
+    <span class="doccomment">/// Set a parameter value
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
+    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// let mut batch = conn.batch(sql_stmt, 100).build()?;
+    /// // The below three lines are same with `batch.append_row(&amp;[&amp;100, &amp;&quot;hundred&quot;])?`.
+    /// batch.set(1, &amp;100)?; // set by position 1
+    /// batch.set(2, &amp;&quot;hundred&quot;)?; // set at position 2
+    /// batch.append_row(&amp;[])?;
+    /// // The below three lines are same with `batch.append_row(&amp;[(&quot;intCol&quot;, &amp;101), (&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)])?`
+    /// batch.set(&quot;intCol&quot;, &amp;101)?; // set by name &quot;intCol&quot;
+    /// batch.set(&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)?; // set by name &quot;stringCol&quot;
+    /// batch.append_row(&amp;[])?;
+    /// batch.execute()?;
+    /// let sql_stmt = &quot;select * from TestTempTable where intCol = :1&quot;;
+    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;100])?, (100, &quot;hundred&quot;.to_string()));
+    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;101])?, (101, &quot;hundred one&quot;.to_string()));
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>set&lt;I&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: I, value: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>I: BatchBindIndex,
     {
-        <span class="self">self</span>.<span class="ident">check_batch_index</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">bind_internal</span>(<span class="ident">index</span>, <span class="ident">value</span>)
+        <span class="self">self</span>.check_batch_index()<span class="question-mark">?</span>;
+        <span class="self">self</span>.bind_internal(index, value)
     }
 
-    <span class="kw">fn</span> <span class="ident">bind_internal</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bindidx</span>: <span class="ident">I</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">BatchBindIndex</span>,
+    <span class="kw">fn </span>bind_internal&lt;I&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bindidx: I, value: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>I: BatchBindIndex,
     {
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">bindidx</span>.<span class="ident">idx</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>].<span class="ident">is_none</span>() {
-            <span class="comment">// When the parameter type has not bee specified yet,</span>
-            <span class="comment">// assume the type from the value</span>
-            <span class="kw">let</span> <span class="ident">oratype</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">oratype</span>(<span class="self">self</span>.<span class="ident">conn</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">bind_type</span> <span class="op">=</span> <span class="ident">BindType::new</span>(<span class="kw-2">&amp;</span><span class="ident">oratype</span>);
-            <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">init_handle</span>(<span class="ident">bind_type</span>.<span class="ident">as_oratype</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">oratype</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>pos = bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.bind_types[pos].is_none() {
+            <span class="comment">// When the parameter type has not bee specified yet,
+            // assume the type from the value
+            </span><span class="kw">let </span>oratype = value.oratype(<span class="self">self</span>.conn)<span class="question-mark">?</span>;
+            <span class="kw">let </span>bind_type = BindType::new(<span class="kw-2">&amp;</span>oratype);
+            <span class="self">self</span>.bind_values[pos].init_handle(bind_type.as_oratype().unwrap_or(<span class="kw-2">&amp;</span>oratype))<span class="question-mark">?</span>;
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">bindidx</span>.<span class="ident">bind</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">handle</span>)
+                <span class="self">self</span>.conn.ctxt(),
+                bindidx.bind(<span class="self">self</span>.handle, <span class="self">self</span>.bind_values[pos].handle)
             );
-            <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">bind_type</span>);
+            <span class="self">self</span>.bind_types[pos] = <span class="prelude-val">Some</span>(bind_type);
         }
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">set</span>(<span class="ident">value</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>)) <span class="kw">if</span> <span class="ident">dberr</span>.<span class="ident">message</span>().<span class="ident">starts_with</span>(<span class="string">&quot;DPI-1019:&quot;</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">bind_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bind_types</span>[<span class="ident">pos</span>].<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">bind_type</span>.<span class="ident">as_oratype</span>().<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>));
+        <span class="kw">match </span><span class="self">self</span>.bind_values[pos].set(value) {
+            <span class="prelude-val">Err</span>(Error::DpiError(dberr)) <span class="kw">if </span>dberr.message().starts_with(<span class="string">&quot;DPI-1019:&quot;</span>) =&gt; {
+                <span class="kw">let </span>bind_type = <span class="self">self</span>.bind_types[pos].as_mut().unwrap();
+                <span class="kw">if </span>bind_type.as_oratype().is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DpiError(dberr));
                 }
-                <span class="kw">let</span> <span class="ident">new_oratype</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">oratype</span>(<span class="self">self</span>.<span class="ident">conn</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">new_size</span> <span class="op">=</span> <span class="ident">oratype_size</span>(<span class="kw-2">&amp;</span><span class="ident">new_oratype</span>).<span class="ident">ok_or</span>(<span class="ident">Error::DpiError</span>(<span class="ident">dberr</span>))<span class="question-mark">?</span>;
-                <span class="ident">bind_type</span>.<span class="ident">reset_size</span>(<span class="ident">new_size</span>);
-                <span class="comment">// allocate new bind handle.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_sql_value</span> <span class="op">=</span> <span class="ident">SqlValue::for_bind</span>(
-                    <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">clone</span>(),
-                    <span class="self">self</span>.<span class="ident">batch_size</span>,
+                <span class="kw">let </span>new_oratype = value.oratype(<span class="self">self</span>.conn)<span class="question-mark">?</span>;
+                <span class="kw">let </span>new_size = oratype_size(<span class="kw-2">&amp;</span>new_oratype).ok_or(Error::DpiError(dberr))<span class="question-mark">?</span>;
+                bind_type.reset_size(new_size);
+                <span class="comment">// allocate new bind handle.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>new_sql_value = SqlValue::for_bind(
+                    <span class="self">self</span>.conn.conn.clone(),
+                    <span class="self">self</span>.query_params.clone(),
+                    <span class="self">self</span>.batch_size,
                 );
-                <span class="ident">new_sql_value</span>.<span class="ident">init_handle</span>(<span class="ident">bind_type</span>.<span class="ident">as_oratype</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
-                <span class="comment">// copy values in old to new.</span>
-                <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">batch_index</span> {
+                new_sql_value.init_handle(bind_type.as_oratype().unwrap())<span class="question-mark">?</span>;
+                <span class="comment">// copy values in old to new.
+                </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.batch_index {
                     <span class="macro">chkerr!</span>(
-                        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                        <span class="ident">dpiVar_copyData</span>(
-                            <span class="ident">new_sql_value</span>.<span class="ident">handle</span>,
-                            <span class="ident">idx</span>,
-                            <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>].<span class="ident">handle</span>,
-                            <span class="ident">idx</span>
+                        <span class="self">self</span>.conn.ctxt(),
+                        dpiVar_copyData(
+                            new_sql_value.handle,
+                            idx,
+                            <span class="self">self</span>.bind_values[pos].handle,
+                            idx
                         )
                     );
                 }
-                <span class="ident">new_sql_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="self">self</span>.<span class="ident">batch_index</span>);
-                <span class="ident">new_sql_value</span>.<span class="ident">set</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
+                new_sql_value.buffer_row_index = BufferRowIndex::Owned(<span class="self">self</span>.batch_index);
+                new_sql_value.set(value)<span class="question-mark">?</span>;
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-                    <span class="ident">bindidx</span>.<span class="ident">bind</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">new_sql_value</span>.<span class="ident">handle</span>)
+                    <span class="self">self</span>.conn.ctxt(),
+                    bindidx.bind(<span class="self">self</span>.handle, new_sql_value.handle)
                 );
-                <span class="self">self</span>.<span class="ident">bind_values</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="ident">new_sql_value</span>;
+                <span class="self">self</span>.bind_values[pos] = new_sql_value;
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="ident">x</span> =&gt; <span class="ident">x</span>,
+            x =&gt; x,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">set_batch_index</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">batch_index</span>: <span class="ident">u32</span>) {
-        <span class="self">self</span>.<span class="ident">batch_index</span> <span class="op">=</span> <span class="ident">batch_index</span>;
-        <span class="kw">for</span> <span class="ident">bind_value</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bind_values</span> {
-            <span class="ident">bind_value</span>.<span class="ident">buffer_row_index</span> <span class="op">=</span> <span class="ident">BufferRowIndex::Owned</span>(<span class="ident">batch_index</span>);
+    <span class="kw">fn </span>set_batch_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>, batch_index: u32) {
+        <span class="self">self</span>.batch_index = batch_index;
+        <span class="kw">for </span>bind_value <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.bind_values {
+            bind_value.buffer_row_index = BufferRowIndex::Owned(batch_index);
         }
     }
 
-    <span class="doccomment">/// Returns the number of affected rows</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_row_counts</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row_counts</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="doccomment">/// Returns the number of affected rows
+    ///
+    /// See [&quot;Affected Rows&quot;](Batch#affected-rows)
+    </span><span class="kw">pub fn </span>row_counts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u64&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>num_row_counts = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>row_counts = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiStmt_getRowCounts</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">num_row_counts</span>, <span class="kw-2">&amp;mut</span> <span class="ident">row_counts</span>)
+            <span class="self">self</span>.conn.ctxt(),
+            dpiStmt_getRowCounts(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>num_row_counts, <span class="kw-2">&amp;mut </span>row_counts)
         );
-        <span class="prelude-val">Ok</span>(<span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="ident">row_counts</span>, <span class="ident">num_row_counts</span> <span class="kw">as</span> <span class="ident">usize</span>) }.<span class="ident">to_vec</span>())
+        <span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ slice::from_raw_parts(row_counts, num_row_counts <span class="kw">as </span>usize) }.to_vec())
     }
 
-    <span class="doccomment">/// Returns statement type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatementType</span> {
-        <span class="self">self</span>.<span class="ident">statement_type</span>
+    <span class="doccomment">/// Returns statement type
+    </span><span class="kw">pub fn </span>statement_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatementType {
+        <span class="self">self</span>.statement_type
     }
 
-    <span class="doccomment">/// Returns true when the SQL statement is a PL/SQL block.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_plsql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="doccomment">/// Returns true when the SQL statement is a PL/SQL block.
+    </span><span class="kw">pub fn </span>is_plsql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
-            <span class="self">self</span>.<span class="ident">statement_type</span>,
-            <span class="ident">StatementType::Begin</span> <span class="op">|</span> <span class="ident">StatementType::Declare</span> <span class="op">|</span> <span class="ident">StatementType::Call</span>
+            <span class="self">self</span>.statement_type,
+            StatementType::Begin | StatementType::Declare | StatementType::Call
         )
     }
 
-    <span class="doccomment">/// Returns true when the SQL statement is DML (data manipulation language).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dml</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="doccomment">/// Returns true when the SQL statement is DML (data manipulation language).
+    </span><span class="kw">pub fn </span>is_dml(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
-            <span class="self">self</span>.<span class="ident">statement_type</span>,
-            <span class="ident">StatementType::Insert</span>
-                <span class="op">|</span> <span class="ident">StatementType::Update</span>
-                <span class="op">|</span> <span class="ident">StatementType::Delete</span>
-                <span class="op">|</span> <span class="ident">StatementType::Merge</span>
+            <span class="self">self</span>.statement_type,
+            StatementType::Insert
+                | StatementType::Update
+                | StatementType::Delete
+                | StatementType::Merge
         )
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Batch</span><span class="op">&lt;</span><span class="lifetime">&#39;conn</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">unsafe</span> { <span class="ident">dpiStmt_release</span>(<span class="self">self</span>.<span class="ident">handle</span>) };
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Drop <span class="kw">for </span>Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{ dpiStmt_release(<span class="self">self</span>.handle) };
     }
 }
 
-<span class="doccomment">/// A trait implemented by types that can index into bind values of a batch</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BatchBindIndex</span>: <span class="ident">private::Sealed</span> <span class="op">+</span> <span class="ident">fmt::Display</span> {
-    <span class="doccomment">/// Returns the index of the bind value specified by `self`.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Binds the specified value by using a private method.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span>;
+<span class="doccomment">/// A trait implemented by types that can index into bind values of a batch
+///
+/// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.
+</span><span class="kw">pub trait </span>BatchBindIndex: private::Sealed + fmt::Display {
+    <span class="doccomment">/// Returns the index of the bind value specified by `self`.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: <span class="kw-2">&amp;</span>Batch) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
+    <span class="doccomment">/// Binds the specified value by using a private method.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32;
 }
 
-<span class="kw">impl</span> <span class="ident">BatchBindIndex</span> <span class="kw">for</span> <span class="ident">usize</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">bind_count</span>();
-        <span class="kw">if</span> <span class="number">0</span> <span class="op">&lt;</span> <span class="ident">num</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">num</span> {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span> <span class="op">-</span> <span class="number">1</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::InvalidBindIndex</span>(<span class="kw-2">*</span><span class="self">self</span>))
+<span class="kw">impl </span>BatchBindIndex <span class="kw">for </span>usize {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: <span class="kw-2">&amp;</span>Batch) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">let </span>num = batch.bind_count();
+        <span class="kw">if </span><span class="number">0 </span>&lt; num &amp;&amp; <span class="kw-2">*</span><span class="self">self </span>&lt;= num {
+            <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self </span>- <span class="number">1</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::InvalidBindIndex(<span class="kw-2">*</span><span class="self">self</span>))
         }
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span> {
-        <span class="ident">dpiStmt_bindByPos</span>(<span class="ident">stmt_handle</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">var_handle</span>)
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
+        dpiStmt_bindByPos(stmt_handle, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u32, var_handle)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BatchBindIndex</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="ident">Batch</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bindname</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_uppercase</span>();
-        <span class="ident">batch</span>
-            .<span class="ident">bind_names</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">bindname</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error::InvalidBindName</span>((<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">to_string</span>()))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BatchBindIndex <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: <span class="kw-2">&amp;</span>Batch) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">let </span>bindname = <span class="self">self</span>.to_uppercase();
+        batch
+            .bind_names()
+            .iter()
+            .position(|<span class="kw-2">&amp;</span>name| name == bindname)
+            .ok_or_else(|| Error::InvalidBindName((<span class="kw-2">*</span><span class="self">self</span>).to_string()))
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stmt_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiStmt</span>, <span class="ident">var_handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiVar</span>) -&gt; <span class="ident">i32</span> {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">*</span><span class="self">self</span>);
-        <span class="ident">dpiStmt_bindByName</span>(<span class="ident">stmt_handle</span>, <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="ident">s</span>.<span class="ident">len</span>, <span class="ident">var_handle</span>)
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
+        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">*</span><span class="self">self</span>);
+        dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_util;
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">TestData</span> {
-        <span class="ident">int_val</span>: <span class="ident">i32</span>,
-        <span class="ident">string_val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">error_code</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="attribute">#[derive(Debug)]
+    </span><span class="kw">struct </span>TestData {
+        int_val: i32,
+        string_val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     }
 
-    <span class="kw">impl</span> <span class="ident">TestData</span> {
-        <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">int_val</span>: <span class="ident">i32</span>, <span class="ident">string_val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">error_code</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="ident">TestData</span> {
-            <span class="ident">TestData</span> {
-                <span class="ident">int_val</span>,
-                <span class="ident">string_val</span>,
-                <span class="ident">error_code</span>,
+    <span class="kw">impl </span>TestData {
+        <span class="kw">const fn </span>new(int_val: i32, string_val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; TestData {
+            TestData {
+                int_val,
+                string_val,
+                error_code,
             }
         }
     }
 
-    <span class="comment">// ORA-00001: unique constraint violated</span>
-    <span class="kw">const</span> <span class="ident">ERROR_UNIQUE_INDEX_VIOLATION</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">1</span>);
+    <span class="comment">// ORA-00001: unique constraint violated
+    </span><span class="kw">const </span>ERROR_UNIQUE_INDEX_VIOLATION: <span class="prelude-ty">Option</span>&lt;i32&gt; = <span class="prelude-val">Some</span>(<span class="number">1</span>);
 
-    <span class="comment">// ORA-12899: value too large for column</span>
-    <span class="kw">const</span> <span class="ident">ERROR_TOO_LARGE_VALUE</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">12899</span>);
+    <span class="comment">// ORA-12899: value too large for column
+    </span><span class="kw">const </span>ERROR_TOO_LARGE_VALUE: <span class="prelude-ty">Option</span>&lt;i32&gt; = <span class="prelude-val">Some</span>(<span class="number">12899</span>);
 
-    <span class="kw">const</span> <span class="ident">TEST_DATA</span>: [<span class="ident">TestData</span>; <span class="number">10</span>] <span class="op">=</span> [
-        <span class="ident">TestData::new</span>(<span class="number">0</span>, <span class="string">&quot;0&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">1</span>, <span class="string">&quot;1111&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">2</span>, <span class="string">&quot;222222222222&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">3</span>, <span class="string">&quot;3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">4</span>, <span class="string">&quot;44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444&quot;</span>, <span class="ident">ERROR_TOO_LARGE_VALUE</span>),
-        <span class="ident">TestData::new</span>(<span class="number">1</span>, <span class="string">&quot;55555555555555&quot;</span>, <span class="ident">ERROR_UNIQUE_INDEX_VIOLATION</span>),
-        <span class="ident">TestData::new</span>(<span class="number">6</span>, <span class="string">&quot;66666666666&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">2</span>, <span class="string">&quot;7&quot;</span>, <span class="ident">ERROR_UNIQUE_INDEX_VIOLATION</span>),
-        <span class="ident">TestData::new</span>(<span class="number">8</span>, <span class="string">&quot;8&quot;</span>, <span class="prelude-val">None</span>),
-        <span class="ident">TestData::new</span>(<span class="number">3</span>, <span class="string">&quot;9999999999999999999999999&quot;</span>, <span class="ident">ERROR_UNIQUE_INDEX_VIOLATION</span>),
+    <span class="kw">const </span>TEST_DATA: [TestData; <span class="number">10</span>] = [
+        TestData::new(<span class="number">0</span>, <span class="string">&quot;0&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">1</span>, <span class="string">&quot;1111&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">2</span>, <span class="string">&quot;222222222222&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">3</span>, <span class="string">&quot;3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">4</span>, <span class="string">&quot;44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444&quot;</span>, ERROR_TOO_LARGE_VALUE),
+        TestData::new(<span class="number">1</span>, <span class="string">&quot;55555555555555&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
+        TestData::new(<span class="number">6</span>, <span class="string">&quot;66666666666&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">2</span>, <span class="string">&quot;7&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
+        TestData::new(<span class="number">8</span>, <span class="string">&quot;8&quot;</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">3</span>, <span class="string">&quot;9999999999999999999999999&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
     ];
 
-    <span class="kw">fn</span> <span class="ident">append_rows_then_execute</span>(<span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Batch</span>, <span class="ident">rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
-            <span class="ident">batch</span>.<span class="ident">append_row</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">int_val</span>, <span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">string_val</span>])<span class="question-mark">?</span>;
+    <span class="kw">fn </span>append_rows_then_execute(batch: <span class="kw-2">&amp;mut </span>Batch, rows: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>TestData]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">for </span>row <span class="kw">in </span>rows {
+            batch.append_row(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>row.int_val, <span class="kw-2">&amp;</span>row.string_val])<span class="question-mark">?</span>;
         }
-        <span class="ident">batch</span>.<span class="ident">execute</span>()<span class="question-mark">?</span>;
+        batch.execute()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">check_rows_inserted</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>, <span class="ident">expected_rows</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">TestData</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span>
-            <span class="ident">conn</span>.<span class="ident">query_as</span>::<span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">String</span>)<span class="op">&gt;</span>(<span class="string">&quot;select * from TestTempTable order by intCol&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_rows</span> <span class="op">=</span> <span class="ident">expected_rows</span>.<span class="ident">to_vec</span>();
-        <span class="ident">expected_rows</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">int_val</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">int_val</span>));
-        <span class="kw">for</span> <span class="ident">expected_row</span> <span class="kw">in</span> <span class="ident">expected_rows</span> {
-            <span class="kw">let</span> <span class="ident">row_opt</span> <span class="op">=</span> <span class="ident">rows</span>.<span class="ident">next</span>();
-            <span class="macro">assert!</span>(<span class="ident">row_opt</span>.<span class="ident">is_some</span>());
-            <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">row_opt</span>.<span class="ident">unwrap</span>()<span class="question-mark">?</span>;
-            <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">0</span>, <span class="ident">expected_row</span>.<span class="ident">int_val</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">row</span>.<span class="number">1</span>, <span class="ident">expected_row</span>.<span class="ident">string_val</span>);
+    <span class="kw">fn </span>check_rows_inserted(conn: <span class="kw-2">&amp;</span>Connection, expected_rows: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>TestData]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>rows =
+            conn.query_as::&lt;(i32, String)&gt;(<span class="string">&quot;select * from TestTempTable order by intCol&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>expected_rows = expected_rows.to_vec();
+        expected_rows.sort_by(|a, b| a.int_val.cmp(<span class="kw-2">&amp;</span>b.int_val));
+        <span class="kw">for </span>expected_row <span class="kw">in </span>expected_rows {
+            <span class="kw">let </span>row_opt = rows.next();
+            <span class="macro">assert!</span>(row_opt.is_some());
+            <span class="kw">let </span>row = row_opt.unwrap()<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(row.<span class="number">0</span>, expected_row.int_val);
+            <span class="macro">assert_eq!</span>(row.<span class="number">1</span>, expected_row.string_val);
         }
-        <span class="macro">assert!</span>(<span class="ident">rows</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(rows.next().is_none());
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">batch_insert</span>() {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">error_code</span>.<span class="ident">is_none</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">conn</span>
-            .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows</span>.<span class="ident">len</span>())
-            .<span class="ident">build</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>).<span class="ident">unwrap</span>();
-        <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>batch_insert() {
+        <span class="kw">let </span>conn = test_util::connect().unwrap();
+        <span class="kw">let </span>rows: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA
+            .iter()
+            .filter(|data| data.error_code.is_none())
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
+            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .build()
+            .unwrap();
+        append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows).unwrap();
+        check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>rows).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">batch_execute_twice</span>() {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">rows_total</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">error_code</span>.<span class="ident">is_none</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> (<span class="ident">rows_first</span>, <span class="ident">rows_second</span>) <span class="op">=</span> <span class="ident">rows_total</span>.<span class="ident">split_at</span>(<span class="ident">rows_total</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">conn</span>
-            .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows_first</span>.<span class="ident">len</span>())
-            .<span class="ident">build</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">rows_first</span>).<span class="ident">unwrap</span>();
-        <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">rows_second</span>).<span class="ident">unwrap</span>();
-        <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">rows_total</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>batch_execute_twice() {
+        <span class="kw">let </span>conn = test_util::connect().unwrap();
+        <span class="kw">let </span>rows_total: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA
+            .iter()
+            .filter(|data| data.error_code.is_none())
+            .collect();
+        <span class="kw">let </span>(rows_first, rows_second) = rows_total.split_at(rows_total.len() / <span class="number">2</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
+            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows_first.len())
+            .build()
+            .unwrap();
+        append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, rows_first).unwrap();
+        append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, rows_second).unwrap();
+        check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>rows_total).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">batch_with_error</span>() {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>.<span class="ident">iter</span>().<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">expected_rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">error_code</span>.<span class="ident">is_none</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">conn</span>
-            .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows</span>.<span class="ident">len</span>())
-            .<span class="ident">build</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::OciError</span>(<span class="ident">dberr</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">errcode</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">data</span>.<span class="ident">error_code</span>.<span class="ident">is_some</span>())
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">error_code</span>
-                    .<span class="ident">unwrap</span>();
-                <span class="macro">assert_eq!</span>(<span class="ident">dberr</span>.<span class="ident">code</span>(), <span class="ident">errcode</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>batch_with_error() {
+        <span class="kw">let </span>conn = test_util::connect().unwrap();
+        <span class="kw">let </span>rows: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA.iter().collect();
+        <span class="kw">let </span>expected_rows: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA
+            .iter()
+            .take_while(|data| data.error_code.is_none())
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
+            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .build()
+            .unwrap();
+        <span class="kw">match </span>append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows) {
+            <span class="prelude-val">Err</span>(Error::OciError(dberr)) =&gt; {
+                <span class="kw">let </span>errcode = TEST_DATA
+                    .iter()
+                    .find(|data| data.error_code.is_some())
+                    .unwrap()
+                    .error_code
+                    .unwrap();
+                <span class="macro">assert_eq!</span>(dberr.code(), errcode);
             }
-            <span class="ident">x</span> =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, <span class="ident">x</span>);
+            x =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, x);
             }
         }
-        <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">expected_rows</span>).<span class="ident">unwrap</span>();
+        check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>expected_rows).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">batch_with_batch_errors</span>() {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>.<span class="ident">iter</span>().<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">expected_rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TestData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="ident">error_code</span>.<span class="ident">is_none</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">conn</span>
-            .<span class="ident">batch</span>(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, <span class="ident">rows</span>.<span class="ident">len</span>())
-            .<span class="ident">with_batch_errors</span>()
-            .<span class="ident">build</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">append_rows_then_execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="kw-2">&amp;</span><span class="ident">rows</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::BatchErrors</span>(<span class="ident">errs</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">expected_errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">i32</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">TEST_DATA</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">enumerate</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="number">1</span>.<span class="ident">error_code</span>.<span class="ident">is_some</span>())
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> (<span class="ident">row</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">row</span>.<span class="number">1</span>.<span class="ident">error_code</span>.<span class="ident">unwrap</span>()))
-                    .<span class="ident">collect</span>();
-                <span class="kw">let</span> <span class="ident">actual_errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">i32</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">errs</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">dberr</span><span class="op">|</span> (<span class="ident">dberr</span>.<span class="ident">offset</span>(), <span class="ident">dberr</span>.<span class="ident">code</span>()))
-                    .<span class="ident">collect</span>();
-                <span class="macro">assert_eq!</span>(<span class="ident">expected_errors</span>, <span class="ident">actual_errors</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>batch_with_batch_errors() {
+        <span class="kw">let </span>conn = test_util::connect().unwrap();
+        <span class="kw">let </span>rows: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA.iter().collect();
+        <span class="kw">let </span>expected_rows: Vec&lt;<span class="kw-2">&amp;</span>TestData&gt; = TEST_DATA
+            .iter()
+            .filter(|row| row.error_code.is_none())
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
+            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .with_batch_errors()
+            .build()
+            .unwrap();
+        <span class="kw">match </span>append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows) {
+            <span class="prelude-val">Err</span>(Error::BatchErrors(errs)) =&gt; {
+                <span class="kw">let </span>expected_errors: Vec&lt;(u32, i32)&gt; = TEST_DATA
+                    .iter()
+                    .enumerate()
+                    .filter(|row| row.<span class="number">1</span>.error_code.is_some())
+                    .map(|row| (row.<span class="number">0 </span><span class="kw">as </span>u32, row.<span class="number">1</span>.error_code.unwrap()))
+                    .collect();
+                <span class="kw">let </span>actual_errors: Vec&lt;(u32, i32)&gt; = errs
+                    .iter()
+                    .map(|dberr| (dberr.offset(), dberr.code()))
+                    .collect();
+                <span class="macro">assert_eq!</span>(expected_errors, actual_errors);
             }
-            <span class="ident">x</span> =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, <span class="ident">x</span>);
+            x =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, x);
             }
         }
-        <span class="ident">check_rows_inserted</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">expected_rows</span>).<span class="ident">unwrap</span>();
+        check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>expected_rows).unwrap();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

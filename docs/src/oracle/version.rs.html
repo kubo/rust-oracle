@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/version.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>version.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/version.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>version.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -191,194 +186,193 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std::num::ParseIntError</span>;
-<span class="kw">use</span> <span class="ident">std::result</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::num::ParseIntError;
+<span class="kw">use </span>std::result;
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="doccomment">/// Oracle version information</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// # use oracle::*;</span>
-<span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-<span class="doccomment">/// let client_version = Version::client()?;</span>
-<span class="doccomment">/// let (server_version, _) = conn.server_version()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// println!(&quot;Client version:&quot;);</span>
-<span class="doccomment">/// println!(&quot;  1st part: {}&quot;, client_version.major());</span>
-<span class="doccomment">/// println!(&quot;  2nd part: {}&quot;, client_version.minor());</span>
-<span class="doccomment">/// println!(&quot;  3rd part: {}&quot;, client_version.update());</span>
-<span class="doccomment">/// println!(&quot;  4th part: {}&quot;, client_version.patch());</span>
-<span class="doccomment">/// println!(&quot;  5th part: {}&quot;, client_version.port_update());</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// println!(&quot;Server version: {}&quot;, server_version);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Version</span> {
-    <span class="ident">major</span>: <span class="ident">i32</span>,
-    <span class="ident">minor</span>: <span class="ident">i32</span>,
-    <span class="ident">update</span>: <span class="ident">i32</span>,
-    <span class="ident">patch</span>: <span class="ident">i32</span>,
-    <span class="ident">port_update</span>: <span class="ident">i32</span>,
+<span class="doccomment">/// Oracle version information
+///
+/// # Examples
+///
+/// ```no_run
+/// # use oracle::*;
+/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let client_version = Version::client()?;
+/// let (server_version, _) = conn.server_version()?;
+///
+/// println!(&quot;Client version:&quot;);
+/// println!(&quot;  1st part: {}&quot;, client_version.major());
+/// println!(&quot;  2nd part: {}&quot;, client_version.minor());
+/// println!(&quot;  3rd part: {}&quot;, client_version.update());
+/// println!(&quot;  4th part: {}&quot;, client_version.patch());
+/// println!(&quot;  5th part: {}&quot;, client_version.port_update());
+///
+/// println!(&quot;Server version: {}&quot;, server_version);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>Version {
+    major: i32,
+    minor: i32,
+    update: i32,
+    patch: i32,
+    port_update: i32,
 }
 
-<span class="kw">impl</span> <span class="ident">Version</span> {
-    <span class="doccomment">/// Creates a new version information</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">major</span>: <span class="ident">i32</span>, <span class="ident">minor</span>: <span class="ident">i32</span>, <span class="ident">update</span>: <span class="ident">i32</span>, <span class="ident">patch</span>: <span class="ident">i32</span>, <span class="ident">port_update</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Version</span> {
-        <span class="ident">Version</span> {
-            <span class="ident">major</span>,
-            <span class="ident">minor</span>,
-            <span class="ident">update</span>,
-            <span class="ident">patch</span>,
-            <span class="ident">port_update</span>,
+<span class="kw">impl </span>Version {
+    <span class="doccomment">/// Creates a new version information
+    </span><span class="kw">pub const fn </span>new(major: i32, minor: i32, update: i32, patch: i32, port_update: i32) -&gt; Version {
+        Version {
+            major,
+            minor,
+            update,
+            patch,
+            port_update,
         }
     }
 
-    <span class="doccomment">/// Returns the version of Oracle client in use.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::*;</span>
-    <span class="doccomment">/// let client_ver = Version::client()?;</span>
-    <span class="doccomment">/// println!(&quot;Oracle Client Version: {}&quot;, client_ver);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ver</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
+    <span class="doccomment">/// Returns the version of Oracle client in use.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::*;
+    /// let client_ver = Version::client()?;
+    /// println!(&quot;Oracle Client Version: {}&quot;, client_ver);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>client() -&gt; <span class="prelude-ty">Result</span>&lt;Version&gt; {
+        <span class="kw">let </span>ctx = Context::get()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ver = MaybeUninit::uninit();
         <span class="macro">chkerr!</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">dpiContext_getClientVersion</span>(<span class="ident">ctx</span>.<span class="ident">context</span>, <span class="ident">ver</span>.<span class="ident">as_mut_ptr</span>())
+            ctx,
+            dpiContext_getClientVersion(ctx.context, ver.as_mut_ptr())
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Version::new_from_dpi_ver</span>(<span class="kw">unsafe</span> { <span class="ident">ver</span>.<span class="ident">assume_init</span>() }))
+        <span class="prelude-val">Ok</span>(Version::new_from_dpi_ver(<span class="kw">unsafe </span>{ ver.assume_init() }))
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_from_dpi_ver</span>(<span class="ident">ver</span>: <span class="ident">dpiVersionInfo</span>) -&gt; <span class="ident">Version</span> {
-        <span class="ident">Version::new</span>(
-            <span class="ident">ver</span>.<span class="ident">versionNum</span>,
-            <span class="ident">ver</span>.<span class="ident">releaseNum</span>,
-            <span class="ident">ver</span>.<span class="ident">updateNum</span>,
-            <span class="ident">ver</span>.<span class="ident">portReleaseNum</span>,
-            <span class="ident">ver</span>.<span class="ident">portUpdateNum</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_from_dpi_ver(ver: dpiVersionInfo) -&gt; Version {
+        Version::new(
+            ver.versionNum,
+            ver.releaseNum,
+            ver.updateNum,
+            ver.portReleaseNum,
+            ver.portUpdateNum,
         )
     }
 
-    <span class="doccomment">/// Gets 1st part of Oracle version number</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">major</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">major</span>
+    <span class="doccomment">/// Gets 1st part of Oracle version number
+    </span><span class="kw">pub fn </span>major(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.major
     }
 
-    <span class="doccomment">/// Gets 2nd part of Oracle version number</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">minor</span>
+    <span class="doccomment">/// Gets 2nd part of Oracle version number
+    </span><span class="kw">pub fn </span>minor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.minor
     }
 
-    <span class="doccomment">/// Gets 3rd part of Oracle version number</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">update</span>
+    <span class="doccomment">/// Gets 3rd part of Oracle version number
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.update
     }
 
-    <span class="doccomment">/// Gets 4th part of Oracle version number</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">patch</span>
+    <span class="doccomment">/// Gets 4th part of Oracle version number
+    </span><span class="kw">pub fn </span>patch(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.patch
     }
 
-    <span class="doccomment">/// Gets 5th part of Oracle version number</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port_update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">port_update</span>
+    <span class="doccomment">/// Gets 5th part of Oracle version number
+    </span><span class="kw">pub fn </span>port_update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.port_update
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Version</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Version {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}.{}.{}.{}.{}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">major</span>, <span class="self">self</span>.<span class="ident">minor</span>, <span class="self">self</span>.<span class="ident">update</span>, <span class="self">self</span>.<span class="ident">patch</span>, <span class="self">self</span>.<span class="ident">port_update</span>
+            <span class="self">self</span>.major, <span class="self">self</span>.minor, <span class="self">self</span>.update, <span class="self">self</span>.patch, <span class="self">self</span>.port_update
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Version</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseIntError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Version {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseIntError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>).<span class="ident">fuse</span>();
-        <span class="kw">let</span> <span class="ident">major</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">minor</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">update</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">patch</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">port_update</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Version::new</span>(<span class="ident">major</span>, <span class="ident">minor</span>, <span class="ident">update</span>, <span class="ident">patch</span>, <span class="ident">port_update</span>))
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; result::Result&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = s.split(<span class="string">&#39;.&#39;</span>).fuse();
+        <span class="kw">let </span>major = iter.next().map_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>), |s| s.parse::&lt;i32&gt;())<span class="question-mark">?</span>;
+        <span class="kw">let </span>minor = iter.next().map_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>), |s| s.parse::&lt;i32&gt;())<span class="question-mark">?</span>;
+        <span class="kw">let </span>update = iter.next().map_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>), |s| s.parse::&lt;i32&gt;())<span class="question-mark">?</span>;
+        <span class="kw">let </span>patch = iter.next().map_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>), |s| s.parse::&lt;i32&gt;())<span class="question-mark">?</span>;
+        <span class="kw">let </span>port_update = iter.next().map_or(<span class="prelude-val">Ok</span>(<span class="number">0</span>), |s| s.parse::&lt;i32&gt;())<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Version::new(major, minor, update, patch, port_update))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_util;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">to_string</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).<span class="ident">to_string</span>(), <span class="string">&quot;12.1.2.3.4&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>to_string() {
+        <span class="macro">assert_eq!</span>(Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).to_string(), <span class="string">&quot;12.1.2.3.4&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_str</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>from_str() {
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+            <span class="string">&quot;12&quot;</span>.parse::&lt;Version&gt;().unwrap(),
+            Version::new(<span class="number">12</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12.1&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+            <span class="string">&quot;12.1&quot;</span>.parse::&lt;Version&gt;().unwrap(),
+            Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12.1.2&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>)
+            <span class="string">&quot;12.1.2&quot;</span>.parse::&lt;Version&gt;().unwrap(),
+            Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12.1.2.3&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)
+            <span class="string">&quot;12.1.2.3&quot;</span>.parse::&lt;Version&gt;().unwrap(),
+            Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;12.1.2.3.4&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Version</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
+            <span class="string">&quot;12.1.2.3.4&quot;</span>.parse::&lt;Version&gt;().unwrap(),
+            Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">client_version</span>() {
-        <span class="kw">let</span> <span class="ident">ver</span> <span class="op">=</span> <span class="ident">Version::client</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">ver_from_query</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query_row_as</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT(&#39;USERENV&#39;, &#39;SID&#39;)&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">ver</span>.<span class="ident">to_string</span>(), <span class="ident">ver_from_query</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>client_version() {
+        <span class="kw">let </span>ver = Version::client().unwrap();
+        <span class="kw">let </span>conn = test_util::connect().unwrap();
+        <span class="kw">let </span>ver_from_query = conn.query_row_as::&lt;String&gt;(<span class="string">&quot;SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT(&#39;USERENV&#39;, &#39;SID&#39;)&quot;</span>, <span class="kw-2">&amp;</span>[]).unwrap();
+        <span class="macro">assert_eq!</span>(ver.to_string(), ver_from_query);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

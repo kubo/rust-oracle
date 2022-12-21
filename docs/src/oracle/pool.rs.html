@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1013,1016 +1008,1015 @@
 <span id="1008">1008</span>
 <span id="1009">1009</span>
 <span id="1010">1010</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="doccomment">//! Type definitions for connection pooling</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This module defines types for connection pooling using [Session Pooling in OCI].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [Session Pooling in OCI]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-F9662FFB-EAEF-495C-96FC-49C6D1D9625C</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conn::Purity</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::CommonCreateParamsBuilder</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AssertSend</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AssertSync</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiPool</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Privilege</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</span><span class="doccomment">//! Type definitions for connection pooling
+//!
+//! This module defines types for connection pooling using [Session Pooling in OCI].
+//!
+//! [Session Pooling in OCI]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-F9662FFB-EAEF-495C-96FC-49C6D1D9625C
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="kw">use </span><span class="kw">crate</span>::conn::Purity;
+<span class="kw">use </span><span class="kw">crate</span>::connection::CommonCreateParamsBuilder;
+<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
+<span class="kw">use </span><span class="kw">crate</span>::AssertSend;
+<span class="kw">use </span><span class="kw">crate</span>::AssertSync;
+<span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::DpiPool;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Privilege;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>std::convert::TryInto;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="doccomment">/// The mode to use when closing pools</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`Pool::close`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CloseMode</span> {
-    <span class="doccomment">/// If there are any active connections in the pool an</span>
-    <span class="doccomment">/// error is returned.</span>
-    <span class="ident">Default</span>,
+<span class="doccomment">/// The mode to use when closing pools
+///
+/// See [`Pool::close`].
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>CloseMode {
+    <span class="doccomment">/// If there are any active connections in the pool an
+    /// error is returned.
+    </span>Default,
 
-    <span class="doccomment">/// Causes all of the active connections in the pool</span>
-    <span class="doccomment">/// to be closed before closing the pool itself.</span>
-    <span class="ident">Force</span>,
+    <span class="doccomment">/// Causes all of the active connections in the pool
+    /// to be closed before closing the pool itself.
+    </span>Force,
 }
 
-<span class="kw">impl</span> <span class="ident">CloseMode</span> {
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="self">self</span>) -&gt; <span class="ident">dpiPoolCloseMode</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CloseMode::Default</span> =&gt; <span class="ident">DPI_MODE_POOL_CLOSE_DEFAULT</span>,
-            <span class="ident">CloseMode::Force</span> =&gt; <span class="ident">DPI_MODE_POOL_CLOSE_FORCE</span>,
+<span class="kw">impl </span>CloseMode {
+    <span class="kw">fn </span>to_dpi_value(<span class="self">self</span>) -&gt; dpiPoolCloseMode {
+        <span class="kw">match </span><span class="self">self </span>{
+            CloseMode::Default =&gt; DPI_MODE_POOL_CLOSE_DEFAULT,
+            CloseMode::Force =&gt; DPI_MODE_POOL_CLOSE_FORCE,
         }
     }
 }
 
-<span class="doccomment">/// The mode to use when getting connections from a connection pool</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetMode</span> {
-    <span class="doccomment">/// The caller should block until a</span>
-    <span class="doccomment">/// connection is available from the pool.</span>
-    <span class="ident">Wait</span>,
+<span class="doccomment">/// The mode to use when getting connections from a connection pool
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>GetMode {
+    <span class="doccomment">/// The caller should block until a
+    /// connection is available from the pool.
+    </span>Wait,
 
-    <span class="doccomment">/// The caller should return</span>
-    <span class="doccomment">/// immediately, regardless of whether a connection is</span>
-    <span class="doccomment">/// available in the pool. If a connection is not</span>
-    <span class="doccomment">/// available an error is returned.</span>
-    <span class="ident">NoWait</span>,
+    <span class="doccomment">/// The caller should return
+    /// immediately, regardless of whether a connection is
+    /// available in the pool. If a connection is not
+    /// available an error is returned.
+    </span>NoWait,
 
-    <span class="doccomment">/// A new connection should be created if</span>
-    <span class="doccomment">/// all of the connections in the pool are busy, even if</span>
-    <span class="doccomment">/// this exceeds the maximum connections allowable for</span>
-    <span class="doccomment">/// the connection pool (see [`PoolBuilder::max_connections`])</span>
-    <span class="ident">ForceGet</span>,
+    <span class="doccomment">/// A new connection should be created if
+    /// all of the connections in the pool are busy, even if
+    /// this exceeds the maximum connections allowable for
+    /// the connection pool (see [`PoolBuilder::max_connections`])
+    </span>ForceGet,
 
-    <span class="doccomment">/// The caller should block until a</span>
-    <span class="doccomment">/// connection is available from the pool, but only for</span>
-    <span class="doccomment">/// the specified length of time defined in</span>
-    <span class="doccomment">/// the tuple field. If a</span>
-    <span class="doccomment">/// connection is not available within the specified</span>
-    <span class="doccomment">/// period of time an error is returned.</span>
-    <span class="ident">TimedWait</span>(<span class="ident">Duration</span>),
+    <span class="doccomment">/// The caller should block until a
+    /// connection is available from the pool, but only for
+    /// the specified length of time defined in
+    /// the tuple field. If a
+    /// connection is not available within the specified
+    /// period of time an error is returned.
+    </span>TimedWait(Duration),
 }
 
-<span class="kw">impl</span> <span class="ident">GetMode</span> {
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="self">self</span>) -&gt; <span class="ident">dpiPoolGetMode</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">GetMode::Wait</span> =&gt; <span class="ident">DPI_MODE_POOL_GET_WAIT</span> <span class="kw">as</span> <span class="ident">dpiPoolGetMode</span>,
-            <span class="ident">GetMode::NoWait</span> =&gt; <span class="ident">DPI_MODE_POOL_GET_NOWAIT</span> <span class="kw">as</span> <span class="ident">dpiPoolGetMode</span>,
-            <span class="ident">GetMode::ForceGet</span> =&gt; <span class="ident">DPI_MODE_POOL_GET_FORCEGET</span> <span class="kw">as</span> <span class="ident">dpiPoolGetMode</span>,
-            <span class="ident">GetMode::TimedWait</span>(<span class="kw">_</span>) =&gt; <span class="ident">DPI_MODE_POOL_GET_TIMEDWAIT</span> <span class="kw">as</span> <span class="ident">dpiPoolGetMode</span>,
+<span class="kw">impl </span>GetMode {
+    <span class="kw">fn </span>to_dpi_value(<span class="self">self</span>) -&gt; dpiPoolGetMode {
+        <span class="kw">match </span><span class="self">self </span>{
+            GetMode::Wait =&gt; DPI_MODE_POOL_GET_WAIT <span class="kw">as </span>dpiPoolGetMode,
+            GetMode::NoWait =&gt; DPI_MODE_POOL_GET_NOWAIT <span class="kw">as </span>dpiPoolGetMode,
+            GetMode::ForceGet =&gt; DPI_MODE_POOL_GET_FORCEGET <span class="kw">as </span>dpiPoolGetMode,
+            GetMode::TimedWait(<span class="kw">_</span>) =&gt; DPI_MODE_POOL_GET_TIMEDWAIT <span class="kw">as </span>dpiPoolGetMode,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_wait_timeout</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GetMode::TimedWait</span>(<span class="kw-2">ref</span> <span class="ident">dur</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">msecs</span>) <span class="op">=</span> <span class="ident">dur</span>.<span class="ident">as_millis</span>().<span class="ident">try_into</span>() {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msecs</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(
+    <span class="kw">fn </span>to_wait_timeout(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt; {
+        <span class="kw">if let </span>GetMode::TimedWait(<span class="kw-2">ref </span>dur) = <span class="self">self </span>{
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(msecs) = dur.as_millis().try_into() {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(msecs))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
                     <span class="string">&quot;Too long timed wait duration {:?}&quot;</span>,
-                    <span class="ident">dur</span>
+                    dur
                 )))
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
     }
 }
 
-<span class="doccomment">/// Whether a connection pool is homogeneous or heterogeneous.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PoolType</span> {
-    <span class="doccomment">/// The default pool type.</span>
-    <span class="doccomment">/// All connections in the pool are authenticated with the</span>
-    <span class="doccomment">/// username and password provided during pool creation.</span>
-    <span class="ident">Homogeneous</span>,
+<span class="doccomment">/// Whether a connection pool is homogeneous or heterogeneous.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>PoolType {
+    <span class="doccomment">/// The default pool type.
+    /// All connections in the pool are authenticated with the
+    /// username and password provided during pool creation.
+    </span>Homogeneous,
 
-    <span class="doccomment">/// Connections with different authentication contexts can be</span>
-    <span class="doccomment">/// created in the same pool. This pool type also supports</span>
-    <span class="doccomment">/// external authentication.</span>
-    <span class="doccomment">/// [`PoolBuilder::min_connections`] and [`PoolBuilder::connection_increment`]</span>
-    <span class="doccomment">/// are ignored in this type.</span>
-    <span class="ident">Heterogeneous</span>,
+    <span class="doccomment">/// Connections with different authentication contexts can be
+    /// created in the same pool. This pool type also supports
+    /// external authentication.
+    /// [`PoolBuilder::min_connections`] and [`PoolBuilder::connection_increment`]
+    /// are ignored in this type.
+    </span>Heterogeneous,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">I32Seconds</span>(<span class="ident">i32</span>);
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">struct </span>I32Seconds(i32);
 
-<span class="kw">impl</span> <span class="ident">I32Seconds</span> {
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">dur</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I32Seconds</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dur</span>) <span class="op">=</span> <span class="ident">dur</span> {
-            <span class="kw">match</span> <span class="ident">dur</span>.<span class="ident">as_secs</span>().<span class="ident">try_into</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">secs</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">I32Seconds</span>(<span class="ident">secs</span>)),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, <span class="ident">msg</span>, <span class="ident">dur</span>))),
+<span class="kw">impl </span>I32Seconds {
+    <span class="kw">fn </span>try_from(dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;I32Seconds&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(dur) = dur {
+            <span class="kw">match </span>dur.as_secs().try_into() {
+                <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(I32Seconds(secs)),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
             }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">I32Seconds</span>(<span class="op">-</span><span class="number">1</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(I32Seconds(-<span class="number">1</span>))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">try_into</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">secs</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">secs</span>)),
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.try_into() {
+            <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Some</span>(Duration::from_secs(secs)),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="doccomment">/// Additional options to get a connection from a pool</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is used as the argument of [`Pool::get_with_options`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PoolOptions</span> {
-    <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="ident">password</span>: <span class="ident">String</span>,
-    <span class="ident">privilege</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Privilege</span><span class="op">&gt;</span>,
-    <span class="ident">external_auth</span>: <span class="ident">bool</span>,
-    <span class="ident">tag</span>: <span class="ident">String</span>,
-    <span class="ident">match_any_tag</span>: <span class="ident">bool</span>,
-    <span class="ident">purity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Purity</span><span class="op">&gt;</span>,
-    <span class="ident">connection_class</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Additional options to get a connection from a pool
+///
+/// This is used as the argument of [`Pool::get_with_options`].
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>PoolOptions {
+    username: String,
+    password: String,
+    privilege: <span class="prelude-ty">Option</span>&lt;Privilege&gt;,
+    external_auth: bool,
+    tag: String,
+    match_any_tag: bool,
+    purity: <span class="prelude-ty">Option</span>&lt;Purity&gt;,
+    connection_class: String,
 }
 
-<span class="kw">impl</span> <span class="ident">PoolOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">PoolOptions</span> {
-        <span class="ident">PoolOptions</span> {
-            <span class="ident">username</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">password</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">privilege</span>: <span class="prelude-val">None</span>,
-            <span class="ident">external_auth</span>: <span class="bool-val">false</span>,
-            <span class="ident">tag</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">match_any_tag</span>: <span class="bool-val">false</span>,
-            <span class="ident">purity</span>: <span class="prelude-val">None</span>,
-            <span class="ident">connection_class</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">impl </span>PoolOptions {
+    <span class="kw">pub fn </span>new() -&gt; PoolOptions {
+        PoolOptions {
+            username: <span class="string">&quot;&quot;</span>.into(),
+            password: <span class="string">&quot;&quot;</span>.into(),
+            privilege: <span class="prelude-val">None</span>,
+            external_auth: <span class="bool-val">false</span>,
+            tag: <span class="string">&quot;&quot;</span>.into(),
+            match_any_tag: <span class="bool-val">false</span>,
+            purity: <span class="prelude-val">None</span>,
+            connection_class: <span class="string">&quot;&quot;</span>.into(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>username&lt;S&gt;(<span class="kw-2">mut </span><span class="self">self</span>, username: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">username</span> <span class="op">=</span> <span class="ident">username</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.username = username.into();
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>password&lt;S&gt;(<span class="kw-2">mut </span><span class="self">self</span>, password: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">password</span> <span class="op">=</span> <span class="ident">password</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.password = password.into();
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">privilege</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">privilege</span>: <span class="ident">Privilege</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">privilege</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">privilege</span>);
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>privilege(<span class="kw-2">mut </span><span class="self">self</span>, privilege: Privilege) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.privilege = <span class="prelude-val">Some</span>(privilege);
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_auth</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">external_auth</span> <span class="op">=</span> <span class="ident">enable</span>;
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>external_auth(<span class="kw-2">mut </span><span class="self">self</span>, enable: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.external_auth = enable;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tag</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tag</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>tag&lt;S&gt;(<span class="kw-2">mut </span><span class="self">self</span>, tag: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">tag</span> <span class="op">=</span> <span class="ident">tag</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.tag = tag.into();
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_any_tag</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">enable</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">match_any_tag</span> <span class="op">=</span> <span class="ident">enable</span>;
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>match_any_tag(<span class="kw-2">mut </span><span class="self">self</span>, enable: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.match_any_tag = enable;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">purity</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">purity</span>: <span class="ident">Purity</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">purity</span>);
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>purity(<span class="kw-2">mut </span><span class="self">self</span>, purity: Purity) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.purity = <span class="prelude-val">Some</span>(purity);
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_class</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connection_class</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>connection_class&lt;S&gt;(<span class="kw-2">mut </span><span class="self">self</span>, connection_class: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">connection_class</span> <span class="op">=</span> <span class="ident">connection_class</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.connection_class = connection_class.into();
+        <span class="self">self
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_conn_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>) -&gt; <span class="ident">dpiConnCreateParams</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">conn_create_params</span>();
+    <span class="kw">fn </span>to_dpi_conn_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context) -&gt; dpiConnCreateParams {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn_params = ctxt.conn_create_params();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">privilege</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">privilege</span> {
-            <span class="ident">conn_params</span>.<span class="ident">authMode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">privilege</span>.<span class="ident">to_dpi</span>();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(privilege) = <span class="self">self</span>.privilege {
+            conn_params.authMode |= privilege.to_dpi();
         }
-        <span class="ident">conn_params</span>.<span class="ident">externalAuth</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">external_auth</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tag</span>);
-        <span class="ident">conn_params</span>.<span class="ident">tag</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-        <span class="ident">conn_params</span>.<span class="ident">tagLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
-        <span class="ident">conn_params</span>.<span class="ident">matchAnyTag</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">match_any_tag</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">purity</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">purity</span> {
-            <span class="ident">conn_params</span>.<span class="ident">purity</span> <span class="op">=</span> <span class="ident">purity</span>.<span class="ident">to_dpi</span>();
+        conn_params.externalAuth = <span class="kw">if </span><span class="self">self</span>.external_auth { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
+        conn_params.tag = s.ptr;
+        conn_params.tagLength = s.len;
+        conn_params.matchAnyTag = <span class="kw">if </span><span class="self">self</span>.match_any_tag { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(purity) = <span class="self">self</span>.purity {
+            conn_params.purity = purity.to_dpi();
         }
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connection_class</span>);
-        <span class="ident">conn_params</span>.<span class="ident">connectionClass</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-        <span class="ident">conn_params</span>.<span class="ident">connectionClassLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
-        <span class="ident">conn_params</span>
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">U32Seconds</span>(<span class="ident">u32</span>);
-
-<span class="kw">impl</span> <span class="ident">U32Seconds</span> {
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">dur</span>: <span class="ident">Duration</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U32Seconds</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">dur</span>.<span class="ident">as_secs</span>().<span class="ident">try_into</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">secs</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">U32Seconds</span>(<span class="ident">secs</span>)),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, <span class="ident">msg</span>, <span class="ident">dur</span>))),
-        }
+        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connection_class);
+        conn_params.connectionClass = s.ptr;
+        conn_params.connectionClassLength = s.len;
+        conn_params
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">U32Milliseconds</span>(<span class="ident">u32</span>);
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">struct </span>U32Seconds(u32);
 
-<span class="kw">impl</span> <span class="ident">U32Milliseconds</span> {
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">dur</span>: <span class="ident">Duration</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U32Milliseconds</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">dur</span>.<span class="ident">as_millis</span>().<span class="ident">try_into</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">secs</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">U32Milliseconds</span>(<span class="ident">secs</span>)),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, <span class="ident">msg</span>, <span class="ident">dur</span>))),
+<span class="kw">impl </span>U32Seconds {
+    <span class="kw">fn </span>try_from(dur: Duration, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;U32Seconds&gt; {
+        <span class="kw">match </span>dur.as_secs().try_into() {
+            <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(U32Seconds(secs)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
         }
     }
 }
 
-<span class="doccomment">/// A bulider to make a connection pool</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PoolBuilder</span> {
-    <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="ident">password</span>: <span class="ident">String</span>,
-    <span class="ident">connect_string</span>: <span class="ident">String</span>,
-    <span class="ident">min_connections</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">max_connections</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">connection_increment</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">ping_interval</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">I32Seconds</span><span class="op">&gt;</span>,
-    <span class="ident">ping_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U32Milliseconds</span><span class="op">&gt;</span>,
-    <span class="ident">homogeneous</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="ident">external_auth</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
-    <span class="ident">get_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GetMode</span><span class="op">&gt;</span>,
-    <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U32Seconds</span><span class="op">&gt;</span>,
-    <span class="ident">max_lifetime_connection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U32Seconds</span><span class="op">&gt;</span>,
-    <span class="ident">plsql_fixup_callback</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">max_connections_per_shard</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">common_params</span>: <span class="ident">CommonCreateParamsBuilder</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">struct </span>U32Milliseconds(u32);
+
+<span class="kw">impl </span>U32Milliseconds {
+    <span class="kw">fn </span>try_from(dur: Duration, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;U32Milliseconds&gt; {
+        <span class="kw">match </span>dur.as_millis().try_into() {
+            <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(U32Milliseconds(secs)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
+        }
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">PoolBuilder</span> {
-    <span class="doccomment">/// Creates a builder to make a connection pool.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="ident">P</span>, <span class="ident">connect_string</span>: <span class="ident">C</span>) -&gt; <span class="ident">PoolBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">P</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">C</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A bulider to make a connection pool
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>PoolBuilder {
+    username: String,
+    password: String,
+    connect_string: String,
+    min_connections: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    max_connections: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    connection_increment: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    ping_interval: <span class="prelude-ty">Option</span>&lt;I32Seconds&gt;,
+    ping_timeout: <span class="prelude-ty">Option</span>&lt;U32Milliseconds&gt;,
+    homogeneous: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    external_auth: <span class="prelude-ty">Option</span>&lt;bool&gt;,
+    get_mode: <span class="prelude-ty">Option</span>&lt;GetMode&gt;,
+    timeout: <span class="prelude-ty">Option</span>&lt;U32Seconds&gt;,
+    max_lifetime_connection: <span class="prelude-ty">Option</span>&lt;U32Seconds&gt;,
+    plsql_fixup_callback: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    max_connections_per_shard: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    common_params: CommonCreateParamsBuilder,
+}
+
+<span class="kw">impl </span>PoolBuilder {
+    <span class="doccomment">/// Creates a builder to make a connection pool.
+    </span><span class="kw">pub fn </span>new&lt;U, P, C&gt;(username: U, password: P, connect_string: C) -&gt; PoolBuilder
+    <span class="kw">where
+        </span>U: Into&lt;String&gt;,
+        P: Into&lt;String&gt;,
+        C: Into&lt;String&gt;,
     {
-        <span class="ident">PoolBuilder</span> {
-            <span class="ident">username</span>: <span class="ident">username</span>.<span class="ident">into</span>(),
-            <span class="ident">password</span>: <span class="ident">password</span>.<span class="ident">into</span>(),
-            <span class="ident">connect_string</span>: <span class="ident">connect_string</span>.<span class="ident">into</span>(),
-            <span class="ident">min_connections</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_connections</span>: <span class="prelude-val">None</span>,
-            <span class="ident">connection_increment</span>: <span class="prelude-val">None</span>,
-            <span class="ident">ping_interval</span>: <span class="prelude-val">None</span>,
-            <span class="ident">ping_timeout</span>: <span class="prelude-val">None</span>,
-            <span class="ident">homogeneous</span>: <span class="prelude-val">None</span>,
-            <span class="ident">external_auth</span>: <span class="prelude-val">None</span>,
-            <span class="ident">get_mode</span>: <span class="prelude-val">None</span>,
-            <span class="ident">timeout</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_lifetime_connection</span>: <span class="prelude-val">None</span>,
-            <span class="ident">plsql_fixup_callback</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_connections_per_shard</span>: <span class="prelude-val">None</span>,
-            <span class="ident">common_params</span>: <span class="ident">Default::default</span>(),
+        PoolBuilder {
+            username: username.into(),
+            password: password.into(),
+            connect_string: connect_string.into(),
+            min_connections: <span class="prelude-val">None</span>,
+            max_connections: <span class="prelude-val">None</span>,
+            connection_increment: <span class="prelude-val">None</span>,
+            ping_interval: <span class="prelude-val">None</span>,
+            ping_timeout: <span class="prelude-val">None</span>,
+            homogeneous: <span class="prelude-val">None</span>,
+            external_auth: <span class="prelude-val">None</span>,
+            get_mode: <span class="prelude-val">None</span>,
+            timeout: <span class="prelude-val">None</span>,
+            max_lifetime_connection: <span class="prelude-val">None</span>,
+            plsql_fixup_callback: <span class="prelude-val">None</span>,
+            max_connections_per_shard: <span class="prelude-val">None</span>,
+            common_params: Default::default(),
         }
     }
 
-    <span class="doccomment">/// Specifies the minimum number of connections to be created by the connection pool.</span>
-    <span class="doccomment">/// This value is ignored if the pool type is [`PoolType::Heterogeneous`].</span>
-    <span class="doccomment">/// The default value is 1.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::reconfigure`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_connections</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">min_connections</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the minimum number of connections to be created by the connection pool.
+    /// This value is ignored if the pool type is [`PoolType::Heterogeneous`].
+    /// The default value is 1.
+    ///
+    /// See also [`Pool::reconfigure`].
+    </span><span class="kw">pub fn </span>min_connections(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num: u32) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.min_connections = <span class="prelude-val">Some</span>(num);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the maximum number of connections that can be created by the connection</span>
-    <span class="doccomment">/// pool. Values of 1 and higher are acceptable. The default value is 1.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::reconfigure`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connections</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">max_connections</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the maximum number of connections that can be created by the connection
+    /// pool. Values of 1 and higher are acceptable. The default value is 1.
+    ///
+    /// See also [`Pool::reconfigure`].
+    </span><span class="kw">pub fn </span>max_connections(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num: u32) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.max_connections = <span class="prelude-val">Some</span>(num);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the number of connections that will be created by the connection pool</span>
-    <span class="doccomment">/// when more connections are required and the number of connection is less than</span>
-    <span class="doccomment">/// the maximum allowed. This value is ignored if the pool type is [`PoolType::Heterogeneous`].</span>
-    <span class="doccomment">/// This value added to the [`PoolBuilder::min_connections`] value</span>
-    <span class="doccomment">/// must not exceed the [`PoolBuilder::max_connections`].</span>
-    <span class="doccomment">/// The default value is 0.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::reconfigure`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">connection_increment</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the number of connections that will be created by the connection pool
+    /// when more connections are required and the number of connection is less than
+    /// the maximum allowed. This value is ignored if the pool type is [`PoolType::Heterogeneous`].
+    /// This value added to the [`PoolBuilder::min_connections`] value
+    /// must not exceed the [`PoolBuilder::max_connections`].
+    /// The default value is 0.
+    ///
+    /// See also [`Pool::reconfigure`].
+    </span><span class="kw">pub fn </span>connection_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num: u32) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.connection_increment = <span class="prelude-val">Some</span>(num);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the length of time since a connection has last been used</span>
-    <span class="doccomment">/// before a ping will be performed to verify that the connection is still</span>
-    <span class="doccomment">/// valid. A `None` value disables this check. The default value is 60 seconds.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::ping_interval`] and [`Pool::set_ping_interval`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping_interval</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dur</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">ping_interval</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">I32Seconds::try_from</span>(<span class="ident">dur</span>, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>);
+    <span class="doccomment">/// Specifies the length of time since a connection has last been used
+    /// before a ping will be performed to verify that the connection is still
+    /// valid. A `None` value disables this check. The default value is 60 seconds.
+    ///
+    /// See also [`Pool::ping_interval`] and [`Pool::set_ping_interval`].
+    </span><span class="kw">pub fn </span>ping_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
+        <span class="self">self</span>.ping_interval = <span class="prelude-val">Some</span>(I32Seconds::try_from(dur, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Specifies the length of time to wait when performing a ping to</span>
-    <span class="doccomment">/// verify the connection is still valid before the connection is considered</span>
-    <span class="doccomment">/// invalid and is dropped. The default value is 5 seconds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping_timeout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">ping_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">U32Milliseconds::try_from</span>(<span class="ident">dur</span>, <span class="string">&quot;ping timeout&quot;</span>)<span class="question-mark">?</span>);
+    <span class="doccomment">/// Specifies the length of time to wait when performing a ping to
+    /// verify the connection is still valid before the connection is considered
+    /// invalid and is dropped. The default value is 5 seconds.
+    </span><span class="kw">pub fn </span>ping_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
+        <span class="self">self</span>.ping_timeout = <span class="prelude-val">Some</span>(U32Milliseconds::try_from(dur, <span class="string">&quot;ping timeout&quot;</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Specifies whether the pool is homogeneous or heterogeneous. In a homogeneous pool all</span>
-    <span class="doccomment">/// connections use the same credentials whereas in a heterogeneous pool other</span>
-    <span class="doccomment">/// credentials are permitted. The default value is [`PoolType::Homogeneous`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pool_type</span>: <span class="ident">PoolType</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">homogeneous</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">pool_type</span> {
-            <span class="ident">PoolType::Homogeneous</span> =&gt; <span class="number">1</span>,
-            <span class="ident">PoolType::Heterogeneous</span> =&gt; <span class="number">0</span>,
+    <span class="doccomment">/// Specifies whether the pool is homogeneous or heterogeneous. In a homogeneous pool all
+    /// connections use the same credentials whereas in a heterogeneous pool other
+    /// credentials are permitted. The default value is [`PoolType::Homogeneous`].
+    </span><span class="kw">pub fn </span>pool_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pool_type: PoolType) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.homogeneous = <span class="prelude-val">Some</span>(<span class="kw">match </span>pool_type {
+            PoolType::Homogeneous =&gt; <span class="number">1</span>,
+            PoolType::Heterogeneous =&gt; <span class="number">0</span>,
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies whether external authentication should be used to create the</span>
-    <span class="doccomment">/// connections in the pool. If this value is `false`, the user name and password values</span>
-    <span class="doccomment">/// must be specified in the call to [`PoolBuilder::new`]; otherwise, the</span>
-    <span class="doccomment">/// username and password values must be empty. The default</span>
-    <span class="doccomment">/// value is `false`. External authentication cannot be used with homogeneous pools.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_auth</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">external_auth</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies whether external authentication should be used to create the
+    /// connections in the pool. If this value is `false`, the user name and password values
+    /// must be specified in the call to [`PoolBuilder::new`]; otherwise, the
+    /// username and password values must be empty. The default
+    /// value is `false`. External authentication cannot be used with homogeneous pools.
+    </span><span class="kw">pub fn </span>external_auth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: bool) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.external_auth = <span class="prelude-val">Some</span>(b);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the mode to use when connections are acquired from the pool.</span>
-    <span class="doccomment">/// The default value is [`GetMode::NoWait`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::get_mode`] and [`Pool::set_get_mode`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">GetMode</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">get_mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the mode to use when connections are acquired from the pool.
+    /// The default value is [`GetMode::NoWait`].
+    ///
+    /// See also [`Pool::get_mode`] and [`Pool::set_get_mode`].
+    </span><span class="kw">pub fn </span>get_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: GetMode) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.get_mode = <span class="prelude-val">Some</span>(mode);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the length of time after which idle connections in the</span>
-    <span class="doccomment">/// pool are terminated. Note that termination only occurs when the pool is</span>
-    <span class="doccomment">/// accessed. The default value is [`Duration::ZERO`] which means that no idle connections are</span>
-    <span class="doccomment">/// terminated.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::timeout`] and [`Pool::set_timeout`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">U32Seconds::try_from</span>(<span class="ident">dur</span>, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>);
+    <span class="doccomment">/// Specifies the length of time after which idle connections in the
+    /// pool are terminated. Note that termination only occurs when the pool is
+    /// accessed. The default value is [`Duration::ZERO`] which means that no idle connections are
+    /// terminated.
+    ///
+    /// See also [`Pool::timeout`] and [`Pool::set_timeout`].
+    </span><span class="kw">pub fn </span>timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
+        <span class="self">self</span>.timeout = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Specifies the maximum length of time a pooled connection may</span>
-    <span class="doccomment">/// exist. Connections in use will not be closed. They become candidates for</span>
-    <span class="doccomment">/// termination only when they are released back to the pool and have existed</span>
-    <span class="doccomment">/// for longer than max_lifetime_connection. Connection termination only occurs</span>
-    <span class="doccomment">/// when the pool is accessed. The default value is [`Duration::ZERO`] which means that there is</span>
-    <span class="doccomment">/// no maximum length of time that a pooled connection may exist.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::max_lifetime_connection`] and [`Pool::set_max_lifetime_connection`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_lifetime_connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">max_lifetime_connection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">U32Seconds::try_from</span>(<span class="ident">dur</span>, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>);
+    <span class="doccomment">/// Specifies the maximum length of time a pooled connection may
+    /// exist. Connections in use will not be closed. They become candidates for
+    /// termination only when they are released back to the pool and have existed
+    /// for longer than max_lifetime_connection. Connection termination only occurs
+    /// when the pool is accessed. The default value is [`Duration::ZERO`] which means that there is
+    /// no maximum length of time that a pooled connection may exist.
+    ///
+    /// See also [`Pool::max_lifetime_connection`] and [`Pool::set_max_lifetime_connection`].
+    </span><span class="kw">pub fn </span>max_lifetime_connection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
+        <span class="self">self</span>.max_lifetime_connection = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Specifies the name of a PL/SQL procedure in the format</span>
-    <span class="doccomment">/// *schema.package.callback_proc* which will be called when a connection is</span>
-    <span class="doccomment">/// checked out from the pool and the requested tag doesn&#39;t match the actual</span>
-    <span class="doccomment">/// tag assigned to the connection. The procedure accepts the desired</span>
-    <span class="doccomment">/// and actual tags as parameters and it is the responsibility of the procedure</span>
-    <span class="doccomment">/// to ensure that the connection matches the desired state upon completion. See</span>
-    <span class="doccomment">/// the [OCI documentation](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B853A020-752F-494A-8D88-D0396EF57177)</span>
-    <span class="doccomment">/// for more information. This functionality is only available when Oracle Client</span>
-    <span class="doccomment">/// is at version 12.2 and higher.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plsql_fixup_callback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">plsql</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Specifies the name of a PL/SQL procedure in the format
+    /// *schema.package.callback_proc* which will be called when a connection is
+    /// checked out from the pool and the requested tag doesn&#39;t match the actual
+    /// tag assigned to the connection. The procedure accepts the desired
+    /// and actual tags as parameters and it is the responsibility of the procedure
+    /// to ensure that the connection matches the desired state upon completion. See
+    /// the [OCI documentation](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B853A020-752F-494A-8D88-D0396EF57177)
+    /// for more information. This functionality is only available when Oracle Client
+    /// is at version 12.2 and higher.
+    </span><span class="kw">pub fn </span>plsql_fixup_callback&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plsql: T) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder
+    <span class="kw">where
+        </span>T: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">plsql_fixup_callback</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">plsql</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.plsql_fixup_callback = <span class="prelude-val">Some</span>(plsql.into());
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the maximum number of connections that can be created by the connection</span>
-    <span class="doccomment">/// pool for each shard in a sharded database. Set this attribute to a value</span>
-    <span class="doccomment">/// other than zero to ensure that the pool is balanced towards each shard. A</span>
-    <span class="doccomment">/// value of zero will not set any maximum number of connections for each shard.</span>
-    <span class="doccomment">/// If the Oracle client library version is less than 18.3, this value is</span>
-    <span class="doccomment">/// ignored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::max_connections_per_shard`] and [`Pool::set_max_connections_per_shard`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connections_per_shard</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">max_connections_per_shard</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the maximum number of connections that can be created by the connection
+    /// pool for each shard in a sharded database. Set this attribute to a value
+    /// other than zero to ensure that the pool is balanced towards each shard. A
+    /// value of zero will not set any maximum number of connections for each shard.
+    /// If the Oracle client library version is less than 18.3, this value is
+    /// ignored.
+    ///
+    /// See also [`Pool::max_connections_per_shard`] and [`Pool::set_max_connections_per_shard`].
+    </span><span class="kw">pub fn </span>max_connections_per_shard(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num: u32) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.max_connections_per_shard = <span class="prelude-val">Some</span>(num);
+        <span class="self">self
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_pool_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">dpiPoolCreateParams</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_params</span> <span class="op">=</span> <span class="ident">ctxt</span>.<span class="ident">pool_create_params</span>();
+    <span class="kw">fn </span>to_dpi_pool_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;dpiPoolCreateParams&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>pool_params = ctxt.pool_create_params();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_connections</span> {
-            <span class="ident">pool_params</span>.<span class="ident">minSessions</span> <span class="op">=</span> <span class="ident">val</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.min_connections {
+            pool_params.minSessions = val;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_connections</span> {
-            <span class="ident">pool_params</span>.<span class="ident">maxSessions</span> <span class="op">=</span> <span class="ident">val</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.max_connections {
+            pool_params.maxSessions = val;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection_increment</span> {
-            <span class="ident">pool_params</span>.<span class="ident">sessionIncrement</span> <span class="op">=</span> <span class="ident">val</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.connection_increment {
+            pool_params.sessionIncrement = val;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ping_interval</span> {
-            <span class="ident">pool_params</span>.<span class="ident">pingInterval</span> <span class="op">=</span> <span class="ident">val</span>.<span class="number">0</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.ping_interval {
+            pool_params.pingInterval = val.<span class="number">0</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ping_timeout</span> {
-            <span class="ident">pool_params</span>.<span class="ident">pingTimeout</span> <span class="op">=</span> <span class="ident">val</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.ping_timeout {
+            pool_params.pingTimeout = val.<span class="number">0 </span><span class="kw">as </span>i32;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">homogeneous</span> {
-            <span class="ident">pool_params</span>.<span class="ident">homogeneous</span> <span class="op">=</span> <span class="ident">val</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.homogeneous {
+            pool_params.homogeneous = val;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">external_auth</span> {
-            <span class="ident">pool_params</span>.<span class="ident">externalAuth</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.external_auth {
+            pool_params.externalAuth = <span class="kw">if </span>val { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_mode</span> {
-            <span class="ident">pool_params</span>.<span class="ident">getMode</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">to_dpi_value</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">wait_timeout</span>) <span class="op">=</span> <span class="ident">val</span>.<span class="ident">to_wait_timeout</span>()<span class="question-mark">?</span> {
-                <span class="ident">pool_params</span>.<span class="ident">waitTimeout</span> <span class="op">=</span> <span class="ident">wait_timeout</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.get_mode {
+            pool_params.getMode = val.to_dpi_value();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(wait_timeout) = val.to_wait_timeout()<span class="question-mark">? </span>{
+                pool_params.waitTimeout = wait_timeout;
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span> {
-            <span class="ident">pool_params</span>.<span class="ident">timeout</span> <span class="op">=</span> <span class="ident">val</span>.<span class="number">0</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.timeout {
+            pool_params.timeout = val.<span class="number">0</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lifetime_connection</span> {
-            <span class="ident">pool_params</span>.<span class="ident">maxLifetimeSession</span> <span class="op">=</span> <span class="ident">val</span>.<span class="number">0</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.max_lifetime_connection {
+            pool_params.maxLifetimeSession = val.<span class="number">0</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">plsql_fixup_callback</span> {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
-            <span class="ident">pool_params</span>.<span class="ident">plsqlFixupCallback</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ptr</span>;
-            <span class="ident">pool_params</span>.<span class="ident">plsqlFixupCallbackLength</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>val) = <span class="self">self</span>.plsql_fixup_callback {
+            <span class="kw">let </span>s = to_odpi_str(val);
+            pool_params.plsqlFixupCallback = s.ptr;
+            pool_params.plsqlFixupCallbackLength = s.len;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_connections_per_shard</span> {
-            <span class="ident">pool_params</span>.<span class="ident">maxSessionsPerShard</span> <span class="op">=</span> <span class="ident">val</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.max_connections_per_shard {
+            pool_params.maxSessionsPerShard = val;
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">pool_params</span>)
+        <span class="prelude-val">Ok</span>(pool_params)
     }
 
-    <span class="doccomment">/// Reserved for when advanced queuing (AQ) or continuous query</span>
-    <span class="doccomment">/// notification (CQN) is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">events</span>(<span class="ident">b</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Reserved for when advanced queuing (AQ) or continuous query
+    /// notification (CQN) is supported.
+    </span><span class="kw">pub fn </span>events(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: bool) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.common_params.events(b);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies edition of [Edition-Based Redefinition][].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [Edition-Based Redefinition]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-58DE05A0-5DEF-4791-8FA8-F04D11964906</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">edition</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Specifies edition of [Edition-Based Redefinition][].
+    ///
+    /// [Edition-Based Redefinition]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-58DE05A0-5DEF-4791-8FA8-F04D11964906
+    </span><span class="kw">pub fn </span>edition&lt;S&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, edition: S) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder
+    <span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">edition</span>(<span class="ident">edition</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.common_params.edition(edition);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default value is &quot;rust-oracle : version number&quot;. Only the first 8</span>
-    <span class="doccomment">/// chracters &quot;rust-ora&quot; are displayed when the Oracle server version is</span>
-    <span class="doccomment">/// lower than 12.0.1.2.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driver_name</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">driver_name</span>: <span class="ident">S</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].
+    ///
+    /// The default value is &quot;rust-oracle : version number&quot;. Only the first 8
+    /// chracters &quot;rust-ora&quot; are displayed when the Oracle server version is
+    /// lower than 12.0.1.2.
+    ///
+    /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE
+    </span><span class="kw">pub fn </span>driver_name&lt;S&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, driver_name: S) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder
+    <span class="kw">where
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">driver_name</span>(<span class="ident">driver_name</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.common_params.driver_name(driver_name);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the number of statements to retain in the statement cache. Use a</span>
-    <span class="doccomment">/// value of 0 to disable the statement cache completely.</span>
-    <span class="doccomment">/// The default value is 20.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PoolBuilder</span> {
-        <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">stmt_cache_size</span>(<span class="ident">size</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the number of statements to retain in the statement cache. Use a
+    /// value of 0 to disable the statement cache completely.
+    /// The default value is 20.
+    ///
+    /// See also [`Pool::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].
+    </span><span class="kw">pub fn </span>stmt_cache_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u32) -&gt; <span class="kw-2">&amp;mut </span>PoolBuilder {
+        <span class="self">self</span>.common_params.stmt_cache_size(size);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Make a connection pool</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">Context::get</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">username</span>);
-        <span class="kw">let</span> <span class="ident">password</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">password</span>);
-        <span class="kw">let</span> <span class="ident">connect_string</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connect_string</span>);
-        <span class="kw">let</span> <span class="ident">common_params</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">common_params</span>.<span class="ident">build</span>(<span class="ident">ctxt</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_params</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_dpi_pool_create_params</span>(<span class="ident">ctxt</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="doccomment">/// Make a connection pool
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Pool&gt; {
+        <span class="kw">let </span>ctxt = Context::get()<span class="question-mark">?</span>;
+        <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.username);
+        <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.password);
+        <span class="kw">let </span>connect_string = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connect_string);
+        <span class="kw">let </span>common_params = <span class="self">self</span>.common_params.build(ctxt);
+        <span class="kw">let </span><span class="kw-2">mut </span>pool_params = <span class="self">self</span>.to_dpi_pool_create_params(ctxt)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_create</span>(
-                <span class="ident">ctxt</span>.<span class="ident">context</span>,
-                <span class="ident">username</span>.<span class="ident">ptr</span>,
-                <span class="ident">username</span>.<span class="ident">len</span>,
-                <span class="ident">password</span>.<span class="ident">ptr</span>,
-                <span class="ident">password</span>.<span class="ident">len</span>,
-                <span class="ident">connect_string</span>.<span class="ident">ptr</span>,
-                <span class="ident">connect_string</span>.<span class="ident">len</span>,
-                <span class="kw-2">&amp;</span><span class="ident">common_params</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">pool_params</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
+            ctxt,
+            dpiPool_create(
+                ctxt.context,
+                username.ptr,
+                username.len,
+                password.ptr,
+                password.len,
+                connect_string.ptr,
+                connect_string.len,
+                <span class="kw-2">&amp;</span>common_params,
+                <span class="kw-2">&amp;mut </span>pool_params,
+                <span class="kw-2">&amp;mut </span>handle
             )
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Pool</span> {
-            <span class="ident">ctxt</span>,
-            <span class="ident">handle</span>: <span class="ident">DpiPool::new</span>(<span class="ident">handle</span>),
+        <span class="prelude-val">Ok</span>(Pool {
+            ctxt,
+            handle: DpiPool::new(handle),
         })
     }
 }
 
-<span class="doccomment">/// Connection pool</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Get connections in a pool</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::pool::PoolBuilder;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let username = test_util::main_user();</span>
-<span class="doccomment">/// # let password = test_util::main_password();</span>
-<span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
-<span class="doccomment">/// // Create a pool</span>
-<span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
-<span class="doccomment">///     .max_connections(20)</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get connections from the pool.</span>
-<span class="doccomment">/// let conn1 = pool.get()?;</span>
-<span class="doccomment">/// let conn2 = pool.get()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(pool.open_count()?, 2); // Two connections are in the pool.</span>
-<span class="doccomment">/// assert_eq!(pool.busy_count()?, 2); // Two connections are in use.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Return the connections to the pool.</span>
-<span class="doccomment">/// conn1.close()?;</span>
-<span class="doccomment">/// conn2.close()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(pool.open_count()?, 2); // Two connections are in the pool.</span>
-<span class="doccomment">/// assert_eq!(pool.busy_count()?, 0); // No connections are in use.</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Use a [heterogeneous pool](PoolType::Heterogeneous) to pool different users&#39; connections</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::Connector;</span>
-<span class="doccomment">/// # use oracle::pool::{PoolBuilder, PoolOptions, PoolType};</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let username = test_util::main_user();</span>
-<span class="doccomment">/// # let username = username.as_ref();</span>
-<span class="doccomment">/// # let password = test_util::main_password();</span>
-<span class="doccomment">/// # let another_username = test_util::edition_user();</span>
-<span class="doccomment">/// # let another_username = another_username.as_ref();</span>
-<span class="doccomment">/// # let another_password = test_util::edition_password();</span>
-<span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
-<span class="doccomment">/// // Create a pool</span>
-<span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
-<span class="doccomment">///     .pool_type(PoolType::Heterogeneous)</span>
-<span class="doccomment">///     .max_connections(20)</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get a connection from the pool.</span>
-<span class="doccomment">/// let conn1 = pool.get()?;</span>
-<span class="doccomment">/// let conn1_user = conn1.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;</span>
-<span class="doccomment">/// assert_eq!(conn1_user, username);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get an another user&#39;s connection.</span>
-<span class="doccomment">/// let opts = PoolOptions::new().username(another_username).password(another_password);</span>
-<span class="doccomment">/// let conn2 = pool.get_with_options(&amp;opts)?; // with connector to pass username and password</span>
-<span class="doccomment">/// let conn2_user = conn2.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;</span>
-<span class="doccomment">/// assert_eq!(conn2_user, another_username);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Get connections with tags (`NAME=VALUE` pairs)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::Connector;</span>
-<span class="doccomment">/// # use oracle::conn;</span>
-<span class="doccomment">/// # use oracle::pool::{PoolBuilder, PoolOptions};</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # let username = test_util::main_user();</span>
-<span class="doccomment">/// # let password = test_util::main_password();</span>
-<span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
-<span class="doccomment">/// // Create a pool</span>
-<span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
-<span class="doccomment">///     .max_connections(20)</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create Pool options to specify a tag.</span>
-<span class="doccomment">/// let opts = PoolOptions::new().tag(&quot;LANG=FRENCH&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get a connection with tag &quot;LANG=FRENCH&quot;.</span>
-<span class="doccomment">/// // There are no connections with the tag at this point.</span>
-<span class="doccomment">/// let conn = pool.get_with_options(&amp;opts)?;</span>
-<span class="doccomment">/// assert_eq!(conn.tag_found(), false, &quot;conn.tag_found() (1)&quot;); // new connection</span>
-<span class="doccomment">/// // Change the nls_language for later.</span>
-<span class="doccomment">/// if !conn.tag_found() {</span>
-<span class="doccomment">///   conn.execute(&quot;alter session set nls_language = FRENCH&quot;, &amp;[])?;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// // use the connection</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// // return it to the pool with new tag.</span>
-<span class="doccomment">/// conn.close_with_mode(conn::CloseMode::Retag(&quot;LANG=FRENCH&quot;))?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Get a connection with tag &quot;LANG=FRENCH&quot; again.</span>
-<span class="doccomment">/// // There is one connection with the tag at this point.</span>
-<span class="doccomment">/// let conn = pool.get_with_options(&amp;opts)?;</span>
-<span class="doccomment">/// assert_eq!(conn.tag_found(), true, &quot;conn.tag_found() (2)&quot;);</span>
-<span class="doccomment">/// assert_eq!(conn.tag(), &quot;LANG=FRENCH&quot;, &quot;conn.tag() (2)&quot;);</span>
-<span class="doccomment">/// // Check whether this is the connection previously</span>
-<span class="doccomment">/// let sql = &quot;select value from nls_session_parameters where parameter = &#39;NLS_LANGUAGE&#39;&quot;;</span>
-<span class="doccomment">/// assert_eq!(conn.query_row_as::&lt;String&gt;(sql, &amp;[])?, &quot;FRENCH&quot;);</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// // The connection has been tagged already. There is no need to set a new tag.</span>
-<span class="doccomment">/// conn.close()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pool</span> {
-    <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-    <span class="ident">handle</span>: <span class="ident">DpiPool</span>,
+<span class="doccomment">/// Connection pool
+///
+///
+/// # Examples
+///
+/// Get connections in a pool
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::pool::PoolBuilder;
+/// # use oracle::test_util;
+/// # let username = test_util::main_user();
+/// # let password = test_util::main_password();
+/// # let connect_string = test_util::connect_string();
+/// // Create a pool
+/// let pool = PoolBuilder::new(username, password, connect_string)
+///     .max_connections(20)
+///     .build()?;
+///
+/// // Get connections from the pool.
+/// let conn1 = pool.get()?;
+/// let conn2 = pool.get()?;
+///
+/// assert_eq!(pool.open_count()?, 2); // Two connections are in the pool.
+/// assert_eq!(pool.busy_count()?, 2); // Two connections are in use.
+///
+/// // Return the connections to the pool.
+/// conn1.close()?;
+/// conn2.close()?;
+///
+/// assert_eq!(pool.open_count()?, 2); // Two connections are in the pool.
+/// assert_eq!(pool.busy_count()?, 0); // No connections are in use.
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// Use a [heterogeneous pool](PoolType::Heterogeneous) to pool different users&#39; connections
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::Connector;
+/// # use oracle::pool::{PoolBuilder, PoolOptions, PoolType};
+/// # use oracle::test_util;
+/// # let username = test_util::main_user();
+/// # let username = username.as_ref();
+/// # let password = test_util::main_password();
+/// # let another_username = test_util::edition_user();
+/// # let another_username = another_username.as_ref();
+/// # let another_password = test_util::edition_password();
+/// # let connect_string = test_util::connect_string();
+/// // Create a pool
+/// let pool = PoolBuilder::new(username, password, connect_string)
+///     .pool_type(PoolType::Heterogeneous)
+///     .max_connections(20)
+///     .build()?;
+///
+/// // Get a connection from the pool.
+/// let conn1 = pool.get()?;
+/// let conn1_user = conn1.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;
+/// assert_eq!(conn1_user, username);
+///
+/// // Get an another user&#39;s connection.
+/// let opts = PoolOptions::new().username(another_username).password(another_password);
+/// let conn2 = pool.get_with_options(&amp;opts)?; // with connector to pass username and password
+/// let conn2_user = conn2.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;
+/// assert_eq!(conn2_user, another_username);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// Get connections with tags (`NAME=VALUE` pairs)
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::Connector;
+/// # use oracle::conn;
+/// # use oracle::pool::{PoolBuilder, PoolOptions};
+/// # use oracle::test_util;
+/// # let username = test_util::main_user();
+/// # let password = test_util::main_password();
+/// # let connect_string = test_util::connect_string();
+/// // Create a pool
+/// let pool = PoolBuilder::new(username, password, connect_string)
+///     .max_connections(20)
+///     .build()?;
+///
+/// // Create Pool options to specify a tag.
+/// let opts = PoolOptions::new().tag(&quot;LANG=FRENCH&quot;);
+///
+/// // Get a connection with tag &quot;LANG=FRENCH&quot;.
+/// // There are no connections with the tag at this point.
+/// let conn = pool.get_with_options(&amp;opts)?;
+/// assert_eq!(conn.tag_found(), false, &quot;conn.tag_found() (1)&quot;); // new connection
+/// // Change the nls_language for later.
+/// if !conn.tag_found() {
+///   conn.execute(&quot;alter session set nls_language = FRENCH&quot;, &amp;[])?;
+/// }
+/// // ...
+/// // use the connection
+/// // ...
+/// // return it to the pool with new tag.
+/// conn.close_with_mode(conn::CloseMode::Retag(&quot;LANG=FRENCH&quot;))?;
+///
+/// // Get a connection with tag &quot;LANG=FRENCH&quot; again.
+/// // There is one connection with the tag at this point.
+/// let conn = pool.get_with_options(&amp;opts)?;
+/// assert_eq!(conn.tag_found(), true, &quot;conn.tag_found() (2)&quot;);
+/// assert_eq!(conn.tag(), &quot;LANG=FRENCH&quot;, &quot;conn.tag() (2)&quot;);
+/// // Check whether this is the connection previously
+/// let sql = &quot;select value from nls_session_parameters where parameter = &#39;NLS_LANGUAGE&#39;&quot;;
+/// assert_eq!(conn.query_row_as::&lt;String&gt;(sql, &amp;[])?, &quot;FRENCH&quot;);
+/// // ...
+/// // The connection has been tagged already. There is no need to set a new tag.
+/// conn.close()?;
+///
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Pool {
+    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    handle: DpiPool,
 }
 
-<span class="kw">impl</span> <span class="ident">Pool</span> {
-    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">dpiPool</span> {
-        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">raw</span>()
+<span class="kw">impl </span>Pool {
+    <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiPool {
+        <span class="self">self</span>.handle.raw()
     }
 
-    <span class="doccomment">/// Gets a connection from the pool with default parameters.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use [`Pool::get_with_options`] to get a new one with</span>
-    <span class="doccomment">/// additional parameters.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When the connection is dropped, it backs to the pool</span>
-    <span class="doccomment">/// for subsequent calls to this function. The connection</span>
-    <span class="doccomment">/// can be returned back to the pool earlier by calling</span>
-    <span class="doccomment">/// [`Connection::close`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_with_options</span>(<span class="kw-2">&amp;</span><span class="ident">PoolOptions::new</span>())
+    <span class="doccomment">/// Gets a connection from the pool with default parameters.
+    ///
+    /// Use [`Pool::get_with_options`] to get a new one with
+    /// additional parameters.
+    ///
+    /// When the connection is dropped, it backs to the pool
+    /// for subsequent calls to this function. The connection
+    /// can be returned back to the pool earlier by calling
+    /// [`Connection::close`].
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
+        <span class="self">self</span>.get_with_options(<span class="kw-2">&amp;</span>PoolOptions::new())
     }
 
-    <span class="doccomment">/// Acquires a connection from the specified connection pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::get`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_with_options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">username</span>);
-        <span class="kw">let</span> <span class="ident">password</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">password</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn_params</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">to_dpi_conn_create_params</span>(<span class="self">self</span>.<span class="ident">ctxt</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="doccomment">/// Acquires a connection from the specified connection pool.
+    ///
+    /// See also [`Pool::get`].
+    </span><span class="kw">pub fn </span>get_with_options(<span class="kw-2">&amp;</span><span class="self">self</span>, options: <span class="kw-2">&amp;</span>PoolOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
+        <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span>options.username);
+        <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span>options.password);
+        <span class="kw">let </span><span class="kw-2">mut </span>conn_params = options.to_dpi_conn_create_params(<span class="self">self</span>.ctxt);
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_acquireConnection</span>(
-                <span class="self">self</span>.<span class="ident">handle</span>(),
-                <span class="ident">username</span>.<span class="ident">ptr</span>,
-                <span class="ident">username</span>.<span class="ident">len</span>,
-                <span class="ident">password</span>.<span class="ident">ptr</span>,
-                <span class="ident">password</span>.<span class="ident">len</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">conn_params</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>
+            <span class="self">self</span>.ctxt,
+            dpiPool_acquireConnection(
+                <span class="self">self</span>.handle(),
+                username.ptr,
+                username.len,
+                password.ptr,
+                password.len,
+                <span class="kw-2">&amp;mut </span>conn_params,
+                <span class="kw-2">&amp;mut </span>handle
             )
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Connection::from_dpi_handle</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">handle</span>, <span class="kw-2">&amp;</span><span class="ident">conn_params</span>))
+        <span class="prelude-val">Ok</span>(Connection::from_dpi_handle(<span class="self">self</span>.ctxt, handle, <span class="kw-2">&amp;</span>conn_params))
     }
 
-    <span class="doccomment">/// Closes the pool and makes it unusable for further activity.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">CloseMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_close</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">mode</span>.<span class="ident">to_dpi_value</span>()));
+    <span class="doccomment">/// Closes the pool and makes it unusable for further activity.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>, mode: <span class="kw-2">&amp;</span>CloseMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_close(<span class="self">self</span>.handle(), mode.to_dpi_value()));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the number of connections in the pool that are busy.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use oracle::Error;</span>
-    <span class="doccomment">/// # use oracle::pool::PoolBuilder;</span>
-    <span class="doccomment">/// # use oracle::test_util;</span>
-    <span class="doccomment">/// # let username = test_util::main_user();</span>
-    <span class="doccomment">/// # let password = test_util::main_password();</span>
-    <span class="doccomment">/// # let connect_string = test_util::connect_string();</span>
-    <span class="doccomment">/// let pool = PoolBuilder::new(username, password, connect_string)</span>
-    <span class="doccomment">///     .max_connections(3)</span>
-    <span class="doccomment">///     .build()?;</span>
-    <span class="doccomment">/// assert_eq!(pool.busy_count()?, 0);</span>
-    <span class="doccomment">/// let conn1 = pool.get()?;</span>
-    <span class="doccomment">/// let conn2 = pool.get()?;</span>
-    <span class="doccomment">/// assert_eq!(pool.busy_count()?, 2);</span>
-    <span class="doccomment">/// conn1.close()?;</span>
-    <span class="doccomment">/// conn2.close()?;</span>
-    <span class="doccomment">/// assert_eq!(pool.busy_count()?, 0);</span>
-    <span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">busy_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getBusyCount</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">count</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
+    <span class="doccomment">/// Returns the number of connections in the pool that are busy.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::pool::PoolBuilder;
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let password = test_util::main_password();
+    /// # let connect_string = test_util::connect_string();
+    /// let pool = PoolBuilder::new(username, password, connect_string)
+    ///     .max_connections(3)
+    ///     .build()?;
+    /// assert_eq!(pool.busy_count()?, 0);
+    /// let conn1 = pool.get()?;
+    /// let conn2 = pool.get()?;
+    /// assert_eq!(pool.busy_count()?, 2);
+    /// conn1.close()?;
+    /// conn2.close()?;
+    /// assert_eq!(pool.busy_count()?, 0);
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>busy_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getBusyCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>count));
+        <span class="prelude-val">Ok</span>(count)
     }
 
-    <span class="doccomment">/// Returns the mode used for acquiring or getting connections from the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::get_mode`] and [`Pool::set_get_mode`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GetMode</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getGetMode</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="kw">match</span> <span class="ident">val</span> <span class="kw">as</span> <span class="ident">u32</span> {
-            <span class="ident">DPI_MODE_POOL_GET_WAIT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">GetMode::Wait</span>),
-            <span class="ident">DPI_MODE_POOL_GET_NOWAIT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">GetMode::NoWait</span>),
-            <span class="ident">DPI_MODE_POOL_GET_FORCEGET</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">GetMode::ForceGet</span>),
-            <span class="ident">DPI_MODE_POOL_GET_TIMEDWAIT</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getWaitTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-                <span class="prelude-val">Ok</span>(<span class="ident">GetMode::TimedWait</span>(<span class="ident">Duration::from_millis</span>(<span class="ident">val</span>.<span class="ident">into</span>())))
+    <span class="doccomment">/// Returns the mode used for acquiring or getting connections from the pool.
+    ///
+    /// See also [`PoolBuilder::get_mode`] and [`Pool::set_get_mode`].
+    </span><span class="kw">pub fn </span>get_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;GetMode&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getGetMode(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="kw">match </span>val <span class="kw">as </span>u32 {
+            DPI_MODE_POOL_GET_WAIT =&gt; <span class="prelude-val">Ok</span>(GetMode::Wait),
+            DPI_MODE_POOL_GET_NOWAIT =&gt; <span class="prelude-val">Ok</span>(GetMode::NoWait),
+            DPI_MODE_POOL_GET_FORCEGET =&gt; <span class="prelude-val">Ok</span>(GetMode::ForceGet),
+            DPI_MODE_POOL_GET_TIMEDWAIT =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+                <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getWaitTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+                <span class="prelude-val">Ok</span>(GetMode::TimedWait(Duration::from_millis(val.into())))
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;unknown dpiPoolGetMode {}&quot;</span>,
-                <span class="ident">val</span>
+                val
             ))),
         }
     }
 
-    <span class="doccomment">/// Sets the mode used for acquiring or getting connections from the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::get_mode`] and [`Pool::get_mode`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_get_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GetMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">get_mode</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">to_dpi_value</span>();
-        <span class="kw">let</span> <span class="ident">wait_timeout</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">to_wait_timeout</span>()<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_setGetMode</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">get_mode</span>));
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msecs</span>) <span class="op">=</span> <span class="ident">wait_timeout</span> {
-            <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_setWaitTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">msecs</span>));
+    <span class="doccomment">/// Sets the mode used for acquiring or getting connections from the pool.
+    ///
+    /// See also [`PoolBuilder::get_mode`] and [`Pool::get_mode`].
+    </span><span class="kw">pub fn </span>set_get_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: <span class="kw-2">&amp;</span>GetMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>get_mode = mode.to_dpi_value();
+        <span class="kw">let </span>wait_timeout = mode.to_wait_timeout()<span class="question-mark">?</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setGetMode(<span class="self">self</span>.handle(), get_mode));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(msecs) = wait_timeout {
+            <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setWaitTimeout(<span class="self">self</span>.handle(), msecs));
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the maximum lifetime a pooled connection may exist.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::max_lifetime_connection`] and [`Pool::set_max_lifetime_connection`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_lifetime_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the maximum lifetime a pooled connection may exist.
+    ///
+    /// See also [`PoolBuilder::max_lifetime_connection`] and [`Pool::set_max_lifetime_connection`].
+    </span><span class="kw">pub fn </span>max_lifetime_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_getMaxLifetimeSession</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt,
+            dpiPool_getMaxLifetimeSession(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">val</span>.<span class="ident">into</span>()))
+        <span class="prelude-val">Ok</span>(Duration::from_secs(val.into()))
     }
 
-    <span class="doccomment">/// Sets the maximum lifetime a pooled connection may exist.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::max_lifetime_connection`] and [`Pool::max_lifetime_connection`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_max_lifetime_connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">U32Seconds::try_from</span>(<span class="ident">dur</span>, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Sets the maximum lifetime a pooled connection may exist.
+    ///
+    /// See also [`PoolBuilder::max_lifetime_connection`] and [`Pool::max_lifetime_connection`].
+    </span><span class="kw">pub fn </span>set_max_lifetime_connection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = U32Seconds::try_from(dur, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_setMaxLifetimeSession</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>.<span class="number">0</span>)
-        );
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Returns the maximum connections per shard. This parameter is used for</span>
-    <span class="doccomment">/// balancing shards.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::set_max_connections_per_shard`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connections_per_shard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_getMaxSessionsPerShard</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
-        );
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
-    }
-
-    <span class="doccomment">/// Sets the maximum number of connections per shard.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::max_connections_per_shard`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_max_connections_per_shard</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">max_connections</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_setMaxSessionsPerShard</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">max_connections</span>)
+            <span class="self">self</span>.ctxt,
+            dpiPool_setMaxLifetimeSession(<span class="self">self</span>.handle(), val.<span class="number">0</span>)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the number of connections in the pool that are open.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getOpenCount</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
+    <span class="doccomment">/// Returns the maximum connections per shard. This parameter is used for
+    /// balancing shards.
+    ///
+    /// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::set_max_connections_per_shard`].
+    </span><span class="kw">pub fn </span>max_connections_per_shard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt,
+            dpiPool_getMaxSessionsPerShard(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
+        );
+        <span class="prelude-val">Ok</span>(val)
     }
 
-    <span class="doccomment">/// Returns the ping interval duration, which is used to check the</span>
-    <span class="doccomment">/// healthiness of idle connections before getting checked out. A `None`</span>
-    <span class="doccomment">/// value indicates this check is disabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::ping_interval`] and [`Pool::set_ping_interval`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ping_interval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getPingInterval</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">I32Seconds</span>(<span class="ident">val</span>).<span class="ident">into</span>())
-    }
-
-    <span class="doccomment">/// Sets the ping interval duration which is used to to check for</span>
-    <span class="doccomment">/// healthiness of connections. If this time has passed since the last time the</span>
-    <span class="doccomment">/// connection was checked out a ping will be performed. A `None` value will</span>
-    <span class="doccomment">/// disable this check.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::ping_interval`] and [`Pool::ping_interval`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_ping_interval</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">interval</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">I32Seconds::try_from</span>(<span class="ident">interval</span>, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_setPingInterval</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>.<span class="number">0</span>));
+    <span class="doccomment">/// Sets the maximum number of connections per shard.
+    ///
+    /// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::max_connections_per_shard`].
+    </span><span class="kw">pub fn </span>set_max_connections_per_shard(<span class="kw-2">&amp;mut </span><span class="self">self</span>, max_connections: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt,
+            dpiPool_setMaxSessionsPerShard(<span class="self">self</span>.handle(), max_connections)
+        );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Changes pool configuration corresponding to [`PoolBuilder::min_connections`],</span>
-    <span class="doccomment">/// [`PoolBuilder::max_connections`] and [`PoolBuilder::connection_increment`]</span>
-    <span class="doccomment">/// to the specified values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Connections will be created as needed if the value of `min_connections` is</span>
-    <span class="doccomment">/// increased. Connections will be dropped from the pool as they are released</span>
-    <span class="doccomment">/// back to the pool if `min_connections` is decreased.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reconfigure</span>(
+    <span class="doccomment">/// Returns the number of connections in the pool that are open.
+    </span><span class="kw">pub fn </span>open_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getOpenCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(val)
+    }
+
+    <span class="doccomment">/// Returns the ping interval duration, which is used to check the
+    /// healthiness of idle connections before getting checked out. A `None`
+    /// value indicates this check is disabled.
+    ///
+    /// See also [`PoolBuilder::ping_interval`] and [`Pool::set_ping_interval`].
+    </span><span class="kw">pub fn </span>ping_interval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Duration&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getPingInterval(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(I32Seconds(val).into())
+    }
+
+    <span class="doccomment">/// Sets the ping interval duration which is used to to check for
+    /// healthiness of connections. If this time has passed since the last time the
+    /// connection was checked out a ping will be performed. A `None` value will
+    /// disable this check.
+    ///
+    /// See also [`PoolBuilder::ping_interval`] and [`Pool::ping_interval`].
+    </span><span class="kw">pub fn </span>set_ping_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = I32Seconds::try_from(interval, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setPingInterval(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Changes pool configuration corresponding to [`PoolBuilder::min_connections`],
+    /// [`PoolBuilder::max_connections`] and [`PoolBuilder::connection_increment`]
+    /// to the specified values.
+    ///
+    /// Connections will be created as needed if the value of `min_connections` is
+    /// increased. Connections will be dropped from the pool as they are released
+    /// back to the pool if `min_connections` is decreased.
+    </span><span class="kw">pub fn </span>reconfigure(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">min_connections</span>: <span class="ident">u32</span>,
-        <span class="ident">max_connections</span>: <span class="ident">u32</span>,
-        <span class="ident">connection_increment</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        min_connections: u32,
+        max_connections: u32,
+        connection_increment: u32,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_reconfigure</span>(
-                <span class="self">self</span>.<span class="ident">handle</span>(),
-                <span class="ident">min_connections</span>,
-                <span class="ident">max_connections</span>,
-                <span class="ident">connection_increment</span>
+            <span class="self">self</span>.ctxt,
+            dpiPool_reconfigure(
+                <span class="self">self</span>.handle(),
+                min_connections,
+                max_connections,
+                connection_increment
             )
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns whether or not the SODA metadata cache is enabled or not.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Enabling the SODA metadata cache can significantly improve the</span>
-    <span class="doccomment">/// performance of repeated calls to methods [`soda::Database::create_collection`]</span>
-    <span class="doccomment">/// (when not specifying a value for the metadata parameter) and</span>
-    <span class="doccomment">/// [`soda::Database::open_collection`]. Note that the cache can</span>
-    <span class="doccomment">/// become out of date if changes to the metadata of cached collections</span>
-    <span class="doccomment">/// are made externally.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The SODA metadata cache requires Oracle Client 21.3, or later. It is also</span>
-    <span class="doccomment">/// available in Oracle Client 19 from 19.11.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::set_soda_metadata_cache`].</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// uncomment when SODA is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">soda_metadata_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns whether or not the SODA metadata cache is enabled or not.
+    ///
+    /// Enabling the SODA metadata cache can significantly improve the
+    /// performance of repeated calls to methods [`soda::Database::create_collection`]
+    /// (when not specifying a value for the metadata parameter) and
+    /// [`soda::Database::open_collection`]. Note that the cache can
+    /// become out of date if changes to the metadata of cached collections
+    /// are made externally.
+    ///
+    /// The SODA metadata cache requires Oracle Client 21.3, or later. It is also
+    /// available in Oracle Client 19 from 19.11.
+    ///
+    /// See also [`Pool::set_soda_metadata_cache`].
+    </span><span class="attribute">#[doc(hidden)] </span><span class="comment">// uncomment when SODA is supported.
+    </span><span class="kw">pub fn </span>soda_metadata_cache(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_getSodaMetadataCache</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt,
+            dpiPool_getSodaMetadataCache(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
+        <span class="prelude-val">Ok</span>(val != <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Sets whether the SODA metadata cache is enabled or not.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The SODA metadata cache requires Oracle Client 21.3, or later. It is also</span>
-    <span class="doccomment">/// available in Oracle Client 19 from 19.11.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`Pool::soda_metadata_cache`].</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span> <span class="comment">// uncomment when SODA is supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_soda_metadata_cache</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">enabled</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">enabled</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
+    <span class="doccomment">/// Sets whether the SODA metadata cache is enabled or not.
+    ///
+    /// The SODA metadata cache requires Oracle Client 21.3, or later. It is also
+    /// available in Oracle Client 19 from 19.11.
+    ///
+    /// See also [`Pool::soda_metadata_cache`].
+    </span><span class="attribute">#[doc(hidden)] </span><span class="comment">// uncomment when SODA is supported.
+    </span><span class="kw">pub fn </span>set_soda_metadata_cache(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enabled: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>enabled = <span class="kw">if </span>enabled { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_setSodaMetadataCache</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">enabled</span>)
-        );
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Returns the default size of the statement cache for connections in the pool,</span>
-    <span class="doccomment">/// in number of statements.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stmt_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
-    }
-
-    <span class="doccomment">/// Sets the default size of the statement cache for connections in the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::stmt_cache_size`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stmt_cache_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cache_size</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiPool_setStmtCacheSize</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">cache_size</span>)
+            <span class="self">self</span>.ctxt,
+            dpiPool_setSodaMetadataCache(<span class="self">self</span>.handle(), enabled)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns the length of time after which idle connections in the</span>
-    <span class="doccomment">/// pool are terminated. Note that termination only occurs when the pool is</span>
-    <span class="doccomment">/// accessed. A value of [`Duration::ZERO`] means that no ide connections are terminated.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::timeout`] and [`Pool::set_timeout`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_getTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">val</span>.<span class="ident">into</span>()))
+    <span class="doccomment">/// Returns the default size of the statement cache for connections in the pool,
+    /// in number of statements.
+    ///
+    /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].
+    </span><span class="kw">pub fn </span>stmt_cache_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getStmtCacheSize(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(val)
     }
 
-    <span class="doccomment">/// Sets the amount of time after which idle connections in the</span>
-    <span class="doccomment">/// pool are terminated. Note that termination only occurs when the pool is</span>
-    <span class="doccomment">/// accessed. A value of [`Duration::ZERO`] will result in no idle connections being terminated.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also [`PoolBuilder::timeout`] and [`Pool::timeout`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_timeout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">U32Seconds::try_from</span>(<span class="ident">timeout</span>, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiPool_setTimeout</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>.<span class="number">0</span>));
+    <span class="doccomment">/// Sets the default size of the statement cache for connections in the pool.
+    ///
+    /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::stmt_cache_size`].
+    </span><span class="kw">pub fn </span>set_stmt_cache_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cache_size: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt,
+            dpiPool_setStmtCacheSize(<span class="self">self</span>.handle(), cache_size)
+        );
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Returns the length of time after which idle connections in the
+    /// pool are terminated. Note that termination only occurs when the pool is
+    /// accessed. A value of [`Duration::ZERO`] means that no ide connections are terminated.
+    ///
+    /// See also [`PoolBuilder::timeout`] and [`Pool::set_timeout`].
+    </span><span class="kw">pub fn </span>timeout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(Duration::from_secs(val.into()))
+    }
+
+    <span class="doccomment">/// Sets the amount of time after which idle connections in the
+    /// pool are terminated. Note that termination only occurs when the pool is
+    /// accessed. A value of [`Duration::ZERO`] will result in no idle connections being terminated.
+    ///
+    /// See also [`PoolBuilder::timeout`] and [`Pool::timeout`].
+    </span><span class="kw">pub fn </span>set_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = U32Seconds::try_from(timeout, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setTimeout(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Pool</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Poll {{ handle: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">handle</span>())
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Pool {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Poll {{ handle: {:?}&quot;</span>, <span class="self">self</span>.handle())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AssertSync</span> <span class="kw">for</span> <span class="ident">Pool</span> {}
-<span class="kw">impl</span> <span class="ident">AssertSend</span> <span class="kw">for</span> <span class="ident">Pool</span> {}
+<span class="kw">impl </span>AssertSync <span class="kw">for </span>Pool {}
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>Pool {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

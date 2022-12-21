@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/timestamp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>timestamp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/timestamp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>timestamp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -587,590 +582,589 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="kw">use</span> <span class="ident">std::cmp</span>::{<span class="self">self</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::str</span>;
+</span><span class="kw">use </span>std::cmp::{<span class="self">self</span>, Ordering};
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::str;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding::dpiTimestamp</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::Scanner</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ParseOracleTypeError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::binding::dpiTimestamp;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+<span class="kw">use </span><span class="kw">crate</span>::util::Scanner;
+<span class="kw">use </span><span class="kw">crate</span>::ParseOracleTypeError;
 
-<span class="doccomment">/// Oracle-specific [Datetime][] data type</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Datetime]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This struct doesn&#39;t have arithmetic methods and they won&#39;t be added to avoid</span>
-<span class="doccomment">/// reinventing the wheel. If you need methods such as adding an interval to a</span>
-<span class="doccomment">/// timestamp, enable `chrono` feature and use [chrono::Date][], [chrono::DateTime][],</span>
-<span class="doccomment">/// [chrono::naive::NaiveDate][] or [chrono::naive::NaiveDateTime][] instead.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html</span>
-<span class="doccomment">/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html</span>
-<span class="doccomment">/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html</span>
-<span class="doccomment">/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::*; use oracle::sql_type::*;</span>
-<span class="doccomment">/// // Create a timestamp.</span>
-<span class="doccomment">/// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Convert to string.</span>
-<span class="doccomment">/// assert_eq!(ts1.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a timestamp with time zone (-8:00).</span>
-<span class="doccomment">/// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_tz_hm_offset(-8, 0);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Convert to string.</span>
-<span class="doccomment">/// assert_eq!(ts2.to_string(), &quot;2017-08-09 11:22:33.500000000 -08:00&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a timestamp with precision</span>
-<span class="doccomment">/// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_prec(3);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // The string representation depends on the precision.</span>
-<span class="doccomment">/// assert_eq!(ts3.to_string(), &quot;2017-08-09 11:22:33.500&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Precisions are ignored when intervals are compared.</span>
-<span class="doccomment">/// assert_eq!(ts1, ts3);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Create a timestamp from string.</span>
-<span class="doccomment">/// let ts4: Timestamp = &quot;2017-08-09 11:22:33.500 -08:00&quot;.parse()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // The precision is determined by number of decimal digits in the string.</span>
-<span class="doccomment">/// assert_eq!(ts4.precision(), 3);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Fetch and bind interval values.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// # use oracle::*; use oracle::sql_type::*;</span>
-<span class="doccomment">/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Fetch Timestamp</span>
-<span class="doccomment">/// let sql = &quot;select TIMESTAMP &#39;2017-08-09 11:22:33.500&#39; from dual&quot;;</span>
-<span class="doccomment">/// let ts = conn.query_row_as::&lt;Timestamp&gt;(sql, &amp;[])?;</span>
-<span class="doccomment">/// assert_eq!(ts.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Bind Timestamp</span>
-<span class="doccomment">/// let sql = &quot;begin \</span>
-<span class="doccomment">///              :outval := :inval + interval &#39;+1 02:03:04.5&#39; day to second; \</span>
-<span class="doccomment">///            end;&quot;;</span>
-<span class="doccomment">/// let mut stmt = conn.statement(sql).build()?;</span>
-<span class="doccomment">/// stmt.execute(&amp;[&amp;OracleType::Timestamp(3), // bind null as timestamp(3)</span>
-<span class="doccomment">///                &amp;ts, // bind the ts variable</span>
-<span class="doccomment">///               ])?;</span>
-<span class="doccomment">/// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.</span>
-<span class="doccomment">/// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)</span>
-<span class="doccomment">/// assert_eq!(outval.to_string(), &quot;2017-08-10 13:25:38.000&quot;);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Timestamp</span> {
-    <span class="ident">year</span>: <span class="ident">i32</span>,
-    <span class="ident">month</span>: <span class="ident">u32</span>,
-    <span class="ident">day</span>: <span class="ident">u32</span>,
-    <span class="ident">hour</span>: <span class="ident">u32</span>,
-    <span class="ident">minute</span>: <span class="ident">u32</span>,
-    <span class="ident">second</span>: <span class="ident">u32</span>,
-    <span class="ident">nanosecond</span>: <span class="ident">u32</span>,
-    <span class="ident">tz_hour_offset</span>: <span class="ident">i32</span>,
-    <span class="ident">tz_minute_offset</span>: <span class="ident">i32</span>,
-    <span class="ident">precision</span>: <span class="ident">u8</span>,
-    <span class="ident">with_tz</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Oracle-specific [Datetime][] data type
+///
+/// [Datetime]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
+///
+/// This struct doesn&#39;t have arithmetic methods and they won&#39;t be added to avoid
+/// reinventing the wheel. If you need methods such as adding an interval to a
+/// timestamp, enable `chrono` feature and use [chrono::Date][], [chrono::DateTime][],
+/// [chrono::naive::NaiveDate][] or [chrono::naive::NaiveDateTime][] instead.
+///
+/// [chrono::Date]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
+/// [chrono::DateTime]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
+/// [chrono::naive::NaiveDate]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
+/// [chrono::naive::NaiveDateTime]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::*; use oracle::sql_type::*;
+/// // Create a timestamp.
+/// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
+///
+/// // Convert to string.
+/// assert_eq!(ts1.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);
+///
+/// // Create a timestamp with time zone (-8:00).
+/// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_tz_hm_offset(-8, 0);
+///
+/// // Convert to string.
+/// assert_eq!(ts2.to_string(), &quot;2017-08-09 11:22:33.500000000 -08:00&quot;);
+///
+/// // Create a timestamp with precision
+/// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_prec(3);
+///
+/// // The string representation depends on the precision.
+/// assert_eq!(ts3.to_string(), &quot;2017-08-09 11:22:33.500&quot;);
+///
+/// // Precisions are ignored when intervals are compared.
+/// assert_eq!(ts1, ts3);
+///
+/// // Create a timestamp from string.
+/// let ts4: Timestamp = &quot;2017-08-09 11:22:33.500 -08:00&quot;.parse()?;
+///
+/// // The precision is determined by number of decimal digits in the string.
+/// assert_eq!(ts4.precision(), 3);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// Fetch and bind interval values.
+///
+/// ```no_run
+/// # use oracle::*; use oracle::sql_type::*;
+/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+///
+/// // Fetch Timestamp
+/// let sql = &quot;select TIMESTAMP &#39;2017-08-09 11:22:33.500&#39; from dual&quot;;
+/// let ts = conn.query_row_as::&lt;Timestamp&gt;(sql, &amp;[])?;
+/// assert_eq!(ts.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);
+///
+/// // Bind Timestamp
+/// let sql = &quot;begin \
+///              :outval := :inval + interval &#39;+1 02:03:04.5&#39; day to second; \
+///            end;&quot;;
+/// let mut stmt = conn.statement(sql).build()?;
+/// stmt.execute(&amp;[&amp;OracleType::Timestamp(3), // bind null as timestamp(3)
+///                &amp;ts, // bind the ts variable
+///               ])?;
+/// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
+/// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
+/// assert_eq!(outval.to_string(), &quot;2017-08-10 13:25:38.000&quot;);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, Copy)]
+</span><span class="kw">pub struct </span>Timestamp {
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
+    second: u32,
+    nanosecond: u32,
+    tz_hour_offset: i32,
+    tz_minute_offset: i32,
+    precision: u8,
+    with_tz: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Timestamp</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_dpi_timestamp</span>(<span class="ident">ts</span>: <span class="kw-2">&amp;</span><span class="ident">dpiTimestamp</span>, <span class="ident">oratype</span>: <span class="kw-2">&amp;</span><span class="ident">OracleType</span>) -&gt; <span class="ident">Timestamp</span> {
-        <span class="kw">let</span> (<span class="ident">precision</span>, <span class="ident">with_tz</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">oratype</span> {
-            <span class="ident">OracleType::Timestamp</span>(<span class="ident">prec</span>) =&gt; (<span class="ident">prec</span>, <span class="bool-val">false</span>),
-            <span class="ident">OracleType::TimestampTZ</span>(<span class="ident">prec</span>) =&gt; (<span class="ident">prec</span>, <span class="bool-val">true</span>),
-            <span class="ident">OracleType::TimestampLTZ</span>(<span class="ident">prec</span>) =&gt; (<span class="ident">prec</span>, <span class="bool-val">true</span>),
-            <span class="kw">_</span> =&gt; (<span class="number">0</span>, <span class="bool-val">false</span>),
+<span class="kw">impl </span>Timestamp {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_dpi_timestamp(ts: <span class="kw-2">&amp;</span>dpiTimestamp, oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; Timestamp {
+        <span class="kw">let </span>(precision, with_tz) = <span class="kw">match </span><span class="kw-2">*</span>oratype {
+            OracleType::Timestamp(prec) =&gt; (prec, <span class="bool-val">false</span>),
+            OracleType::TimestampTZ(prec) =&gt; (prec, <span class="bool-val">true</span>),
+            OracleType::TimestampLTZ(prec) =&gt; (prec, <span class="bool-val">true</span>),
+            <span class="kw">_ </span>=&gt; (<span class="number">0</span>, <span class="bool-val">false</span>),
         };
-        <span class="ident">Timestamp</span> {
-            <span class="ident">year</span>: <span class="ident">ts</span>.<span class="ident">year</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">month</span>: <span class="ident">ts</span>.<span class="ident">month</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">day</span>: <span class="ident">ts</span>.<span class="ident">day</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">hour</span>: <span class="ident">ts</span>.<span class="ident">hour</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">minute</span>: <span class="ident">ts</span>.<span class="ident">minute</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">second</span>: <span class="ident">ts</span>.<span class="ident">second</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">nanosecond</span>: <span class="ident">ts</span>.<span class="ident">fsecond</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">tz_hour_offset</span>: <span class="ident">ts</span>.<span class="ident">tzHourOffset</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">tz_minute_offset</span>: <span class="ident">ts</span>.<span class="ident">tzMinuteOffset</span> <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident">precision</span>,
-            <span class="ident">with_tz</span>,
+        Timestamp {
+            year: ts.year <span class="kw">as </span>i32,
+            month: ts.month <span class="kw">as </span>u32,
+            day: ts.day <span class="kw">as </span>u32,
+            hour: ts.hour <span class="kw">as </span>u32,
+            minute: ts.minute <span class="kw">as </span>u32,
+            second: ts.second <span class="kw">as </span>u32,
+            nanosecond: ts.fsecond <span class="kw">as </span>u32,
+            tz_hour_offset: ts.tzHourOffset <span class="kw">as </span>i32,
+            tz_minute_offset: ts.tzMinuteOffset <span class="kw">as </span>i32,
+            precision,
+            with_tz,
         }
     }
 
-    <span class="doccomment">/// Creates a timestamp.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Valid values are:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// | argument | valid values |</span>
-    <span class="doccomment">/// |---|---|</span>
-    <span class="doccomment">/// | `year` | -4713 to 9999 |</span>
-    <span class="doccomment">/// | `month` | 1 to 12 |</span>
-    <span class="doccomment">/// | `day` | 1 to 31 |</span>
-    <span class="doccomment">/// | `hour` | 0 to 23 |</span>
-    <span class="doccomment">/// | `minute` | 0 to 59 |</span>
-    <span class="doccomment">/// | `second` | 0 to 59 |</span>
-    <span class="doccomment">/// | `nanosecond` | 0 to 999,999,999 |</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">year</span>: <span class="ident">i32</span>,
-        <span class="ident">month</span>: <span class="ident">u32</span>,
-        <span class="ident">day</span>: <span class="ident">u32</span>,
-        <span class="ident">hour</span>: <span class="ident">u32</span>,
-        <span class="ident">minute</span>: <span class="ident">u32</span>,
-        <span class="ident">second</span>: <span class="ident">u32</span>,
-        <span class="ident">nanosecond</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="ident">Timestamp</span> {
-        <span class="ident">Timestamp</span> {
-            <span class="ident">year</span>,
-            <span class="ident">month</span>,
-            <span class="ident">day</span>,
-            <span class="ident">hour</span>,
-            <span class="ident">minute</span>,
-            <span class="ident">second</span>,
-            <span class="ident">nanosecond</span>,
-            <span class="ident">tz_hour_offset</span>: <span class="number">0</span>,
-            <span class="ident">tz_minute_offset</span>: <span class="number">0</span>,
-            <span class="ident">precision</span>: <span class="number">9</span>,
-            <span class="ident">with_tz</span>: <span class="bool-val">false</span>,
+    <span class="doccomment">/// Creates a timestamp.
+    ///
+    /// Valid values are:
+    ///
+    /// | argument | valid values |
+    /// |---|---|
+    /// | `year` | -4713 to 9999 |
+    /// | `month` | 1 to 12 |
+    /// | `day` | 1 to 31 |
+    /// | `hour` | 0 to 23 |
+    /// | `minute` | 0 to 59 |
+    /// | `second` | 0 to 59 |
+    /// | `nanosecond` | 0 to 999,999,999 |
+    ///
+    </span><span class="kw">pub fn </span>new(
+        year: i32,
+        month: u32,
+        day: u32,
+        hour: u32,
+        minute: u32,
+        second: u32,
+        nanosecond: u32,
+    ) -&gt; Timestamp {
+        Timestamp {
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
+            nanosecond,
+            tz_hour_offset: <span class="number">0</span>,
+            tz_minute_offset: <span class="number">0</span>,
+            precision: <span class="number">9</span>,
+            with_tz: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Creates a timestamp with time zone.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `offset` is time zone offset seconds from UTC.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_tz_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Timestamp</span> {
-        <span class="ident">Timestamp</span> {
-            <span class="ident">tz_hour_offset</span>: <span class="ident">offset</span> <span class="op">/</span> <span class="number">3600</span>,
-            <span class="ident">tz_minute_offset</span>: <span class="ident">offset</span> <span class="op">%</span> <span class="number">3600</span> <span class="op">/</span> <span class="number">60</span>,
-            <span class="ident">with_tz</span>: <span class="bool-val">true</span>,
-            ..<span class="kw-2">*</span><span class="self">self</span>
-        }
+    <span class="doccomment">/// Creates a timestamp with time zone.
+    ///
+    /// `offset` is time zone offset seconds from UTC.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>and_tz_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: i32) -&gt; Timestamp {
+        Timestamp {
+            tz_hour_offset: offset / <span class="number">3600</span>,
+            tz_minute_offset: offset % <span class="number">3600 </span>/ <span class="number">60</span>,
+            with_tz: <span class="bool-val">true</span>,
+            ..<span class="kw-2">*</span><span class="self">self
+        </span>}
     }
 
-    <span class="doccomment">/// Creates a timestamp with time zone.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `hour_offset` and `minute_offset` are time zone offset in hours and minutes from UTC.</span>
-    <span class="doccomment">/// All arguments must be zero or positive in the eastern hemisphere. They must be</span>
-    <span class="doccomment">/// zero or negative in the western hemisphere.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_tz_hm_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">hour_offset</span>: <span class="ident">i32</span>, <span class="ident">minute_offset</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Timestamp</span> {
-        <span class="ident">Timestamp</span> {
-            <span class="ident">tz_hour_offset</span>: <span class="ident">hour_offset</span>,
-            <span class="ident">tz_minute_offset</span>: <span class="ident">minute_offset</span>,
-            <span class="ident">with_tz</span>: <span class="bool-val">true</span>,
-            ..<span class="kw-2">*</span><span class="self">self</span>
-        }
+    <span class="doccomment">/// Creates a timestamp with time zone.
+    ///
+    /// `hour_offset` and `minute_offset` are time zone offset in hours and minutes from UTC.
+    /// All arguments must be zero or positive in the eastern hemisphere. They must be
+    /// zero or negative in the western hemisphere.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>and_tz_hm_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, hour_offset: i32, minute_offset: i32) -&gt; Timestamp {
+        Timestamp {
+            tz_hour_offset: hour_offset,
+            tz_minute_offset: minute_offset,
+            with_tz: <span class="bool-val">true</span>,
+            ..<span class="kw-2">*</span><span class="self">self
+        </span>}
     }
 
-    <span class="doccomment">/// Creates a timestamp with precision.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The precision affects text representation of Timestamp.</span>
-    <span class="doccomment">/// It doesn&#39;t affect comparison.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_prec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">precision</span>: <span class="ident">u8</span>) -&gt; <span class="ident">Timestamp</span> {
-        <span class="ident">Timestamp</span> { <span class="ident">precision</span>, ..<span class="kw-2">*</span><span class="self">self</span> }
+    <span class="doccomment">/// Creates a timestamp with precision.
+    ///
+    /// The precision affects text representation of Timestamp.
+    /// It doesn&#39;t affect comparison.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>and_prec(<span class="kw-2">&amp;</span><span class="self">self</span>, precision: u8) -&gt; Timestamp {
+        Timestamp { precision, ..<span class="kw-2">*</span><span class="self">self </span>}
     }
 
-    <span class="doccomment">/// Returns the year number from -4713 to 9999.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">year</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">year</span>
+    <span class="doccomment">/// Returns the year number from -4713 to 9999.
+    </span><span class="kw">pub fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.year
     }
 
-    <span class="doccomment">/// Returns the month number from 1 to 12.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">month</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">month</span>
+    <span class="doccomment">/// Returns the month number from 1 to 12.
+    </span><span class="kw">pub fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.month
     }
 
-    <span class="doccomment">/// Returns the day number from 1 to 31.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">day</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">day</span>
+    <span class="doccomment">/// Returns the day number from 1 to 31.
+    </span><span class="kw">pub fn </span>day(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.day
     }
 
-    <span class="doccomment">/// Returns the hour number from 0 to 23.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">hour</span>
+    <span class="doccomment">/// Returns the hour number from 0 to 23.
+    </span><span class="kw">pub fn </span>hour(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.hour
     }
 
-    <span class="doccomment">/// Returns the minute number from 0 to 59.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">minute</span>
+    <span class="doccomment">/// Returns the minute number from 0 to 59.
+    </span><span class="kw">pub fn </span>minute(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.minute
     }
 
-    <span class="doccomment">/// Returns the second number from 0 to 59.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">second</span>
+    <span class="doccomment">/// Returns the second number from 0 to 59.
+    </span><span class="kw">pub fn </span>second(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.second
     }
 
-    <span class="doccomment">/// Returns the nanosecond number from 0 to 999,999,999.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nanosecond</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">nanosecond</span>
+    <span class="doccomment">/// Returns the nanosecond number from 0 to 999,999,999.
+    </span><span class="kw">pub fn </span>nanosecond(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.nanosecond
     }
 
-    <span class="doccomment">/// Returns hour component of time zone.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tz_hour_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">tz_hour_offset</span>
+    <span class="doccomment">/// Returns hour component of time zone.
+    </span><span class="kw">pub fn </span>tz_hour_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.tz_hour_offset
     }
 
-    <span class="doccomment">/// Returns minute component of time zone.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tz_minute_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">tz_minute_offset</span>
+    <span class="doccomment">/// Returns minute component of time zone.
+    </span><span class="kw">pub fn </span>tz_minute_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.tz_minute_offset
     }
 
-    <span class="doccomment">/// Returns precision</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precision</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">precision</span>
+    <span class="doccomment">/// Returns precision
+    </span><span class="kw">pub fn </span>precision(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.precision
     }
 
-    <span class="doccomment">/// Returns true when the timestamp&#39;s text representation includes time zone information.</span>
-    <span class="doccomment">/// Otherwise, false.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_tz</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">with_tz</span>
+    <span class="doccomment">/// Returns true when the timestamp&#39;s text representation includes time zone information.
+    /// Otherwise, false.
+    </span><span class="kw">pub fn </span>with_tz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.with_tz
     }
 
-    <span class="doccomment">/// Returns total time zone offset from UTC in seconds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tz_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">tz_hour_offset</span> <span class="op">*</span> <span class="number">3600</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">tz_minute_offset</span> <span class="op">*</span> <span class="number">60</span>
+    <span class="doccomment">/// Returns total time zone offset from UTC in seconds.
+    </span><span class="kw">pub fn </span>tz_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.tz_hour_offset * <span class="number">3600 </span>+ <span class="self">self</span>.tz_minute_offset * <span class="number">60
+    </span>}
+}
+
+<span class="kw">impl </span>cmp::PartialEq <span class="kw">for </span>Timestamp {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.year == other.year
+            &amp;&amp; <span class="self">self</span>.month == other.month
+            &amp;&amp; <span class="self">self</span>.day == other.day
+            &amp;&amp; <span class="self">self</span>.hour == other.hour
+            &amp;&amp; <span class="self">self</span>.minute == other.minute
+            &amp;&amp; <span class="self">self</span>.second == other.second
+            &amp;&amp; <span class="self">self</span>.nanosecond == other.nanosecond
+            &amp;&amp; <span class="self">self</span>.tz_hour_offset == other.tz_hour_offset
+            &amp;&amp; <span class="self">self</span>.tz_minute_offset == other.tz_minute_offset
     }
 }
 
-<span class="kw">impl</span> <span class="ident">cmp::PartialEq</span> <span class="kw">for</span> <span class="ident">Timestamp</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">year</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">year</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">month</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">month</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">day</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">day</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">hour</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">hour</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">minute</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">minute</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">second</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">second</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">nanosecond</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">tz_hour_offset</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">tz_hour_offset</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">tz_minute_offset</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">tz_minute_offset</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Timestamp</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Timestamp {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}-{:02}-{:02} {:02}:{:02}:{:02}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">year</span>, <span class="self">self</span>.<span class="ident">month</span>, <span class="self">self</span>.<span class="ident">day</span>, <span class="self">self</span>.<span class="ident">hour</span>, <span class="self">self</span>.<span class="ident">minute</span>, <span class="self">self</span>.<span class="ident">second</span>
+            <span class="self">self</span>.year, <span class="self">self</span>.month, <span class="self">self</span>.day, <span class="self">self</span>.hour, <span class="self">self</span>.minute, <span class="self">self</span>.second
         )<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">precision</span> {
-            <span class="number">1</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:01}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">100000000</span>)<span class="question-mark">?</span>,
-            <span class="number">2</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:02}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">10000000</span>)<span class="question-mark">?</span>,
-            <span class="number">3</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:03}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">1000000</span>)<span class="question-mark">?</span>,
-            <span class="number">4</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:04}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">100000</span>)<span class="question-mark">?</span>,
-            <span class="number">5</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:05}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">10000</span>)<span class="question-mark">?</span>,
-            <span class="number">6</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:06}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">1000</span>)<span class="question-mark">?</span>,
-            <span class="number">7</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:07}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">100</span>)<span class="question-mark">?</span>,
-            <span class="number">8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:08}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span> <span class="op">/</span> <span class="number">10</span>)<span class="question-mark">?</span>,
-            <span class="number">9</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{:09}&quot;</span>, <span class="self">self</span>.<span class="ident">nanosecond</span>)<span class="question-mark">?</span>,
-            <span class="kw">_</span> =&gt; (),
+        <span class="kw">match </span><span class="self">self</span>.precision {
+            <span class="number">1 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:01}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100000000</span>)<span class="question-mark">?</span>,
+            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:02}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10000000</span>)<span class="question-mark">?</span>,
+            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:03}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">1000000</span>)<span class="question-mark">?</span>,
+            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:04}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100000</span>)<span class="question-mark">?</span>,
+            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:05}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10000</span>)<span class="question-mark">?</span>,
+            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:06}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">1000</span>)<span class="question-mark">?</span>,
+            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:07}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100</span>)<span class="question-mark">?</span>,
+            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:08}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10</span>)<span class="question-mark">?</span>,
+            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:09}&quot;</span>, <span class="self">self</span>.nanosecond)<span class="question-mark">?</span>,
+            <span class="kw">_ </span>=&gt; (),
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">with_tz</span> {
-            <span class="kw">let</span> <span class="ident">sign</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tz_hour_offset</span> <span class="op">&lt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">tz_minute_offset</span> <span class="op">&lt;</span> <span class="number">0</span> {
-                <span class="string">&#39;-&#39;</span>
-            } <span class="kw">else</span> {
-                <span class="string">&#39;+&#39;</span>
-            };
+        <span class="kw">if </span><span class="self">self</span>.with_tz {
+            <span class="kw">let </span>sign = <span class="kw">if </span><span class="self">self</span>.tz_hour_offset &lt; <span class="number">0 </span>|| <span class="self">self</span>.tz_minute_offset &lt; <span class="number">0 </span>{
+                <span class="string">&#39;-&#39;
+            </span>} <span class="kw">else </span>{
+                <span class="string">&#39;+&#39;
+            </span>};
             <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+                f,
                 <span class="string">&quot; {}{:02}:{:02}&quot;</span>,
-                <span class="ident">sign</span>,
-                <span class="self">self</span>.<span class="ident">tz_hour_offset</span>.<span class="ident">abs</span>(),
-                <span class="self">self</span>.<span class="ident">tz_minute_offset</span>.<span class="ident">abs</span>()
+                sign,
+                <span class="self">self</span>.tz_hour_offset.abs(),
+                <span class="self">self</span>.tz_minute_offset.abs()
             )<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">Timestamp</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseOracleTypeError</span>;
+<span class="kw">impl </span>str::FromStr <span class="kw">for </span>Timestamp {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseOracleTypeError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ParseOracleTypeError::new</span>(<span class="string">&quot;Timestamp&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scanner::new</span>(<span class="ident">s</span>);
-        <span class="kw">let</span> <span class="ident">minus</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-            <span class="ident">s</span>.<span class="ident">next</span>();
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">year</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">month</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">day</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">year</span> <span class="op">&gt;</span> <span class="number">10000</span> {
-                    <span class="ident">day</span> <span class="op">=</span> <span class="ident">year</span> <span class="op">%</span> <span class="number">100</span>;
-                    <span class="ident">month</span> <span class="op">=</span> (<span class="ident">year</span> <span class="op">/</span> <span class="number">100</span>) <span class="op">%</span> <span class="number">100</span>;
-                    <span class="ident">year</span> <span class="op">/</span><span class="op">=</span> <span class="number">10000</span>;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">&quot;Timestamp&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(s);
+        <span class="kw">let </span>minus = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+            s.next();
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>};
+        <span class="kw">let </span><span class="kw-2">mut </span>year = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>day = <span class="number">1</span>;
+        <span class="kw">match </span>s.char() {
+            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) | <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">if </span>year &gt; <span class="number">10000 </span>{
+                    day = year % <span class="number">100</span>;
+                    month = (year / <span class="number">100</span>) % <span class="number">100</span>;
+                    year /= <span class="number">10000</span>;
                 }
             }
             <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
-                <span class="ident">s</span>.<span class="ident">next</span>();
-                <span class="ident">month</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                    <span class="ident">s</span>.<span class="ident">next</span>();
-                    <span class="ident">day</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>
-                }
+                s.next();
+                month = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+                    s.next();
+                    day = s.read_digits().ok_or_else(err)<span class="question-mark">?
+                </span>}
             }
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>()),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err()),
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hour</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sec</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nsec</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tz_hour</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tz_min</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">precision</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-            <span class="kw">match</span> <span class="ident">c</span> {
-                <span class="string">&#39;T&#39;</span> <span class="op">|</span> <span class="string">&#39; &#39;</span> =&gt; {
-                    <span class="ident">s</span>.<span class="ident">next</span>();
-                    <span class="ident">hour</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                        <span class="ident">s</span>.<span class="ident">next</span>();
-                        <span class="ident">min</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                            <span class="ident">s</span>.<span class="ident">next</span>();
-                            <span class="ident">sec</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>hour = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>min = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>sec = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>nsec = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tz_hour: i32 = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tz_min: i32 = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>precision = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>with_tz = <span class="bool-val">false</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = s.char() {
+            <span class="kw">match </span>c {
+                <span class="string">&#39;T&#39; </span>| <span class="string">&#39; &#39; </span>=&gt; {
+                    s.next();
+                    hour = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                        s.next();
+                        min = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                            s.next();
+                            sec = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
                         }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">ndigits</span>() <span class="op">==</span> <span class="number">6</span> {
-                        <span class="comment">// 123456 -&gt; 12:34:56</span>
-                        <span class="ident">sec</span> <span class="op">=</span> <span class="ident">hour</span> <span class="op">%</span> <span class="number">100</span>;
-                        <span class="ident">min</span> <span class="op">=</span> (<span class="ident">hour</span> <span class="op">/</span> <span class="number">100</span>) <span class="op">%</span> <span class="number">100</span>;
-                        <span class="ident">hour</span> <span class="op">/</span><span class="op">=</span> <span class="number">10000</span>;
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>());
+                    } <span class="kw">else if </span>s.ndigits() == <span class="number">6 </span>{
+                        <span class="comment">// 123456 -&gt; 12:34:56
+                        </span>sec = hour % <span class="number">100</span>;
+                        min = (hour / <span class="number">100</span>) % <span class="number">100</span>;
+                        hour /= <span class="number">10000</span>;
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(err());
                     }
                 }
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>()),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err()),
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                <span class="ident">s</span>.<span class="ident">next</span>();
-                <span class="ident">nsec</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">ndigit</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ndigits</span>();
-                <span class="ident">precision</span> <span class="op">=</span> <span class="ident">ndigit</span>;
-                <span class="kw">match</span> <span class="ident">ndigit</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">9</span>) {
-                    <span class="ident">Ordering::Less</span> =&gt; <span class="ident">nsec</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">10u64</span>.<span class="ident">pow</span>(<span class="number">9</span> <span class="op">-</span> <span class="ident">ndigit</span>),
-                    <span class="ident">Ordering::Equal</span> =&gt; (),
-                    <span class="ident">Ordering::Greater</span> =&gt; {
-                        <span class="ident">nsec</span> <span class="op">/</span><span class="op">=</span> <span class="number">10u64</span>.<span class="ident">pow</span>(<span class="ident">ndigit</span> <span class="op">-</span> <span class="number">9</span>);
-                        <span class="ident">precision</span> <span class="op">=</span> <span class="number">9</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>) = s.char() {
+                s.next();
+                nsec = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
+                <span class="kw">let </span>ndigit = s.ndigits();
+                precision = ndigit;
+                <span class="kw">match </span>ndigit.cmp(<span class="kw-2">&amp;</span><span class="number">9</span>) {
+                    Ordering::Less =&gt; nsec <span class="kw-2">*</span>= <span class="number">10u64</span>.pow(<span class="number">9 </span>- ndigit),
+                    Ordering::Equal =&gt; (),
+                    Ordering::Greater =&gt; {
+                        nsec /= <span class="number">10u64</span>.pow(ndigit - <span class="number">9</span>);
+                        precision = <span class="number">9</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                <span class="ident">s</span>.<span class="ident">next</span>();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) = s.char() {
+                s.next();
             }
-            <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">char</span>() {
+            <span class="kw">match </span>s.char() {
                 <span class="prelude-val">Some</span>(<span class="string">&#39;+&#39;</span>) =&gt; {
-                    <span class="ident">s</span>.<span class="ident">next</span>();
-                    <span class="ident">tz_hour</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i32</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                        <span class="ident">s</span>.<span class="ident">next</span>();
-                        <span class="ident">tz_min</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i32</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">tz_min</span> <span class="op">=</span> <span class="ident">tz_hour</span> <span class="op">%</span> <span class="number">100</span>;
-                        <span class="ident">tz_hour</span> <span class="op">/</span><span class="op">=</span> <span class="number">100</span>;
+                    s.next();
+                    tz_hour = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                        s.next();
+                        tz_min = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
+                    } <span class="kw">else </span>{
+                        tz_min = tz_hour % <span class="number">100</span>;
+                        tz_hour /= <span class="number">100</span>;
                     }
-                    <span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    with_tz = <span class="bool-val">true</span>;
                 }
                 <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
-                    <span class="ident">s</span>.<span class="ident">next</span>();
-                    <span class="ident">tz_hour</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i32</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char</span>() {
-                        <span class="ident">s</span>.<span class="ident">next</span>();
-                        <span class="ident">tz_min</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">read_digits</span>().<span class="ident">ok_or_else</span>(<span class="ident">err</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">i32</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">tz_min</span> <span class="op">=</span> <span class="ident">tz_hour</span> <span class="op">%</span> <span class="number">100</span>;
-                        <span class="ident">tz_hour</span> <span class="op">/</span><span class="op">=</span> <span class="number">100</span>;
+                    s.next();
+                    tz_hour = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                        s.next();
+                        tz_min = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
+                    } <span class="kw">else </span>{
+                        tz_min = tz_hour % <span class="number">100</span>;
+                        tz_hour /= <span class="number">100</span>;
                     }
-                    <span class="ident">tz_hour</span> <span class="op">=</span> <span class="op">-</span><span class="ident">tz_hour</span>;
-                    <span class="ident">tz_min</span> <span class="op">=</span> <span class="op">-</span><span class="ident">tz_min</span>;
-                    <span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    tz_hour = -tz_hour;
+                    tz_min = -tz_min;
+                    with_tz = <span class="bool-val">true</span>;
                 }
                 <span class="prelude-val">Some</span>(<span class="string">&#39;Z&#39;</span>) =&gt; {
-                    <span class="ident">s</span>.<span class="ident">next</span>();
-                    <span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    s.next();
+                    with_tz = <span class="bool-val">true</span>;
                 }
-                <span class="kw">_</span> =&gt; (),
+                <span class="kw">_ </span>=&gt; (),
             }
-            <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">char</span>().<span class="ident">is_some</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>());
+            <span class="kw">if </span>s.char().is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(err());
             }
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">Timestamp::new</span>(
-            <span class="kw">if</span> <span class="ident">minus</span> { <span class="op">-</span>(<span class="ident">year</span> <span class="kw">as</span> <span class="ident">i32</span>) } <span class="kw">else</span> { <span class="ident">year</span> <span class="kw">as</span> <span class="ident">i32</span> },
-            <span class="ident">month</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">day</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">hour</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">min</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">sec</span> <span class="kw">as</span> <span class="ident">u32</span>,
-            <span class="ident">nsec</span> <span class="kw">as</span> <span class="ident">u32</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>ts = Timestamp::new(
+            <span class="kw">if </span>minus { -(year <span class="kw">as </span>i32) } <span class="kw">else </span>{ year <span class="kw">as </span>i32 },
+            month <span class="kw">as </span>u32,
+            day <span class="kw">as </span>u32,
+            hour <span class="kw">as </span>u32,
+            min <span class="kw">as </span>u32,
+            sec <span class="kw">as </span>u32,
+            nsec <span class="kw">as </span>u32,
         );
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="ident">precision</span> <span class="kw">as</span> <span class="ident">u8</span>;
-        <span class="kw">if</span> <span class="ident">with_tz</span> {
-            <span class="ident">ts</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">and_tz_hm_offset</span>(<span class="ident">tz_hour</span>, <span class="ident">tz_min</span>);
+        ts.precision = precision <span class="kw">as </span>u8;
+        <span class="kw">if </span>with_tz {
+            ts = ts.and_tz_hm_offset(tz_hour, tz_min);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>)
+        <span class="prelude-val">Ok</span>(ts)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">to_string</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">Timestamp::new</span>(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">890123456</span>).<span class="ident">and_tz_hm_offset</span>(<span class="number">8</span>, <span class="number">45</span>);
-        <span class="ident">ts</span>.<span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.89&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.890&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.890123456 +08:45&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">tz_hour_offset</span> <span class="op">=</span> <span class="op">-</span><span class="number">8</span>;
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="op">-</span><span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07.890123456 -08:45&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">year</span> <span class="op">=</span> <span class="op">-</span><span class="number">123</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;-123-03-04 05:06:07 -08:45&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">and_tz_offset</span>(<span class="op">-</span><span class="number">3600</span> <span class="op">-</span> <span class="number">1800</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">tz_hour_offset</span>, <span class="op">-</span><span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">tz_minute_offset</span>, <span class="op">-</span><span class="number">30</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;-123-03-04 05:06:07 -01:30&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">tz_hour_offset</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;-123-03-04 05:06:07 -00:30&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="number">30</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;-123-03-04 05:06:07 +00:30&quot;</span>);
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">ts</span>.<span class="ident">to_string</span>(), <span class="string">&quot;-123-03-04 05:06:07 +00:00&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>to_string() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ts = Timestamp::new(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">890123456</span>).and_tz_hm_offset(<span class="number">8</span>, <span class="number">45</span>);
+        ts.with_tz = <span class="bool-val">false</span>;
+        ts.precision = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07&quot;</span>);
+        ts.precision = <span class="number">1</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>);
+        ts.precision = <span class="number">2</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89&quot;</span>);
+        ts.precision = <span class="number">3</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890&quot;</span>);
+        ts.precision = <span class="number">4</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>);
+        ts.precision = <span class="number">5</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>);
+        ts.precision = <span class="number">6</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>);
+        ts.precision = <span class="number">7</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>);
+        ts.precision = <span class="number">8</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>);
+        ts.precision = <span class="number">9</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>);
+        ts.with_tz = <span class="bool-val">true</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456 +08:45&quot;</span>);
+        ts.tz_hour_offset = -<span class="number">8</span>;
+        ts.tz_minute_offset = -<span class="number">45</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456 -08:45&quot;</span>);
+        ts.precision = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>);
+        ts.year = -<span class="number">123</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -08:45&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>ts = ts.and_tz_offset(-<span class="number">3600 </span>- <span class="number">1800</span>);
+        <span class="macro">assert_eq!</span>(ts.tz_hour_offset, -<span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(ts.tz_minute_offset, -<span class="number">30</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -01:30&quot;</span>);
+        ts.tz_hour_offset = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -00:30&quot;</span>);
+        ts.tz_minute_offset = <span class="number">30</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 +00:30&quot;</span>);
+        ts.tz_minute_offset = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 +00:00&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">Timestamp::new</span>(
-            <span class="number">2012</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="comment">// year, month, day,</span>
-            <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
-        ); <span class="comment">// hour, minute, second, nanosecond,</span>
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">month</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="ident">ts</span>.<span class="ident">day</span> <span class="op">=</span> <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">hour</span> <span class="op">=</span> <span class="number">5</span>;
-        <span class="ident">ts</span>.<span class="ident">minute</span> <span class="op">=</span> <span class="number">6</span>;
-        <span class="ident">ts</span>.<span class="ident">second</span> <span class="op">=</span> <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">800000000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890000000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07.89&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890000000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607.890&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890100000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890120000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890123000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890123400</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890123450</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">890123456</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234567&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345678&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">with_tz</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07Z&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+00:00&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +00:00&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0000&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0000&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">tz_hour_offset</span> <span class="op">=</span> <span class="number">8</span>;
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0845&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0845&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">tz_hour_offset</span> <span class="op">=</span> <span class="op">-</span><span class="number">8</span>;
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="op">-</span><span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-0845&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -0845&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">nanosecond</span> <span class="op">=</span> <span class="number">123000000</span>;
-        <span class="ident">ts</span>.<span class="ident">precision</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123-08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123 -08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">year</span> <span class="op">=</span> <span class="op">-</span><span class="number">123</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -08:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">tz_hour_offset</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -00:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
-        <span class="ident">ts</span>.<span class="ident">tz_minute_offset</span> <span class="op">=</span> <span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 +00:45&quot;</span>.<span class="ident">parse</span>(), <span class="prelude-val">Ok</span>(<span class="ident">ts</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ts = Timestamp::new(
+            <span class="number">2012</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="comment">// year, month, day,
+            </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
+        ); <span class="comment">// hour, minute, second, nanosecond,
+        </span>ts.precision = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.month = <span class="number">3</span>;
+        ts.day = <span class="number">4</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.hour = <span class="number">5</span>;
+        ts.minute = <span class="number">6</span>;
+        ts.second = <span class="number">7</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">800000000</span>;
+        ts.precision = <span class="number">1</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890000000</span>;
+        ts.precision = <span class="number">2</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07.89&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890000000</span>;
+        ts.precision = <span class="number">3</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607.890&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890100000</span>;
+        ts.precision = <span class="number">4</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890120000</span>;
+        ts.precision = <span class="number">5</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890123000</span>;
+        ts.precision = <span class="number">6</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890123400</span>;
+        ts.precision = <span class="number">7</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890123450</span>;
+        ts.precision = <span class="number">8</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">890123456</span>;
+        ts.precision = <span class="number">9</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234567&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345678&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.with_tz = <span class="bool-val">true</span>;
+        ts.nanosecond = <span class="number">0</span>;
+        ts.precision = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07Z&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+00:00&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +00:00&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0000&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0000&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.tz_hour_offset = <span class="number">8</span>;
+        ts.tz_minute_offset = <span class="number">45</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.tz_hour_offset = -<span class="number">8</span>;
+        ts.tz_minute_offset = -<span class="number">45</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.nanosecond = <span class="number">123000000</span>;
+        ts.precision = <span class="number">3</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123-08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.year = -<span class="number">123</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.tz_hour_offset = <span class="number">0</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -00:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        ts.tz_minute_offset = <span class="number">45</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 +00:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/aq.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aq.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/aq.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aq.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1167,1170 +1162,1169 @@
 <span id="1162">1162</span>
 <span id="1163">1163</span>
 <span id="1164">1164</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Object type queue</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use oracle::Error;</span>
-<span class="doccomment">//! # use oracle::test_util;</span>
-<span class="doccomment">//! # use oracle::aq;</span>
-<span class="doccomment">//! # use oracle::sql_type::Object;</span>
-<span class="doccomment">//! # let conn = test_util::connect()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create a queue</span>
-<span class="doccomment">//! let objtype = conn.object_type(&quot;UDT_BOOK&quot;)?;</span>
-<span class="doccomment">//! let mut queue = aq::Queue::&lt;Object&gt;::new(&amp;conn, &quot;BOOK_QUEUE&quot;, &amp;objtype)?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create a message</span>
-<span class="doccomment">//! let mut payload = objtype.new_object()?;</span>
-<span class="doccomment">//! payload.set(&quot;TITLE&quot;, &amp;&quot;Pebble in the Sky&quot;)?;</span>
-<span class="doccomment">//! payload.set(&quot;AUTHORS&quot;, &amp;&quot;Isaac Asimov&quot;)?;</span>
-<span class="doccomment">//! payload.set(&quot;PRICE&quot;, &amp;17.0)?;</span>
-<span class="doccomment">//! let mut msg = aq::MsgProps::&lt;Object&gt;::new(&amp;conn)?;</span>
-<span class="doccomment">//! msg.set_payload(&amp;payload);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Enqueue the message to the queue</span>
-<span class="doccomment">//! queue.enqueue(&amp;msg)?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Dequeue a message from the queue</span>
-<span class="doccomment">//! let new_msg = queue.dequeue()?;</span>
-<span class="doccomment">//! let new_payload = new_msg.payload()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Compare message payloads.</span>
-<span class="doccomment">//! assert_eq!(payload.get::&lt;String&gt;(&quot;TITLE&quot;)?, new_payload.get::&lt;String&gt;(&quot;TITLE&quot;)?);</span>
-<span class="doccomment">//! assert_eq!(payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?, new_payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?);</span>
-<span class="doccomment">//! assert_eq!(payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?, new_payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?);</span>
-<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## RAW data queue</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use oracle::Error;</span>
-<span class="doccomment">//! # use oracle::test_util;</span>
-<span class="doccomment">//! # use oracle::aq;</span>
-<span class="doccomment">//! # let conn = test_util::connect()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create a queue</span>
-<span class="doccomment">//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create a message</span>
-<span class="doccomment">//! let payload = b&quot;\xde\xad\xbe\xef&quot;;</span>
-<span class="doccomment">//! let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
-<span class="doccomment">//! msg.set_payload(payload.as_ref());</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Enqueue the message to the queue</span>
-<span class="doccomment">//! queue.enqueue(&amp;msg)?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Dequeue a message from the queue</span>
-<span class="doccomment">//! let new_msg = queue.dequeue()?;</span>
-<span class="doccomment">//! let new_payload = new_msg.payload()?; // returns Vec&lt;u8&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Compare message payloads.</span>
-<span class="doccomment">//! assert_eq!(payload, new_payload.as_slice());</span>
-<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Enqueue and dequeue more than one message in one call</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use oracle::Error;</span>
-<span class="doccomment">//! # use oracle::test_util;</span>
-<span class="doccomment">//! # use oracle::aq;</span>
-<span class="doccomment">//! # let conn = test_util::connect()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create a queue</span>
-<span class="doccomment">//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create messages</span>
-<span class="doccomment">//! let payloads = [b&quot;\xde\xad\xbe\xef&quot;, b&quot;\xba\xce\xba\x11&quot;];</span>
-<span class="doccomment">//! let mut messages = vec![];</span>
-<span class="doccomment">//! for payload in &amp;payloads {</span>
-<span class="doccomment">//!     let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;</span>
-<span class="doccomment">//!     msg.set_payload(payload.as_ref())?;</span>
-<span class="doccomment">//!     messages.push(msg);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Enqueue the messages</span>
-<span class="doccomment">//! queue.enqueue_many(&amp;messages)?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Dequeue messages from the queue</span>
-<span class="doccomment">//! let new_messages = queue.dequeue_many(10)?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Compare message payloads.</span>
-<span class="doccomment">//! assert_eq!(new_messages.len(), 2);</span>
-<span class="doccomment">//! assert_eq!(new_messages[0].payload()?, payloads[0]);</span>
-<span class="doccomment">//! assert_eq!(new_messages[1].payload()?, payloads[1]);</span>
-<span class="doccomment">//! # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)
+//!
+//! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.
+//!
+//! # Examples
+//!
+//! ## Object type queue
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # use oracle::sql_type::Object;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let objtype = conn.object_type(&quot;UDT_BOOK&quot;)?;
+//! let mut queue = aq::Queue::&lt;Object&gt;::new(&amp;conn, &quot;BOOK_QUEUE&quot;, &amp;objtype)?;
+//!
+//! // Create a message
+//! let mut payload = objtype.new_object()?;
+//! payload.set(&quot;TITLE&quot;, &amp;&quot;Pebble in the Sky&quot;)?;
+//! payload.set(&quot;AUTHORS&quot;, &amp;&quot;Isaac Asimov&quot;)?;
+//! payload.set(&quot;PRICE&quot;, &amp;17.0)?;
+//! let mut msg = aq::MsgProps::&lt;Object&gt;::new(&amp;conn)?;
+//! msg.set_payload(&amp;payload);
+//!
+//! // Enqueue the message to the queue
+//! queue.enqueue(&amp;msg)?;
+//!
+//! // Dequeue a message from the queue
+//! let new_msg = queue.dequeue()?;
+//! let new_payload = new_msg.payload()?;
+//!
+//! // Compare message payloads.
+//! assert_eq!(payload.get::&lt;String&gt;(&quot;TITLE&quot;)?, new_payload.get::&lt;String&gt;(&quot;TITLE&quot;)?);
+//! assert_eq!(payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?, new_payload.get::&lt;String&gt;(&quot;AUTHORS&quot;)?);
+//! assert_eq!(payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?, new_payload.get::&lt;f32&gt;(&quot;PRICE&quot;)?);
+//! # Ok::&lt;(), Error&gt;(())
+//! ```
+//!
+//! ## RAW data queue
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;
+//!
+//! // Create a message
+//! let payload = b&quot;\xde\xad\xbe\xef&quot;;
+//! let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;
+//! msg.set_payload(payload.as_ref());
+//!
+//! // Enqueue the message to the queue
+//! queue.enqueue(&amp;msg)?;
+//!
+//! // Dequeue a message from the queue
+//! let new_msg = queue.dequeue()?;
+//! let new_payload = new_msg.payload()?; // returns Vec&lt;u8&gt;
+//!
+//! // Compare message payloads.
+//! assert_eq!(payload, new_payload.as_slice());
+//! # Ok::&lt;(), Error&gt;(())
+//! ```
+//!
+//! # Enqueue and dequeue more than one message in one call
+//!
+//! ```
+//! # use oracle::Error;
+//! # use oracle::test_util;
+//! # use oracle::aq;
+//! # let conn = test_util::connect()?;
+//!
+//! // Create a queue
+//! let mut queue = aq::Queue::&lt;[u8]&gt;::new(&amp;conn, &quot;RAW_QUEUE&quot;, &amp;())?;
+//!
+//! // Create messages
+//! let payloads = [b&quot;\xde\xad\xbe\xef&quot;, b&quot;\xba\xce\xba\x11&quot;];
+//! let mut messages = vec![];
+//! for payload in &amp;payloads {
+//!     let mut msg = aq::MsgProps::&lt;[u8]&gt;::new(&amp;conn)?;
+//!     msg.set_payload(payload.as_ref())?;
+//!     messages.push(msg);
+//! }
+//!
+//! // Enqueue the messages
+//! queue.enqueue_many(&amp;messages)?;
+//!
+//! // Dequeue messages from the queue
+//! let new_messages = queue.dequeue_many(10)?;
+//!
+//! // Compare message payloads.
+//! assert_eq!(new_messages.len(), 2);
+//! assert_eq!(new_messages[0].payload()?, payloads[0]);
+//! assert_eq!(new_messages[1].payload()?, payloads[1]);
+//! # Ok::&lt;(), Error&gt;(())
+//! ```
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::chkerr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Conn</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::new_odpi_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::Object</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::ObjectType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::OracleType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_type::Timestamp</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_odpi_str</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::to_rust_slice</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Context</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiMsgProps</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DpiQueue</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
-<span class="kw">use</span> <span class="ident">std::borrow::ToOwned</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
+<span class="kw">use </span><span class="kw">crate</span>::new_odpi_str;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::Object;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectType;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::Timestamp;
+<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
+<span class="kw">use </span><span class="kw">crate</span>::to_rust_slice;
+<span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::DpiMsgProps;
+<span class="kw">use </span><span class="kw">crate</span>::DpiQueue;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>std::borrow::ToOwned;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::marker::PhantomData;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="doccomment">/// A trait for payload type</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Payload</span>: <span class="ident">ToOwned</span> {
-    <span class="kw">type</span> <span class="ident">TypeInfo</span>;
-    <span class="kw">fn</span> <span class="ident">payload_type</span>(<span class="ident">payload_type</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::TypeInfo</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">props</span>: <span class="kw-2">&amp;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Owned</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="doccomment">/// A trait for payload type
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub trait </span>Payload: ToOwned {
+    <span class="kw">type </span>TypeInfo;
+    <span class="kw">fn </span>payload_type(payload_type: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ObjectType&gt;&gt;;
+    <span class="kw">fn </span>get(props: <span class="kw-2">&amp;</span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Owned&gt;;
+    <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 }
 
-<span class="kw">impl</span> <span class="ident">Payload</span> <span class="kw">for</span> [<span class="ident">u8</span>] {
-    <span class="kw">type</span> <span class="ident">TypeInfo</span> <span class="op">=</span> ();
+<span class="kw">impl </span>Payload <span class="kw">for </span>[u8] {
+    <span class="kw">type </span>TypeInfo = ();
 
-    <span class="kw">fn</span> <span class="ident">payload_type</span>(<span class="ident">_payload_type</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::TypeInfo</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn </span>payload_type(_payload_type: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ObjectType&gt;&gt; {
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">props</span>: <span class="kw-2">&amp;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ptr::null</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">fn </span>get(props: <span class="kw-2">&amp;</span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ptr = ptr::null();
+        <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="ident">props</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiMsgProps_getPayload</span>(<span class="ident">props</span>.<span class="ident">handle</span>.<span class="ident">raw</span>, <span class="ident">ptr::null_mut</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">len</span>)
+            props.conn.ctxt,
+            dpiMsgProps_getPayload(props.handle.raw, ptr::null_mut(), <span class="kw-2">&amp;mut </span>ptr, <span class="kw-2">&amp;mut </span>len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">to_rust_slice</span>(<span class="ident">ptr</span>, <span class="ident">len</span>).<span class="ident">to_vec</span>())
+        <span class="prelude-val">Ok</span>(to_rust_slice(ptr, len).to_vec())
     }
 
-    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="ident">props</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiMsgProps_setPayloadBytes</span>(
-                <span class="ident">props</span>.<span class="ident">handle</span>.<span class="ident">raw</span>,
-                <span class="self">self</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-                <span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>
+            props.conn.ctxt,
+            dpiMsgProps_setPayloadBytes(
+                props.handle.raw,
+                <span class="self">self</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
+                <span class="self">self</span>.len() <span class="kw">as </span>u32
             )
         );
-        <span class="ident">props</span>.<span class="ident">payload_type</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        props.payload_type = <span class="prelude-val">None</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Payload</span> <span class="kw">for</span> <span class="ident">Object</span> {
-    <span class="kw">type</span> <span class="ident">TypeInfo</span> <span class="op">=</span> <span class="ident">ObjectType</span>;
+<span class="kw">impl </span>Payload <span class="kw">for </span>Object {
+    <span class="kw">type </span>TypeInfo = ObjectType;
 
-    <span class="kw">fn</span> <span class="ident">payload_type</span>(<span class="ident">payload_type</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::TypeInfo</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">payload_type</span>.<span class="ident">clone</span>()))
+    <span class="kw">fn </span>payload_type(payload_type: <span class="kw-2">&amp;</span><span class="self">Self</span>::TypeInfo) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ObjectType&gt;&gt; {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(payload_type.clone()))
     }
 
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">props</span>: <span class="kw-2">&amp;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">objtype</span> <span class="op">=</span> <span class="ident">props</span>.<span class="ident">payload_type</span>.<span class="ident">as_ref</span>().<span class="ident">ok_or</span>(<span class="ident">Error::NoDataFound</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">obj_handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="kw">fn </span>get(props: <span class="kw-2">&amp;</span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Object&gt; {
+        <span class="kw">let </span>objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>obj_handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="ident">props</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiMsgProps_getPayload</span>(
-                <span class="ident">props</span>.<span class="ident">handle</span>.<span class="ident">raw</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">obj_handle</span>,
-                <span class="ident">ptr::null_mut</span>(),
-                <span class="ident">ptr::null_mut</span>()
+            props.conn.ctxt,
+            dpiMsgProps_getPayload(
+                props.handle.raw,
+                <span class="kw-2">&amp;mut </span>obj_handle,
+                ptr::null_mut(),
+                ptr::null_mut()
             )
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Object::new</span>(<span class="ident">props</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">obj_handle</span>, <span class="ident">objtype</span>.<span class="ident">clone</span>()))
+        <span class="prelude-val">Ok</span>(Object::new(props.conn.clone(), obj_handle, objtype.clone()))
     }
 
-    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="ident">props</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiMsgProps_setPayloadObject</span>(<span class="ident">props</span>.<span class="ident">handle</span>.<span class="ident">raw</span>, <span class="self">self</span>.<span class="ident">handle</span>)
+            props.conn.ctxt,
+            dpiMsgProps_setPayloadObject(props.handle.raw, <span class="self">self</span>.handle)
         );
-        <span class="ident">props</span>.<span class="ident">payload_type</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">object_type</span>().<span class="ident">clone</span>());
+        props.payload_type = <span class="prelude-val">Some</span>(<span class="self">self</span>.object_type().clone());
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="doccomment">/// Advanced Queueing (AQ) queue which may be used to enqueue and dequeue messages</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Queue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Payload</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+<span class="doccomment">/// Advanced Queueing (AQ) queue which may be used to enqueue and dequeue messages
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub struct </span>Queue&lt;T&gt;
+<span class="kw">where
+    </span>T: Payload + <span class="question-mark">?</span>Sized,
 {
-    <span class="ident">conn</span>: <span class="ident">Conn</span>,
-    <span class="ident">handle</span>: <span class="ident">DpiQueue</span>,
-    <span class="ident">payload_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span>,
-    <span class="ident">enq_options</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">EnqOptions</span><span class="op">&gt;</span>,
-    <span class="ident">deq_options</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DeqOptions</span><span class="op">&gt;</span>,
-    <span class="ident">phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    conn: Conn,
+    handle: DpiQueue,
+    payload_type: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;,
+    enq_options: <span class="prelude-ty">Option</span>&lt;EnqOptions&gt;,
+    deq_options: <span class="prelude-ty">Option</span>&lt;DeqOptions&gt;,
+    phantom: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Queue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Payload</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="lifetime">&#39;a</span>&gt; Queue&lt;T&gt;
+<span class="kw">where
+    </span>T: Payload + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">dpiQueue</span> {
-        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">raw</span>
+    <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiQueue {
+        <span class="self">self</span>.handle.raw
     }
 
-    <span class="kw">fn</span> <span class="ident">ctxt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context {
+        <span class="self">self</span>.conn.ctxt
     }
 
-    <span class="doccomment">/// Creates a new queue which may be used to enqueue and dequeue messages</span>
-    <span class="doccomment">/// from Advanced Queuing (AQ) queues.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>,
-        <span class="ident">queue_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">payload_type</span>: <span class="kw-2">&amp;</span><span class="ident">T::TypeInfo</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Queue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">queue_name</span>);
-        <span class="kw">let</span> <span class="ident">payload_type</span> <span class="op">=</span> <span class="ident">T::payload_type</span>(<span class="ident">payload_type</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">objtype</span> <span class="op">=</span> <span class="ident">payload_type</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">handle</span>().<span class="ident">raw</span>)
-            .<span class="ident">unwrap_or</span>(<span class="ident">ptr::null_mut</span>());
+    <span class="doccomment">/// Creates a new queue which may be used to enqueue and dequeue messages
+    /// from Advanced Queuing (AQ) queues.
+    </span><span class="kw">pub fn </span>new(
+        conn: <span class="kw-2">&amp;</span>Connection,
+        queue_name: <span class="kw-2">&amp;</span>str,
+        payload_type: <span class="kw-2">&amp;</span>T::TypeInfo,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Queue&lt;T&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
+        <span class="kw">let </span>name = to_odpi_str(queue_name);
+        <span class="kw">let </span>payload_type = T::payload_type(payload_type)<span class="question-mark">?</span>;
+        <span class="kw">let </span>objtype = payload_type
+            .as_ref()
+            .map(|t| t.handle().raw)
+            .unwrap_or(ptr::null_mut());
         <span class="macro">chkerr!</span>(
-            <span class="ident">conn</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiConn_newQueue</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="ident">name</span>.<span class="ident">ptr</span>, <span class="ident">name</span>.<span class="ident">len</span>, <span class="ident">objtype</span>, <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
+            conn.ctxt(),
+            dpiConn_newQueue(conn.handle(), name.ptr, name.len, objtype, <span class="kw-2">&amp;mut </span>handle)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Queue</span> {
-            <span class="ident">conn</span>: <span class="ident">conn</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(),
-            <span class="ident">handle</span>: <span class="ident">DpiQueue::new</span>(<span class="ident">handle</span>),
-            <span class="ident">payload_type</span>,
-            <span class="ident">enq_options</span>: <span class="prelude-val">None</span>,
-            <span class="ident">deq_options</span>: <span class="prelude-val">None</span>,
-            <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
+        <span class="prelude-val">Ok</span>(Queue {
+            conn: conn.conn.clone(),
+            handle: DpiQueue::new(handle),
+            payload_type,
+            enq_options: <span class="prelude-val">None</span>,
+            deq_options: <span class="prelude-val">None</span>,
+            phantom: PhantomData,
         })
     }
 
-    <span class="doccomment">/// Dequeues a single message from the queue.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dequeue</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiQueue_deqOne</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">props</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">MsgProps::from_dpi_msg_props</span>(
-            <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(),
-            <span class="ident">DpiMsgProps::new</span>(<span class="ident">props</span>),
-            <span class="self">self</span>.<span class="ident">payload_type</span>.<span class="ident">clone</span>(),
+    <span class="doccomment">/// Dequeues a single message from the queue.
+    </span><span class="kw">pub fn </span>dequeue(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;MsgProps&lt;T&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>props = ptr::null_mut();
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiQueue_deqOne(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>props));
+        <span class="prelude-val">Ok</span>(MsgProps::from_dpi_msg_props(
+            <span class="self">self</span>.conn.clone(),
+            DpiMsgProps::new(props),
+            <span class="self">self</span>.payload_type.clone(),
         ))
     }
 
-    <span class="doccomment">/// Dequeues multiple messages from the queue.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dequeue_many</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">max_size</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_props</span> <span class="op">=</span> <span class="ident">max_size</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">DpiMsgProps</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="ident">max_size</span> <span class="kw">as</span> <span class="ident">usize</span>);
+    <span class="doccomment">/// Dequeues multiple messages from the queue.
+    </span><span class="kw">pub fn </span>dequeue_many(<span class="kw-2">&amp;</span><span class="self">self</span>, max_size: u32) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;MsgProps&lt;T&gt;&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>num_props = max_size;
+        <span class="kw">let </span><span class="kw-2">mut </span>handles = Vec::&lt;DpiMsgProps&gt;::with_capacity(max_size <span class="kw">as </span>usize);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiQueue_deqMany</span>(
-                <span class="self">self</span>.<span class="ident">handle</span>(),
-                <span class="kw-2">&amp;mut</span> <span class="ident">num_props</span>,
-                <span class="comment">// The following code works only when</span>
-                <span class="comment">// the size of `*mut dpiMsgProps` equals to that of `DpiMsgProps`.</span>
-                <span class="ident">handles</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">dpiMsgProps</span>
+            <span class="self">self</span>.ctxt(),
+            dpiQueue_deqMany(
+                <span class="self">self</span>.handle(),
+                <span class="kw-2">&amp;mut </span>num_props,
+                <span class="comment">// The following code works only when
+                // the size of `*mut dpiMsgProps` equals to that of `DpiMsgProps`.
+                </span>handles.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut *mut </span>dpiMsgProps
             )
         );
-        <span class="kw">let</span> <span class="ident">num_props</span> <span class="op">=</span> <span class="ident">num_props</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">unsafe</span> {
-            <span class="ident">handles</span>.<span class="ident">set_len</span>(<span class="ident">num_props</span>);
+        <span class="kw">let </span>num_props = num_props <span class="kw">as </span>usize;
+        <span class="kw">unsafe </span>{
+            handles.set_len(num_props);
         }
-        <span class="kw">let</span> <span class="ident">props</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">handles</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">handle</span><span class="op">|</span> {
-                <span class="ident">MsgProps::from_dpi_msg_props</span>(<span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(), <span class="ident">handle</span>, <span class="self">self</span>.<span class="ident">payload_type</span>.<span class="ident">clone</span>())
+        <span class="kw">let </span>props: Vec&lt;<span class="kw">_</span>&gt; = handles
+            .into_iter()
+            .map(|handle| {
+                MsgProps::from_dpi_msg_props(<span class="self">self</span>.conn.clone(), handle, <span class="self">self</span>.payload_type.clone())
             })
-            .<span class="ident">collect</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">props</span>)
+            .collect();
+        <span class="prelude-val">Ok</span>(props)
     }
 
-    <span class="doccomment">/// Enqueues a single mesasge into the queue.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enqueue</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="kw-2">&amp;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiQueue_enqOne</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">props</span>.<span class="ident">handle</span>()));
+    <span class="doccomment">/// Enqueues a single mesasge into the queue.
+    </span><span class="kw">pub fn </span>enqueue(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;</span>MsgProps&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiQueue_enqOne(<span class="self">self</span>.handle(), props.handle()));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Enqueues multiple messages into the queue.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **Warning:** calling this function in parallel on different connections</span>
-    <span class="doccomment">/// acquired from the same pool may fail due to Oracle bug 29928074. Ensure</span>
-    <span class="doccomment">/// that this function is not run in parallel, use standalone connections or</span>
-    <span class="doccomment">/// connections from different pools, or make multiple calls to</span>
-    <span class="doccomment">/// [`Queue.enqueue`] instead. The function [`Queue.dequeue_many`]</span>
-    <span class="doccomment">/// call is not affected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Queue.enqueue`]: #method.enqueue</span>
-    <span class="doccomment">/// [`Queue.dequeue_many`]: #method.dequeue_many</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enqueue_many</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">props</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Enqueues multiple messages into the queue.
+    ///
+    /// **Warning:** calling this function in parallel on different connections
+    /// acquired from the same pool may fail due to Oracle bug 29928074. Ensure
+    /// that this function is not run in parallel, use standalone connections or
+    /// connections from different pools, or make multiple calls to
+    /// [`Queue.enqueue`] instead. The function [`Queue.dequeue_many`]
+    /// call is not affected.
+    ///
+    /// [`Queue.enqueue`]: #method.enqueue
+    /// [`Queue.dequeue_many`]: #method.dequeue_many
+    </span><span class="kw">pub fn </span>enqueue_many&lt;I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, props: I) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MsgProps&lt;T&gt;&gt;,
     {
-        <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">props</span>.<span class="ident">into_iter</span>();
-        <span class="kw">let</span> (<span class="ident">lower</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">size_hint</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_props</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">lower</span>);
-        <span class="kw">for</span> <span class="ident">msg</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">msg</span>.<span class="ident">handle</span>();
-            <span class="ident">raw_props</span>.<span class="ident">push</span>(<span class="ident">handle</span>);
-            <span class="kw">unsafe</span> {
-                <span class="ident">dpiMsgProps_addRef</span>(<span class="ident">handle</span>);
+        <span class="kw">let </span>iter = props.into_iter();
+        <span class="kw">let </span>(lower, <span class="kw">_</span>) = iter.size_hint();
+        <span class="kw">let </span><span class="kw-2">mut </span>raw_props = Vec::with_capacity(lower);
+        <span class="kw">for </span>msg <span class="kw">in </span>iter {
+            <span class="kw">let </span>handle = msg.handle();
+            raw_props.push(handle);
+            <span class="kw">unsafe </span>{
+                dpiMsgProps_addRef(handle);
             }
         }
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiQueue_enqMany</span>(
-                <span class="self">self</span>.<span class="ident">handle</span>(),
-                <span class="ident">raw_props</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>,
-                <span class="ident">raw_props</span>.<span class="ident">as_mut_ptr</span>()
+            <span class="self">self</span>.ctxt(),
+            dpiQueue_enqMany(
+                <span class="self">self</span>.handle(),
+                raw_props.len() <span class="kw">as </span>u32,
+                raw_props.as_mut_ptr()
             ),
-            <span class="kw">for</span> <span class="ident">handle</span> <span class="kw">in</span> <span class="ident">raw_props</span> {
-                <span class="kw">unsafe</span> {
-                    <span class="ident">dpiMsgProps_release</span>(<span class="ident">handle</span>);
+            <span class="kw">for </span>handle <span class="kw">in </span>raw_props {
+                <span class="kw">unsafe </span>{
+                    dpiMsgProps_release(handle);
                 }
             }
         );
-        <span class="kw">for</span> <span class="ident">handle</span> <span class="kw">in</span> <span class="ident">raw_props</span> {
-            <span class="kw">unsafe</span> {
-                <span class="ident">dpiMsgProps_release</span>(<span class="ident">handle</span>);
+        <span class="kw">for </span>handle <span class="kw">in </span>raw_props {
+            <span class="kw">unsafe </span>{
+                dpiMsgProps_release(handle);
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns a reference to the dequeue options associated with the queue. These</span>
-    <span class="doccomment">/// options affect how messages are dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deq_options</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">DeqOptions</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">deq_options</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="doccomment">/// Returns a reference to the dequeue options associated with the queue. These
+    /// options affect how messages are dequeued.
+    </span><span class="kw">pub fn </span>deq_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>DeqOptions&gt; {
+        <span class="kw">if </span><span class="self">self</span>.deq_options.is_none() {
+            <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiQueue_getDeqOptions</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
+                <span class="self">self</span>.ctxt(),
+                dpiQueue_getDeqOptions(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle)
             );
-            <span class="self">self</span>.<span class="ident">deq_options</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DeqOptions::new</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>));
+            <span class="self">self</span>.deq_options = <span class="prelude-val">Some</span>(DeqOptions::new(<span class="self">self</span>.ctxt(), handle));
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">deq_options</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>())
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.deq_options.as_mut().unwrap())
     }
 
-    <span class="doccomment">/// Returns a reference to the enqueue options associated with the queue. These</span>
-    <span class="doccomment">/// options affect how messages are enqueued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enq_options</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">EnqOptions</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">enq_options</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
+    <span class="doccomment">/// Returns a reference to the enqueue options associated with the queue. These
+    /// options affect how messages are enqueued.
+    </span><span class="kw">pub fn </span>enq_options(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>EnqOptions&gt; {
+        <span class="kw">if </span><span class="self">self</span>.enq_options.is_none() {
+            <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiQueue_getEnqOptions</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>)
+                <span class="self">self</span>.ctxt(),
+                dpiQueue_getEnqOptions(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle)
             );
-            <span class="self">self</span>.<span class="ident">enq_options</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EnqOptions::new</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">handle</span>));
+            <span class="self">self</span>.enq_options = <span class="prelude-val">Some</span>(EnqOptions::new(<span class="self">self</span>.ctxt(), handle));
         }
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">enq_options</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>())
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.enq_options.as_mut().unwrap())
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Delivery mode used for filtering messages when dequeuing messages from a queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MessageDeliveryMode</span> {
-    <span class="doccomment">/// Dequeue only persistent messages from the queue. This is the default mode.</span>
-    <span class="ident">Persistent</span>,
-    <span class="doccomment">/// Dequeue only buffered messages from the queue.</span>
-    <span class="ident">Buffered</span>,
-    <span class="doccomment">/// Dequeue both persistent and buffered messages from the queue.</span>
-    <span class="ident">PersistentOrBuffered</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="doccomment">/// Delivery mode used for filtering messages when dequeuing messages from a queue
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub enum </span>MessageDeliveryMode {
+    <span class="doccomment">/// Dequeue only persistent messages from the queue. This is the default mode.
+    </span>Persistent,
+    <span class="doccomment">/// Dequeue only buffered messages from the queue.
+    </span>Buffered,
+    <span class="doccomment">/// Dequeue both persistent and buffered messages from the queue.
+    </span>PersistentOrBuffered,
 }
 
-<span class="kw">impl</span> <span class="ident">MessageDeliveryMode</span> {
-    <span class="kw">fn</span> <span class="ident">from_dpi_value</span>(<span class="ident">val</span>: <span class="ident">dpiMessageDeliveryMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageDeliveryMode</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">val</span> <span class="kw">as</span> <span class="ident">u32</span> {
-            <span class="ident">DPI_MODE_MSG_PERSISTENT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageDeliveryMode::Persistent</span>),
-            <span class="ident">DPI_MODE_MSG_BUFFERED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageDeliveryMode::Buffered</span>),
-            <span class="ident">DPI_MODE_MSG_PERSISTENT_OR_BUFFERED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageDeliveryMode::PersistentOrBuffered</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>MessageDeliveryMode {
+    <span class="kw">fn </span>from_dpi_value(val: dpiMessageDeliveryMode) -&gt; <span class="prelude-ty">Result</span>&lt;MessageDeliveryMode&gt; {
+        <span class="kw">match </span>val <span class="kw">as </span>u32 {
+            DPI_MODE_MSG_PERSISTENT =&gt; <span class="prelude-val">Ok</span>(MessageDeliveryMode::Persistent),
+            DPI_MODE_MSG_BUFFERED =&gt; <span class="prelude-val">Ok</span>(MessageDeliveryMode::Buffered),
+            DPI_MODE_MSG_PERSISTENT_OR_BUFFERED =&gt; <span class="prelude-val">Ok</span>(MessageDeliveryMode::PersistentOrBuffered),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;unknown dpiMessageDeliveryMode {}&quot;</span>,
-                <span class="ident">val</span>
+                val
             ))),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiMessageDeliveryMode</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">MessageDeliveryMode::Persistent</span> =&gt; <span class="ident">DPI_MODE_MSG_PERSISTENT</span> <span class="kw">as</span> <span class="ident">dpiMessageDeliveryMode</span>,
-            <span class="ident">MessageDeliveryMode::Buffered</span> =&gt; <span class="ident">DPI_MODE_MSG_PERSISTENT</span> <span class="kw">as</span> <span class="ident">dpiMessageDeliveryMode</span>,
-            <span class="ident">MessageDeliveryMode::PersistentOrBuffered</span> =&gt; {
-                <span class="ident">DPI_MODE_MSG_PERSISTENT</span> <span class="kw">as</span> <span class="ident">dpiMessageDeliveryMode</span>
+    <span class="kw">fn </span>to_dpi_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiMessageDeliveryMode {
+        <span class="kw">match </span><span class="self">self </span>{
+            MessageDeliveryMode::Persistent =&gt; DPI_MODE_MSG_PERSISTENT <span class="kw">as </span>dpiMessageDeliveryMode,
+            MessageDeliveryMode::Buffered =&gt; DPI_MODE_MSG_PERSISTENT <span class="kw">as </span>dpiMessageDeliveryMode,
+            MessageDeliveryMode::PersistentOrBuffered =&gt; {
+                DPI_MODE_MSG_PERSISTENT <span class="kw">as </span>dpiMessageDeliveryMode
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Possible states for messages in a queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MessageState</span> {
-    <span class="doccomment">/// The message is ready to be processed.</span>
-    <span class="ident">Ready</span>,
-    <span class="doccomment">/// The message is waiting for the delay time to expire.</span>
-    <span class="ident">Waiting</span>,
-    <span class="doccomment">/// The message has already been processed and is retained.</span>
-    <span class="ident">Processed</span>,
-    <span class="doccomment">/// The message has been moved to the exception queue.</span>
-    <span class="ident">Expired</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="doccomment">/// Possible states for messages in a queue
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub enum </span>MessageState {
+    <span class="doccomment">/// The message is ready to be processed.
+    </span>Ready,
+    <span class="doccomment">/// The message is waiting for the delay time to expire.
+    </span>Waiting,
+    <span class="doccomment">/// The message has already been processed and is retained.
+    </span>Processed,
+    <span class="doccomment">/// The message has been moved to the exception queue.
+    </span>Expired,
 }
 
-<span class="kw">impl</span> <span class="ident">MessageState</span> {
-    <span class="kw">fn</span> <span class="ident">from_dpi_value</span>(<span class="ident">val</span>: <span class="ident">dpiMessageState</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageState</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">val</span> {
-            <span class="ident">DPI_MSG_STATE_READY</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageState::Ready</span>),
-            <span class="ident">DPI_MSG_STATE_WAITING</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageState::Waiting</span>),
-            <span class="ident">DPI_MSG_STATE_PROCESSED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageState::Processed</span>),
-            <span class="ident">DPI_MSG_STATE_EXPIRED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">MessageState::Expired</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>MessageState {
+    <span class="kw">fn </span>from_dpi_value(val: dpiMessageState) -&gt; <span class="prelude-ty">Result</span>&lt;MessageState&gt; {
+        <span class="kw">match </span>val {
+            DPI_MSG_STATE_READY =&gt; <span class="prelude-val">Ok</span>(MessageState::Ready),
+            DPI_MSG_STATE_WAITING =&gt; <span class="prelude-val">Ok</span>(MessageState::Waiting),
+            DPI_MSG_STATE_PROCESSED =&gt; <span class="prelude-val">Ok</span>(MessageState::Processed),
+            DPI_MSG_STATE_EXPIRED =&gt; <span class="prelude-val">Ok</span>(MessageState::Expired),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;unknown dpiMessageState {}&quot;</span>,
-                <span class="ident">val</span>
+                val
             ))),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Modes that are possible when dequeuing messages from a queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DeqMode</span> {
-    <span class="doccomment">/// Read the message without acquiring a lock on the</span>
-    <span class="doccomment">///  message(equivalent to a SELECT statement).</span>
-    <span class="ident">Browse</span>,
-    <span class="doccomment">/// Read the message and obtain a write lock on the</span>
-    <span class="doccomment">/// message (equivalent to a SELECT FOR UPDATE</span>
-    <span class="doccomment">/// statement).</span>
-    <span class="ident">Locked</span>,
-    <span class="doccomment">/// Read the message and update or delete it. This is</span>
-    <span class="doccomment">/// the default mode. Note that the message may be</span>
-    <span class="doccomment">/// retained in the queue table based on retention</span>
-    <span class="doccomment">/// properties.</span>
-    <span class="ident">Remove</span>,
-    <span class="doccomment">/// Confirms receipt of the message but does not</span>
-    <span class="doccomment">/// deliver the actual message content.</span>
-    <span class="ident">RemoveNoData</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="doccomment">/// Modes that are possible when dequeuing messages from a queue
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub enum </span>DeqMode {
+    <span class="doccomment">/// Read the message without acquiring a lock on the
+    ///  message(equivalent to a SELECT statement).
+    </span>Browse,
+    <span class="doccomment">/// Read the message and obtain a write lock on the
+    /// message (equivalent to a SELECT FOR UPDATE
+    /// statement).
+    </span>Locked,
+    <span class="doccomment">/// Read the message and update or delete it. This is
+    /// the default mode. Note that the message may be
+    /// retained in the queue table based on retention
+    /// properties.
+    </span>Remove,
+    <span class="doccomment">/// Confirms receipt of the message but does not
+    /// deliver the actual message content.
+    </span>RemoveNoData,
 }
 
-<span class="kw">impl</span> <span class="ident">DeqMode</span> {
-    <span class="kw">fn</span> <span class="ident">from_dpi_value</span>(<span class="ident">val</span>: <span class="ident">dpiDeqMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeqMode</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">val</span> {
-            <span class="ident">DPI_MODE_DEQ_BROWSE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqMode::Browse</span>),
-            <span class="ident">DPI_MODE_DEQ_LOCKED</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqMode::Locked</span>),
-            <span class="ident">DPI_MODE_DEQ_REMOVE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqMode::Remove</span>),
-            <span class="ident">DPI_MODE_DEQ_REMOVE_NO_DATA</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqMode::RemoveNoData</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(<span class="string">&quot;unknown dpiDeqMode {}&quot;</span>, <span class="ident">val</span>))),
+<span class="kw">impl </span>DeqMode {
+    <span class="kw">fn </span>from_dpi_value(val: dpiDeqMode) -&gt; <span class="prelude-ty">Result</span>&lt;DeqMode&gt; {
+        <span class="kw">match </span>val {
+            DPI_MODE_DEQ_BROWSE =&gt; <span class="prelude-val">Ok</span>(DeqMode::Browse),
+            DPI_MODE_DEQ_LOCKED =&gt; <span class="prelude-val">Ok</span>(DeqMode::Locked),
+            DPI_MODE_DEQ_REMOVE =&gt; <span class="prelude-val">Ok</span>(DeqMode::Remove),
+            DPI_MODE_DEQ_REMOVE_NO_DATA =&gt; <span class="prelude-val">Ok</span>(DeqMode::RemoveNoData),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(<span class="string">&quot;unknown dpiDeqMode {}&quot;</span>, val))),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiDeqMode</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DeqMode::Browse</span> =&gt; <span class="ident">DPI_MODE_DEQ_BROWSE</span>,
-            <span class="ident">DeqMode::Locked</span> =&gt; <span class="ident">DPI_MODE_DEQ_LOCKED</span>,
-            <span class="ident">DeqMode::Remove</span> =&gt; <span class="ident">DPI_MODE_DEQ_REMOVE</span>,
-            <span class="ident">DeqMode::RemoveNoData</span> =&gt; <span class="ident">DPI_MODE_DEQ_REMOVE_NO_DATA</span>,
+    <span class="kw">fn </span>to_dpi_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiDeqMode {
+        <span class="kw">match </span><span class="self">self </span>{
+            DeqMode::Browse =&gt; DPI_MODE_DEQ_BROWSE,
+            DeqMode::Locked =&gt; DPI_MODE_DEQ_LOCKED,
+            DeqMode::Remove =&gt; DPI_MODE_DEQ_REMOVE,
+            DeqMode::RemoveNoData =&gt; DPI_MODE_DEQ_REMOVE_NO_DATA,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// method used for determining which message is to be dequeued from a queue</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DeqNavigation</span> {
-    <span class="doccomment">/// Retrieves the first available message that</span>
-    <span class="doccomment">/// matches the search criteria. This resets the</span>
-    <span class="doccomment">/// position to the beginning of the queue.</span>
-    <span class="ident">FirstMessage</span>,
-    <span class="doccomment">/// Skips the remainder of the current transaction</span>
-    <span class="doccomment">/// group (if any) and retrieves the first message of</span>
-    <span class="doccomment">/// the next transaction group. This option can only</span>
-    <span class="doccomment">/// be used if message grouping is enabled for the</span>
-    <span class="doccomment">/// queue.</span>
-    <span class="ident">NextTransaction</span>,
-    <span class="doccomment">/// Retrieves the next available message that matches</span>
-    <span class="doccomment">/// the search criteria. This is the default method.</span>
-    <span class="ident">NextMessage</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="doccomment">/// method used for determining which message is to be dequeued from a queue
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub enum </span>DeqNavigation {
+    <span class="doccomment">/// Retrieves the first available message that
+    /// matches the search criteria. This resets the
+    /// position to the beginning of the queue.
+    </span>FirstMessage,
+    <span class="doccomment">/// Skips the remainder of the current transaction
+    /// group (if any) and retrieves the first message of
+    /// the next transaction group. This option can only
+    /// be used if message grouping is enabled for the
+    /// queue.
+    </span>NextTransaction,
+    <span class="doccomment">/// Retrieves the next available message that matches
+    /// the search criteria. This is the default method.
+    </span>NextMessage,
 }
 
-<span class="kw">impl</span> <span class="ident">DeqNavigation</span> {
-    <span class="kw">fn</span> <span class="ident">from_dpi_value</span>(<span class="ident">val</span>: <span class="ident">dpiDeqNavigation</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeqNavigation</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">val</span> {
-            <span class="ident">DPI_DEQ_NAV_FIRST_MSG</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqNavigation::FirstMessage</span>),
-            <span class="ident">DPI_DEQ_NAV_NEXT_TRANSACTION</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqNavigation::NextTransaction</span>),
-            <span class="ident">DPI_DEQ_NAV_NEXT_MSG</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DeqNavigation::NextMessage</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>DeqNavigation {
+    <span class="kw">fn </span>from_dpi_value(val: dpiDeqNavigation) -&gt; <span class="prelude-ty">Result</span>&lt;DeqNavigation&gt; {
+        <span class="kw">match </span>val {
+            DPI_DEQ_NAV_FIRST_MSG =&gt; <span class="prelude-val">Ok</span>(DeqNavigation::FirstMessage),
+            DPI_DEQ_NAV_NEXT_TRANSACTION =&gt; <span class="prelude-val">Ok</span>(DeqNavigation::NextTransaction),
+            DPI_DEQ_NAV_NEXT_MSG =&gt; <span class="prelude-val">Ok</span>(DeqNavigation::NextMessage),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;unknown dpiDeqNavigation {}&quot;</span>,
-                <span class="ident">val</span>
+                val
             ))),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiDeqNavigation</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DeqNavigation::FirstMessage</span> =&gt; <span class="ident">DPI_DEQ_NAV_FIRST_MSG</span>,
-            <span class="ident">DeqNavigation::NextTransaction</span> =&gt; <span class="ident">DPI_DEQ_NAV_NEXT_TRANSACTION</span>,
-            <span class="ident">DeqNavigation::NextMessage</span> =&gt; <span class="ident">DPI_DEQ_NAV_NEXT_MSG</span>,
+    <span class="kw">fn </span>to_dpi_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiDeqNavigation {
+        <span class="kw">match </span><span class="self">self </span>{
+            DeqNavigation::FirstMessage =&gt; DPI_DEQ_NAV_FIRST_MSG,
+            DeqNavigation::NextTransaction =&gt; DPI_DEQ_NAV_NEXT_TRANSACTION,
+            DeqNavigation::NextMessage =&gt; DPI_DEQ_NAV_NEXT_MSG,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// visibility of messages in advanced queuing</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Visibility</span> {
-    <span class="doccomment">/// The message is not part of the current transaction</span>
-    <span class="doccomment">/// but constitutes a transaction of its own.</span>
-    <span class="ident">Immediate</span>,
-    <span class="doccomment">/// The message is part of the current transaction.</span>
-    <span class="doccomment">/// This is the default value.</span>
-    <span class="ident">OnCommit</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="doccomment">/// visibility of messages in advanced queuing
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub enum </span>Visibility {
+    <span class="doccomment">/// The message is not part of the current transaction
+    /// but constitutes a transaction of its own.
+    </span>Immediate,
+    <span class="doccomment">/// The message is part of the current transaction.
+    /// This is the default value.
+    </span>OnCommit,
 }
 
-<span class="kw">impl</span> <span class="ident">Visibility</span> {
-    <span class="kw">fn</span> <span class="ident">from_dpi_value</span>(<span class="ident">val</span>: <span class="ident">dpiVisibility</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Visibility</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">val</span> {
-            <span class="ident">DPI_VISIBILITY_IMMEDIATE</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Visibility::Immediate</span>),
-            <span class="ident">DPI_VISIBILITY_ON_COMMIT</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Visibility::OnCommit</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::InternalError</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>Visibility {
+    <span class="kw">fn </span>from_dpi_value(val: dpiVisibility) -&gt; <span class="prelude-ty">Result</span>&lt;Visibility&gt; {
+        <span class="kw">match </span>val {
+            DPI_VISIBILITY_IMMEDIATE =&gt; <span class="prelude-val">Ok</span>(Visibility::Immediate),
+            DPI_VISIBILITY_ON_COMMIT =&gt; <span class="prelude-val">Ok</span>(Visibility::OnCommit),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
                 <span class="string">&quot;unknown dpiVisibility {}&quot;</span>,
-                <span class="ident">val</span>
+                val
             ))),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_dpi_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiVisibility</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Visibility::Immediate</span> =&gt; <span class="ident">DPI_VISIBILITY_IMMEDIATE</span>,
-            <span class="ident">Visibility::OnCommit</span> =&gt; <span class="ident">DPI_VISIBILITY_ON_COMMIT</span>,
+    <span class="kw">fn </span>to_dpi_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiVisibility {
+        <span class="kw">match </span><span class="self">self </span>{
+            Visibility::Immediate =&gt; DPI_VISIBILITY_IMMEDIATE,
+            Visibility::OnCommit =&gt; DPI_VISIBILITY_ON_COMMIT,
         }
     }
 }
 
-<span class="doccomment">/// Options when dequeuing messages using advanced queueing</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DeqOptions</span> {
-    <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-    <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiDeqOptions</span>,
+<span class="doccomment">/// Options when dequeuing messages using advanced queueing
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub struct </span>DeqOptions {
+    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    handle: <span class="kw-2">*mut </span>dpiDeqOptions,
 }
 
-<span class="kw">impl</span> <span class="ident">DeqOptions</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiDeqOptions</span>) -&gt; <span class="ident">DeqOptions</span> {
-        <span class="ident">DeqOptions</span> { <span class="ident">ctxt</span>, <span class="ident">handle</span> }
+<span class="kw">impl </span>DeqOptions {
+    <span class="kw">fn </span>new(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiDeqOptions) -&gt; DeqOptions {
+        DeqOptions { ctxt, handle }
     }
 
-    <span class="doccomment">/// Returns the condition that must be satisfied in order for a message to be</span>
-    <span class="doccomment">/// dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_condition`](#method.set_condition) method for more information</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">condition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the condition that must be satisfied in order for a message to be
+    /// dequeued.
+    ///
+    /// See [`set_condition`](#method.set_condition) method for more information
+    </span><span class="kw">pub fn </span>condition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getCondition</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getCondition(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns the name of the consumer that is dequeuing messages.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// see [`set_consumer_name`](#method.set_consumer_name) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consumer_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the name of the consumer that is dequeuing messages.
+    ///
+    /// see [`set_consumer_name`](#method.set_consumer_name) method for more information.
+    </span><span class="kw">pub fn </span>consumer_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getConsumerName</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getConsumerName(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">///  Returns the correlation of the message to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///  See [`set_correlation`](#method.set_correlation) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">correlation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">///  Returns the correlation of the message to be dequeued.
+    ///
+    ///  See [`set_correlation`](#method.set_correlation) method for more information.
+    </span><span class="kw">pub fn </span>correlation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getCorrelation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getCorrelation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns the mode that is to be used when dequeuing messages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeqMode</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiDeqOptions_getMode</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="ident">DeqMode::from_dpi_value</span>(<span class="ident">val</span>)
+    <span class="doccomment">/// Returns the mode that is to be used when dequeuing messages.
+    </span><span class="kw">pub fn </span>mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DeqMode&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_getMode(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
+        DeqMode::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Returns the identifier of the specific message that is to be dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the identifier of the specific message that is to be dequeued.
+    </span><span class="kw">pub fn </span>message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getMsgId</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getMsgId(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">msg</span>.<span class="ident">to_vec</span>())
+        <span class="prelude-val">Ok</span>(msg.to_vec())
     }
 
-    <span class="doccomment">/// Returns the position of the message that is to be dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">navigation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DeqNavigation</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the position of the message that is to be dequeued.
+    </span><span class="kw">pub fn </span>navigation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DeqNavigation&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getNavigation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getNavigation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="ident">DeqNavigation::from_dpi_value</span>(<span class="ident">val</span>)
+        DeqNavigation::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Returns the transformation of the message to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_transformation`](#method.set_transformation) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transformation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the transformation of the message to be dequeued.
+    ///
+    /// See [`set_transformation`](#method.set_transformation) method for more information.
+    </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getTransformation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns whether the message being dequeued is part of the current</span>
-    <span class="doccomment">/// transaction or constitutes a transaction on its own.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Visibility</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns whether the message being dequeued is part of the current
+    /// transaction or constitutes a transaction on its own.
+    </span><span class="kw">pub fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Visibility&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_getVisibility</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_getVisibility(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="ident">Visibility::from_dpi_value</span>(<span class="ident">val</span>)
+        Visibility::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Returns the time to wait for a message matching the search</span>
-    <span class="doccomment">/// criteria.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiDeqOptions_getWait</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">val</span> <span class="kw">as</span> <span class="ident">u64</span>))
+    <span class="doccomment">/// Returns the time to wait for a message matching the search
+    /// criteria.
+    </span><span class="kw">pub fn </span>wait(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_getWait(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(Duration::from_secs(val <span class="kw">as </span>u64))
     }
 
-    <span class="doccomment">/// Sets the condition which must be true for messages to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The condition must be a valid boolean expression similar to the where clause</span>
-    <span class="doccomment">/// of a SQL query. The expression can include conditions on message</span>
-    <span class="doccomment">/// properties, user data properties and PL/SQL or SQL functions. User data</span>
-    <span class="doccomment">/// properties must be prefixed with tab.user_data as a qualifier to indicate</span>
-    <span class="doccomment">/// the specific column of the queue table that stores the message payload.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_condition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the condition which must be true for messages to be dequeued.
+    ///
+    /// The condition must be a valid boolean expression similar to the where clause
+    /// of a SQL query. The expression can include conditions on message
+    /// properties, user data properties and PL/SQL or SQL functions. User data
+    /// properties must be prefixed with tab.user_data as a qualifier to indicate
+    /// the specific column of the queue table that stores the message payload.
+    </span><span class="kw">pub fn </span>set_condition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setCondition</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
-        );
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Sets the name of the consumer which will be dequeuing messages. This value</span>
-    <span class="doccomment">/// should only be set if the queue is set up for multiple consumers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_consumer_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setConsumerName</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setCondition(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the correlation of the message to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Special pattern  matching characters such as the percent</span>
-    <span class="doccomment">/// sign (`%`) and the underscore (`_`)</span>
-    <span class="doccomment">/// can be used. If multiple messages satisfy the pattern, the order of</span>
-    <span class="doccomment">/// dequeuing is undetermined.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_correlation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the name of the consumer which will be dequeuing messages. This value
+    /// should only be set if the queue is set up for multiple consumers.
+    </span><span class="kw">pub fn </span>set_consumer_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setCorrelation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setConsumerName(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the message delivery mode that is to be used when dequeuing messages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_delivery_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">MessageDeliveryMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets the correlation of the message to be dequeued.
+    ///
+    /// Special pattern  matching characters such as the percent
+    /// sign (`%`) and the underscore (`_`)
+    /// can be used. If multiple messages satisfy the pattern, the order of
+    /// dequeuing is undetermined.
+    </span><span class="kw">pub fn </span>set_correlation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setDeliveryMode</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setCorrelation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the mode that is to be used when dequeuing messages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">DeqMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets the message delivery mode that is to be used when dequeuing messages.
+    </span><span class="kw">pub fn </span>set_delivery_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>MessageDeliveryMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setMode</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setDeliveryMode(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the identifier of the specific message to be dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_message_id</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">ptr::null</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">val</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">i8</span>
+    <span class="doccomment">/// Sets the mode that is to be used when dequeuing messages.
+    </span><span class="kw">pub fn </span>set_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>DeqMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setMode(<span class="self">self</span>.handle, val.to_dpi_value())
+        );
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Sets the identifier of the specific message to be dequeued.
+    </span><span class="kw">pub fn </span>set_message_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>ptr = <span class="kw">if </span>val.is_empty() {
+            ptr::null()
+        } <span class="kw">else </span>{
+            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>i8
         };
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiDeqOptions_setMsgId</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">ptr</span>, <span class="ident">len</span>));
+        <span class="kw">let </span>len = val.len() <span class="kw">as </span>u32;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_setMsgId(<span class="self">self</span>.handle, ptr, len));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the position in the queue of the message that is to be dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_navigation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">DeqNavigation</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets the position in the queue of the message that is to be dequeued.
+    </span><span class="kw">pub fn </span>set_navigation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>DeqNavigation) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setNavigation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setNavigation(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the transformation of the message to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The transformation</span>
-    <span class="doccomment">/// is applied after the message is dequeued but before it is returned to the</span>
-    <span class="doccomment">/// application. It must be created using DBMS_TRANSFORM.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_transformation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the transformation of the message to be dequeued.
+    ///
+    /// The transformation
+    /// is applied after the message is dequeued but before it is returned to the
+    /// application. It must be created using DBMS_TRANSFORM.
+    </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setTransformation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets whether the message being dequeued is part of the current transaction</span>
-    <span class="doccomment">/// or constitutes a transaction on its own.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_visibility</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Visibility</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets whether the message being dequeued is part of the current transaction
+    /// or constitutes a transaction on its own.
+    </span><span class="kw">pub fn </span>set_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Visibility) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiDeqOptions_setVisibility</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiDeqOptions_setVisibility(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Set the time to wait for a message matching the search</span>
-    <span class="doccomment">/// criteria.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_wait</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">secs</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">as_secs</span>();
-        <span class="kw">let</span> <span class="ident">secs</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">secs</span> <span class="op">&gt;</span> <span class="ident">u32::max_value</span>().<span class="ident">into</span>() {
-            <span class="ident">u32::max_value</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">secs</span> <span class="kw">as</span> <span class="ident">u32</span>
+    <span class="doccomment">/// Set the time to wait for a message matching the search
+    /// criteria.
+    </span><span class="kw">pub fn </span>set_wait(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>secs = val.as_secs();
+        <span class="kw">let </span>secs = <span class="kw">if </span>secs &gt; u32::max_value().into() {
+            u32::max_value()
+        } <span class="kw">else </span>{
+            secs <span class="kw">as </span>u32
         };
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>, <span class="ident">dpiDeqOptions_setWait</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">secs</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_setWait(<span class="self">self</span>.handle, secs));
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DeqOptions</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;DeqOptions {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.<span class="ident">handle</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>DeqOptions {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;DeqOptions {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.handle)
     }
 }
 
-<span class="doccomment">/// Options when enqueuing messages using advanced queueing</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EnqOptions</span> {
-    <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>,
-    <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiEnqOptions</span>,
+<span class="doccomment">/// Options when enqueuing messages using advanced queueing
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="kw">pub struct </span>EnqOptions {
+    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    handle: <span class="kw-2">*mut </span>dpiEnqOptions,
 }
 
-<span class="kw">impl</span> <span class="ident">EnqOptions</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span>, <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">dpiEnqOptions</span>) -&gt; <span class="ident">EnqOptions</span> {
-        <span class="ident">EnqOptions</span> { <span class="ident">ctxt</span>, <span class="ident">handle</span> }
+<span class="kw">impl </span>EnqOptions {
+    <span class="kw">fn </span>new(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiEnqOptions) -&gt; EnqOptions {
+        EnqOptions { ctxt, handle }
     }
 
-    <span class="doccomment">/// Returns the transformation of the message to be enqueued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_transformation`](#method.set_transformation) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transformation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the transformation of the message to be enqueued.
+    ///
+    /// See [`set_transformation`](#method.set_transformation) method for more information.
+    </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiEnqOptions_getTransformation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiEnqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns whether the message being enqueued is part of the current</span>
-    <span class="doccomment">/// transaction or constitutes a transaction on its own.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Visibility</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns whether the message being enqueued is part of the current
+    /// transaction or constitutes a transaction on its own.
+    </span><span class="kw">pub fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Visibility&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiEnqOptions_getVisibility</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt,
+            dpiEnqOptions_getVisibility(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="ident">Visibility::from_dpi_value</span>(<span class="ident">val</span>)
+        Visibility::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Sets the message delivery mode that is to be used when enqueuing messages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_delivery_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">MessageDeliveryMode</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets the message delivery mode that is to be used when enqueuing messages.
+    </span><span class="kw">pub fn </span>set_delivery_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>MessageDeliveryMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiEnqOptions_setDeliveryMode</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiEnqOptions_setDeliveryMode(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the transformation of the message to be enqueued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The transformation</span>
-    <span class="doccomment">/// is applied after the message is enqueued but before it is returned to the</span>
-    <span class="doccomment">/// application. It must be created using DBMS_TRANSFORM.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_transformation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the transformation of the message to be enqueued.
+    ///
+    /// The transformation
+    /// is applied after the message is enqueued but before it is returned to the
+    /// application. It must be created using DBMS_TRANSFORM.
+    </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiEnqOptions_setTransformation</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt,
+            dpiEnqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets whether the message being enqueued is part of the current transaction</span>
-    <span class="doccomment">/// or constitutes a transaction on its own.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_visibility</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Visibility</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets whether the message being enqueued is part of the current transaction
+    /// or constitutes a transaction on its own.
+    </span><span class="kw">pub fn </span>set_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Visibility) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>,
-            <span class="ident">dpiEnqOptions_setVisibility</span>(<span class="self">self</span>.<span class="ident">handle</span>, <span class="ident">val</span>.<span class="ident">to_dpi_value</span>())
+            <span class="self">self</span>.ctxt,
+            dpiEnqOptions_setVisibility(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">EnqOptions</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;EnqOptions {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.<span class="ident">handle</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>EnqOptions {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;EnqOptions {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.handle)
     }
 }
 
-<span class="doccomment">/// Properties of messages that are enqueued and dequeued using advanced queuing</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Payload</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+<span class="doccomment">/// Properties of messages that are enqueued and dequeued using advanced queuing
+///
+/// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>MsgProps&lt;T&gt;
+<span class="kw">where
+    </span>T: Payload + <span class="question-mark">?</span>Sized,
 {
-    <span class="ident">conn</span>: <span class="ident">Conn</span>,
-    <span class="ident">handle</span>: <span class="ident">DpiMsgProps</span>,
-    <span class="ident">payload_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span>,
-    <span class="ident">phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    conn: Conn,
+    handle: DpiMsgProps,
+    payload_type: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;,
+    phantom: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Payload</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+<span class="kw">impl</span>&lt;T&gt; MsgProps&lt;T&gt;
+<span class="kw">where
+    </span>T: Payload + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">dpiMsgProps</span> {
-        <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">raw</span>()
+    <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiMsgProps {
+        <span class="self">self</span>.handle.raw()
     }
 
-    <span class="kw">fn</span> <span class="ident">ctxt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Context</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">ctxt</span>
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="self">self</span>.conn.ctxt
     }
 
-    <span class="doccomment">/// Creates a new message properties</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="macro">chkerr!</span>(<span class="ident">conn</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiConn_newMsgProps</span>(<span class="ident">conn</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">handle</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">MsgProps</span> {
-            <span class="ident">conn</span>: <span class="ident">conn</span>.<span class="ident">conn</span>.<span class="ident">clone</span>(),
-            <span class="ident">handle</span>: <span class="ident">DpiMsgProps::new</span>(<span class="ident">handle</span>),
-            <span class="ident">payload_type</span>: <span class="prelude-val">None</span>,
-            <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Creates a new message properties
+    </span><span class="kw">pub fn </span>new(conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;MsgProps&lt;T&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
+        <span class="macro">chkerr!</span>(conn.ctxt(), dpiConn_newMsgProps(conn.handle(), <span class="kw-2">&amp;mut </span>handle));
+        <span class="prelude-val">Ok</span>(MsgProps {
+            conn: conn.conn.clone(),
+            handle: DpiMsgProps::new(handle),
+            payload_type: <span class="prelude-val">None</span>,
+            phantom: PhantomData,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dpi_msg_props</span>(
-        <span class="ident">conn</span>: <span class="ident">Conn</span>,
-        <span class="ident">handle</span>: <span class="ident">DpiMsgProps</span>,
-        <span class="ident">payload_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">MsgProps</span> {
-            <span class="ident">conn</span>,
-            <span class="ident">handle</span>,
-            <span class="ident">payload_type</span>,
-            <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>from_dpi_msg_props(
+        conn: Conn,
+        handle: DpiMsgProps,
+        payload_type: <span class="prelude-ty">Option</span>&lt;ObjectType&gt;,
+    ) -&gt; MsgProps&lt;T&gt; {
+        MsgProps {
+            conn,
+            handle,
+            payload_type,
+            phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Returns the number of attempts that have been made to dequeue a message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_attempts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the number of attempts that have been made to dequeue a message.
+    </span><span class="kw">pub fn </span>num_attempts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getNumAttempts</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getNumAttempts(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
+        <span class="prelude-val">Ok</span>(val)
     }
 
-    <span class="doccomment">/// Returns the correlation supplied by the producer when the message was</span>
-    <span class="doccomment">/// enqueued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">correlation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the correlation supplied by the producer when the message was
+    /// enqueued.
+    </span><span class="kw">pub fn </span>correlation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getCorrelation</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getCorrelation(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns the duration the enqueued message will be delayed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delay</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">secs</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiMsgProps_getDelay</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">secs</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">secs</span> <span class="kw">as</span> <span class="ident">u64</span>))
+    <span class="doccomment">/// Returns the duration the enqueued message will be delayed.
+    </span><span class="kw">pub fn </span>delay(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>secs = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiMsgProps_getDelay(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>secs));
+        <span class="prelude-val">Ok</span>(Duration::from_secs(secs <span class="kw">as </span>u64))
     }
 
-    <span class="doccomment">/// Returns the mode that was used to deliver the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delivery_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageDeliveryMode</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the mode that was used to deliver the message.
+    </span><span class="kw">pub fn </span>delivery_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;MessageDeliveryMode&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getDeliveryMode</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getDeliveryMode(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="ident">MessageDeliveryMode::from_dpi_value</span>(<span class="ident">val</span>)
+        MessageDeliveryMode::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Returns the time that the message was enqueued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enq_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Timestamp</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">Default::default</span>();
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiMsgProps_getEnqTime</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">Timestamp::from_dpi_timestamp</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>, <span class="kw-2">&amp;</span><span class="ident">OracleType::Date</span>))
+    <span class="doccomment">/// Returns the time that the message was enqueued.
+    </span><span class="kw">pub fn </span>enq_time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Timestamp&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = Default::default();
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiMsgProps_getEnqTime(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="prelude-val">Ok</span>(Timestamp::from_dpi_timestamp(<span class="kw-2">&amp;</span>val, <span class="kw-2">&amp;</span>OracleType::Date))
     }
 
-    <span class="doccomment">/// Returns the name of the queue to which the message is moved if it cannot be</span>
-    <span class="doccomment">/// processed successfully.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_exception_queue`](#method.set_exception_queue) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exception_queue</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the name of the queue to which the message is moved if it cannot be
+    /// processed successfully.
+    ///
+    /// See [`set_exception_queue`](#method.set_exception_queue) method for more information.
+    </span><span class="kw">pub fn </span>exception_queue(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getExceptionQ</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getExceptionQ(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+        <span class="prelude-val">Ok</span>(s.to_string())
     }
 
-    <span class="doccomment">/// Returns the duration the message is available to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_expiration`](#method.set_expiration) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expiration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the duration the message is available to be dequeued.
+    ///
+    /// See [`set_expiration`](#method.set_expiration) method for more information.
+    </span><span class="kw">pub fn </span>expiration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getExpiration</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getExpiration(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">Duration::from_secs</span>(<span class="ident">val</span> <span class="kw">as</span> <span class="ident">u64</span>))
+        <span class="prelude-val">Ok</span>(Duration::from_secs(val <span class="kw">as </span>u64))
     }
 
-    <span class="doccomment">/// Returns the id of the message in the queue that generated this message. No</span>
-    <span class="doccomment">/// value is available until the message has been enqueued or dequeued.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the id of the message in the queue that generated this message. No
+    /// value is available until the message has been enqueued or dequeued.
+    </span><span class="kw">pub fn </span>message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getMsgId</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getMsgId(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">msg</span>.<span class="ident">to_vec</span>())
+        <span class="prelude-val">Ok</span>(msg.to_vec())
     }
 
-    <span class="doccomment">/// Returns the id of the message in the last queue that generated this</span>
-    <span class="doccomment">/// message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_original_message_id`](#method.set_original_message_id) for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">original_message_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">new_odpi_str</span>();
+    <span class="doccomment">/// Returns the id of the message in the last queue that generated this
+    /// message.
+    ///
+    /// See [`set_original_message_id`](#method.set_original_message_id) for more information.
+    </span><span class="kw">pub fn </span>original_message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getOriginalMsgId</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getOriginalMsgId(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">msg</span>.<span class="ident">to_vec</span>())
+        <span class="prelude-val">Ok</span>(msg.to_vec())
     }
 
-    <span class="doccomment">/// Returns the payload associated with the message properties.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The payload is available after the a call to [`Queue.dequeue`] or</span>
-    <span class="doccomment">/// [`Queue.dequeue_many`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Queue.dequeue`]: Queue#method.dequeue</span>
-    <span class="doccomment">/// [`Queue.dequeue_many`]: Queue#method.dequeue_many</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Owned</span><span class="op">&gt;</span> {
-        <span class="ident">T::get</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Returns the payload associated with the message properties.
+    ///
+    /// The payload is available after the a call to [`Queue.dequeue`] or
+    /// [`Queue.dequeue_many`]
+    ///
+    /// [`Queue.dequeue`]: Queue#method.dequeue
+    /// [`Queue.dequeue_many`]: Queue#method.dequeue_many
+    </span><span class="kw">pub fn </span>payload(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T::Owned&gt; {
+        T::get(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns the priority assigned to the message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`set_priority`](#method.set_priority) method for more information.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">priority</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Returns the priority assigned to the message.
+    ///
+    /// See [`set_priority`](#method.set_priority) method for more information.
+    </span><span class="kw">pub fn </span>priority(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_getPriority</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_getPriority(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
+        <span class="prelude-val">Ok</span>(val)
     }
 
-    <span class="doccomment">/// Returns the state of the message at the time of dequeue.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MessageState</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiMsgProps_getState</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">val</span>));
-        <span class="ident">MessageState::from_dpi_value</span>(<span class="ident">val</span>)
+    <span class="doccomment">/// Returns the state of the message at the time of dequeue.
+    </span><span class="kw">pub fn </span>state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;MessageState&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiMsgProps_getState(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        MessageState::from_dpi_value(val)
     }
 
-    <span class="doccomment">/// Sets the correlation of the message to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Special pattern matching characters such as the percent</span>
-    <span class="doccomment">/// sign (`%`) and the underscore (`_`) can be used. If multiple</span>
-    <span class="doccomment">/// messages satisfy the pattern, the order of dequeuing is</span>
-    <span class="doccomment">/// undetermined.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_correlation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the correlation of the message to be dequeued.
+    ///
+    /// Special pattern matching characters such as the percent
+    /// sign (`%`) and the underscore (`_`) can be used. If multiple
+    /// messages satisfy the pattern, the order of dequeuing is
+    /// undetermined.
+    </span><span class="kw">pub fn </span>set_correlation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_setCorrelation</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_setCorrelation(<span class="self">self</span>.handle(), val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the number of seconds to delay the message before it can be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Messages enqueued with a delay are put into the [`MessageState::Waiting`]</span>
-    <span class="doccomment">/// state. When the delay expires the message is put into the</span>
-    <span class="doccomment">/// [`MessageState::Ready`] state. Dequeuing directly by message id overrides this</span>
-    <span class="doccomment">/// delay specification. Note that delay processing requires the queue monitor</span>
-    <span class="doccomment">/// to be started.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`MessageState::Waiting`]: MessageState#variant.Waiting</span>
-    <span class="doccomment">/// [`MessageState::Ready`]: MessageState#variant.Ready</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_delay</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">secs</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">as_secs</span>();
-        <span class="kw">if</span> <span class="ident">secs</span> <span class="op">&gt;</span> <span class="ident">i32::max_value</span>() <span class="kw">as</span> <span class="ident">u64</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;too long duration {:?}&quot;</span>, <span class="ident">val</span>)))
-        } <span class="kw">else</span> {
+    <span class="doccomment">/// Sets the number of seconds to delay the message before it can be dequeued.
+    ///
+    /// Messages enqueued with a delay are put into the [`MessageState::Waiting`]
+    /// state. When the delay expires the message is put into the
+    /// [`MessageState::Ready`] state. Dequeuing directly by message id overrides this
+    /// delay specification. Note that delay processing requires the queue monitor
+    /// to be started.
+    ///
+    /// [`MessageState::Waiting`]: MessageState#variant.Waiting
+    /// [`MessageState::Ready`]: MessageState#variant.Ready
+    </span><span class="kw">pub fn </span>set_delay(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>secs = val.as_secs();
+        <span class="kw">if </span>secs &gt; i32::max_value() <span class="kw">as </span>u64 {
+            <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;too long duration {:?}&quot;</span>, val)))
+        } <span class="kw">else </span>{
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiMsgProps_setDelay</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">secs</span> <span class="kw">as</span> <span class="ident">i32</span>)
+                <span class="self">self</span>.ctxt(),
+                dpiMsgProps_setDelay(<span class="self">self</span>.handle(), secs <span class="kw">as </span>i32)
             );
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="doccomment">/// Sets the name of the queue to which the message is moved if it cannot be</span>
-    <span class="doccomment">/// processed successfully.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Messages are moved if the number of unsuccessful</span>
-    <span class="doccomment">/// dequeue attempts has reached the maximum allowed number or if the message</span>
-    <span class="doccomment">/// has expired. All messages in the exception queue are in the</span>
-    <span class="doccomment">/// [`MessageState::Expired`] state.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`MessageState::Expired`]: MessageState#variant.Expired</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_exception_queue</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">to_odpi_str</span>(<span class="ident">val</span>);
+    <span class="doccomment">/// Sets the name of the queue to which the message is moved if it cannot be
+    /// processed successfully.
+    ///
+    /// Messages are moved if the number of unsuccessful
+    /// dequeue attempts has reached the maximum allowed number or if the message
+    /// has expired. All messages in the exception queue are in the
+    /// [`MessageState::Expired`] state.
+    ///
+    /// [`MessageState::Expired`]: MessageState#variant.Expired
+    </span><span class="kw">pub fn </span>set_exception_queue(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_setExceptionQ</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>.<span class="ident">ptr</span>, <span class="ident">val</span>.<span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_setExceptionQ(<span class="self">self</span>.handle(), val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the number of seconds the message is available to be dequeued.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This value is an offset from the delay. Expiration processing requires the queue</span>
-    <span class="doccomment">/// monitor to be running. Until this time elapses, the messages are in the</span>
-    <span class="doccomment">/// queue in the state [`MessageState::Ready`]. After this time elapses messages</span>
-    <span class="doccomment">/// are moved to the exception queue in the [`MessageState::Expired`] state.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`MessageState::Ready`]: MessageState#variant.Ready</span>
-    <span class="doccomment">/// [`MessageState::Expired`]: MessageState#variant.Expired</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_expiration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">secs</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">as_secs</span>();
-        <span class="kw">if</span> <span class="ident">secs</span> <span class="op">&gt;</span> <span class="ident">i32::max_value</span>() <span class="kw">as</span> <span class="ident">u64</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::OutOfRange</span>(<span class="macro">format!</span>(<span class="string">&quot;too long duration {:?}&quot;</span>, <span class="ident">val</span>)))
-        } <span class="kw">else</span> {
+    <span class="doccomment">/// Sets the number of seconds the message is available to be dequeued.
+    ///
+    /// This value is an offset from the delay. Expiration processing requires the queue
+    /// monitor to be running. Until this time elapses, the messages are in the
+    /// queue in the state [`MessageState::Ready`]. After this time elapses messages
+    /// are moved to the exception queue in the [`MessageState::Expired`] state.
+    ///
+    /// [`MessageState::Ready`]: MessageState#variant.Ready
+    /// [`MessageState::Expired`]: MessageState#variant.Expired
+    </span><span class="kw">pub fn </span>set_expiration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>secs = val.as_secs();
+        <span class="kw">if </span>secs &gt; i32::max_value() <span class="kw">as </span>u64 {
+            <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;too long duration {:?}&quot;</span>, val)))
+        } <span class="kw">else </span>{
             <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.<span class="ident">ctxt</span>(),
-                <span class="ident">dpiMsgProps_setExpiration</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">secs</span> <span class="kw">as</span> <span class="ident">i32</span>)
+                <span class="self">self</span>.ctxt(),
+                dpiMsgProps_setExpiration(<span class="self">self</span>.handle(), secs <span class="kw">as </span>i32)
             );
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="doccomment">/// Sets the id of the message in the last queue that generated this</span>
-    <span class="doccomment">/// message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_original_message_id</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">ptr::null</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">val</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">i8</span>
+    <span class="doccomment">/// Sets the id of the message in the last queue that generated this
+    /// message.
+    </span><span class="kw">pub fn </span>set_original_message_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>ptr = <span class="kw">if </span>val.is_empty() {
+            ptr::null()
+        } <span class="kw">else </span>{
+            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>i8
         };
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="kw">let </span>len = val.len() <span class="kw">as </span>u32;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.<span class="ident">ctxt</span>(),
-            <span class="ident">dpiMsgProps_setOriginalMsgId</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">ptr</span>, <span class="ident">len</span>)
+            <span class="self">self</span>.ctxt(),
+            dpiMsgProps_setOriginalMsgId(<span class="self">self</span>.handle(), ptr, len)
         );
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sets the payload for the message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This value will be used when the message is enqueued using</span>
-    <span class="doccomment">/// [`Queue.enqueue`] or [`Queue.enqueue_many`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Queue.enqueue`]: Queue#method.enqueue</span>
-    <span class="doccomment">/// [`Queue.enqueue_many`]: Queue#method.enqueue_many</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_payload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">set</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Sets the payload for the message.
+    ///
+    /// This value will be used when the message is enqueued using
+    /// [`Queue.enqueue`] or [`Queue.enqueue_many`].
+    ///
+    /// [`Queue.enqueue`]: Queue#method.enqueue
+    /// [`Queue.enqueue_many`]: Queue#method.enqueue_many
+    </span><span class="kw">pub fn </span>set_payload(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        val.set(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Sets the priority assigned to the message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A smaller number indicates a higher priority. The priority can</span>
-    <span class="doccomment">/// be any number, including negative numbers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_priority</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.<span class="ident">ctxt</span>(), <span class="ident">dpiMsgProps_setPriority</span>(<span class="self">self</span>.<span class="ident">handle</span>(), <span class="ident">val</span>));
+    <span class="doccomment">/// Sets the priority assigned to the message.
+    ///
+    /// A smaller number indicates a higher priority. The priority can
+    /// be any number, including negative numbers.
+    </span><span class="kw">pub fn </span>set_priority(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: i32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiMsgProps_setPriority(<span class="self">self</span>.handle(), val));
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">MsgProps</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Payload</span>,
+<span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>MsgProps&lt;T&gt;
+<span class="kw">where
+    </span>T: Payload,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;MsgProps {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.<span class="ident">handle</span>())
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;MsgProps {{ handle: {:?} }}&quot;</span>, <span class="self">self</span>.handle())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

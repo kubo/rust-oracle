@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -389,392 +384,391 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="doccomment">//! Rust-oracle is based on ODPI-C using Oracle Call Interface (OCI) internally.</span>
-<span class="doccomment">//! OCI treats resources as handles, which have various attributes documented [here].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The module defines type parameters to access some OCI attributes and</span>
-<span class="doccomment">//! the trait [`OciAttr`] to define your own type parameters to access attributes</span>
-<span class="doccomment">//! which are not predefined in this module.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [here]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-CB59C987-07E7-42D4-ADDF-96142CBD3D11</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::data_type</span>::{<span class="ident">DataType</span>, <span class="ident">DurationUsecU64</span>, <span class="ident">MaxStringSize</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">doc</span>, <span class="ident">test</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::handle::Server</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::handle</span>::{<span class="ident">HandleType</span>, <span class="ident">Session</span>, <span class="ident">Stmt</span>, <span class="ident">SvcCtx</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">doc</span>, <span class="ident">test</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode::Write</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::oci_attr::mode</span>::{<span class="ident">Mode</span>, <span class="ident">Read</span>, <span class="ident">ReadWrite</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Connection</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</span><span class="doccomment">//! Rust-oracle is based on ODPI-C using Oracle Call Interface (OCI) internally.
+//! OCI treats resources as handles, which have various attributes documented [here].
+//!
+//! The module defines type parameters to access some OCI attributes and
+//! the trait [`OciAttr`] to define your own type parameters to access attributes
+//! which are not predefined in this module.
+//!
+//! [here]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-CB59C987-07E7-42D4-ADDF-96142CBD3D11
+</span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::data_type::{DataType, DurationUsecU64, MaxStringSize};
+<span class="attribute">#[cfg(any(doc, test))]
+</span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::handle::Server;
+<span class="kw">use </span><span class="kw">crate</span>::oci_attr::handle::{HandleType, Session, Stmt, SvcCtx};
+<span class="attribute">#[cfg(any(doc, test))]
+</span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::mode::Write;
+<span class="kw">use </span><span class="kw">crate</span>::oci_attr::mode::{Mode, Read, ReadWrite};
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="attribute">#[cfg(doc)]
+</span><span class="kw">use </span>std::time::Duration;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">data_type</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">handle</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mode</span>;
+<span class="kw">pub mod </span>data_type;
+<span class="kw">pub mod </span>handle;
+<span class="kw">pub mod </span>mode;
 
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">OciAttr</span> {
-    <span class="doccomment">/// [`SvcCtx`], [`Session`], [`Server`] or [`Stmt`].</span>
-    <span class="doccomment">/// Other handle and descriptor types are unsupported.</span>
-    <span class="kw">type</span> <span class="ident">HandleType</span>: <span class="ident">HandleType</span>;
+<span class="doccomment">///
+</span><span class="kw">pub unsafe trait </span>OciAttr {
+    <span class="doccomment">/// [`SvcCtx`], [`Session`], [`Server`] or [`Stmt`].
+    /// Other handle and descriptor types are unsupported.
+    </span><span class="kw">type </span>HandleType: HandleType;
 
-    <span class="doccomment">/// [`Read`], [`Write`] or [`ReadWrite`]</span>
-    <span class="kw">type</span> <span class="ident">Mode</span>: <span class="ident">Mode</span>;
+    <span class="doccomment">/// [`Read`], [`Write`] or [`ReadWrite`]
+    </span><span class="kw">type </span>Mode: Mode;
 
-    <span class="doccomment">/// Attribute data type</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The following table is the mapping between basic data types. If</span>
-    <span class="doccomment">/// incorrect types are specified, the behavior is undefined.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Types in Oracle manual | Rust type</span>
-    <span class="doccomment">/// ---|---</span>
-    <span class="doccomment">/// `ub1*`/`ub1` | [`u8`]</span>
-    <span class="doccomment">/// `ub2*`/`ub2` | [`u16`]</span>
-    <span class="doccomment">/// `ub4*`/`ub4` | [`u32`]</span>
-    <span class="doccomment">/// `ub8*`/`ub8` | [`u64`]</span>
-    <span class="doccomment">/// `boolean*`/`boolean` | [`bool`]</span>
-    <span class="doccomment">/// pointer types such as `OCISession**`/`OCISession*` | `*mut c_void`</span>
-    <span class="doccomment">/// `oratext**`/`oratext*` | [`str`] [^str]</span>
-    <span class="doccomment">/// `ub1*`(with length; value is copied; is really a ub1 array) | `[u8]` [^u8slice]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The following table is the mapping of predefined types based on basic data types.</span>
-    <span class="doccomment">/// They are designed for specific attributes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Types in Oracle manual | Rust type</span>
-    <span class="doccomment">/// ---|---</span>
-    <span class="doccomment">/// `ub8*` | [`DurationUsecU64`] which gets u64 values representing microsecods as [`Duration`]</span>
-    <span class="doccomment">/// `ub1*` | [`MaxStringSize`] which gets ub1 values as variants of [`MaxStringSize`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Look at the source code of [`DurationUsecU64`] and [`MaxStringSize`] as samples</span>
-    <span class="doccomment">/// when you need to implement your own data types.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [^str]: Values are got as [`String`] because [`str`] implements [`ToOwned`] whose associate type `Owned` is [`String`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [^u8slice]: Values are got as `Vec&lt;u8&gt;` because `[T]` where T: Clone implements [`ToOwned`] whose associate type `Owned` is `Vec&lt;T&gt;`.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">type</span> <span class="ident">DataType</span>: <span class="ident">DataType</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="doccomment">/// Attribute data type
+    ///
+    /// The following table is the mapping between basic data types. If
+    /// incorrect types are specified, the behavior is undefined.
+    ///
+    /// Types in Oracle manual | Rust type
+    /// ---|---
+    /// `ub1*`/`ub1` | [`u8`]
+    /// `ub2*`/`ub2` | [`u16`]
+    /// `ub4*`/`ub4` | [`u32`]
+    /// `ub8*`/`ub8` | [`u64`]
+    /// `boolean*`/`boolean` | [`bool`]
+    /// pointer types such as `OCISession**`/`OCISession*` | `*mut c_void`
+    /// `oratext**`/`oratext*` | [`str`] [^str]
+    /// `ub1*`(with length; value is copied; is really a ub1 array) | `[u8]` [^u8slice]
+    ///
+    /// The following table is the mapping of predefined types based on basic data types.
+    /// They are designed for specific attributes.
+    ///
+    /// Types in Oracle manual | Rust type
+    /// ---|---
+    /// `ub8*` | [`DurationUsecU64`] which gets u64 values representing microsecods as [`Duration`]
+    /// `ub1*` | [`MaxStringSize`] which gets ub1 values as variants of [`MaxStringSize`]
+    ///
+    /// Look at the source code of [`DurationUsecU64`] and [`MaxStringSize`] as samples
+    /// when you need to implement your own data types.
+    ///
+    /// [^str]: Values are got as [`String`] because [`str`] implements [`ToOwned`] whose associate type `Owned` is [`String`].
+    ///
+    /// [^u8slice]: Values are got as `Vec&lt;u8&gt;` because `[T]` where T: Clone implements [`ToOwned`] whose associate type `Owned` is `Vec&lt;T&gt;`.
+    ///
+    </span><span class="kw">type </span>DataType: DataType + <span class="question-mark">?</span>Sized;
 
-    <span class="doccomment">/// Attribute number defined in `oci.h` included in Oracle Instant Client SDK</span>
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span>;
+    <span class="doccomment">/// Attribute number defined in `oci.h` included in Oracle Instant Client SDK
+    </span><span class="kw">const </span>ATTR_NUM: u32;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_VARTYPE_MAXLEN_COMPAT`] as [`MaxStringSize`].</span>
-<span class="doccomment">/// which controls the maximum size of `VARCHAR2`, `NVARCHAR` and `RAW`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This corresponds to the result of the following SQL statement when</span>
-<span class="doccomment">/// a database user has a privilege to access `v$parameter`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// select value from v$parameter where name = &#39;max_string_size&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OCI_ATTR_VARTYPE_MAXLEN_COMPAT`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-D8EE68EB-7E38-4068-B06E-DF5686379E5E__GUID-2EFB39BC-6131-4EAD-BBF6-7CA8E5F2BBF4</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VarTypeMaxLenCompat</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_VARTYPE_MAXLEN_COMPAT</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">489</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">VarTypeMaxLenCompat</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">SvcCtx</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">MaxStringSize</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_VARTYPE_MAXLEN_COMPAT</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_VARTYPE_MAXLEN_COMPAT`] as [`MaxStringSize`].
+/// which controls the maximum size of `VARCHAR2`, `NVARCHAR` and `RAW`.
+///
+/// This corresponds to the result of the following SQL statement when
+/// a database user has a privilege to access `v$parameter`.
+///
+/// ```sql
+/// select value from v$parameter where name = &#39;max_string_size&#39;
+/// ```
+///
+/// [`OCI_ATTR_VARTYPE_MAXLEN_COMPAT`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-D8EE68EB-7E38-4068-B06E-DF5686379E5E__GUID-2EFB39BC-6131-4EAD-BBF6-7CA8E5F2BBF4
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>VarTypeMaxLenCompat;
+<span class="kw">const </span>OCI_ATTR_VARTYPE_MAXLEN_COMPAT: u32 = <span class="number">489</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>VarTypeMaxLenCompat {
+    <span class="kw">type </span>HandleType = SvcCtx;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = MaxStringSize;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_VARTYPE_MAXLEN_COMPAT;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_CALL_TIME`] as [`Duration`][],</span>
-<span class="doccomment">/// which is the server-side time for the preceding call</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Set `true` to [`CollectCallTime`] in advance.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// use oracle::oci_attr::CallTime;</span>
-<span class="doccomment">/// use oracle::oci_attr::CollectCallTime;</span>
-<span class="doccomment">/// use std::time::Duration;</span>
-<span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
-<span class="doccomment">/// # if !test_util::check_version(&amp;conn, &amp;test_util::VER11_2, &amp;test_util::VER18)? {</span>
-<span class="doccomment">/// #     return Ok(());</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Enable CollectCallTime</span>
-<span class="doccomment">/// conn.set_oci_attr::&lt;CollectCallTime&gt;(&amp;true)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // This SQL consumes one second in the server-side.</span>
-<span class="doccomment">/// conn.execute(&quot;begin dbms_session.sleep(1); end;&quot;, &amp;[])?;</span>
-<span class="doccomment">/// let call_time = conn.oci_attr::&lt;CallTime&gt;()?;</span>
-<span class="doccomment">/// assert!(call_time &gt;= Duration::from_secs(1), &quot;call_time is {:?}.&quot;, call_time);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OCI_ATTR_CALL_TIME`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-AA22FE4F-8942-4819-B01F-068DCEAE9B72</span>
-<span class="doccomment">/// [`Duration`]: std::time::Duration</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallTime</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_CALL_TIME</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">370</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">CallTime</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">DurationUsecU64</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_CALL_TIME</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_CALL_TIME`] as [`Duration`][],
+/// which is the server-side time for the preceding call
+///
+/// Set `true` to [`CollectCallTime`] in advance.
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// use oracle::oci_attr::CallTime;
+/// use oracle::oci_attr::CollectCallTime;
+/// use std::time::Duration;
+/// # let mut conn = test_util::connect()?;
+/// # if !test_util::check_version(&amp;conn, &amp;test_util::VER11_2, &amp;test_util::VER18)? {
+/// #     return Ok(());
+/// # }
+///
+/// // Enable CollectCallTime
+/// conn.set_oci_attr::&lt;CollectCallTime&gt;(&amp;true)?;
+///
+/// // This SQL consumes one second in the server-side.
+/// conn.execute(&quot;begin dbms_session.sleep(1); end;&quot;, &amp;[])?;
+/// let call_time = conn.oci_attr::&lt;CallTime&gt;()?;
+/// assert!(call_time &gt;= Duration::from_secs(1), &quot;call_time is {:?}.&quot;, call_time);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// [`OCI_ATTR_CALL_TIME`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-AA22FE4F-8942-4819-B01F-068DCEAE9B72
+/// [`Duration`]: std::time::Duration
+</span><span class="kw">pub struct </span>CallTime;
+<span class="kw">const </span>OCI_ATTR_CALL_TIME: u32 = <span class="number">370</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>CallTime {
+    <span class="kw">type </span>HandleType = Session;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = DurationUsecU64;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_CALL_TIME;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] and [`Connection::set_oci_attr`] to get and set [`OCI_ATTR_COLLECT_CALL_TIME`],</span>
-<span class="doccomment">/// which causes the server to measure call time for each subsequent OCI call</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`CallTime`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OCI_ATTR_COLLECT_CALL_TIME`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-D4B6CBB6-5627-474C-ABE6-F2CE694DE62B</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CollectCallTime</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_COLLECT_CALL_TIME</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">369</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">CollectCallTime</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">ReadWrite</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">bool</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_COLLECT_CALL_TIME</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] and [`Connection::set_oci_attr`] to get and set [`OCI_ATTR_COLLECT_CALL_TIME`],
+/// which causes the server to measure call time for each subsequent OCI call
+///
+/// See [`CallTime`].
+///
+/// [`OCI_ATTR_COLLECT_CALL_TIME`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-D4B6CBB6-5627-474C-ABE6-F2CE694DE62B
+</span><span class="kw">pub struct </span>CollectCallTime;
+<span class="kw">const </span>OCI_ATTR_COLLECT_CALL_TIME: u32 = <span class="number">369</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>CollectCallTime {
+    <span class="kw">type </span>HandleType = Session;
+    <span class="kw">type </span>Mode = ReadWrite;
+    <span class="kw">type </span>DataType = bool;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_COLLECT_CALL_TIME;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] and [`Connection::set_oci_attr`] to get and set [`OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE`],</span>
-<span class="doccomment">/// which specifies the default prefetch buffer size for each LOB locator</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// # use oracle::sql_type::Clob;</span>
-<span class="doccomment">/// use oracle::oci_attr::DefaultLobPrefetchSize;</span>
-<span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let lob_size = 64 * 1024;</span>
-<span class="doccomment">/// conn.set_oci_attr::&lt;DefaultLobPrefetchSize&gt;(&amp;lob_size)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # conn.execute(&quot;insert into TestCLOBs values (1, &#39;11111111111111111111111111111&#39;)&quot;, &amp;[])?;</span>
-<span class="doccomment">/// let mut stmt = conn</span>
-<span class="doccomment">///     .statement(&quot;select CLOBCol from TestCLOBs where IntCol = :1&quot;)</span>
-<span class="doccomment">///     .lob_locator()</span>
-<span class="doccomment">///     .build()?;</span>
-<span class="doccomment">/// let lob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1])?;</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-13400E7D-C1E9-49AB-AD9B-132CBF11E16C</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultLobPrefetchSize</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">438</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">DefaultLobPrefetchSize</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">ReadWrite</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">u32</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] and [`Connection::set_oci_attr`] to get and set [`OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE`],
+/// which specifies the default prefetch buffer size for each LOB locator
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// # use oracle::sql_type::Clob;
+/// use oracle::oci_attr::DefaultLobPrefetchSize;
+/// # let mut conn = test_util::connect()?;
+///
+/// let lob_size = 64 * 1024;
+/// conn.set_oci_attr::&lt;DefaultLobPrefetchSize&gt;(&amp;lob_size)?;
+///
+/// # conn.execute(&quot;insert into TestCLOBs values (1, &#39;11111111111111111111111111111&#39;)&quot;, &amp;[])?;
+/// let mut stmt = conn
+///     .statement(&quot;select CLOBCol from TestCLOBs where IntCol = :1&quot;)
+///     .lob_locator()
+///     .build()?;
+/// let lob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1])?;
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// [`OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-13400E7D-C1E9-49AB-AD9B-132CBF11E16C
+</span><span class="kw">pub struct </span>DefaultLobPrefetchSize;
+<span class="kw">const </span>OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE: u32 = <span class="number">438</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>DefaultLobPrefetchSize {
+    <span class="kw">type </span>HandleType = Session;
+    <span class="kw">type </span>Mode = ReadWrite;
+    <span class="kw">type </span>DataType = u32;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_DEFAULT_LOBPREFETCH_SIZE;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_MAX_OPEN_CURSORS`],</span>
-<span class="doccomment">/// which is the maximum number of SQL statements that can be opened in one session</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This returns the same value with the result of the following SQL statement when</span>
-<span class="doccomment">/// a database user has a privilege to access `v$parameter`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// select value from v$parameter where name = &#39;open_cursors&#39;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that this attribute returns a proper value only when connected to a 12.1 server or later.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`OCI_ATTR_MAX_OPEN_CURSORS`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-0F30D36A-E9E5-4CDB-BF53-C2C876C09E00</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MaxOpenCursors</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_MAX_OPEN_CURSORS</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">471</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">MaxOpenCursors</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">u32</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_MAX_OPEN_CURSORS</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_MAX_OPEN_CURSORS`],
+/// which is the maximum number of SQL statements that can be opened in one session
+///
+/// This returns the same value with the result of the following SQL statement when
+/// a database user has a privilege to access `v$parameter`.
+///
+/// ```sql
+/// select value from v$parameter where name = &#39;open_cursors&#39;
+/// ```
+///
+/// Note that this attribute returns a proper value only when connected to a 12.1 server or later.
+///
+/// [`OCI_ATTR_MAX_OPEN_CURSORS`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-0F30D36A-E9E5-4CDB-BF53-C2C876C09E00
+</span><span class="kw">pub struct </span>MaxOpenCursors;
+<span class="kw">const </span>OCI_ATTR_MAX_OPEN_CURSORS: u32 = <span class="number">471</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>MaxOpenCursors {
+    <span class="kw">type </span>HandleType = Session;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = u32;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_MAX_OPEN_CURSORS;
 }
 
-<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_TRANSACTION_IN_PROGRESS`] as `bool`,</span>
-<span class="doccomment">/// which indicates whether the connection has a currently active transaction.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that this requires Oracle client 12.1 or later.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::Version;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// use oracle::oci_attr::TransactionInProgress;</span>
-<span class="doccomment">/// # if Version::client()? &lt; test_util::VER12_1 {</span>
-<span class="doccomment">/// #     return Ok(());</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
-<span class="doccomment">/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // no active transaction at first</span>
-<span class="doccomment">/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, false);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // start a transaction</span>
-<span class="doccomment">/// conn.execute(&quot;insert into TestTempTable values (1, &#39;val1&#39;)&quot;, &amp;[])?;</span>
-<span class="doccomment">/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, true);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // rollback the transction</span>
-<span class="doccomment">/// conn.rollback()?;</span>
-<span class="doccomment">/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, false);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// [`OCI_ATTR_TRANSACTION_IN_PROGRESS`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-BCECC9A1-5B02-428F-8A1D-20C9A7997AE5</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TransactionInProgress</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_TRANSACTION_IN_PROGRESS</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">484</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">TransactionInProgress</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">bool</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_TRANSACTION_IN_PROGRESS</span>;
+<span class="doccomment">/// A type parameter for [`Connection::oci_attr`] to get [`OCI_ATTR_TRANSACTION_IN_PROGRESS`] as `bool`,
+/// which indicates whether the connection has a currently active transaction.
+///
+/// Note that this requires Oracle client 12.1 or later.
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::Version;
+/// # use oracle::test_util;
+/// use oracle::oci_attr::TransactionInProgress;
+/// # if Version::client()? &lt; test_util::VER12_1 {
+/// #     return Ok(());
+/// # }
+/// # let mut conn = test_util::connect()?;
+/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);
+///
+/// // no active transaction at first
+/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, false);
+///
+/// // start a transaction
+/// conn.execute(&quot;insert into TestTempTable values (1, &#39;val1&#39;)&quot;, &amp;[])?;
+/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, true);
+///
+/// // rollback the transction
+/// conn.rollback()?;
+/// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, false);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+/// [`OCI_ATTR_TRANSACTION_IN_PROGRESS`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FB263210-118E-4DB3-A840-1769EF0CB977__GUID-BCECC9A1-5B02-428F-8A1D-20C9A7997AE5
+</span><span class="kw">pub struct </span>TransactionInProgress;
+<span class="kw">const </span>OCI_ATTR_TRANSACTION_IN_PROGRESS: u32 = <span class="number">484</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>TransactionInProgress {
+    <span class="kw">type </span>HandleType = Session;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = bool;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_TRANSACTION_IN_PROGRESS;
 }
 
-<span class="doccomment">/// A type parameter for [`Statement::oci_attr`] to get [`OCI_ATTR_SQLFNCODE`],</span>
-<span class="doccomment">/// which is the function code of the SQL command associated with the statement.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that the attribute must be read after the statement is executed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// use oracle::oci_attr::SqlFnCode;</span>
-<span class="doccomment">/// # use std::thread::sleep;</span>
-<span class="doccomment">/// # use std::time::Duration;</span>
-<span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
-<span class="doccomment">/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);</span>
-<span class="doccomment">/// # sleep(Duration::from_millis(500));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut stmt = conn.statement(&quot;create table test_sql_fn_code (id integer)&quot;).build()?;</span>
-<span class="doccomment">/// stmt.execute(&amp;[])?;</span>
-<span class="doccomment">/// // 1 is the function code of CREATE TABLE statements.</span>
-<span class="doccomment">/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 1);</span>
-<span class="doccomment">/// # sleep(Duration::from_millis(500));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut stmt = conn.statement(&quot;drop table test_sql_fn_code purge&quot;).build()?;</span>
-<span class="doccomment">/// eprintln!(&quot;line: {}&quot;, line!());</span>
-<span class="doccomment">/// stmt.execute(&amp;[])?;</span>
-<span class="doccomment">/// eprintln!(&quot;line: {}&quot;, line!());</span>
-<span class="doccomment">/// // 8 is the function code of DROP TABLE statements.</span>
-<span class="doccomment">/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 8);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Statement::oci_attr`]: crate::Statement::oci_attr</span>
-<span class="doccomment">/// [`OCI_ATTR_SQLFNCODE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-9E3D8A93-DF13-4023-8444-3F06131D26FB</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SqlFnCode</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_SQLFNCODE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">10</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">SqlFnCode</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Stmt</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">u16</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_SQLFNCODE</span>;
+<span class="doccomment">/// A type parameter for [`Statement::oci_attr`] to get [`OCI_ATTR_SQLFNCODE`],
+/// which is the function code of the SQL command associated with the statement.
+///
+/// Note that the attribute must be read after the statement is executed.
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// use oracle::oci_attr::SqlFnCode;
+/// # use std::thread::sleep;
+/// # use std::time::Duration;
+/// # let mut conn = test_util::connect()?;
+/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);
+/// # sleep(Duration::from_millis(500));
+///
+/// let mut stmt = conn.statement(&quot;create table test_sql_fn_code (id integer)&quot;).build()?;
+/// stmt.execute(&amp;[])?;
+/// // 1 is the function code of CREATE TABLE statements.
+/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 1);
+/// # sleep(Duration::from_millis(500));
+///
+/// let mut stmt = conn.statement(&quot;drop table test_sql_fn_code purge&quot;).build()?;
+/// eprintln!(&quot;line: {}&quot;, line!());
+/// stmt.execute(&amp;[])?;
+/// eprintln!(&quot;line: {}&quot;, line!());
+/// // 8 is the function code of DROP TABLE statements.
+/// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 8);
+///
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// [`Statement::oci_attr`]: crate::Statement::oci_attr
+/// [`OCI_ATTR_SQLFNCODE`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-9E3D8A93-DF13-4023-8444-3F06131D26FB
+</span><span class="kw">pub struct </span>SqlFnCode;
+<span class="kw">const </span>OCI_ATTR_SQLFNCODE: u32 = <span class="number">10</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>SqlFnCode {
+    <span class="kw">type </span>HandleType = Stmt;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = u16;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_SQLFNCODE;
 }
 
-<span class="doccomment">/// A type parameter for [`Statement::oci_attr`] to get [`OCI_ATTR_STATEMENT`],</span>
-<span class="doccomment">/// which is the text of the SQL statement prepared.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use oracle::Error;</span>
-<span class="doccomment">/// # use oracle::test_util;</span>
-<span class="doccomment">/// use oracle::oci_attr::Statement;</span>
-<span class="doccomment">/// # let mut conn = test_util::connect()?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut stmt = conn.statement(&quot;select * from dual&quot;).build()?;</span>
-<span class="doccomment">/// assert_eq!(stmt.oci_attr::&lt;Statement&gt;()?, &quot;select * from dual&quot;);</span>
-<span class="doccomment">/// # Ok::&lt;(), Error&gt;(())</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Statement::oci_attr`]: crate::Statement::oci_attr</span>
-<span class="doccomment">/// [`OCI_ATTR_STATEMENT`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-30B1693F-EFC7-4108-8F06-0EC1DC3785FB</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Statement</span>;
-<span class="kw">const</span> <span class="ident">OCI_ATTR_STATEMENT</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">144</span>;
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">Statement</span> {
-    <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Stmt</span>;
-    <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Read</span>;
-    <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">str</span>;
-    <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">OCI_ATTR_STATEMENT</span>;
+<span class="doccomment">/// A type parameter for [`Statement::oci_attr`] to get [`OCI_ATTR_STATEMENT`],
+/// which is the text of the SQL statement prepared.
+///
+/// # Examples
+///
+/// ```
+/// # use oracle::Error;
+/// # use oracle::test_util;
+/// use oracle::oci_attr::Statement;
+/// # let mut conn = test_util::connect()?;
+///
+/// let mut stmt = conn.statement(&quot;select * from dual&quot;).build()?;
+/// assert_eq!(stmt.oci_attr::&lt;Statement&gt;()?, &quot;select * from dual&quot;);
+/// # Ok::&lt;(), Error&gt;(())
+/// ```
+///
+/// [`Statement::oci_attr`]: crate::Statement::oci_attr
+/// [`OCI_ATTR_STATEMENT`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE__GUID-30B1693F-EFC7-4108-8F06-0EC1DC3785FB
+</span><span class="kw">pub struct </span>Statement;
+<span class="kw">const </span>OCI_ATTR_STATEMENT: u32 = <span class="number">144</span>;
+<span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>Statement {
+    <span class="kw">type </span>HandleType = Stmt;
+    <span class="kw">type </span>Mode = Read;
+    <span class="kw">type </span>DataType = str;
+    <span class="kw">const </span>ATTR_NUM: u32 = OCI_ATTR_STATEMENT;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_util</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Result</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_util;
+    <span class="kw">use </span><span class="kw">crate</span>::Result;
 
-    <span class="kw">struct</span> <span class="ident">StmtCacheSize</span>;
-    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">StmtCacheSize</span> {
-        <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">SvcCtx</span>;
-        <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">ReadWrite</span>;
-        <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">u32</span>;
-        <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">176</span>;
+    <span class="kw">struct </span>StmtCacheSize;
+    <span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>StmtCacheSize {
+        <span class="kw">type </span>HandleType = SvcCtx;
+        <span class="kw">type </span>Mode = ReadWrite;
+        <span class="kw">type </span>DataType = u32;
+        <span class="kw">const </span>ATTR_NUM: u32 = <span class="number">176</span>;
     }
 
-    <span class="kw">struct</span> <span class="ident">InternalName</span>;
-    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">InternalName</span> {
-        <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Server</span>;
-        <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">ReadWrite</span>;
-        <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">str</span>;
-        <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">25</span>;
+    <span class="kw">struct </span>InternalName;
+    <span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>InternalName {
+        <span class="kw">type </span>HandleType = Server;
+        <span class="kw">type </span>Mode = ReadWrite;
+        <span class="kw">type </span>DataType = str;
+        <span class="kw">const </span>ATTR_NUM: u32 = <span class="number">25</span>;
     }
 
-    <span class="kw">struct</span> <span class="ident">Module</span>;
-    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">OciAttr</span> <span class="kw">for</span> <span class="ident">Module</span> {
-        <span class="kw">type</span> <span class="ident">HandleType</span> <span class="op">=</span> <span class="ident">Session</span>;
-        <span class="kw">type</span> <span class="ident">Mode</span> <span class="op">=</span> <span class="ident">Write</span>;
-        <span class="kw">type</span> <span class="ident">DataType</span> <span class="op">=</span> <span class="ident">str</span>;
-        <span class="kw">const</span> <span class="ident">ATTR_NUM</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">366</span>;
+    <span class="kw">struct </span>Module;
+    <span class="kw">unsafe impl </span>OciAttr <span class="kw">for </span>Module {
+        <span class="kw">type </span>HandleType = Session;
+        <span class="kw">type </span>Mode = Write;
+        <span class="kw">type </span>DataType = str;
+        <span class="kw">const </span>ATTR_NUM: u32 = <span class="number">366</span>;
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">read_write_svcctx_u32_attr</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">stmt_cache_size</span>()<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">conn</span>.<span class="ident">oci_attr</span>::<span class="op">&lt;</span><span class="ident">StmtCacheSize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>, <span class="ident">size</span>);
-        <span class="kw">let</span> <span class="ident">new_size</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">+</span> <span class="number">20</span>;
-        <span class="ident">conn</span>.<span class="ident">set_oci_attr</span>::<span class="op">&lt;</span><span class="ident">StmtCacheSize</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">new_size</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">conn</span>.<span class="ident">oci_attr</span>::<span class="op">&lt;</span><span class="ident">StmtCacheSize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>, <span class="ident">new_size</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>read_write_svcctx_u32_attr() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        <span class="kw">let </span>size = conn.stmt_cache_size()<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(conn.oci_attr::&lt;StmtCacheSize&gt;()<span class="question-mark">?</span>, size);
+        <span class="kw">let </span>new_size = size + <span class="number">20</span>;
+        conn.set_oci_attr::&lt;StmtCacheSize&gt;(<span class="kw-2">&amp;</span>new_size)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(conn.oci_attr::&lt;StmtCacheSize&gt;()<span class="question-mark">?</span>, new_size);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">read_write_server_str_attr</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="ident">conn</span>.<span class="ident">set_oci_attr</span>::<span class="op">&lt;</span><span class="ident">InternalName</span><span class="op">&gt;</span>(<span class="string">&quot;test internal name&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">conn</span>.<span class="ident">oci_attr</span>::<span class="op">&lt;</span><span class="ident">InternalName</span><span class="op">&gt;</span>()<span class="question-mark">?</span>, <span class="string">&quot;test internal name&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>read_write_server_str_attr() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        conn.set_oci_attr::&lt;InternalName&gt;(<span class="string">&quot;test internal name&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(conn.oci_attr::&lt;InternalName&gt;()<span class="question-mark">?</span>, <span class="string">&quot;test internal name&quot;</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">write_session_str_attr</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">test_util::connect</span>()<span class="question-mark">?</span>;
-        <span class="ident">conn</span>.<span class="ident">set_oci_attr</span>::<span class="op">&lt;</span><span class="ident">Module</span><span class="op">&gt;</span>(<span class="string">&quot;test module name&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span>
-            <span class="ident">conn</span>.<span class="ident">query_row_as</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;select sys_context(&#39;USERENV&#39;, &#39;MODULE&#39;) from dual&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">module</span>, <span class="string">&quot;test module name&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>write_session_str_attr() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        conn.set_oci_attr::&lt;Module&gt;(<span class="string">&quot;test module name&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>module =
+            conn.query_row_as::&lt;String&gt;(<span class="string">&quot;select sys_context(&#39;USERENV&#39;, &#39;MODULE&#39;) from dual&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(module, <span class="string">&quot;test module name&quot;</span>);
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

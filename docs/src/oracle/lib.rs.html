@@ -1,9 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../oracle/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -606,22 +601,22 @@
 <span id="601">601</span>
 <span id="602">602</span>
 <span id="603">603</span>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database</span>
-<span class="comment">//</span>
-<span class="comment">// URL: https://github.com/kubo/rust-oracle</span>
-<span class="comment">//</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
-<span class="comment">// Copyright (c) 2017-2019 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.</span>
-<span class="comment">// This program is free software: you can modify it and/or redistribute it</span>
-<span class="comment">// under the terms of:</span>
-<span class="comment">//</span>
-<span class="comment">// (i)  the Universal Permissive License v 1.0 or at your option, any</span>
-<span class="comment">//      later version (http://oss.oracle.com/licenses/upl); and/or</span>
-<span class="comment">//</span>
-<span class="comment">// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//-----------------------------------------------------------------------------</span>
+</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+//
+// URL: https://github.com/kubo/rust-oracle
+//
+//-----------------------------------------------------------------------------
+// Copyright (c) 2017-2019 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// This program is free software: you can modify it and/or redistribute it
+// under the terms of:
+//
+// (i)  the Universal Permissive License v 1.0 or at your option, any
+//      later version (http://oss.oracle.com/licenses/upl); and/or
+//
+// (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
+//-----------------------------------------------------------------------------
 
-<span class="doccomment">/*!
+</span><span class="doccomment">/*!
 This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 ## Change Log
@@ -874,341 +869,340 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html
 [Oracle database]: https://www.oracle.com/database/index.html
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
-*/</span>
+*/
 
-<span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
-<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::result</span>;
-<span class="kw">use</span> <span class="ident">std::slice</span>;
+</span><span class="kw">use </span>lazy_static::lazy_static;
+<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::result;
+<span class="kw">use </span>std::slice;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aq_unstable&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">aq</span>;
-<span class="kw">mod</span> <span class="ident">batch</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">improper_ctypes</span>)]</span>
-<span class="kw">mod</span> <span class="ident">binding</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">conn</span>;
-<span class="kw">mod</span> <span class="ident">connection</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">io</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">oci_attr</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pool</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doctest</span>)]</span>
-<span class="kw">mod</span> <span class="ident">procmacro</span>;
-<span class="kw">mod</span> <span class="ident">row</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sql_type</span>;
-<span class="kw">mod</span> <span class="ident">sql_value</span>;
-<span class="kw">mod</span> <span class="ident">statement</span>;
-<span class="kw">mod</span> <span class="ident">util</span>;
-<span class="kw">mod</span> <span class="ident">version</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;aq_unstable&quot;</span>)]
+</span><span class="kw">pub mod </span>aq;
+<span class="kw">mod </span>batch;
+<span class="attribute">#[allow(dead_code)]
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[allow(improper_ctypes)]
+</span><span class="kw">mod </span>binding;
+<span class="kw">pub mod </span>conn;
+<span class="kw">mod </span>connection;
+<span class="kw">mod </span>error;
+<span class="kw">pub mod </span>io;
+<span class="kw">pub mod </span>oci_attr;
+<span class="kw">pub mod </span>pool;
+<span class="attribute">#[cfg(doctest)]
+</span><span class="kw">mod </span>procmacro;
+<span class="kw">mod </span>row;
+<span class="kw">pub mod </span>sql_type;
+<span class="kw">mod </span>sql_value;
+<span class="kw">mod </span>statement;
+<span class="kw">mod </span>util;
+<span class="kw">mod </span>version;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::batch::Batch</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::batch::BatchBindIndex</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::batch::BatchBuilder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::ConnStatus</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connector</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Privilege</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::ShutdownMode</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::StartupMode</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::DbError</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ParseOracleTypeError</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::ResultSet</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::Row</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::RowValue</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sql_value::SqlValue</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::BindIndex</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::ColumnIndex</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::ColumnInfo</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::Statement</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::StatementBuilder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::StatementType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::StmtParam</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::version::Version</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">oracle_procmacro::RowValue</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::batch::Batch;
+<span class="kw">pub use </span><span class="kw">crate</span>::batch::BatchBindIndex;
+<span class="kw">pub use </span><span class="kw">crate</span>::batch::BatchBuilder;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::ConnStatus;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::Connector;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::Privilege;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::ShutdownMode;
+<span class="kw">pub use </span><span class="kw">crate</span>::connection::StartupMode;
+<span class="kw">pub use </span><span class="kw">crate</span>::error::DbError;
+<span class="kw">pub use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">pub use </span><span class="kw">crate</span>::error::ParseOracleTypeError;
+<span class="kw">pub use </span><span class="kw">crate</span>::row::ResultSet;
+<span class="kw">pub use </span><span class="kw">crate</span>::row::Row;
+<span class="kw">pub use </span><span class="kw">crate</span>::row::RowValue;
+<span class="kw">pub use </span><span class="kw">crate</span>::sql_value::SqlValue;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::BindIndex;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::ColumnIndex;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::ColumnInfo;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::Statement;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::StatementBuilder;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::StatementType;
+<span class="kw">pub use </span><span class="kw">crate</span>::statement::StmtParam;
+<span class="kw">pub use </span><span class="kw">crate</span>::version::Version;
+<span class="kw">pub use </span>oracle_procmacro::RowValue;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::binding</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = result::Result&lt;T, Error&gt;;
 
-<span class="macro">macro_rules!</span> <span class="ident">define_dpi_data_with_refcount</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="macro">paste::item!</span> {
-            <span class="kw">struct</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                <span class="ident">raw</span>: <span class="kw-2">*mut</span> [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>],
+<span class="macro">macro_rules! </span>define_dpi_data_with_refcount {
+    (<span class="macro-nonterminal">$name</span>:ident) =&gt; {
+        <span class="macro">paste::item! </span>{
+            <span class="kw">struct </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                raw: <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;],
             }
 
-            <span class="kw">impl</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>]) -&gt; [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                    [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] { <span class="ident">raw</span> }
+            <span class="kw">impl </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                <span class="kw">fn </span>new(raw: <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;]) -&gt; [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                    [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] { raw }
                 }
 
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">with_add_ref</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>]) -&gt; [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                    <span class="kw">unsafe</span> { [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="ident">_addRef</span><span class="op">&gt;</span>](<span class="ident">raw</span>) };
-                    [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] { <span class="ident">raw</span> }
+                <span class="attribute">#[allow(dead_code)]
+                </span><span class="kw">fn </span>with_add_ref(raw: <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;]) -&gt; [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                    <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_addRef&gt;](raw) };
+                    [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] { raw }
                 }
 
-                <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                    <span class="self">self</span>.<span class="ident">raw</span>
-                }
-            }
-
-            <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                    <span class="kw">unsafe</span> { [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="ident">_addRef</span><span class="op">&gt;</span>](<span class="self">self</span>.<span class="ident">raw</span>()) };
-                    [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>]<span class="ident">::new</span>(<span class="self">self</span>.<span class="ident">raw</span>())
+                <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                    <span class="self">self</span>.raw
                 }
             }
 
-            <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {
-                <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                    <span class="kw">unsafe</span> { [<span class="op">&lt;</span><span class="ident">dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="ident">_release</span><span class="op">&gt;</span>](<span class="self">self</span>.<span class="ident">raw</span>()) };
+            <span class="kw">impl </span>Clone <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                    <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_addRef&gt;](<span class="self">self</span>.raw()) };
+                    [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;]::new(<span class="self">self</span>.raw())
                 }
             }
 
-            <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {}
-            <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> [<span class="op">&lt;</span><span class="ident">Dpi</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>] {}
+            <span class="kw">impl </span>Drop <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                    <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_release&gt;](<span class="self">self</span>.raw()) };
+                }
+            }
+
+            <span class="kw">unsafe impl </span>Send <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
+            <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
         }
     };
 }
 
-<span class="comment">// define DpiConn wrapping *mut dpiConn.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Conn</span>);
+<span class="comment">// define DpiConn wrapping *mut dpiConn.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(Conn);
 
-<span class="comment">// define DpiMsgProps wrapping *mut dpiMsgProps.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">MsgProps</span>);
+<span class="comment">// define DpiMsgProps wrapping *mut dpiMsgProps.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(MsgProps);
 
-<span class="comment">// define DpiObjectType wrapping *mut dpiObjectType.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectType</span>);
+<span class="comment">// define DpiObjectType wrapping *mut dpiObjectType.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(ObjectType);
 
-<span class="comment">// define DpiPool wrapping *mut dpiPool.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Pool</span>);
+<span class="comment">// define DpiPool wrapping *mut dpiPool.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(Pool);
 
-<span class="comment">// define DpiObjectAttr wrapping *mut dpiObjectAttr.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">ObjectAttr</span>);
+<span class="comment">// define DpiObjectAttr wrapping *mut dpiObjectAttr.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(ObjectAttr);
 
-<span class="comment">// define DpiQueue wrapping *mut dpiQueue.</span>
-<span class="macro">define_dpi_data_with_refcount!</span>(<span class="ident">Queue</span>);
+<span class="comment">// define DpiQueue wrapping *mut dpiQueue.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(Queue);
 
-<span class="comment">//</span>
-<span class="comment">// Context</span>
-<span class="comment">//</span>
+<span class="comment">//
+// Context
+//
 
-<span class="kw">struct</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="ident">context</span>: <span class="kw-2">*mut</span> <span class="ident">dpiContext</span>,
+</span><span class="kw">struct </span>Context {
+    <span class="kw">pub </span>context: <span class="kw-2">*mut </span>dpiContext,
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">Context</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Context</span> {}
+<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Context {}
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>Context {}
 
-<span class="kw">enum</span> <span class="ident">ContextResult</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">Context</span>),
-    <span class="prelude-val">Err</span>(<span class="ident">dpiErrorInfo</span>),
+<span class="kw">enum </span>ContextResult {
+    <span class="prelude-val">Ok</span>(Context),
+    <span class="prelude-val">Err</span>(dpiErrorInfo),
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">ContextResult</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">ContextResult</span> {}
+<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ContextResult {}
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>ContextResult {}
 
-<span class="kw">trait</span> <span class="ident">AssertSend</span>: <span class="ident">Send</span> {}
-<span class="kw">trait</span> <span class="ident">AssertSync</span>: <span class="ident">Sync</span> {}
+<span class="kw">trait </span>AssertSend: Send {}
+<span class="kw">trait </span>AssertSync: Sync {}
 
-<span class="macro">lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">DPI_CONTEXT</span>: <span class="ident">ContextResult</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
-        <span class="kw">if</span> <span class="kw">unsafe</span> {
-            <span class="ident">dpiContext_createWithParams</span>(
-                <span class="ident">DPI_MAJOR_VERSION</span>,
-                <span class="ident">DPI_MINOR_VERSION</span>,
-                <span class="ident">ptr::null_mut</span>(),
-                <span class="kw-2">&amp;mut</span> <span class="ident">ctxt</span>,
-                <span class="ident">err</span>.<span class="ident">as_mut_ptr</span>(),
+<span class="macro">lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>DPI_CONTEXT: ContextResult = {
+        <span class="kw">let </span><span class="kw-2">mut </span>ctxt = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
+        <span class="kw">if unsafe </span>{
+            dpiContext_createWithParams(
+                DPI_MAJOR_VERSION,
+                DPI_MINOR_VERSION,
+                ptr::null_mut(),
+                <span class="kw-2">&amp;mut </span>ctxt,
+                err.as_mut_ptr(),
             )
-        } <span class="op">==</span> <span class="ident">DPI_SUCCESS</span> <span class="kw">as</span> <span class="ident">i32</span>
+        } == DPI_SUCCESS <span class="kw">as </span>i32
         {
-            <span class="ident">ContextResult::Ok</span>(<span class="ident">Context</span> { <span class="ident">context</span>: <span class="ident">ctxt</span> })
-        } <span class="kw">else</span> {
-            <span class="ident">ContextResult::Err</span>(<span class="kw">unsafe</span> { <span class="ident">err</span>.<span class="ident">assume_init</span>() })
+            ContextResult::Ok(Context { context: ctxt })
+        } <span class="kw">else </span>{
+            ContextResult::Err(<span class="kw">unsafe </span>{ err.assume_init() })
         }
     };
 }
 
-<span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Context</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">DPI_CONTEXT</span> {
-            <span class="ident">ContextResult::Ok</span>(<span class="kw-2">ref</span> <span class="ident">ctxt</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ctxt</span>),
-            <span class="ident">ContextResult::Err</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">error::error_from_dpi_error</span>(<span class="ident">err</span>)),
+<span class="kw">impl </span>Context {
+    <span class="kw">pub fn </span>get() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span>DPI_CONTEXT {
+            ContextResult::Ok(<span class="kw-2">ref </span>ctxt) =&gt; <span class="prelude-val">Ok</span>(ctxt),
+            ContextResult::Err(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Err</span>(error::error_from_dpi_error(err)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiCommonCreateParams</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
-        <span class="kw">unsafe</span> {
-            <span class="ident">dpiContext_initCommonCreateParams</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="ident">params</span>.<span class="ident">as_mut_ptr</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">assume_init</span>();
-            <span class="kw">let</span> <span class="ident">driver_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;rust-oracle : &quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>));
-            <span class="ident">params</span>.<span class="ident">createMode</span> <span class="op">|</span><span class="op">=</span> <span class="ident">DPI_MODE_CREATE_THREADED</span>;
-            <span class="ident">params</span>.<span class="ident">driverName</span> <span class="op">=</span> <span class="ident">driver_name</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">c_char</span>;
-            <span class="ident">params</span>.<span class="ident">driverNameLength</span> <span class="op">=</span> <span class="ident">driver_name</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
-            <span class="ident">params</span>
+    <span class="kw">pub fn </span>common_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiCommonCreateParams {
+        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
+        <span class="kw">unsafe </span>{
+            dpiContext_initCommonCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
+            <span class="kw">let </span><span class="kw-2">mut </span>params = params.assume_init();
+            <span class="kw">let </span>driver_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">concat!</span>(<span class="string">&quot;rust-oracle : &quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>));
+            params.createMode |= DPI_MODE_CREATE_THREADED;
+            params.driverName = driver_name.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
+            params.driverNameLength = driver_name.len() <span class="kw">as </span>u32;
+            params
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conn_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiConnCreateParams</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
-        <span class="kw">unsafe</span> {
-            <span class="ident">dpiContext_initConnCreateParams</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="ident">params</span>.<span class="ident">as_mut_ptr</span>());
-            <span class="ident">params</span>.<span class="ident">assume_init</span>()
+    <span class="kw">pub fn </span>conn_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiConnCreateParams {
+        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
+        <span class="kw">unsafe </span>{
+            dpiContext_initConnCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
+            params.assume_init()
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">dpiPoolCreateParams</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">MaybeUninit::uninit</span>();
-        <span class="kw">unsafe</span> {
-            <span class="ident">dpiContext_initPoolCreateParams</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="ident">params</span>.<span class="ident">as_mut_ptr</span>());
-            <span class="ident">params</span>.<span class="ident">assume_init</span>()
-        }
-    }
-}
-
-<span class="comment">//</span>
-<span class="comment">// Utility struct to convert Rust strings from/to ODPI-C strings</span>
-<span class="comment">//</span>
-
-<span class="kw">struct</span> <span class="ident">OdpiStr</span> {
-    <span class="kw">pub</span> <span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    <span class="kw">pub</span> <span class="ident">len</span>: <span class="ident">u32</span>,
-}
-
-<span class="kw">fn</span> <span class="ident">new_odpi_str</span>() -&gt; <span class="ident">OdpiStr</span> {
-    <span class="ident">OdpiStr</span> {
-        <span class="ident">ptr</span>: <span class="ident">ptr::null</span>(),
-        <span class="ident">len</span>: <span class="number">0</span>,
-    }
-}
-
-<span class="kw">fn</span> <span class="ident">to_odpi_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">OdpiStr</span> {
-    <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">OdpiStr</span> {
-            <span class="ident">ptr</span>: <span class="ident">ptr::null</span>(),
-            <span class="ident">len</span>: <span class="number">0</span>,
-        }
-    } <span class="kw">else</span> {
-        <span class="ident">OdpiStr</span> {
-            <span class="ident">ptr</span>: <span class="ident">s</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-            <span class="ident">len</span>: <span class="ident">s</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>,
+    <span class="kw">pub fn </span>pool_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiPoolCreateParams {
+        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
+        <span class="kw">unsafe </span>{
+            dpiContext_initPoolCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
+            params.assume_init()
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">OdpiStr</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::inherent_to_string</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="ident">to_rust_str</span>(<span class="self">self</span>.<span class="ident">ptr</span>, <span class="self">self</span>.<span class="ident">len</span>)
-    }
+<span class="comment">//
+// Utility struct to convert Rust strings from/to ODPI-C strings
+//
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aq_unstable&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-            <span class="ident">Vec::new</span>()
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>;
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>;
-            <span class="kw">unsafe</span> { <span class="ident">Vec::from_raw_parts</span>(<span class="ident">ptr</span>, <span class="ident">len</span>, <span class="ident">len</span>) }
+</span><span class="kw">struct </span>OdpiStr {
+    <span class="kw">pub </span>ptr: <span class="kw-2">*const </span>c_char,
+    <span class="kw">pub </span>len: u32,
+}
+
+<span class="kw">fn </span>new_odpi_str() -&gt; OdpiStr {
+    OdpiStr {
+        ptr: ptr::null(),
+        len: <span class="number">0</span>,
+    }
+}
+
+<span class="kw">fn </span>to_odpi_str(s: <span class="kw-2">&amp;</span>str) -&gt; OdpiStr {
+    <span class="kw">if </span>s.is_empty() {
+        OdpiStr {
+            ptr: ptr::null(),
+            len: <span class="number">0</span>,
+        }
+    } <span class="kw">else </span>{
+        OdpiStr {
+            ptr: s.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
+            len: s.len() <span class="kw">as </span>u32,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">to_rust_str</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">len</span>: <span class="ident">u32</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-        <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>) };
-        <span class="ident">String::from_utf8_lossy</span>(<span class="ident">s</span>).<span class="ident">into_owned</span>()
+<span class="kw">impl </span>OdpiStr {
+    <span class="attribute">#[allow(clippy::inherent_to_string)]
+    </span><span class="kw">pub fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        to_rust_str(<span class="self">self</span>.ptr, <span class="self">self</span>.len)
+    }
+
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;aq_unstable&quot;</span>)]
+    </span><span class="kw">pub fn </span>to_vec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">if </span><span class="self">self</span>.ptr.is_null() {
+            Vec::new()
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>ptr = <span class="self">self</span>.ptr <span class="kw">as </span><span class="kw-2">*mut </span>u8;
+            <span class="kw">let </span>len = <span class="self">self</span>.len <span class="kw">as </span>usize;
+            <span class="kw">unsafe </span>{ Vec::from_raw_parts(ptr, len, len) }
+        }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">to_rust_slice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>, <span class="ident">len</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
-    <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
+<span class="kw">fn </span>to_rust_str(ptr: <span class="kw-2">*const </span>c_char, len: u32) -&gt; String {
+    <span class="kw">if </span>ptr.is_null() {
+        <span class="string">&quot;&quot;</span>.to_string()
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>s = <span class="kw">unsafe </span>{ slice::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*mut </span>u8, len <span class="kw">as </span>usize) };
+        String::from_utf8_lossy(s).into_owned()
+    }
+}
+
+<span class="kw">fn </span>to_rust_slice&lt;<span class="lifetime">&#39;a</span>&gt;(ptr: <span class="kw-2">*const </span>c_char, len: u32) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8] {
+    <span class="kw">if </span>ptr.is_null() {
         <span class="kw-2">&amp;</span>[]
-    } <span class="kw">else</span> {
-        <span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>) }
+    } <span class="kw">else </span>{
+        <span class="kw">unsafe </span>{ slice::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*mut </span>u8, len <span class="kw">as </span>usize) }
     }
 }
 
-<span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
+<span class="kw">mod </span>private {
+    <span class="kw">use </span>std::os::raw::c_void;
 
-    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
+    <span class="kw">pub trait </span>Sealed {}
 
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">u8</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">u16</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">u32</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">u64</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">usize</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">bool</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">str</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> [<span class="ident">u8</span>] {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span> {}
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>u8 {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>u16 {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>u32 {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>u64 {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>usize {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>bool {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>str {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>[u8] {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span><span class="kw-2">*mut </span>c_void {}
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {}
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="comment">// #[cfg(doctest)] isn&#39;t usable here. See: https://github.com/rust-lang/rust/issues/67295</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_util</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std::env</span>;
+<span class="attribute">#[allow(dead_code)]
+#[doc(hidden)]
+</span><span class="comment">// #[cfg(doctest)] isn&#39;t usable here. See: https://github.com/rust-lang/rust/issues/67295
+</span><span class="kw">pub mod </span>test_util {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>std::env;
 
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VER11_2</span>: <span class="ident">Version</span> <span class="op">=</span> <span class="ident">Version::new</span>(<span class="number">11</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VER12_1</span>: <span class="ident">Version</span> <span class="op">=</span> <span class="ident">Version::new</span>(<span class="number">12</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VER18</span>: <span class="ident">Version</span> <span class="op">=</span> <span class="ident">Version::new</span>(<span class="number">18</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+    <span class="kw">pub const </span>VER11_2: Version = Version::new(<span class="number">11</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+    <span class="kw">pub const </span>VER12_1: Version = Version::new(<span class="number">12</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+    <span class="kw">pub const </span>VER18: Version = Version::new(<span class="number">18</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
 
-    <span class="kw">fn</span> <span class="ident">env_var_or</span>(<span class="ident">env_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">default</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="ident">env::var_os</span>(<span class="ident">env_name</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">env_var</span>) =&gt; <span class="ident">env_var</span>.<span class="ident">into_string</span>().<span class="ident">unwrap</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">String::from</span>(<span class="ident">default</span>),
+    <span class="kw">fn </span>env_var_or(env_name: <span class="kw-2">&amp;</span>str, default: <span class="kw-2">&amp;</span>str) -&gt; String {
+        <span class="kw">match </span>env::var_os(env_name) {
+            <span class="prelude-val">Some</span>(env_var) =&gt; env_var.into_string().unwrap(),
+            <span class="prelude-val">None </span>=&gt; String::from(default),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main_user</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_MAIN_USER&quot;</span>, <span class="string">&quot;odpic&quot;</span>)
+    <span class="kw">pub fn </span>main_user() -&gt; String {
+        env_var_or(<span class="string">&quot;ODPIC_TEST_MAIN_USER&quot;</span>, <span class="string">&quot;odpic&quot;</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main_password</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_MAIN_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
+    <span class="kw">pub fn </span>main_password() -&gt; String {
+        env_var_or(<span class="string">&quot;ODPIC_TEST_MAIN_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition_user</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_EDITION_USER&quot;</span>, <span class="string">&quot;odpic_edition&quot;</span>)
+    <span class="kw">pub fn </span>edition_user() -&gt; String {
+        env_var_or(<span class="string">&quot;ODPIC_TEST_EDITION_USER&quot;</span>, <span class="string">&quot;odpic_edition&quot;</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edition_password</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_EDITION_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
+    <span class="kw">pub fn </span>edition_password() -&gt; String {
+        env_var_or(<span class="string">&quot;ODPIC_TEST_EDITION_PASSWORD&quot;</span>, <span class="string">&quot;welcome&quot;</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_string</span>() -&gt; <span class="ident">String</span> {
-        <span class="ident">env_var_or</span>(<span class="string">&quot;ODPIC_TEST_CONNECT_STRING&quot;</span>, <span class="string">&quot;localhost/orclpdb&quot;</span>)
+    <span class="kw">pub fn </span>connect_string() -&gt; String {
+        env_var_or(<span class="string">&quot;ODPIC_TEST_CONNECT_STRING&quot;</span>, <span class="string">&quot;localhost/orclpdb&quot;</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Connection</span><span class="op">&gt;</span> {
-        <span class="ident">Connection::connect</span>(<span class="kw-2">&amp;</span><span class="ident">main_user</span>(), <span class="kw-2">&amp;</span><span class="ident">main_password</span>(), <span class="kw-2">&amp;</span><span class="ident">connect_string</span>())
+    <span class="kw">pub fn </span>connect() -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
+        Connection::connect(<span class="kw-2">&amp;</span>main_user(), <span class="kw-2">&amp;</span>main_password(), <span class="kw-2">&amp;</span>connect_string())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_version</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">Connection</span>,
-        <span class="ident">client_ver</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>,
-        <span class="ident">server_ver</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="ident">Version::client</span>()<span class="question-mark">?</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">client_ver</span> <span class="op">&amp;&amp;</span> <span class="kw-2">&amp;</span><span class="ident">conn</span>.<span class="ident">server_version</span>()<span class="question-mark">?</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">server_ver</span>)
+    <span class="kw">pub fn </span>check_version(
+        conn: <span class="kw-2">&amp;</span>Connection,
+        client_ver: <span class="kw-2">&amp;</span>Version,
+        server_ver: <span class="kw-2">&amp;</span>Version,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span>Version::client()<span class="question-mark">? </span>&gt;= client_ver &amp;&amp; <span class="kw-2">&amp;</span>conn.server_version()<span class="question-mark">?</span>.<span class="number">0 </span>&gt;= server_ver)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
