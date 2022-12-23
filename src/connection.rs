@@ -1311,10 +1311,10 @@ impl Connection {
     /// # use std::time::{Duration, Instant};
     /// # let conn = test_util::connect()?;
     /// // Set timeout three seconds.
-    /// conn.set_call_timeout(Some(Duration::from_secs(3)))?;
+    /// conn.set_call_timeout(Some(Duration::from_millis(3_000)))?;
     ///
     /// let now = Instant::now();
-    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
+    /// let range = Duration::from_millis(2_900)..=Duration::from_millis(20_000);
     ///
     /// // This query is canceled by timeout.
     /// let result = conn.query_row_as::<u64>("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &[]);
