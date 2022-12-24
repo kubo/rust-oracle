@@ -1049,7 +1049,7 @@
 <span class="doccomment">/// The mode to use when closing pools
 ///
 /// See [`Pool::close`].
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>CloseMode {
     <span class="doccomment">/// If there are any active connections in the pool an
     /// error is returned.
@@ -1070,7 +1070,7 @@
 }
 
 <span class="doccomment">/// The mode to use when getting connections from a connection pool
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>GetMode {
     <span class="doccomment">/// The caller should block until a
     /// connection is available from the pool.
@@ -1124,7 +1124,7 @@
 }
 
 <span class="doccomment">/// Whether a connection pool is homogeneous or heterogeneous.
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>PoolType {
     <span class="doccomment">/// The default pool type.
     /// All connections in the pool are authenticated with the
@@ -1165,7 +1165,7 @@
 <span class="doccomment">/// Additional options to get a connection from a pool
 ///
 /// This is used as the argument of [`Pool::get_with_options`].
-</span><span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>PoolOptions {
     username: String,
     password: String,
@@ -1249,11 +1249,11 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(privilege) = <span class="self">self</span>.privilege {
             conn_params.authMode |= privilege.to_dpi();
         }
-        conn_params.externalAuth = <span class="kw">if </span><span class="self">self</span>.external_auth { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        conn_params.externalAuth = i32::from(<span class="self">self</span>.external_auth);
         <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
         conn_params.tag = s.ptr;
         conn_params.tagLength = s.len;
-        conn_params.matchAnyTag = <span class="kw">if </span><span class="self">self</span>.match_any_tag { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        conn_params.matchAnyTag = i32::from(<span class="self">self</span>.match_any_tag);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(purity) = <span class="self">self</span>.purity {
             conn_params.purity = purity.to_dpi();
         }
@@ -1493,7 +1493,7 @@
             pool_params.homogeneous = val;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.external_auth {
-            pool_params.externalAuth = <span class="kw">if </span>val { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+            pool_params.externalAuth = i32::from(val);
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.get_mode {
             pool_params.getMode = val.to_dpi_value();
@@ -1958,7 +1958,7 @@
     /// See also [`Pool::soda_metadata_cache`].
     </span><span class="attribute">#[doc(hidden)] </span><span class="comment">// uncomment when SODA is supported.
     </span><span class="kw">pub fn </span>set_soda_metadata_cache(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enabled: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>enabled = <span class="kw">if </span>enabled { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        <span class="kw">let </span>enabled = i32::from(enabled);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt,
             dpiPool_setSodaMetadataCache(<span class="self">self</span>.handle(), enabled)

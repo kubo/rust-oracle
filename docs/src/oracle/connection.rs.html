@@ -1784,10 +1784,6 @@
 <span id="1784">1784</span>
 <span id="1785">1785</span>
 <span id="1786">1786</span>
-<span id="1787">1787</span>
-<span id="1788">1788</span>
-<span id="1789">1789</span>
-<span id="1790">1790</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1863,7 +1859,7 @@
 <span class="doccomment">/// Database startup mode
 ///
 /// See [`Connection::startup_database`]
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>StartupMode {
     <span class="doccomment">/// Shuts down a running instance (if there is any) using ABORT before
     /// starting a new one. This mode should be used only in unusual circumstances.
@@ -1877,7 +1873,7 @@
 <span class="doccomment">/// Database shutdown mode
 ///
 /// See [`Connection::shutdown_database`].
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>ShutdownMode {
     <span class="doccomment">/// Further connects are prohibited. Waits for users to disconnect from
     /// the database.
@@ -1912,7 +1908,7 @@
 <span class="doccomment">/// [Administrative privilege](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-633842B8-4B19-4F96-A757-783BF62825A7)
 ///
 /// See [`Connector::privilege`].
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>Privilege {
     <span class="doccomment">/// Connects as [SYSDBA](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-BD5D39D1-DBFF-400A-8645-355F8FB9CD31).
     ///
@@ -1951,7 +1947,7 @@
     }
 }
 
-<span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+<span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="doccomment">/// Connection status
 </span><span class="kw">pub enum </span>ConnStatus {
     <span class="doccomment">/// The connection is alive. See [`Connection::status`] for details.
@@ -2710,9 +2706,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_row(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).fetch_array_size(<span class="number">1</span>).build()<span class="question-mark">?</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = stmt.query_row(params) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(err);
-        };
+        stmt.query_row(params)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(mem::replace(<span class="kw-2">&amp;mut </span>stmt.stmt.row, <span class="prelude-val">None</span>).unwrap())
     }
 
@@ -2723,9 +2717,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_row_named(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).fetch_array_size(<span class="number">1</span>).build()<span class="question-mark">?</span>;
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = stmt.query_row_named(params) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(err);
-        };
+        stmt.query_row_named(params)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(mem::replace(<span class="kw-2">&amp;mut </span>stmt.stmt.row, <span class="prelude-val">None</span>).unwrap())
     }
 
@@ -3105,10 +3097,10 @@
     /// # use std::time::{Duration, Instant};
     /// # let conn = test_util::connect()?;
     /// // Set timeout three seconds.
-    /// conn.set_call_timeout(Some(Duration::from_secs(3)))?;
+    /// conn.set_call_timeout(Some(Duration::from_millis(3_000)))?;
     ///
     /// let now = Instant::now();
-    /// let range = Duration::from_secs(3)..=Duration::from_secs(20);
+    /// let range = Duration::from_millis(2_900)..=Duration::from_millis(20_000);
     ///
     /// // This query is canceled by timeout.
     /// let result = conn.query_row_as::&lt;u64&gt;(&quot;select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects&quot;, &amp;[]);

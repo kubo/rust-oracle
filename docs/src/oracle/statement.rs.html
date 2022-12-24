@@ -1496,6 +1496,58 @@
 <span id="1496">1496</span>
 <span id="1497">1497</span>
 <span id="1498">1498</span>
+<span id="1499">1499</span>
+<span id="1500">1500</span>
+<span id="1501">1501</span>
+<span id="1502">1502</span>
+<span id="1503">1503</span>
+<span id="1504">1504</span>
+<span id="1505">1505</span>
+<span id="1506">1506</span>
+<span id="1507">1507</span>
+<span id="1508">1508</span>
+<span id="1509">1509</span>
+<span id="1510">1510</span>
+<span id="1511">1511</span>
+<span id="1512">1512</span>
+<span id="1513">1513</span>
+<span id="1514">1514</span>
+<span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1511,9 +1563,12 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span>std::borrow::ToOwned;
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>)]
+</span><span class="kw">use </span>oracle_procmacro::remove_stmt_lifetime;
+<span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::marker::PhantomData;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
+</span><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::mem::MaybeUninit;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
@@ -1552,7 +1607,7 @@
 <span class="kw">const </span>SQLFNCODE_ALTER_TYPE: u16 = <span class="number">80</span>;
 <span class="kw">const </span>SQLFNCODE_DROP_TYPE: u16 = <span class="number">78</span>;
 
-<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>LobBindType {
     Locator,
     Bytes,
@@ -1585,7 +1640,8 @@
     exclude_from_cache: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+<span class="attribute">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection, sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str) -&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
         StatementBuilder {
             conn,
@@ -1763,7 +1819,7 @@
 /// No new variants are added to this enum in the future. That&#39;s because
 /// a new variant causes breaking changes. New configuration parameters
 /// are set via [`StatementBuilder`][] instead.
-</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>StmtParam {
     <span class="doccomment">/// The array size used for performing fetches.
     ///
@@ -1785,7 +1841,7 @@
 }
 
 <span class="doccomment">/// Statement type returned by [`Statement::statement_type`].
-</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>StatementType {
     <span class="doccomment">/// SELECT statement
     </span>Select,
@@ -2000,7 +2056,8 @@
 }
 
 <span class="doccomment">/// Statement
-</span><span class="attribute">#[derive(Debug)]
+</span><span class="attribute">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
+#[derive(Debug)]
 </span><span class="kw">pub struct </span>Statement&lt;<span class="lifetime">&#39;conn</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) stmt: Stmt,
     statement_type: StatementType,
@@ -2008,10 +2065,12 @@
     bind_count: usize,
     bind_names: Vec&lt;String&gt;,
     bind_values: Vec&lt;SqlValue&gt;,
-    phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>()&gt;,
+    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
+    </span>phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>()&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Statement&lt;<span class="lifetime">&#39;conn</span>&gt; {
+<span class="attribute">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Statement&lt;<span class="lifetime">&#39;conn</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_params(
         conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
         sql: <span class="kw-2">&amp;</span>str,
@@ -2034,7 +2093,7 @@
         builder.build()
     }
 
-    <span class="kw">fn </span>new&lt;<span class="lifetime">&#39;sql</span>&gt;(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+    <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
         <span class="kw">let </span>conn = builder.conn;
         <span class="kw">let </span>sql = to_odpi_str(builder.sql);
         <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span>builder.tag);
@@ -2043,7 +2102,7 @@
             conn.ctxt(),
             dpiConn_prepareStmt(
                 conn.handle(),
-                <span class="kw">if </span>builder.scrollable { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>},
+                i32::from(builder.scrollable),
                 sql.ptr,
                 sql.len,
                 tag.ptr,
@@ -2106,7 +2165,8 @@
             bind_count,
             bind_names,
             bind_values,
-            phantom: PhantomData,
+            <span class="attribute">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
+            </span>phantom: PhantomData,
         })
     }
 
@@ -2725,6 +2785,40 @@
         <span class="self">self</span>.is_returning
     }
 
+    <span class="doccomment">/// Returns the rowid of the last row that was affected by the statement.
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let mut stmt = conn
+    ///     .statement(&quot;insert into TestDates values(100, sysdate, null)&quot;)
+    ///     .build()?;
+    /// stmt.execute(&amp;[])?;
+    /// // get the rowid inserted by stmt
+    /// let rowid1 = stmt.last_row_id()?;
+    /// // get the rowid from database
+    /// let rowid2 = conn.query_row_as::&lt;String&gt;(&quot;select rowid from TestDates where IntCol = 100&quot;, &amp;[])?;
+    /// assert_eq!(rowid1, Some(rowid2));
+    /// # conn.rollback()?;
+    /// # Ok::&lt;(), Error&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>last_row_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>rowid = ptr::null_mut();
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_getLastRowid(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>rowid));
+        <span class="kw">if </span>rowid.is_null() {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>ptr = ptr::null();
+            <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
+            <span class="macro">chkerr!</span>(
+                <span class="self">self</span>.ctxt(),
+                dpiRowid_getStringValue(rowid, <span class="kw-2">&amp;mut </span>ptr, <span class="kw-2">&amp;mut </span>len)
+            );
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(to_rust_str(ptr, len)))
+        }
+    }
+
     <span class="doccomment">/// Gets an OCI handle attribute corresponding to the specified type parameter
     /// See the [`oci_attr` module][crate::oci_attr] for details.
     </span><span class="kw">pub fn </span>oci_attr&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;&lt;T::DataType <span class="kw">as </span>DataType&gt;::Type <span class="kw">as </span>ToOwned&gt;::Owned&gt;
@@ -2870,7 +2964,7 @@
     }
 
     <span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">*</span><span class="self">self</span>);
+        <span class="kw">let </span>s = to_odpi_str(<span class="self">self</span>);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }
@@ -2898,7 +2992,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ColumnIndex <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
     <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_names: <span class="kw-2">&amp;</span>[String]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">for </span>(idx, colname) <span class="kw">in </span>column_names.iter().enumerate() {
-            <span class="kw">if </span>colname.as_str().eq_ignore_ascii_case(<span class="kw-2">*</span><span class="self">self</span>) {
+            <span class="kw">if </span>colname.as_str().eq_ignore_ascii_case(<span class="self">self</span>) {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(idx);
             }
         }
@@ -2994,5 +3088,15 @@
         <span class="prelude-val">Ok</span>(())
     }
 }
+
+<span class="attribute">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, doc = <span class="string">&quot;```&quot;</span>)]
+#[cfg_attr(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>), doc = <span class="string">&quot;```compile_fail&quot;</span>)]
+</span><span class="doccomment">/// # use oracle::Statement;
+/// struct Statements {
+///   stmts: Vec&lt;Statement&gt;,
+/// }
+/// ```
+</span><span class="attribute">#[cfg(doctest)]
+</span><span class="kw">struct </span>TestStmtWithoutLifetime;
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

@@ -471,7 +471,7 @@
     }
 
     <span class="kw">unsafe fn </span>set_bool(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val: i32 = <span class="kw">if </span>val { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+        <span class="kw">let </span>val = i32::from(val);
         <span class="self">self</span>.set_ptr_len(<span class="kw-2">&amp;</span>val <span class="kw">as </span><span class="kw-2">*const </span>i32 <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">4</span>)
     }
 

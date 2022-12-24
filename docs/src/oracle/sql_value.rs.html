@@ -2127,7 +2127,7 @@
     <span class="doccomment">/// Sets bool to the SQL value. The native_type must be
     /// NativeType::Boolean. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_bool_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setBool(<span class="self">self</span>.data(), <span class="kw">if </span>val { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>}) }
+        <span class="kw">unsafe </span>{ dpiData_setBool(<span class="self">self</span>.data(), i32::from(val)) }
         <span class="prelude-val">Ok</span>(())
     }
 

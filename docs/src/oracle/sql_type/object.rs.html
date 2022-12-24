@@ -815,6 +815,22 @@
 <span id="815">815</span>
 <span id="816">816</span>
 <span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1380,6 +1396,16 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.internal.name
     }
 
+    <span class="doccomment">/// Gets package name if it is a PL/SQL type.
+    /// Otherwise, `None`.
+    </span><span class="kw">pub fn </span>package_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pkg_name) = <span class="self">self</span>.internal.package_name {
+            <span class="prelude-val">Some</span>(pkg_name)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+
     <span class="doccomment">/// True when it is a collectoin. Otherwise false.
     </span><span class="kw">pub fn </span>is_collection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.internal.elem_oratype.is_some()
@@ -1545,6 +1571,7 @@
     handle: DpiObjectType,
     schema: String,
     name: String,
+    package_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
     elem_oratype: <span class="prelude-ty">Option</span>&lt;OracleType&gt;,
     attrs: Vec&lt;ObjectTypeAttr&gt;,
 }
@@ -1589,6 +1616,11 @@
             handle,
             schema: to_rust_str(info.schema, info.schemaLength),
             name: to_rust_str(info.name, info.nameLength),
+            package_name: <span class="kw">if </span>info.packageNameLength != <span class="number">0 </span>{
+                <span class="prelude-val">Some</span>(to_rust_str(info.packageName, info.packageNameLength))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
             elem_oratype,
             attrs,
         })

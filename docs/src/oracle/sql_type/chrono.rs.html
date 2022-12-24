@@ -294,6 +294,55 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -326,6 +375,11 @@
 <span class="kw">use </span>chrono::offset::LocalResult;
 <span class="kw">use </span>chrono::Duration;
 
+<span class="kw">fn </span>fixed_offset_from_sql(ts: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;FixedOffset&gt; {
+    FixedOffset::east_opt(ts.tz_offset())
+        .ok_or_else(|| Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;invalid time zone offset: {}&quot;</span>, ts.tz_offset())))
+}
+
 <span class="comment">//
 // chrono::DateTime&lt;Utc&gt;
 // chrono::DateTime&lt;Local&gt;
@@ -336,7 +390,20 @@
 <span class="kw">where
     </span>Tz: TimeZone,
 {
-    <span class="prelude-val">Ok</span>(date_from_sql(tz, ts)<span class="question-mark">?</span>.and_hms_nano(ts.hour(), ts.minute(), ts.second(), ts.nanosecond()))
+    date_from_sql(tz, ts)<span class="question-mark">?
+        </span>.and_hms_nano_opt(ts.hour(), ts.minute(), ts.second(), ts.nanosecond())
+        .ok_or_else(|| {
+            Error::OutOfRange(<span class="macro">format!</span>(
+                <span class="string">&quot;invalid year-month-day: {}-{}-{} {}:{}:{}.{:09}&quot;</span>,
+                ts.year(),
+                ts.month(),
+                ts.day(),
+                ts.hour(),
+                ts.minute(),
+                ts.second(),
+                ts.nanosecond()
+            ))
+        })
 }
 
 <span class="kw">impl </span>FromSql <span class="kw">for </span>DateTime&lt;Utc&gt; {
@@ -356,7 +423,7 @@
 <span class="kw">impl </span>FromSql <span class="kw">for </span>DateTime&lt;FixedOffset&gt; {
     <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;FixedOffset&gt;&gt; {
         <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
-        datetime_from_sql(<span class="kw-2">&amp;</span>FixedOffset::east(ts.tz_offset()), <span class="kw-2">&amp;</span>ts)
+        datetime_from_sql(<span class="kw-2">&amp;</span>fixed_offset_from_sql(<span class="kw-2">&amp;</span>ts)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span>ts)
     }
 }
 
@@ -397,7 +464,12 @@
 // chrono::Date&lt;Local&gt;
 // chrono::Date&lt;FixedOffset&gt;
 //
+// chrono::Date has been deprecated since chrono 0.4.23.
+// However it cannot be removed without a breaking change.
+// So `#[allow(deprecated)]` was added for each trait implementation
+// to suppress warnings.
 
+</span><span class="attribute">#[allow(deprecated)]
 </span><span class="kw">fn </span>date_from_sql&lt;Tz&gt;(tz: <span class="kw-2">&amp;</span>Tz, ts: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Tz&gt;&gt;
 <span class="kw">where
     </span>Tz: TimeZone,
@@ -413,28 +485,32 @@
     }
 }
 
-<span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;Utc&gt; {
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;Utc&gt; {
     <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Utc&gt;&gt; {
         <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
         date_from_sql(<span class="kw-2">&amp;</span>Utc, <span class="kw-2">&amp;</span>ts)
     }
 }
 
-<span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;Local&gt; {
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;Local&gt; {
     <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Local&gt;&gt; {
         <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
         date_from_sql(<span class="kw-2">&amp;</span>Local, <span class="kw-2">&amp;</span>ts)
     }
 }
 
-<span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;FixedOffset&gt; {
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">impl </span>FromSql <span class="kw">for </span>Date&lt;FixedOffset&gt; {
     <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;FixedOffset&gt;&gt; {
         <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
-        date_from_sql(<span class="kw-2">&amp;</span>FixedOffset::east(ts.tz_offset()), <span class="kw-2">&amp;</span>ts)
+        date_from_sql(<span class="kw-2">&amp;</span>fixed_offset_from_sql(<span class="kw-2">&amp;</span>ts)<span class="question-mark">?</span>, <span class="kw-2">&amp;</span>ts)
     }
 }
 
-<span class="kw">impl</span>&lt;Tz&gt; ToSqlNull <span class="kw">for </span>Date&lt;Tz&gt;
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">impl</span>&lt;Tz&gt; ToSqlNull <span class="kw">for </span>Date&lt;Tz&gt;
 <span class="kw">where
     </span>Tz: TimeZone,
 {
@@ -443,7 +519,8 @@
     }
 }
 
-<span class="kw">impl</span>&lt;Tz&gt; ToSql <span class="kw">for </span>Date&lt;Tz&gt;
+<span class="attribute">#[allow(deprecated)]
+</span><span class="kw">impl</span>&lt;Tz&gt; ToSql <span class="kw">for </span>Date&lt;Tz&gt;
 <span class="kw">where
     </span>Tz: TimeZone,
 {
@@ -462,17 +539,27 @@
 // chrono::naive::NaiveDateTime
 //
 
-</span><span class="kw">impl </span>FromSql <span class="kw">for </span>NaiveDateTime {
-    <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;NaiveDateTime&gt; {
-        <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(
-            NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()).and_hms_nano(
+</span><span class="kw">fn </span>naive_date_time_from_sql(ts: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;NaiveDateTime&gt; {
+    naive_date_from_sql(ts)<span class="question-mark">?
+        </span>.and_hms_nano_opt(ts.hour(), ts.minute(), ts.second(), ts.nanosecond())
+        .ok_or_else(|| {
+            Error::OutOfRange(<span class="macro">format!</span>(
+                <span class="string">&quot;invalid year-month-day: {}-{}-{} {}:{}:{}.{:09}&quot;</span>,
+                ts.year(),
+                ts.month(),
+                ts.day(),
                 ts.hour(),
                 ts.minute(),
                 ts.second(),
-                ts.nanosecond(),
-            ),
-        )
+                ts.nanosecond()
+            ))
+        })
+}
+
+<span class="kw">impl </span>FromSql <span class="kw">for </span>NaiveDateTime {
+    <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;NaiveDateTime&gt; {
+        <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
+        naive_date_time_from_sql(<span class="kw-2">&amp;</span>ts)
     }
 }
 
@@ -505,10 +592,21 @@
 // chrono::naive::NaiveDate
 //
 
-</span><span class="kw">impl </span>FromSql <span class="kw">for </span>NaiveDate {
+</span><span class="kw">fn </span>naive_date_from_sql(ts: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;NaiveDate&gt; {
+    NaiveDate::from_ymd_opt(ts.year(), ts.month(), ts.day()).ok_or_else(|| {
+        Error::OutOfRange(<span class="macro">format!</span>(
+            <span class="string">&quot;invalid year-month-day: {}-{}-{}&quot;</span>,
+            ts.year(),
+            ts.month(),
+            ts.day()
+        ))
+    })
+}
+
+<span class="kw">impl </span>FromSql <span class="kw">for </span>NaiveDate {
     <span class="kw">fn </span>from_sql(val: <span class="kw-2">&amp;</span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;NaiveDate&gt; {
         <span class="kw">let </span>ts = val.to_timestamp()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(NaiveDate::from_ymd(ts.year(), ts.month(), ts.day()))
+        naive_date_from_sql(<span class="kw-2">&amp;</span>ts)
     }
 }
 

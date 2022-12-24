@@ -1757,7 +1757,7 @@
 
     <span class="attribute">#[doc(hidden)]
     </span><span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">*</span><span class="self">self</span>);
+        <span class="kw">let </span>s = to_odpi_str(<span class="self">self</span>);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }

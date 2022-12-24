@@ -370,6 +370,7 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
+<span id="373">373</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -686,7 +687,7 @@
         <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="self">self</span>.len() <span class="kw">as </span>u32))
     }
     <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        val.set_bytes(<span class="kw-2">*</span><span class="self">self</span>)
+        val.set_bytes(<span class="self">self</span>)
     }
 }
 
@@ -695,7 +696,8 @@
         <span class="prelude-val">Ok</span>(OracleType::Raw(<span class="self">self</span>.len() <span class="kw">as </span>u32))
     }
     <span class="kw">fn </span>to_sql(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut </span>SqlValue) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        val.set_bytes(<span class="kw-2">*</span><span class="self">self</span>)
+        <span class="comment">// Use self.as_slice() instead of &amp;self[..] when MSRV become 1.57 or later.
+        </span>val.set_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>[..])
     }
 }
 
