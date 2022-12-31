@@ -15,11 +15,13 @@
 
 use crate::binding::*;
 use crate::error;
+use crate::DbError;
 use crate::Result;
 use lazy_static::lazy_static;
 use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
+use std::sync::{Arc, Mutex};
 
 //
 // Context
@@ -28,6 +30,7 @@ use std::ptr;
 #[derive(Clone)]
 pub(crate) struct Context {
     pub context: *mut dpiContext,
+    last_warning: Option<Arc<Mutex<Option<DbError>>>>,
 }
 
 unsafe impl Sync for Context {}
@@ -55,7 +58,10 @@ lazy_static! {
             )
         } == DPI_SUCCESS as i32
         {
-            ContextResult::Ok(Context { context: ctxt })
+            ContextResult::Ok(Context {
+                context: ctxt,
+                last_warning: None,
+            })
         } else {
             ContextResult::Err(unsafe { err.assume_init() })
         }
@@ -63,10 +69,30 @@ lazy_static! {
 }
 
 impl Context {
-    pub fn get() -> Result<Context> {
+    pub fn new0() -> Result<Context> {
         match *DPI_CONTEXT {
             ContextResult::Ok(ref ctxt) => Ok(ctxt.clone()),
             ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
+        }
+    }
+
+    pub fn new() -> Result<Context> {
+        let ctxt = Context::new0()?;
+        Ok(Context {
+            last_warning: Some(Arc::new(Mutex::new(None))),
+            ..ctxt
+        })
+    }
+
+    pub fn last_warning(&self) -> Option<DbError> {
+        self.last_warning
+            .as_ref()
+            .and_then(|mutex| mutex.lock().unwrap().as_ref().cloned())
+    }
+
+    pub fn set_warning(&self) {
+        if let Some(ref mutex) = self.last_warning {
+            *mutex.lock().unwrap() = error::warning(self);
         }
     }
 

@@ -515,6 +515,7 @@ impl<'conn> Batch<'conn> {
             self.conn.ctxt(),
             dpiStmt_executeMany(self.handle, exec_mode, self.batch_index)
         );
+        self.conn.ctxt().set_warning();
         if self.with_batch_errors {
             let mut errnum = 0;
             chkerr!(

@@ -474,21 +474,25 @@ impl Stmt {
         Ok(())
     }
 
-    pub fn next(&self) -> Option<Result<&Row>> {
+    fn try_next(&self) -> Result<Option<&Row>> {
         let mut found = 0;
         let mut buffer_row_index = 0;
-        if unsafe { dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index) } == 0 {
-            if found != 0 {
-                self.shared_buffer_row_index
-                    .store(buffer_row_index, Ordering::Relaxed);
-                // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
-                Some(Ok(self.row.as_ref().unwrap()))
-            } else {
-                None
-            }
+        chkerr!(
+            self.ctxt(),
+            dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index)
+        );
+        Ok(if found != 0 {
+            self.shared_buffer_row_index
+                .store(buffer_row_index, Ordering::Relaxed);
+            // if self.row.is_none(), dpiStmt_fetch() returns non-zero.
+            Some(self.row.as_ref().unwrap())
         } else {
-            Some(Err(crate::error::error_from_context(self.ctxt())))
-        }
+            None
+        })
+    }
+
+    pub fn next(&self) -> Option<Result<&Row>> {
+        self.try_next().transpose()
     }
 
     pub fn row_count(&self) -> Result<u64> {
@@ -886,6 +890,7 @@ impl<'conn> Statement<'conn> {
             self.ctxt(),
             dpiStmt_execute(self.handle(), exec_mode, &mut num_query_columns)
         );
+        self.ctxt().set_warning();
         if self.is_ddl() {
             let fncode = self.oci_attr::<SqlFnCode>()?;
             match fncode {

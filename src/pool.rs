@@ -553,7 +553,7 @@ impl PoolBuilder {
 
     /// Make a connection pool
     pub fn build(&self) -> Result<Pool> {
-        let ctxt = Context::get()?;
+        let ctxt = Context::new0()?;
         let username = to_odpi_str(&self.username);
         let password = to_odpi_str(&self.password);
         let connect_string = to_odpi_str(&self.connect_string);
@@ -729,12 +729,13 @@ impl Pool {
     ///
     /// See also [`Pool::get`].
     pub fn get_with_options(&self, options: &PoolOptions) -> Result<Connection> {
+        let ctxt = Context::new()?;
         let username = to_odpi_str(&options.username);
         let password = to_odpi_str(&options.password);
-        let mut conn_params = options.to_dpi_conn_create_params(self.ctxt());
+        let mut conn_params = options.to_dpi_conn_create_params(&ctxt);
         let mut handle = ptr::null_mut();
         chkerr!(
-            self.ctxt(),
+            &ctxt,
             dpiPool_acquireConnection(
                 self.handle(),
                 username.ptr,
@@ -745,11 +746,8 @@ impl Pool {
                 &mut handle
             )
         );
-        Ok(Connection::from_dpi_handle(
-            self.ctxt().clone(),
-            handle,
-            &conn_params,
-        ))
+        ctxt.set_warning();
+        Ok(Connection::from_dpi_handle(ctxt, handle, &conn_params))
     }
 
     /// Closes the pool and makes it unusable for further activity.

@@ -1,12 +1,13 @@
 # Change Log
 
-## 0.5.7 (2022-XX-XX)
+## 0.5.7 (2023-XX-XX)
 
 New features:
 
 * Add `stmt_without_lifetime` feature flag.
 * Add [`ObjectType::package_name()`]
 * Add [`Statement::last_row_id()`]
+* Add [`Connection::last_warning()`]
 * Add [`iter()`][`Collection::iter()`], [`indices()`][`Collection::indices()`] and [`values()`][`Collection::values()`] methods, which creates iterators over [`Collection`] elements.
 
 Fixed Issues:
@@ -393,6 +394,7 @@ Incompatible changes:
 [`Connection.call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.call_timeout
 [`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
 [`Connection.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute_named
+[`Connection::last_warning()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.last_warning
 [`Connection.object_type()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.object_type
 [`Connection::prepare`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.prepare
 [`Connection.query()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query

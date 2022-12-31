@@ -463,7 +463,7 @@ impl Connector {
 
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
-        let ctxt = Context::get()?;
+        let ctxt = Context::new()?;
         let common_params = self.common_params.build(&ctxt);
         let (conn_params, _app_contexts) = self.to_dpi_conn_create_params(&ctxt);
         Connection::connect_internal(
@@ -621,7 +621,7 @@ impl Connection {
         P: AsRef<str>,
         C: AsRef<str>,
     {
-        let ctxt = Context::get()?;
+        let ctxt = Context::new()?;
         let common_params = ctxt.common_create_params();
         let conn_params = ctxt.conn_create_params();
         Connection::connect_internal(
@@ -661,6 +661,7 @@ impl Connection {
                 &mut handle
             )
         );
+        ctxt.set_warning();
         conn_params.outNewSession = 1;
         Ok(Connection::from_dpi_handle(ctxt, handle, &conn_params))
     }
@@ -1238,6 +1239,59 @@ impl Connection {
             }
             Err(err) => Err(err),
         }
+    }
+
+    /// Get the warning when connecting to the database or executing SQL statements.
+    ///
+    /// This is available to check the following two cases.
+    ///
+    /// 1. The user account status is in grace period of password expiration. See [Password Change Life Cycle].
+    /// 2. A stored procedure is created with PL/SQL compilation errors.
+    ///
+    /// ```no_run
+    /// # use oracle::{Connection, Error};
+    /// # use oracle::test_util;
+    /// # let username = test_util::main_user();
+    /// # let password = test_util::main_password();
+    /// # let connect_string = test_util::connect_string();
+    /// let conn = Connection::connect(username, password, connect_string)?;
+    ///
+    /// // Check warning when connecting to the database.
+    /// // This must be done before any SQL execution. Otherwise it is cleared.
+    /// if let Some(Error::OciError(dberr)) = conn.last_warning() {
+    ///   if dberr.code() == 28002 {
+    ///      println!("{}", dberr.message()); // => "the password will expire within n days."
+    ///   }
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
+    ///
+    /// ```
+    /// # use oracle::{Connector, Error};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // create a procedure with compilation error
+    /// let sql = "create or replace procedure my_proc is begin; null; end;";
+    /// conn.execute(sql, &[])?;
+    /// match conn.last_warning() {
+    ///     Some(Error::OciError(dberr)) if dberr.code() == 24344 => (),
+    ///     warn => panic!("Unexpected last warning: {:?}", warn),
+    /// }
+    ///
+    /// // create a procedure without compilation error
+    /// let sql = "create or replace procedure my_proc is begin null; end;";
+    /// conn.execute(sql, &[])?;
+    /// // The last warning is cleared when a SQL statement is executed successfully without any warning.
+    /// match conn.last_warning() {
+    ///     None => (),
+    ///     warn => panic!("Unexpected last warning: {:?}", warn),
+    /// }
+    /// # Ok::<(), Error>(())
+    /// ```
+    ///
+    /// [Password Change Life Cycle]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BED74427-BC63-4095-8829-1AF68411FC6B
+    pub fn last_warning(&self) -> Option<Error> {
+        self.ctxt().last_warning().map(Error::OciError)
     }
 
     /// Gets the statement cache size

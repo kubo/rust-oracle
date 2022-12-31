@@ -341,6 +341,19 @@ pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
     }
 }
 
+pub(crate) fn warning(ctxt: &Context) -> Option<DbError> {
+    let err = unsafe {
+        let mut err = MaybeUninit::uninit();
+        dpiContext_getError(ctxt.context, err.as_mut_ptr());
+        err.assume_init()
+    };
+    if err.isWarning != 0 {
+        Some(dberror_from_dpi_error(&err))
+    } else {
+        None
+    }
+}
+
 pub(crate) fn error_from_context(ctxt: &Context) -> Error {
     let err = unsafe {
         let mut err = MaybeUninit::uninit();

@@ -75,7 +75,7 @@ impl Version {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn client() -> Result<Version> {
-        let ctx = Context::get()?;
+        let ctx = Context::new0()?;
         let mut ver = MaybeUninit::uninit();
         chkerr!(
             &ctx,
