@@ -144,7 +144,7 @@ impl Payload for [u8] {
         let mut ptr = ptr::null();
         let mut len = 0;
         chkerr!(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_getPayload(props.handle.raw, ptr::null_mut(), &mut ptr, &mut len)
         );
         Ok(to_rust_slice(ptr, len).to_vec())
@@ -152,7 +152,7 @@ impl Payload for [u8] {
 
     fn set(&self, props: &mut MsgProps<Self>) -> Result<()> {
         chkerr!(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_setPayloadBytes(
                 props.handle.raw,
                 self.as_ptr() as *const c_char,
@@ -175,7 +175,7 @@ impl Payload for Object {
         let objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)?;
         let mut obj_handle = ptr::null_mut();
         chkerr!(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_getPayload(
                 props.handle.raw,
                 &mut obj_handle,
@@ -188,7 +188,7 @@ impl Payload for Object {
 
     fn set(&self, props: &mut MsgProps<Self>) -> Result<()> {
         chkerr!(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_setPayloadObject(props.handle.raw, self.handle)
         );
         props.payload_type = Some(self.object_type().clone());
@@ -219,8 +219,8 @@ where
         self.handle.raw
     }
 
-    fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt
+    fn ctxt(&self) -> &Context {
+        self.conn.ctxt()
     }
 
     /// Creates a new queue which may be used to enqueue and dequeue messages
@@ -350,7 +350,7 @@ where
                 self.ctxt(),
                 dpiQueue_getDeqOptions(self.handle(), &mut handle)
             );
-            self.deq_options = Some(DeqOptions::new(self.ctxt(), handle));
+            self.deq_options = Some(DeqOptions::new(self.ctxt().clone(), handle));
         }
         Ok(self.deq_options.as_mut().unwrap())
     }
@@ -364,7 +364,7 @@ where
                 self.ctxt(),
                 dpiQueue_getEnqOptions(self.handle(), &mut handle)
             );
-            self.enq_options = Some(EnqOptions::new(self.ctxt(), handle));
+            self.enq_options = Some(EnqOptions::new(self.ctxt().clone(), handle));
         }
         Ok(self.enq_options.as_mut().unwrap())
     }
@@ -559,13 +559,17 @@ impl Visibility {
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
 pub struct DeqOptions {
-    ctxt: &'static Context,
+    ctxt: Context,
     handle: *mut dpiDeqOptions,
 }
 
 impl DeqOptions {
-    fn new(ctxt: &'static Context, handle: *mut dpiDeqOptions) -> DeqOptions {
+    fn new(ctxt: Context, handle: *mut dpiDeqOptions) -> DeqOptions {
         DeqOptions { ctxt, handle }
+    }
+
+    fn ctxt(&self) -> &Context {
+        &self.ctxt
     }
 
     /// Returns the condition that must be satisfied in order for a message to be
@@ -575,7 +579,7 @@ impl DeqOptions {
     pub fn condition(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getCondition(self.handle, &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
@@ -587,7 +591,7 @@ impl DeqOptions {
     pub fn consumer_name(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getConsumerName(self.handle, &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
@@ -599,7 +603,7 @@ impl DeqOptions {
     pub fn correlation(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getCorrelation(self.handle, &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
@@ -608,7 +612,7 @@ impl DeqOptions {
     /// Returns the mode that is to be used when dequeuing messages.
     pub fn mode(&self) -> Result<DeqMode> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiDeqOptions_getMode(self.handle, &mut val));
+        chkerr!(self.ctxt(), dpiDeqOptions_getMode(self.handle, &mut val));
         DeqMode::from_dpi_value(val)
     }
 
@@ -616,7 +620,7 @@ impl DeqOptions {
     pub fn message_id(&self) -> Result<Vec<u8>> {
         let mut msg = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getMsgId(self.handle, &mut msg.ptr, &mut msg.len)
         );
         Ok(msg.to_vec())
@@ -626,7 +630,7 @@ impl DeqOptions {
     pub fn navigation(&self) -> Result<DeqNavigation> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getNavigation(self.handle, &mut val)
         );
         DeqNavigation::from_dpi_value(val)
@@ -638,7 +642,7 @@ impl DeqOptions {
     pub fn transformation(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getTransformation(self.handle, &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
@@ -649,7 +653,7 @@ impl DeqOptions {
     pub fn visibility(&self) -> Result<Visibility> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_getVisibility(self.handle, &mut val)
         );
         Visibility::from_dpi_value(val)
@@ -659,7 +663,7 @@ impl DeqOptions {
     /// criteria.
     pub fn wait(&self) -> Result<Duration> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiDeqOptions_getWait(self.handle, &mut val));
+        chkerr!(self.ctxt(), dpiDeqOptions_getWait(self.handle, &mut val));
         Ok(Duration::from_secs(val as u64))
     }
 
@@ -673,7 +677,7 @@ impl DeqOptions {
     pub fn set_condition(&mut self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setCondition(self.handle, val.ptr, val.len)
         );
         Ok(())
@@ -684,7 +688,7 @@ impl DeqOptions {
     pub fn set_consumer_name(&mut self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setConsumerName(self.handle, val.ptr, val.len)
         );
         Ok(())
@@ -699,7 +703,7 @@ impl DeqOptions {
     pub fn set_correlation(&mut self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setCorrelation(self.handle, val.ptr, val.len)
         );
         Ok(())
@@ -708,7 +712,7 @@ impl DeqOptions {
     /// Sets the message delivery mode that is to be used when dequeuing messages.
     pub fn set_delivery_mode(&mut self, val: &MessageDeliveryMode) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setDeliveryMode(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -717,7 +721,7 @@ impl DeqOptions {
     /// Sets the mode that is to be used when dequeuing messages.
     pub fn set_mode(&mut self, val: &DeqMode) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setMode(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -731,14 +735,14 @@ impl DeqOptions {
             val.as_ptr() as *const c_char
         };
         let len = val.len() as u32;
-        chkerr!(self.ctxt, dpiDeqOptions_setMsgId(self.handle, ptr, len));
+        chkerr!(self.ctxt(), dpiDeqOptions_setMsgId(self.handle, ptr, len));
         Ok(())
     }
 
     /// Sets the position in the queue of the message that is to be dequeued.
     pub fn set_navigation(&mut self, val: &DeqNavigation) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setNavigation(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -752,7 +756,7 @@ impl DeqOptions {
     pub fn set_transformation(&mut self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setTransformation(self.handle, val.ptr, val.len)
         );
         Ok(())
@@ -762,7 +766,7 @@ impl DeqOptions {
     /// or constitutes a transaction on its own.
     pub fn set_visibility(&mut self, val: &Visibility) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiDeqOptions_setVisibility(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -777,7 +781,7 @@ impl DeqOptions {
         } else {
             secs as u32
         };
-        chkerr!(self.ctxt, dpiDeqOptions_setWait(self.handle, secs));
+        chkerr!(self.ctxt(), dpiDeqOptions_setWait(self.handle, secs));
         Ok(())
     }
 }
@@ -792,13 +796,17 @@ impl fmt::Debug for DeqOptions {
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
 pub struct EnqOptions {
-    ctxt: &'static Context,
+    ctxt: Context,
     handle: *mut dpiEnqOptions,
 }
 
 impl EnqOptions {
-    fn new(ctxt: &'static Context, handle: *mut dpiEnqOptions) -> EnqOptions {
+    fn new(ctxt: Context, handle: *mut dpiEnqOptions) -> EnqOptions {
         EnqOptions { ctxt, handle }
+    }
+
+    fn ctxt(&self) -> &Context {
+        &self.ctxt
     }
 
     /// Returns the transformation of the message to be enqueued.
@@ -807,7 +815,7 @@ impl EnqOptions {
     pub fn transformation(&self) -> Result<String> {
         let mut s = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiEnqOptions_getTransformation(self.handle, &mut s.ptr, &mut s.len)
         );
         Ok(s.to_string())
@@ -818,7 +826,7 @@ impl EnqOptions {
     pub fn visibility(&self) -> Result<Visibility> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiEnqOptions_getVisibility(self.handle, &mut val)
         );
         Visibility::from_dpi_value(val)
@@ -827,7 +835,7 @@ impl EnqOptions {
     /// Sets the message delivery mode that is to be used when enqueuing messages.
     pub fn set_delivery_mode(&mut self, val: &MessageDeliveryMode) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiEnqOptions_setDeliveryMode(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -841,7 +849,7 @@ impl EnqOptions {
     pub fn set_transformation(&mut self, val: &str) -> Result<()> {
         let val = to_odpi_str(val);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiEnqOptions_setTransformation(self.handle, val.ptr, val.len)
         );
         Ok(())
@@ -851,7 +859,7 @@ impl EnqOptions {
     /// or constitutes a transaction on its own.
     pub fn set_visibility(&mut self, val: &Visibility) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiEnqOptions_setVisibility(self.handle, val.to_dpi_value())
         );
         Ok(())
@@ -887,7 +895,7 @@ where
     }
 
     fn ctxt(&self) -> &Context {
-        self.conn.ctxt
+        self.conn.ctxt()
     }
 
     /// Creates a new message properties

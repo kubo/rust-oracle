@@ -78,7 +78,7 @@ impl Version {
         let ctx = Context::get()?;
         let mut ver = MaybeUninit::uninit();
         chkerr!(
-            ctx,
+            &ctx,
             dpiContext_getClientVersion(ctx.context, ver.as_mut_ptr())
         );
         Ok(Version::new_from_dpi_ver(unsafe { ver.assume_init() }))

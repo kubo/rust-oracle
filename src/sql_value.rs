@@ -195,8 +195,8 @@ impl SqlValue {
         })
     }
 
-    pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt
+    pub(crate) fn ctxt(&self) -> &Context {
+        self.conn.ctxt()
     }
 
     fn handle_is_reusable(&self, oratype: &OracleType) -> Result<bool> {

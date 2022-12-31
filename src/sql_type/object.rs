@@ -91,7 +91,7 @@ impl Collection {
     }
 
     pub(crate) fn ctxt(&self) -> &Context {
-        self.conn.ctxt
+        self.conn.ctxt()
     }
 
     /// Returns type information.
@@ -515,7 +515,7 @@ impl Object {
     }
 
     pub(crate) fn ctxt(&self) -> &Context {
-        self.conn.ctxt
+        self.conn.ctxt()
     }
 
     /// Returns type information.
@@ -766,7 +766,7 @@ impl ObjectType {
         let conn = &self.internal.conn;
         let mut handle = ptr::null_mut();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
         Ok(Object::new(conn.clone(), handle, self.clone()))
@@ -784,7 +784,7 @@ impl ObjectType {
         let conn = &self.internal.conn;
         let mut handle = ptr::null_mut();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_createObject(self.internal.handle.raw(), &mut handle)
         );
         Ok(Collection::new(conn.clone(), handle, self.clone()))
@@ -823,7 +823,7 @@ impl ObjectTypeAttr {
     fn new(conn: Conn, handle: DpiObjectAttr) -> Result<ObjectTypeAttr> {
         let mut info = MaybeUninit::uninit();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectAttr_getInfo(handle.raw(), info.as_mut_ptr())
         );
         let info = unsafe { info.assume_init() };
@@ -887,7 +887,7 @@ impl ObjectTypeInternal {
     fn from_dpi_object_type(conn: Conn, handle: DpiObjectType) -> Result<ObjectTypeInternal> {
         let mut info = MaybeUninit::uninit();
         chkerr!(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_getInfo(handle.raw(), info.as_mut_ptr())
         );
         let info = unsafe { info.assume_init() };
@@ -900,7 +900,7 @@ impl ObjectTypeInternal {
             let attrnum = info.numAttributes as usize;
             let mut handles = Vec::<DpiObjectAttr>::with_capacity(attrnum);
             chkerr!(
-                conn.ctxt,
+                conn.ctxt(),
                 dpiObjectType_getAttributes(
                     handle.raw(),
                     info.numAttributes,

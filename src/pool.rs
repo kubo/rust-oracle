@@ -233,7 +233,7 @@ impl PoolOptions {
         self
     }
 
-    fn to_dpi_conn_create_params(&self, ctxt: &'static Context) -> dpiConnCreateParams {
+    fn to_dpi_conn_create_params(&self, ctxt: &Context) -> dpiConnCreateParams {
         let mut conn_params = ctxt.conn_create_params();
 
         if let Some(privilege) = self.privilege {
@@ -461,7 +461,7 @@ impl PoolBuilder {
         self
     }
 
-    fn to_dpi_pool_create_params(&self, ctxt: &'static Context) -> Result<dpiPoolCreateParams> {
+    fn to_dpi_pool_create_params(&self, ctxt: &Context) -> Result<dpiPoolCreateParams> {
         let mut pool_params = ctxt.pool_create_params();
 
         if let Some(val) = self.min_connections {
@@ -557,11 +557,11 @@ impl PoolBuilder {
         let username = to_odpi_str(&self.username);
         let password = to_odpi_str(&self.password);
         let connect_string = to_odpi_str(&self.connect_string);
-        let common_params = self.common_params.build(ctxt);
-        let mut pool_params = self.to_dpi_pool_create_params(ctxt)?;
+        let common_params = self.common_params.build(&ctxt);
+        let mut pool_params = self.to_dpi_pool_create_params(&ctxt)?;
         let mut handle = ptr::null_mut();
         chkerr!(
-            ctxt,
+            &ctxt,
             dpiPool_create(
                 ctxt.context,
                 username.ptr,
@@ -699,13 +699,17 @@ impl PoolBuilder {
 /// ```
 #[derive(Clone)]
 pub struct Pool {
-    ctxt: &'static Context,
+    ctxt: Context,
     handle: DpiPool,
 }
 
 impl Pool {
     fn handle(&self) -> *mut dpiPool {
         self.handle.raw()
+    }
+
+    fn ctxt(&self) -> &Context {
+        &self.ctxt
     }
 
     /// Gets a connection from the pool with default parameters.
@@ -727,10 +731,10 @@ impl Pool {
     pub fn get_with_options(&self, options: &PoolOptions) -> Result<Connection> {
         let username = to_odpi_str(&options.username);
         let password = to_odpi_str(&options.password);
-        let mut conn_params = options.to_dpi_conn_create_params(self.ctxt);
+        let mut conn_params = options.to_dpi_conn_create_params(self.ctxt());
         let mut handle = ptr::null_mut();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_acquireConnection(
                 self.handle(),
                 username.ptr,
@@ -741,12 +745,19 @@ impl Pool {
                 &mut handle
             )
         );
-        Ok(Connection::from_dpi_handle(self.ctxt, handle, &conn_params))
+        Ok(Connection::from_dpi_handle(
+            self.ctxt().clone(),
+            handle,
+            &conn_params,
+        ))
     }
 
     /// Closes the pool and makes it unusable for further activity.
     pub fn close(&self, mode: &CloseMode) -> Result<()> {
-        chkerr!(self.ctxt, dpiPool_close(self.handle(), mode.to_dpi_value()));
+        chkerr!(
+            self.ctxt(),
+            dpiPool_close(self.handle(), mode.to_dpi_value())
+        );
         Ok(())
     }
 
@@ -775,7 +786,7 @@ impl Pool {
     /// ```
     pub fn busy_count(&self) -> Result<u32> {
         let mut count = 0;
-        chkerr!(self.ctxt, dpiPool_getBusyCount(self.handle(), &mut count));
+        chkerr!(self.ctxt(), dpiPool_getBusyCount(self.handle(), &mut count));
         Ok(count)
     }
 
@@ -784,14 +795,14 @@ impl Pool {
     /// See also [`PoolBuilder::get_mode`] and [`Pool::set_get_mode`].
     pub fn get_mode(&self) -> Result<GetMode> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiPool_getGetMode(self.handle(), &mut val));
+        chkerr!(self.ctxt(), dpiPool_getGetMode(self.handle(), &mut val));
         match val as u32 {
             DPI_MODE_POOL_GET_WAIT => Ok(GetMode::Wait),
             DPI_MODE_POOL_GET_NOWAIT => Ok(GetMode::NoWait),
             DPI_MODE_POOL_GET_FORCEGET => Ok(GetMode::ForceGet),
             DPI_MODE_POOL_GET_TIMEDWAIT => {
                 let mut val = 0;
-                chkerr!(self.ctxt, dpiPool_getWaitTimeout(self.handle(), &mut val));
+                chkerr!(self.ctxt(), dpiPool_getWaitTimeout(self.handle(), &mut val));
                 Ok(GetMode::TimedWait(Duration::from_millis(val.into())))
             }
             _ => Err(Error::InternalError(format!(
@@ -807,9 +818,9 @@ impl Pool {
     pub fn set_get_mode(&mut self, mode: &GetMode) -> Result<()> {
         let get_mode = mode.to_dpi_value();
         let wait_timeout = mode.to_wait_timeout()?;
-        chkerr!(self.ctxt, dpiPool_setGetMode(self.handle(), get_mode));
+        chkerr!(self.ctxt(), dpiPool_setGetMode(self.handle(), get_mode));
         if let Some(msecs) = wait_timeout {
-            chkerr!(self.ctxt, dpiPool_setWaitTimeout(self.handle(), msecs));
+            chkerr!(self.ctxt(), dpiPool_setWaitTimeout(self.handle(), msecs));
         }
         Ok(())
     }
@@ -820,7 +831,7 @@ impl Pool {
     pub fn max_lifetime_connection(&self) -> Result<Duration> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_getMaxLifetimeSession(self.handle(), &mut val)
         );
         Ok(Duration::from_secs(val.into()))
@@ -832,7 +843,7 @@ impl Pool {
     pub fn set_max_lifetime_connection(&mut self, dur: Duration) -> Result<()> {
         let val = U32Seconds::try_from(dur, "max lifetime connection")?;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_setMaxLifetimeSession(self.handle(), val.0)
         );
         Ok(())
@@ -845,7 +856,7 @@ impl Pool {
     pub fn max_connections_per_shard(&self) -> Result<u32> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_getMaxSessionsPerShard(self.handle(), &mut val)
         );
         Ok(val)
@@ -856,7 +867,7 @@ impl Pool {
     /// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::max_connections_per_shard`].
     pub fn set_max_connections_per_shard(&mut self, max_connections: u32) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_setMaxSessionsPerShard(self.handle(), max_connections)
         );
         Ok(())
@@ -865,7 +876,7 @@ impl Pool {
     /// Returns the number of connections in the pool that are open.
     pub fn open_count(&self) -> Result<u32> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiPool_getOpenCount(self.handle(), &mut val));
+        chkerr!(self.ctxt(), dpiPool_getOpenCount(self.handle(), &mut val));
         Ok(val)
     }
 
@@ -876,7 +887,10 @@ impl Pool {
     /// See also [`PoolBuilder::ping_interval`] and [`Pool::set_ping_interval`].
     pub fn ping_interval(&self) -> Result<Option<Duration>> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiPool_getPingInterval(self.handle(), &mut val));
+        chkerr!(
+            self.ctxt(),
+            dpiPool_getPingInterval(self.handle(), &mut val)
+        );
         Ok(I32Seconds(val).into())
     }
 
@@ -888,7 +902,7 @@ impl Pool {
     /// See also [`PoolBuilder::ping_interval`] and [`Pool::ping_interval`].
     pub fn set_ping_interval(&mut self, interval: Option<Duration>) -> Result<()> {
         let val = I32Seconds::try_from(interval, "ping interval")?;
-        chkerr!(self.ctxt, dpiPool_setPingInterval(self.handle(), val.0));
+        chkerr!(self.ctxt(), dpiPool_setPingInterval(self.handle(), val.0));
         Ok(())
     }
 
@@ -906,7 +920,7 @@ impl Pool {
         connection_increment: u32,
     ) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_reconfigure(
                 self.handle(),
                 min_connections,
@@ -934,7 +948,7 @@ impl Pool {
     pub fn soda_metadata_cache(&self) -> Result<bool> {
         let mut val = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_getSodaMetadataCache(self.handle(), &mut val)
         );
         Ok(val != 0)
@@ -950,7 +964,7 @@ impl Pool {
     pub fn set_soda_metadata_cache(&mut self, enabled: bool) -> Result<()> {
         let enabled = i32::from(enabled);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_setSodaMetadataCache(self.handle(), enabled)
         );
         Ok(())
@@ -962,7 +976,10 @@ impl Pool {
     /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].
     pub fn stmt_cache_size(&self) -> Result<u32> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiPool_getStmtCacheSize(self.handle(), &mut val));
+        chkerr!(
+            self.ctxt(),
+            dpiPool_getStmtCacheSize(self.handle(), &mut val)
+        );
         Ok(val)
     }
 
@@ -971,7 +988,7 @@ impl Pool {
     /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::stmt_cache_size`].
     pub fn set_stmt_cache_size(&mut self, cache_size: u32) -> Result<()> {
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiPool_setStmtCacheSize(self.handle(), cache_size)
         );
         Ok(())
@@ -984,7 +1001,7 @@ impl Pool {
     /// See also [`PoolBuilder::timeout`] and [`Pool::set_timeout`].
     pub fn timeout(&self) -> Result<Duration> {
         let mut val = 0;
-        chkerr!(self.ctxt, dpiPool_getTimeout(self.handle(), &mut val));
+        chkerr!(self.ctxt(), dpiPool_getTimeout(self.handle(), &mut val));
         Ok(Duration::from_secs(val.into()))
     }
 
@@ -995,7 +1012,7 @@ impl Pool {
     /// See also [`PoolBuilder::timeout`] and [`Pool::timeout`].
     pub fn set_timeout(&mut self, timeout: Duration) -> Result<()> {
         let val = U32Seconds::try_from(timeout, "timeout")?;
-        chkerr!(self.ctxt, dpiPool_setTimeout(self.handle(), val.0));
+        chkerr!(self.ctxt(), dpiPool_setTimeout(self.handle(), val.0));
         Ok(())
     }
 }

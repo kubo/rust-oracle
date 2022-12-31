@@ -418,8 +418,8 @@ impl Stmt {
         }
     }
 
-    pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt
+    pub(crate) fn ctxt(&self) -> &Context {
+        self.conn.ctxt()
     }
 
     pub(crate) fn conn(&self) -> &Conn {
@@ -625,8 +625,8 @@ impl<'conn> Statement<'conn> {
         self.stmt.close()
     }
 
-    pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn().ctxt
+    pub(crate) fn ctxt(&self) -> &Context {
+        self.conn().ctxt()
     }
 
     pub(crate) fn conn(&self) -> &Conn {

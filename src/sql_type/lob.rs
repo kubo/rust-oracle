@@ -52,23 +52,27 @@ where
 }
 
 pub struct LobLocator {
-    ctxt: &'static Context,
+    ctxt: Context,
     pub(crate) handle: *mut dpiLob,
     pos: u64,
 }
 
 impl LobLocator {
-    fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<LobLocator> {
+    fn from_raw(ctxt: &Context, handle: *mut dpiLob) -> Result<LobLocator> {
         chkerr!(ctxt, dpiLob_addRef(handle));
         Ok(LobLocator {
-            ctxt,
+            ctxt: ctxt.clone(),
             handle,
             pos: 0,
         })
     }
 
+    fn ctxt(&self) -> &Context {
+        &self.ctxt
+    }
+
     fn close(&mut self) -> Result<()> {
-        chkerr!(self.ctxt, dpiLob_close(self.handle));
+        chkerr!(self.ctxt(), dpiLob_close(self.handle));
         Ok(())
     }
 
@@ -84,7 +88,7 @@ impl LobLocator {
     ) -> Result<usize> {
         let mut len = len as u64;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_readBytes(
                 self.handle,
                 self.pos + 1,
@@ -185,7 +189,7 @@ impl LobLocator {
     fn write_bytes(&mut self, buf: &[u8]) -> Result<usize> {
         let len = buf.len() as u64;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_writeBytes(
                 self.handle,
                 self.pos + 1,
@@ -213,12 +217,12 @@ impl LobLocator {
 
     fn size(&self) -> Result<u64> {
         let mut size = 0;
-        chkerr!(self.ctxt, dpiLob_getSize(self.handle, &mut size));
+        chkerr!(self.ctxt(), dpiLob_getSize(self.handle, &mut size));
         Ok(size)
     }
 
     fn truncate(&mut self, new_size: u64) -> Result<()> {
-        chkerr!(self.ctxt, dpiLob_trim(self.handle, new_size));
+        chkerr!(self.ctxt(), dpiLob_trim(self.handle, new_size));
         if self.pos > new_size {
             self.pos = new_size;
         }
@@ -227,24 +231,24 @@ impl LobLocator {
 
     fn chunk_size(&self) -> Result<usize> {
         let mut size = 0;
-        chkerr!(self.ctxt, dpiLob_getChunkSize(self.handle, &mut size));
+        chkerr!(self.ctxt(), dpiLob_getChunkSize(self.handle, &mut size));
         Ok(size.try_into()?)
     }
 
     fn open_resource(&mut self) -> Result<()> {
-        chkerr!(self.ctxt, dpiLob_openResource(self.handle));
+        chkerr!(self.ctxt(), dpiLob_openResource(self.handle));
         Ok(())
     }
 
     fn close_resource(&mut self) -> Result<()> {
-        chkerr!(self.ctxt, dpiLob_closeResource(self.handle));
+        chkerr!(self.ctxt(), dpiLob_closeResource(self.handle));
         Ok(())
     }
 
     fn is_resource_open(&self) -> Result<bool> {
         let mut is_open = 0;
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_getIsResourceOpen(self.handle, &mut is_open)
         );
         Ok(is_open != 0)
@@ -282,7 +286,7 @@ impl LobLocator {
         let mut dir_alias = new_odpi_str();
         let mut file_name = new_odpi_str();
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_getDirectoryAndFileName(
                 self.handle,
                 &mut dir_alias.ptr,
@@ -298,7 +302,7 @@ impl LobLocator {
         let dir_alias = to_odpi_str(directory_alias);
         let file_name = to_odpi_str(file_name);
         chkerr!(
-            self.ctxt,
+            self.ctxt(),
             dpiLob_setDirectoryAndFileName(
                 self.handle,
                 dir_alias.ptr,
@@ -312,7 +316,7 @@ impl LobLocator {
 
     fn file_exists(&self) -> Result<bool> {
         let mut exists = 0;
-        chkerr!(self.ctxt, dpiLob_getFileExists(self.handle, &mut exists));
+        chkerr!(self.ctxt(), dpiLob_getFileExists(self.handle, &mut exists));
         Ok(exists != 0)
     }
 }
@@ -320,7 +324,10 @@ impl LobLocator {
 impl Clone for LobLocator {
     fn clone(&self) -> Self {
         unsafe { dpiLob_addRef(self.handle) };
-        LobLocator { ..*self }
+        LobLocator {
+            ctxt: self.ctxt.clone(),
+            ..*self
+        }
     }
 }
 
@@ -413,7 +420,7 @@ pub struct Bfile {
 
 #[allow(dead_code)] // TODO: remove this
 impl Bfile {
-    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Bfile> {
+    pub(crate) fn from_raw(ctxt: &Context, handle: *mut dpiLob) -> Result<Bfile> {
         Ok(Bfile {
             lob: LobLocator::from_raw(ctxt, handle)?,
         })
@@ -501,7 +508,7 @@ pub struct Blob {
 }
 
 impl Blob {
-    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Blob> {
+    pub(crate) fn from_raw(ctxt: &Context, handle: *mut dpiLob) -> Result<Blob> {
         Ok(Blob {
             lob: LobLocator::from_raw(ctxt, handle)?,
         })
@@ -547,7 +554,7 @@ pub struct Clob {
 }
 
 impl Clob {
-    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Clob> {
+    pub(crate) fn from_raw(ctxt: &Context, handle: *mut dpiLob) -> Result<Clob> {
         Ok(Clob {
             lob: LobLocator::from_raw(ctxt, handle)?,
         })
@@ -593,7 +600,7 @@ pub struct Nclob {
 }
 
 impl Nclob {
-    pub(crate) fn from_raw(ctxt: &'static Context, handle: *mut dpiLob) -> Result<Nclob> {
+    pub(crate) fn from_raw(ctxt: &Context, handle: *mut dpiLob) -> Result<Nclob> {
         Ok(Nclob {
             lob: LobLocator::from_raw(ctxt, handle)?,
         })

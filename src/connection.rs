@@ -203,7 +203,7 @@ impl CommonCreateParamsBuilder {
         self.stmt_cache_size = Some(size);
     }
 
-    pub fn build(&self, ctxt: &'static Context) -> dpiCommonCreateParams {
+    pub fn build(&self, ctxt: &Context) -> dpiCommonCreateParams {
         let mut common_params = ctxt.common_create_params();
         if self.events {
             common_params.createMode |= DPI_MODE_CREATE_EVENTS;
@@ -464,8 +464,8 @@ impl Connector {
     /// Connect an Oracle server using specified parameters
     pub fn connect(&self) -> Result<Connection> {
         let ctxt = Context::get()?;
-        let common_params = self.common_params.build(ctxt);
-        let (conn_params, _app_contexts) = self.to_dpi_conn_create_params(ctxt);
+        let common_params = self.common_params.build(&ctxt);
+        let (conn_params, _app_contexts) = self.to_dpi_conn_create_params(&ctxt);
         Connection::connect_internal(
             ctxt,
             &self.username,
@@ -478,7 +478,7 @@ impl Connector {
 
     fn to_dpi_conn_create_params(
         &self,
-        ctxt: &'static Context,
+        ctxt: &Context,
     ) -> (dpiConnCreateParams, Vec<dpiAppContext>) {
         let mut conn_params = ctxt.conn_create_params();
 
@@ -525,7 +525,7 @@ impl Connector {
 pub(crate) type Conn = Arc<InnerConn>;
 
 pub(crate) struct InnerConn {
-    pub(crate) ctxt: &'static Context,
+    ctxt: Context,
     pub(crate) handle: DpiConn,
     pub(crate) autocommit: AtomicBool,
     pub(crate) objtype_cache: Mutex<HashMap<String, Arc<ObjectTypeInternal>>>,
@@ -536,7 +536,7 @@ pub(crate) struct InnerConn {
 
 impl InnerConn {
     pub fn new(
-        ctxt: &'static Context,
+        ctxt: Context,
         handle: *mut dpiConn,
         conn_params: &dpiConnCreateParams,
     ) -> InnerConn {
@@ -549,6 +549,10 @@ impl InnerConn {
             tag_found: conn_params.outTagFound != 0,
             is_new_connection: conn_params.outNewSession != 0,
         }
+    }
+
+    pub(crate) fn ctxt(&self) -> &Context {
+        &self.ctxt
     }
 
     pub fn autocommit(&self) -> bool {
@@ -618,18 +622,20 @@ impl Connection {
         C: AsRef<str>,
     {
         let ctxt = Context::get()?;
+        let common_params = ctxt.common_create_params();
+        let conn_params = ctxt.conn_create_params();
         Connection::connect_internal(
             ctxt,
             username.as_ref(),
             password.as_ref(),
             connect_string.as_ref(),
-            ctxt.common_create_params(),
-            ctxt.conn_create_params(),
+            common_params,
+            conn_params,
         )
     }
 
     fn connect_internal(
-        ctxt: &'static Context,
+        ctxt: Context,
         username: &str,
         password: &str,
         connect_string: &str,
@@ -641,7 +647,7 @@ impl Connection {
         let connect_string = to_odpi_str(connect_string);
         let mut handle = ptr::null_mut();
         chkerr!(
-            ctxt,
+            &ctxt,
             dpiConn_create(
                 ctxt.context,
                 username.ptr,
@@ -664,7 +670,7 @@ impl Connection {
     }
 
     pub(crate) fn from_dpi_handle(
-        ctxt: &'static Context,
+        ctxt: Context,
         handle: *mut dpiConn,
         params: &dpiConnCreateParams,
     ) -> Connection {
@@ -673,8 +679,8 @@ impl Connection {
         }
     }
 
-    pub(crate) fn ctxt(&self) -> &'static Context {
-        self.conn.ctxt
+    pub(crate) fn ctxt(&self) -> &Context {
+        &self.conn.ctxt
     }
 
     pub(crate) fn handle(&self) -> *mut dpiConn {

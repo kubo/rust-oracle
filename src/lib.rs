@@ -392,6 +392,7 @@ define_dpi_data_with_refcount!(Queue);
 // Context
 //
 
+#[derive(Clone)]
 struct Context {
     pub context: *mut dpiContext,
 }
@@ -432,9 +433,9 @@ lazy_static! {
 }
 
 impl Context {
-    pub fn get() -> Result<&'static Context> {
+    pub fn get() -> Result<Context> {
         match *DPI_CONTEXT {
-            ContextResult::Ok(ref ctxt) => Ok(ctxt),
+            ContextResult::Ok(ref ctxt) => Ok(ctxt.clone()),
             ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
         }
     }

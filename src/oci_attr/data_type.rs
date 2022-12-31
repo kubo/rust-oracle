@@ -38,7 +38,7 @@ enum Handle {
 
 /// Attribute value used in [`DataType`]. You have no need to use this except implementing [`DataType`] for your type.
 pub struct AttrValue {
-    ctxt: &'static Context,
+    ctxt: Context,
     handle: Handle,
     attr_num: u32,
 }
@@ -46,7 +46,7 @@ pub struct AttrValue {
 impl AttrValue {
     pub(crate) fn from_conn(conn: &Connection, handle_type: u32, attr_num: u32) -> AttrValue {
         AttrValue {
-            ctxt: conn.ctxt(),
+            ctxt: conn.ctxt().clone(),
             handle: Handle::Conn(conn.handle(), handle_type),
             attr_num,
         }
@@ -54,23 +54,27 @@ impl AttrValue {
 
     pub(crate) fn from_stmt(stmt: &Statement, attr_num: u32) -> AttrValue {
         AttrValue {
-            ctxt: stmt.ctxt(),
+            ctxt: stmt.ctxt().clone(),
             handle: Handle::Stmt(stmt.handle()),
             attr_num,
         }
+    }
+
+    fn ctxt(&self) -> &Context {
+        &self.ctxt
     }
 
     fn set_ptr_len(&mut self, ptr: *mut c_void, len: u32) -> Result<()> {
         match &self.handle {
             Handle::Conn(handle, handle_type) => {
                 chkerr!(
-                    self.ctxt,
+                    self.ctxt(),
                     dpiConn_setOciAttr(*handle, *handle_type, self.attr_num, ptr, len)
                 );
             }
             Handle::Stmt(handle) => {
                 chkerr!(
-                    self.ctxt,
+                    self.ctxt(),
                     dpiStmt_setOciAttr(*handle, self.attr_num, ptr, len)
                 );
             }
@@ -134,13 +138,13 @@ impl AttrValue {
         match &self.handle {
             Handle::Conn(handle, handle_type) => {
                 chkerr!(
-                    self.ctxt,
+                    self.ctxt(),
                     dpiConn_getOciAttr(*handle, *handle_type, self.attr_num, &mut buf, &mut len)
                 );
             }
             Handle::Stmt(handle) => {
                 chkerr!(
-                    self.ctxt,
+                    self.ctxt(),
                     dpiStmt_getOciAttr(*handle, self.attr_num, &mut buf, &mut len)
                 );
             }
