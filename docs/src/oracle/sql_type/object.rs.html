@@ -831,6 +831,146 @@
 <span id="831">831</span>
 <span id="832">832</span>
 <span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -856,6 +996,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
+<span class="kw">use </span><span class="kw">crate</span>::sql_type::collection::{Indices, Iter, Values};
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::FromSql;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
@@ -940,6 +1081,145 @@
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_getSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
         <span class="prelude-val">Ok</span>(size)
+    }
+
+    <span class="doccomment">/// Returns an iterator visiting all values with indices in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates VARRAY type and gets the type information
+    /// conn.execute(&quot;create or replace type string_varray is varray(20) of varchar2(60)&quot;, &amp;[])?;
+    /// let objtype = conn.object_type(&quot;STRING_VARRAY&quot;)?;
+    ///
+    /// // Creates a VARRAY instance and appends three elements.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&amp;&quot;First Element&quot;)?;
+    /// coll.push(&amp;&quot;Second Element&quot;)?;
+    /// coll.push(&amp;&quot;Third Element&quot;)?;
+    ///
+    /// let vec = coll
+    ///     .iter::&lt;String&gt;() // iterator returning Result&lt;(i32, String)&gt;
+    ///     .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
+    /// assert_eq!(vec[0], (0, &quot;First Element&quot;.to_string()));
+    /// assert_eq!(vec[1], (1, &quot;Second Element&quot;.to_string()));
+    /// assert_eq!(vec[2], (2, &quot;Third Element&quot;.to_string()));
+    ///
+    /// // Creates Table type and gets the type information
+    /// conn.execute(&quot;create or replace type string_table is table of varchar2(60)&quot;, &amp;[])?;
+    /// let objtype = conn.object_type(&quot;STRING_TABLE&quot;)?;
+    ///
+    /// // Creates a TABLE instance, appends four elements and makes a hole.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&amp;&quot;First Element&quot;)?;
+    /// coll.push(&amp;&quot;Second Element&quot;)?;
+    /// coll.push(&amp;&quot;Third Element&quot;)?;
+    /// coll.push(&amp;&quot;Fourth Element&quot;)?;
+    /// coll.remove(2)?; // Remove &quot;Third Element&quot;
+    ///
+    /// // iterator returning Result&lt;(i32, String)&gt;
+    /// let mut iter = coll.iter::&lt;String&gt;();
+    /// assert_eq!(iter.next().unwrap()?, (0, &quot;First Element&quot;.to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (1, &quot;Second Element&quot;.to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (3, &quot;Fourth Element&quot;.to_string()));
+    /// assert!(iter.next().is_none());
+    /// # // check fused
+    /// # assert!(iter.next().is_none());
+    /// # // backward
+    /// # assert_eq!(iter.next_back().unwrap()?, (3, &quot;Fourth Element&quot;.to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (1, &quot;Second Element&quot;.to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (0, &quot;First Element&quot;.to_string()));
+    /// # assert!(iter.next_back().is_none());
+    /// # // check fused
+    /// # assert!(iter.next_back().is_none());
+    ///
+    /// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>iter&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;T&gt;
+    <span class="kw">where
+        </span>T: FromSql,
+    {
+        Iter::new(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator visiting all indices in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates Table type and gets the type information
+    /// conn.execute(&quot;create or replace type string_table is table of varchar2(60)&quot;, &amp;[])?;
+    /// let objtype = conn.object_type(&quot;STRING_TABLE&quot;)?;
+    ///
+    /// // Creates a TABLE instance, appends four elements and makes a hole.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&amp;&quot;First Element&quot;)?; // index 0
+    /// coll.push(&amp;&quot;Second Element&quot;)?; // index 1
+    /// coll.push(&amp;&quot;Third Element&quot;)?; // index 2
+    /// coll.push(&amp;&quot;Fourth Element&quot;)?; // index 3
+    /// coll.remove(2)?; // remote index 2
+    /// // coll&#39;s indices are 0, 1 and 3.
+    ///
+    /// let mut indices = coll.indices();
+    /// assert_eq!(indices.next().unwrap().unwrap(), 0);
+    /// assert_eq!(indices.next().unwrap().unwrap(), 1);
+    /// assert_eq!(indices.next().unwrap().unwrap(), 3);
+    /// assert!(indices.next().is_none());
+    /// # // check fused or not
+    /// # assert!(indices.next().is_none());
+    /// # // backward
+    /// # assert_eq!(indices.next_back().unwrap()?, 3);
+    /// # assert_eq!(indices.next_back().unwrap()?, 1);
+    /// # assert_eq!(indices.next_back().unwrap()?, 0);
+    /// # assert!(indices.next_back().is_none());
+    /// # // check fused or not
+    /// # assert!(indices.next_back().is_none());
+    /// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>indices(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Indices {
+        Indices::new(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator visiting all values in the collection.
+    ///
+    /// ```
+    /// # use oracle::{Error, Result};
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// // Creates VARRAY type and gets the type information
+    /// conn.execute(&quot;create or replace type string_varray3 is varray(20) of varchar2(60)&quot;, &amp;[])?;
+    /// let objtype = conn.object_type(&quot;STRING_VARRAY3&quot;)?;
+    ///
+    /// // Creates a VARRAY instance and appends three elements.
+    /// let mut coll = objtype.new_collection()?;
+    /// coll.push(&amp;&quot;First Element&quot;);
+    /// coll.push(&amp;&quot;Second Element&quot;);
+    /// coll.push(&amp;&quot;Third Element&quot;);
+    ///
+    /// let mut iter = coll.values::&lt;String&gt;();
+    /// assert_eq!(iter.next().unwrap()?, &quot;First Element&quot;.to_string());
+    /// assert_eq!(iter.next().unwrap()?, &quot;Second Element&quot;.to_string());
+    /// assert_eq!(iter.next().unwrap()?, &quot;Third Element&quot;.to_string());
+    /// assert!(iter.next().is_none());
+    /// # // check fused
+    /// # assert!(iter.next().is_none());
+    /// # // backward
+    /// # assert_eq!(iter.next_back().unwrap()?, &quot;Third Element&quot;.to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, &quot;Second Element&quot;.to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, &quot;First Element&quot;.to_string());
+    /// # assert!(iter.next_back().is_none());
+    /// # // check fused
+    /// # assert!(iter.next_back().is_none());
+    ///
+    /// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(())
+    /// ```
+    </span><span class="kw">pub fn </span>values&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Values&lt;T&gt;
+    <span class="kw">where
+        </span>T: FromSql,
+    {
+        Values::new(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns the first index.
