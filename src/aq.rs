@@ -728,7 +728,7 @@ impl DeqOptions {
         let ptr = if val.is_empty() {
             ptr::null()
         } else {
-            val.as_ptr() as *const i8
+            val.as_ptr() as *const c_char
         };
         let len = val.len() as u32;
         chkerr!(self.ctxt, dpiDeqOptions_setMsgId(self.handle, ptr, len));
@@ -1123,7 +1123,7 @@ where
         let ptr = if val.is_empty() {
             ptr::null()
         } else {
-            val.as_ptr() as *const i8
+            val.as_ptr() as *const c_char
         };
         let len = val.len() as u32;
         chkerr!(
