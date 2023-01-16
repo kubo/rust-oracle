@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2019 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2023 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -268,8 +268,6 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
 */
 
-use lazy_static::lazy_static;
-use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
 use std::result;
@@ -285,6 +283,7 @@ mod batch;
 mod binding;
 pub mod conn;
 mod connection;
+mod context;
 mod error;
 pub mod io;
 pub mod oci_attr;
@@ -307,6 +306,7 @@ pub use crate::connection::Connector;
 pub use crate::connection::Privilege;
 pub use crate::connection::ShutdownMode;
 pub use crate::connection::StartupMode;
+use crate::context::Context;
 pub use crate::error::DbError;
 pub use crate::error::Error;
 pub use crate::error::ParseOracleTypeError;
@@ -388,87 +388,8 @@ define_dpi_data_with_refcount!(ObjectAttr);
 // define DpiQueue wrapping *mut dpiQueue.
 define_dpi_data_with_refcount!(Queue);
 
-//
-// Context
-//
-
-#[derive(Clone)]
-struct Context {
-    pub context: *mut dpiContext,
-}
-
-unsafe impl Sync for Context {}
-unsafe impl Send for Context {}
-
-enum ContextResult {
-    Ok(Context),
-    Err(dpiErrorInfo),
-}
-
-unsafe impl Sync for ContextResult {}
-unsafe impl Send for ContextResult {}
-
 trait AssertSend: Send {}
 trait AssertSync: Sync {}
-
-lazy_static! {
-    static ref DPI_CONTEXT: ContextResult = {
-        let mut ctxt = ptr::null_mut();
-        let mut err = MaybeUninit::uninit();
-        if unsafe {
-            dpiContext_createWithParams(
-                DPI_MAJOR_VERSION,
-                DPI_MINOR_VERSION,
-                ptr::null_mut(),
-                &mut ctxt,
-                err.as_mut_ptr(),
-            )
-        } == DPI_SUCCESS as i32
-        {
-            ContextResult::Ok(Context { context: ctxt })
-        } else {
-            ContextResult::Err(unsafe { err.assume_init() })
-        }
-    };
-}
-
-impl Context {
-    pub fn get() -> Result<Context> {
-        match *DPI_CONTEXT {
-            ContextResult::Ok(ref ctxt) => Ok(ctxt.clone()),
-            ContextResult::Err(ref err) => Err(error::error_from_dpi_error(err)),
-        }
-    }
-
-    pub fn common_create_params(&self) -> dpiCommonCreateParams {
-        let mut params = MaybeUninit::uninit();
-        unsafe {
-            dpiContext_initCommonCreateParams(self.context, params.as_mut_ptr());
-            let mut params = params.assume_init();
-            let driver_name: &'static str = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
-            params.createMode |= DPI_MODE_CREATE_THREADED;
-            params.driverName = driver_name.as_ptr() as *const c_char;
-            params.driverNameLength = driver_name.len() as u32;
-            params
-        }
-    }
-
-    pub fn conn_create_params(&self) -> dpiConnCreateParams {
-        let mut params = MaybeUninit::uninit();
-        unsafe {
-            dpiContext_initConnCreateParams(self.context, params.as_mut_ptr());
-            params.assume_init()
-        }
-    }
-
-    pub fn pool_create_params(&self) -> dpiPoolCreateParams {
-        let mut params = MaybeUninit::uninit();
-        unsafe {
-            dpiContext_initPoolCreateParams(self.context, params.as_mut_ptr());
-            params.assume_init()
-        }
-    }
-}
 
 //
 // Utility struct to convert Rust strings from/to ODPI-C strings
