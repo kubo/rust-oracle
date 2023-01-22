@@ -1162,6 +1162,14 @@
 <span id="1162">1162</span>
 <span id="1163">1163</span>
 <span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)
 //!
 //! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.
@@ -1308,7 +1316,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ptr = ptr::null();
         <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_getPayload(props.handle.raw, ptr::null_mut(), <span class="kw-2">&amp;mut </span>ptr, <span class="kw-2">&amp;mut </span>len)
         );
         <span class="prelude-val">Ok</span>(to_rust_slice(ptr, len).to_vec())
@@ -1316,7 +1324,7 @@
 
     <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_setPayloadBytes(
                 props.handle.raw,
                 <span class="self">self</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
@@ -1339,7 +1347,7 @@
         <span class="kw">let </span>objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>obj_handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_getPayload(
                 props.handle.raw,
                 <span class="kw-2">&amp;mut </span>obj_handle,
@@ -1352,7 +1360,7 @@
 
     <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            props.conn.ctxt,
+            props.ctxt(),
             dpiMsgProps_setPayloadObject(props.handle.raw, <span class="self">self</span>.handle)
         );
         props.payload_type = <span class="prelude-val">Some</span>(<span class="self">self</span>.object_type().clone());
@@ -1383,8 +1391,8 @@
         <span class="self">self</span>.handle.raw
     }
 
-    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context {
-        <span class="self">self</span>.conn.ctxt
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="self">self</span>.conn.ctxt()
     }
 
     <span class="doccomment">/// Creates a new queue which may be used to enqueue and dequeue messages
@@ -1514,7 +1522,7 @@
                 <span class="self">self</span>.ctxt(),
                 dpiQueue_getDeqOptions(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle)
             );
-            <span class="self">self</span>.deq_options = <span class="prelude-val">Some</span>(DeqOptions::new(<span class="self">self</span>.ctxt(), handle));
+            <span class="self">self</span>.deq_options = <span class="prelude-val">Some</span>(DeqOptions::new(<span class="self">self</span>.ctxt().clone(), handle));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.deq_options.as_mut().unwrap())
     }
@@ -1528,7 +1536,7 @@
                 <span class="self">self</span>.ctxt(),
                 dpiQueue_getEnqOptions(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle)
             );
-            <span class="self">self</span>.enq_options = <span class="prelude-val">Some</span>(EnqOptions::new(<span class="self">self</span>.ctxt(), handle));
+            <span class="self">self</span>.enq_options = <span class="prelude-val">Some</span>(EnqOptions::new(<span class="self">self</span>.ctxt().clone(), handle));
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.enq_options.as_mut().unwrap())
     }
@@ -1723,13 +1731,17 @@
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
 </span><span class="kw">pub struct </span>DeqOptions {
-    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    ctxt: Context,
     handle: <span class="kw-2">*mut </span>dpiDeqOptions,
 }
 
 <span class="kw">impl </span>DeqOptions {
-    <span class="kw">fn </span>new(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiDeqOptions) -&gt; DeqOptions {
+    <span class="kw">fn </span>new(ctxt: Context, handle: <span class="kw-2">*mut </span>dpiDeqOptions) -&gt; DeqOptions {
         DeqOptions { ctxt, handle }
+    }
+
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ctxt
     }
 
     <span class="doccomment">/// Returns the condition that must be satisfied in order for a message to be
@@ -1739,7 +1751,7 @@
     </span><span class="kw">pub fn </span>condition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getCondition(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
         <span class="prelude-val">Ok</span>(s.to_string())
@@ -1751,7 +1763,7 @@
     </span><span class="kw">pub fn </span>consumer_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getConsumerName(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
         <span class="prelude-val">Ok</span>(s.to_string())
@@ -1763,7 +1775,7 @@
     </span><span class="kw">pub fn </span>correlation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getCorrelation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
         <span class="prelude-val">Ok</span>(s.to_string())
@@ -1772,7 +1784,7 @@
     <span class="doccomment">/// Returns the mode that is to be used when dequeuing messages.
     </span><span class="kw">pub fn </span>mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DeqMode&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_getMode(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiDeqOptions_getMode(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
         DeqMode::from_dpi_value(val)
     }
 
@@ -1780,7 +1792,7 @@
     </span><span class="kw">pub fn </span>message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getMsgId(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
         );
         <span class="prelude-val">Ok</span>(msg.to_vec())
@@ -1790,7 +1802,7 @@
     </span><span class="kw">pub fn </span>navigation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DeqNavigation&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getNavigation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
         DeqNavigation::from_dpi_value(val)
@@ -1802,7 +1814,7 @@
     </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
         <span class="prelude-val">Ok</span>(s.to_string())
@@ -1813,7 +1825,7 @@
     </span><span class="kw">pub fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Visibility&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getVisibility(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
         Visibility::from_dpi_value(val)
@@ -1823,7 +1835,7 @@
     /// criteria.
     </span><span class="kw">pub fn </span>wait(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_getWait(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiDeqOptions_getWait(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val));
         <span class="prelude-val">Ok</span>(Duration::from_secs(val <span class="kw">as </span>u64))
     }
 
@@ -1837,7 +1849,7 @@
     </span><span class="kw">pub fn </span>set_condition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setCondition(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1848,7 +1860,7 @@
     </span><span class="kw">pub fn </span>set_consumer_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setConsumerName(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1863,7 +1875,7 @@
     </span><span class="kw">pub fn </span>set_correlation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setCorrelation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1872,7 +1884,7 @@
     <span class="doccomment">/// Sets the message delivery mode that is to be used when dequeuing messages.
     </span><span class="kw">pub fn </span>set_delivery_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>MessageDeliveryMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setDeliveryMode(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -1881,7 +1893,7 @@
     <span class="doccomment">/// Sets the mode that is to be used when dequeuing messages.
     </span><span class="kw">pub fn </span>set_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>DeqMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setMode(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -1892,17 +1904,17 @@
         <span class="kw">let </span>ptr = <span class="kw">if </span>val.is_empty() {
             ptr::null()
         } <span class="kw">else </span>{
-            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>i8
+            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char
         };
         <span class="kw">let </span>len = val.len() <span class="kw">as </span>u32;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_setMsgId(<span class="self">self</span>.handle, ptr, len));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiDeqOptions_setMsgId(<span class="self">self</span>.handle, ptr, len));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets the position in the queue of the message that is to be dequeued.
     </span><span class="kw">pub fn </span>set_navigation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>DeqNavigation) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setNavigation(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -1916,7 +1928,7 @@
     </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1926,7 +1938,7 @@
     /// or constitutes a transaction on its own.
     </span><span class="kw">pub fn </span>set_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Visibility) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setVisibility(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -1941,7 +1953,7 @@
         } <span class="kw">else </span>{
             secs <span class="kw">as </span>u32
         };
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiDeqOptions_setWait(<span class="self">self</span>.handle, secs));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiDeqOptions_setWait(<span class="self">self</span>.handle, secs));
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -1956,13 +1968,17 @@
 ///
 /// **Warning:** The type is unstable. It may be changed incompatibly by minor version upgrades.
 </span><span class="kw">pub struct </span>EnqOptions {
-    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    ctxt: Context,
     handle: <span class="kw-2">*mut </span>dpiEnqOptions,
 }
 
 <span class="kw">impl </span>EnqOptions {
-    <span class="kw">fn </span>new(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiEnqOptions) -&gt; EnqOptions {
+    <span class="kw">fn </span>new(ctxt: Context, handle: <span class="kw-2">*mut </span>dpiEnqOptions) -&gt; EnqOptions {
         EnqOptions { ctxt, handle }
+    }
+
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ctxt
     }
 
     <span class="doccomment">/// Returns the transformation of the message to be enqueued.
@@ -1971,7 +1987,7 @@
     </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiEnqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
         );
         <span class="prelude-val">Ok</span>(s.to_string())
@@ -1982,7 +1998,7 @@
     </span><span class="kw">pub fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Visibility&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiEnqOptions_getVisibility(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>val)
         );
         Visibility::from_dpi_value(val)
@@ -1991,7 +2007,7 @@
     <span class="doccomment">/// Sets the message delivery mode that is to be used when enqueuing messages.
     </span><span class="kw">pub fn </span>set_delivery_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>MessageDeliveryMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiEnqOptions_setDeliveryMode(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -2005,7 +2021,7 @@
     </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = to_odpi_str(val);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiEnqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
         );
         <span class="prelude-val">Ok</span>(())
@@ -2015,7 +2031,7 @@
     /// or constitutes a transaction on its own.
     </span><span class="kw">pub fn </span>set_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Visibility) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiEnqOptions_setVisibility(<span class="self">self</span>.handle, val.to_dpi_value())
         );
         <span class="prelude-val">Ok</span>(())
@@ -2051,7 +2067,7 @@
     }
 
     <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
-        <span class="self">self</span>.conn.ctxt
+        <span class="self">self</span>.conn.ctxt()
     }
 
     <span class="doccomment">/// Creates a new message properties
@@ -2287,7 +2303,7 @@
         <span class="kw">let </span>ptr = <span class="kw">if </span>val.is_empty() {
             ptr::null()
         } <span class="kw">else </span>{
-            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>i8
+            val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char
         };
         <span class="kw">let </span>len = val.len() <span class="kw">as </span>u32;
         <span class="macro">chkerr!</span>(
@@ -2327,4 +2343,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

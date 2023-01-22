@@ -1548,6 +1548,11 @@
 <span id="1548">1548</span>
 <span id="1549">1549</span>
 <span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1968,8 +1973,8 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context {
-        <span class="self">self</span>.conn.ctxt
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="self">self</span>.conn.ctxt()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>conn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Conn {
@@ -2024,21 +2029,25 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub fn </span>next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
+    <span class="kw">fn </span>try_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>buffer_row_index = <span class="number">0</span>;
-        <span class="kw">if unsafe </span>{ dpiStmt_fetch(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>found, <span class="kw-2">&amp;mut </span>buffer_row_index) } == <span class="number">0 </span>{
-            <span class="kw">if </span>found != <span class="number">0 </span>{
-                <span class="self">self</span>.shared_buffer_row_index
-                    .store(buffer_row_index, Ordering::Relaxed);
-                <span class="comment">// if self.row.is_none(), dpiStmt_fetch() returns non-zero.
-                </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>.row.as_ref().unwrap()))
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt(),
+            dpiStmt_fetch(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>found, <span class="kw-2">&amp;mut </span>buffer_row_index)
+        );
+        <span class="prelude-val">Ok</span>(<span class="kw">if </span>found != <span class="number">0 </span>{
+            <span class="self">self</span>.shared_buffer_row_index
+                .store(buffer_row_index, Ordering::Relaxed);
+            <span class="comment">// if self.row.is_none(), dpiStmt_fetch() returns non-zero.
+            </span><span class="prelude-val">Some</span>(<span class="self">self</span>.row.as_ref().unwrap())
         } <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::error_from_context(<span class="self">self</span>.ctxt())))
-        }
+            <span class="prelude-val">None
+        </span>})
+    }
+
+    <span class="kw">pub fn </span>next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
+        <span class="self">self</span>.try_next().transpose()
     }
 
     <span class="kw">pub fn </span>row_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
@@ -2175,8 +2184,8 @@
         <span class="self">self</span>.stmt.close()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context {
-        <span class="self">self</span>.conn().ctxt
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="self">self</span>.conn().ctxt()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>conn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Conn {
@@ -2436,6 +2445,7 @@
             <span class="self">self</span>.ctxt(),
             dpiStmt_execute(<span class="self">self</span>.handle(), exec_mode, <span class="kw-2">&amp;mut </span>num_query_columns)
         );
+        <span class="self">self</span>.ctxt().set_warning();
         <span class="kw">if </span><span class="self">self</span>.is_ddl() {
             <span class="kw">let </span>fncode = <span class="self">self</span>.oci_attr::&lt;SqlFnCode&gt;()<span class="question-mark">?</span>;
             <span class="kw">match </span>fncode {
@@ -3099,4 +3109,4 @@
 </span><span class="attribute">#[cfg(doctest)]
 </span><span class="kw">struct </span>TestStmtWithoutLifetime;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

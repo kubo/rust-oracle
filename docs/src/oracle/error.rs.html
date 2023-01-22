@@ -368,6 +368,19 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -711,6 +724,19 @@
     }
 }
 
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>warning(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Option</span>&lt;DbError&gt; {
+    <span class="kw">let </span>err = <span class="kw">unsafe </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
+        dpiContext_getError(ctxt.context, err.as_mut_ptr());
+        err.assume_init()
+    };
+    <span class="kw">if </span>err.isWarning != <span class="number">0 </span>{
+        <span class="prelude-val">Some</span>(dberror_from_dpi_error(<span class="kw-2">&amp;</span>err))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
+}
+
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>error_from_context(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; Error {
     <span class="kw">let </span>err = <span class="kw">unsafe </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
@@ -739,4 +765,4 @@
     }};
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

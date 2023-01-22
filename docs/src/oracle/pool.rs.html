@@ -1008,6 +1008,21 @@
 <span id="1008">1008</span>
 <span id="1009">1009</span>
 <span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1243,7 +1258,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>to_dpi_conn_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context) -&gt; dpiConnCreateParams {
+    <span class="kw">fn </span>to_dpi_conn_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span>Context) -&gt; dpiConnCreateParams {
         <span class="kw">let </span><span class="kw-2">mut </span>conn_params = ctxt.conn_create_params();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(privilege) = <span class="self">self</span>.privilege {
@@ -1471,7 +1486,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>to_dpi_pool_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;dpiPoolCreateParams&gt; {
+    <span class="kw">fn </span>to_dpi_pool_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>, ctxt: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;dpiPoolCreateParams&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>pool_params = ctxt.pool_create_params();
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.min_connections {
@@ -1563,15 +1578,15 @@
 
     <span class="doccomment">/// Make a connection pool
     </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Pool&gt; {
-        <span class="kw">let </span>ctxt = Context::get()<span class="question-mark">?</span>;
+        <span class="kw">let </span>ctxt = Context::new0()<span class="question-mark">?</span>;
         <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.username);
         <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.password);
         <span class="kw">let </span>connect_string = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connect_string);
-        <span class="kw">let </span>common_params = <span class="self">self</span>.common_params.build(ctxt);
-        <span class="kw">let </span><span class="kw-2">mut </span>pool_params = <span class="self">self</span>.to_dpi_pool_create_params(ctxt)<span class="question-mark">?</span>;
+        <span class="kw">let </span>common_params = <span class="self">self</span>.common_params.build(<span class="kw-2">&amp;</span>ctxt);
+        <span class="kw">let </span><span class="kw-2">mut </span>pool_params = <span class="self">self</span>.to_dpi_pool_create_params(<span class="kw-2">&amp;</span>ctxt)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            ctxt,
+            <span class="kw-2">&amp;</span>ctxt,
             dpiPool_create(
                 ctxt.context,
                 username.ptr,
@@ -1709,13 +1724,17 @@
 /// ```
 </span><span class="attribute">#[derive(Clone)]
 </span><span class="kw">pub struct </span>Pool {
-    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    ctxt: Context,
     handle: DpiPool,
 }
 
 <span class="kw">impl </span>Pool {
     <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiPool {
         <span class="self">self</span>.handle.raw()
+    }
+
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ctxt
     }
 
     <span class="doccomment">/// Gets a connection from the pool with default parameters.
@@ -1735,12 +1754,13 @@
     ///
     /// See also [`Pool::get`].
     </span><span class="kw">pub fn </span>get_with_options(<span class="kw-2">&amp;</span><span class="self">self</span>, options: <span class="kw-2">&amp;</span>PoolOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
+        <span class="kw">let </span>ctxt = Context::new()<span class="question-mark">?</span>;
         <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span>options.username);
         <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span>options.password);
-        <span class="kw">let </span><span class="kw-2">mut </span>conn_params = options.to_dpi_conn_create_params(<span class="self">self</span>.ctxt);
+        <span class="kw">let </span><span class="kw-2">mut </span>conn_params = options.to_dpi_conn_create_params(<span class="kw-2">&amp;</span>ctxt);
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="kw-2">&amp;</span>ctxt,
             dpiPool_acquireConnection(
                 <span class="self">self</span>.handle(),
                 username.ptr,
@@ -1751,12 +1771,16 @@
                 <span class="kw-2">&amp;mut </span>handle
             )
         );
-        <span class="prelude-val">Ok</span>(Connection::from_dpi_handle(<span class="self">self</span>.ctxt, handle, <span class="kw-2">&amp;</span>conn_params))
+        ctxt.set_warning();
+        <span class="prelude-val">Ok</span>(Connection::from_dpi_handle(ctxt, handle, <span class="kw-2">&amp;</span>conn_params))
     }
 
     <span class="doccomment">/// Closes the pool and makes it unusable for further activity.
     </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>, mode: <span class="kw-2">&amp;</span>CloseMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_close(<span class="self">self</span>.handle(), mode.to_dpi_value()));
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt(),
+            dpiPool_close(<span class="self">self</span>.handle(), mode.to_dpi_value())
+        );
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1785,7 +1809,7 @@
     /// ```
     </span><span class="kw">pub fn </span>busy_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getBusyCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>count));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_getBusyCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>count));
         <span class="prelude-val">Ok</span>(count)
     }
 
@@ -1794,14 +1818,14 @@
     /// See also [`PoolBuilder::get_mode`] and [`Pool::set_get_mode`].
     </span><span class="kw">pub fn </span>get_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;GetMode&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getGetMode(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_getGetMode(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
         <span class="kw">match </span>val <span class="kw">as </span>u32 {
             DPI_MODE_POOL_GET_WAIT =&gt; <span class="prelude-val">Ok</span>(GetMode::Wait),
             DPI_MODE_POOL_GET_NOWAIT =&gt; <span class="prelude-val">Ok</span>(GetMode::NoWait),
             DPI_MODE_POOL_GET_FORCEGET =&gt; <span class="prelude-val">Ok</span>(GetMode::ForceGet),
             DPI_MODE_POOL_GET_TIMEDWAIT =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-                <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getWaitTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+                <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_getWaitTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
                 <span class="prelude-val">Ok</span>(GetMode::TimedWait(Duration::from_millis(val.into())))
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
@@ -1817,9 +1841,9 @@
     </span><span class="kw">pub fn </span>set_get_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: <span class="kw-2">&amp;</span>GetMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>get_mode = mode.to_dpi_value();
         <span class="kw">let </span>wait_timeout = mode.to_wait_timeout()<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setGetMode(<span class="self">self</span>.handle(), get_mode));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setGetMode(<span class="self">self</span>.handle(), get_mode));
         <span class="kw">if let </span><span class="prelude-val">Some</span>(msecs) = wait_timeout {
-            <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setWaitTimeout(<span class="self">self</span>.handle(), msecs));
+            <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setWaitTimeout(<span class="self">self</span>.handle(), msecs));
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1830,7 +1854,7 @@
     </span><span class="kw">pub fn </span>max_lifetime_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_getMaxLifetimeSession(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
         <span class="prelude-val">Ok</span>(Duration::from_secs(val.into()))
@@ -1842,7 +1866,7 @@
     </span><span class="kw">pub fn </span>set_max_lifetime_connection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = U32Seconds::try_from(dur, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_setMaxLifetimeSession(<span class="self">self</span>.handle(), val.<span class="number">0</span>)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1855,7 +1879,7 @@
     </span><span class="kw">pub fn </span>max_connections_per_shard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_getMaxSessionsPerShard(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
         <span class="prelude-val">Ok</span>(val)
@@ -1866,7 +1890,7 @@
     /// See also [`PoolBuilder::max_connections_per_shard`] and [`Pool::max_connections_per_shard`].
     </span><span class="kw">pub fn </span>set_max_connections_per_shard(<span class="kw-2">&amp;mut </span><span class="self">self</span>, max_connections: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_setMaxSessionsPerShard(<span class="self">self</span>.handle(), max_connections)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1875,7 +1899,7 @@
     <span class="doccomment">/// Returns the number of connections in the pool that are open.
     </span><span class="kw">pub fn </span>open_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getOpenCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_getOpenCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
         <span class="prelude-val">Ok</span>(val)
     }
 
@@ -1886,7 +1910,10 @@
     /// See also [`PoolBuilder::ping_interval`] and [`Pool::set_ping_interval`].
     </span><span class="kw">pub fn </span>ping_interval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Duration&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getPingInterval(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt(),
+            dpiPool_getPingInterval(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
+        );
         <span class="prelude-val">Ok</span>(I32Seconds(val).into())
     }
 
@@ -1898,7 +1925,7 @@
     /// See also [`PoolBuilder::ping_interval`] and [`Pool::ping_interval`].
     </span><span class="kw">pub fn </span>set_ping_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = I32Seconds::try_from(interval, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setPingInterval(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setPingInterval(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1916,7 +1943,7 @@
         connection_increment: u32,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_reconfigure(
                 <span class="self">self</span>.handle(),
                 min_connections,
@@ -1944,7 +1971,7 @@
     </span><span class="kw">pub fn </span>soda_metadata_cache(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_getSodaMetadataCache(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
         );
         <span class="prelude-val">Ok</span>(val != <span class="number">0</span>)
@@ -1960,7 +1987,7 @@
     </span><span class="kw">pub fn </span>set_soda_metadata_cache(<span class="kw-2">&amp;mut </span><span class="self">self</span>, enabled: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>enabled = i32::from(enabled);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_setSodaMetadataCache(<span class="self">self</span>.handle(), enabled)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1972,7 +1999,10 @@
     /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::set_stmt_cache_size`].
     </span><span class="kw">pub fn </span>stmt_cache_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getStmtCacheSize(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt(),
+            dpiPool_getStmtCacheSize(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val)
+        );
         <span class="prelude-val">Ok</span>(val)
     }
 
@@ -1981,7 +2011,7 @@
     /// See also [`PoolBuilder::stmt_cache_size`] and [`Pool::stmt_cache_size`].
     </span><span class="kw">pub fn </span>set_stmt_cache_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cache_size: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiPool_setStmtCacheSize(<span class="self">self</span>.handle(), cache_size)
         );
         <span class="prelude-val">Ok</span>(())
@@ -1994,7 +2024,7 @@
     /// See also [`PoolBuilder::timeout`] and [`Pool::set_timeout`].
     </span><span class="kw">pub fn </span>timeout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Duration&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_getTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_getTimeout(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>val));
         <span class="prelude-val">Ok</span>(Duration::from_secs(val.into()))
     }
 
@@ -2005,7 +2035,7 @@
     /// See also [`PoolBuilder::timeout`] and [`Pool::timeout`].
     </span><span class="kw">pub fn </span>set_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>val = U32Seconds::try_from(timeout, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiPool_setTimeout(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setTimeout(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -2019,4 +2049,4 @@
 <span class="kw">impl </span>AssertSync <span class="kw">for </span>Pool {}
 <span class="kw">impl </span>AssertSend <span class="kw">for </span>Pool {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

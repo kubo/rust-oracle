@@ -929,6 +929,13 @@
 <span id="929">929</span>
 <span id="930">930</span>
 <span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -983,23 +990,27 @@
 }
 
 <span class="kw">pub struct </span>LobLocator {
-    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    ctxt: Context,
     <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiLob,
     pos: u64,
 }
 
 <span class="kw">impl </span>LobLocator {
-    <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;LobLocator&gt; {
+    <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;LobLocator&gt; {
         <span class="macro">chkerr!</span>(ctxt, dpiLob_addRef(handle));
         <span class="prelude-val">Ok</span>(LobLocator {
-            ctxt,
+            ctxt: ctxt.clone(),
             handle,
             pos: <span class="number">0</span>,
         })
     }
 
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ctxt
+    }
+
     <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_close(<span class="self">self</span>.handle));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_close(<span class="self">self</span>.handle));
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1015,7 +1026,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>len = len <span class="kw">as </span>u64;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiLob_readBytes(
                 <span class="self">self</span>.handle,
                 <span class="self">self</span>.pos + <span class="number">1</span>,
@@ -1116,7 +1127,7 @@
     <span class="kw">fn </span>write_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span>len = buf.len() <span class="kw">as </span>u64;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiLob_writeBytes(
                 <span class="self">self</span>.handle,
                 <span class="self">self</span>.pos + <span class="number">1</span>,
@@ -1144,12 +1155,12 @@
 
     <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_getSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_getSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
         <span class="prelude-val">Ok</span>(size)
     }
 
     <span class="kw">fn </span>truncate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_trim(<span class="self">self</span>.handle, new_size));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_trim(<span class="self">self</span>.handle, new_size));
         <span class="kw">if </span><span class="self">self</span>.pos &gt; new_size {
             <span class="self">self</span>.pos = new_size;
         }
@@ -1158,24 +1169,24 @@
 
     <span class="kw">fn </span>chunk_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_getChunkSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_getChunkSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
         <span class="prelude-val">Ok</span>(size.try_into()<span class="question-mark">?</span>)
     }
 
     <span class="kw">fn </span>open_resource(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_openResource(<span class="self">self</span>.handle));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_openResource(<span class="self">self</span>.handle));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>close_resource(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_closeResource(<span class="self">self</span>.handle));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_closeResource(<span class="self">self</span>.handle));
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>is_resource_open(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>is_open = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiLob_getIsResourceOpen(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>is_open)
         );
         <span class="prelude-val">Ok</span>(is_open != <span class="number">0</span>)
@@ -1213,7 +1224,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>dir_alias = new_odpi_str();
         <span class="kw">let </span><span class="kw-2">mut </span>file_name = new_odpi_str();
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiLob_getDirectoryAndFileName(
                 <span class="self">self</span>.handle,
                 <span class="kw-2">&amp;mut </span>dir_alias.ptr,
@@ -1229,7 +1240,7 @@
         <span class="kw">let </span>dir_alias = to_odpi_str(directory_alias);
         <span class="kw">let </span>file_name = to_odpi_str(file_name);
         <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt,
+            <span class="self">self</span>.ctxt(),
             dpiLob_setDirectoryAndFileName(
                 <span class="self">self</span>.handle,
                 dir_alias.ptr,
@@ -1243,7 +1254,7 @@
 
     <span class="kw">fn </span>file_exists(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt, dpiLob_getFileExists(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>exists));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_getFileExists(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>exists));
         <span class="prelude-val">Ok</span>(exists != <span class="number">0</span>)
     }
 }
@@ -1251,7 +1262,10 @@
 <span class="kw">impl </span>Clone <span class="kw">for </span>LobLocator {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw">unsafe </span>{ dpiLob_addRef(<span class="self">self</span>.handle) };
-        LobLocator { ..<span class="kw-2">*</span><span class="self">self </span>}
+        LobLocator {
+            ctxt: <span class="self">self</span>.ctxt.clone(),
+            ..<span class="kw-2">*</span><span class="self">self
+        </span>}
     }
 }
 
@@ -1344,7 +1358,7 @@
 
 <span class="attribute">#[allow(dead_code)] </span><span class="comment">// TODO: remove this
 </span><span class="kw">impl </span>Bfile {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Bfile&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Bfile&gt; {
         <span class="prelude-val">Ok</span>(Bfile {
             lob: LobLocator::from_raw(ctxt, handle)<span class="question-mark">?</span>,
         })
@@ -1432,7 +1446,7 @@
 }
 
 <span class="kw">impl </span>Blob {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Blob&gt; {
         <span class="prelude-val">Ok</span>(Blob {
             lob: LobLocator::from_raw(ctxt, handle)<span class="question-mark">?</span>,
         })
@@ -1478,7 +1492,7 @@
 }
 
 <span class="kw">impl </span>Clob {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Clob&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Clob&gt; {
         <span class="prelude-val">Ok</span>(Clob {
             lob: LobLocator::from_raw(ctxt, handle)<span class="question-mark">?</span>,
         })
@@ -1524,7 +1538,7 @@
 }
 
 <span class="kw">impl </span>Nclob {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Nclob&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(ctxt: <span class="kw-2">&amp;</span>Context, handle: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;Nclob&gt; {
         <span class="prelude-val">Ok</span>(Nclob {
             lob: LobLocator::from_raw(ctxt, handle)<span class="question-mark">?</span>,
         })
@@ -1861,4 +1875,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

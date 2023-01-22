@@ -453,15 +453,15 @@
         query_params: QueryParams,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RefCursor&gt; {
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiStmt_setFetchArraySize(handle, query_params.fetch_array_size)
         );
         <span class="kw">let </span><span class="kw-2">mut </span>num_query_columns = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiStmt_getNumQueryColumns(handle, <span class="kw-2">&amp;mut </span>num_query_columns)
         );
-        <span class="macro">chkerr!</span>(conn.ctxt, dpiStmt_addRef(handle));
+        <span class="macro">chkerr!</span>(conn.ctxt(), dpiStmt_addRef(handle));
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = Stmt::new(conn, handle, query_params, <span class="string">&quot;&quot;</span>.into());
         stmt.init_row(num_query_columns <span class="kw">as </span>usize)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(RefCursor { stmt })
@@ -669,4 +669,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

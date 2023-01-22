@@ -960,6 +960,7 @@
 <span id="960">960</span>
 <span id="961">961</span>
 <span id="962">962</span>
+<span id="963">963</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1477,6 +1478,7 @@
             <span class="self">self</span>.conn.ctxt(),
             dpiStmt_executeMany(<span class="self">self</span>.handle, exec_mode, <span class="self">self</span>.batch_index)
         );
+        <span class="self">self</span>.conn.ctxt().set_warning();
         <span class="kw">if </span><span class="self">self</span>.with_batch_errors {
             <span class="kw">let </span><span class="kw-2">mut </span>errnum = <span class="number">0</span>;
             <span class="macro">chkerr!</span>(
@@ -1923,4 +1925,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

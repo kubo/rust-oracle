@@ -523,90 +523,12 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2019 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// Copyright (c) 2017-2023 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -871,9 +793,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 [NLS_LANG]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-86A29834-AE29-4BA5-8A78-E19C168B690A
 */
 
-</span><span class="kw">use </span>lazy_static::lazy_static;
-<span class="kw">use </span>std::mem::MaybeUninit;
-<span class="kw">use </span>std::os::raw::c_char;
+</span><span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::result;
 <span class="kw">use </span>std::slice;
@@ -888,6 +808,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 </span><span class="kw">mod </span>binding;
 <span class="kw">pub mod </span>conn;
 <span class="kw">mod </span>connection;
+<span class="kw">mod </span>context;
 <span class="kw">mod </span>error;
 <span class="kw">pub mod </span>io;
 <span class="kw">pub mod </span>oci_attr;
@@ -910,6 +831,7 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="kw">pub use </span><span class="kw">crate</span>::connection::Privilege;
 <span class="kw">pub use </span><span class="kw">crate</span>::connection::ShutdownMode;
 <span class="kw">pub use </span><span class="kw">crate</span>::connection::StartupMode;
+<span class="kw">use </span><span class="kw">crate</span>::context::Context;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::DbError;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::ParseOracleTypeError;
@@ -991,86 +913,8 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 <span class="comment">// define DpiQueue wrapping *mut dpiQueue.
 </span><span class="macro">define_dpi_data_with_refcount!</span>(Queue);
 
-<span class="comment">//
-// Context
-//
-
-</span><span class="kw">struct </span>Context {
-    <span class="kw">pub </span>context: <span class="kw-2">*mut </span>dpiContext,
-}
-
-<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Context {}
-<span class="kw">unsafe impl </span>Send <span class="kw">for </span>Context {}
-
-<span class="kw">enum </span>ContextResult {
-    <span class="prelude-val">Ok</span>(Context),
-    <span class="prelude-val">Err</span>(dpiErrorInfo),
-}
-
-<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ContextResult {}
-<span class="kw">unsafe impl </span>Send <span class="kw">for </span>ContextResult {}
-
 <span class="kw">trait </span>AssertSend: Send {}
 <span class="kw">trait </span>AssertSync: Sync {}
-
-<span class="macro">lazy_static! </span>{
-    <span class="kw">static </span><span class="kw-2">ref </span>DPI_CONTEXT: ContextResult = {
-        <span class="kw">let </span><span class="kw-2">mut </span>ctxt = ptr::null_mut();
-        <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
-        <span class="kw">if unsafe </span>{
-            dpiContext_createWithParams(
-                DPI_MAJOR_VERSION,
-                DPI_MINOR_VERSION,
-                ptr::null_mut(),
-                <span class="kw-2">&amp;mut </span>ctxt,
-                err.as_mut_ptr(),
-            )
-        } == DPI_SUCCESS <span class="kw">as </span>i32
-        {
-            ContextResult::Ok(Context { context: ctxt })
-        } <span class="kw">else </span>{
-            ContextResult::Err(<span class="kw">unsafe </span>{ err.assume_init() })
-        }
-    };
-}
-
-<span class="kw">impl </span>Context {
-    <span class="kw">pub fn </span>get() -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context&gt; {
-        <span class="kw">match </span><span class="kw-2">*</span>DPI_CONTEXT {
-            ContextResult::Ok(<span class="kw-2">ref </span>ctxt) =&gt; <span class="prelude-val">Ok</span>(ctxt),
-            ContextResult::Err(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Err</span>(error::error_from_dpi_error(err)),
-        }
-    }
-
-    <span class="kw">pub fn </span>common_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiCommonCreateParams {
-        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
-        <span class="kw">unsafe </span>{
-            dpiContext_initCommonCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
-            <span class="kw">let </span><span class="kw-2">mut </span>params = params.assume_init();
-            <span class="kw">let </span>driver_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">concat!</span>(<span class="string">&quot;rust-oracle : &quot;</span>, <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>));
-            params.createMode |= DPI_MODE_CREATE_THREADED;
-            params.driverName = driver_name.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
-            params.driverNameLength = driver_name.len() <span class="kw">as </span>u32;
-            params
-        }
-    }
-
-    <span class="kw">pub fn </span>conn_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiConnCreateParams {
-        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
-        <span class="kw">unsafe </span>{
-            dpiContext_initConnCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
-            params.assume_init()
-        }
-    }
-
-    <span class="kw">pub fn </span>pool_create_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiPoolCreateParams {
-        <span class="kw">let </span><span class="kw-2">mut </span>params = MaybeUninit::uninit();
-        <span class="kw">unsafe </span>{
-            dpiContext_initPoolCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
-            params.assume_init()
-        }
-    }
-}
 
 <span class="comment">//
 // Utility struct to convert Rust strings from/to ODPI-C strings
@@ -1205,4 +1049,4 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

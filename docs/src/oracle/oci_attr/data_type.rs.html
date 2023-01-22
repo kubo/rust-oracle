@@ -363,6 +363,10 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
 </pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -403,7 +407,7 @@
 
 <span class="doccomment">/// Attribute value used in [`DataType`]. You have no need to use this except implementing [`DataType`] for your type.
 </span><span class="kw">pub struct </span>AttrValue {
-    ctxt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Context,
+    ctxt: Context,
     handle: Handle,
     attr_num: u32,
 }
@@ -411,7 +415,7 @@
 <span class="kw">impl </span>AttrValue {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_conn(conn: <span class="kw-2">&amp;</span>Connection, handle_type: u32, attr_num: u32) -&gt; AttrValue {
         AttrValue {
-            ctxt: conn.ctxt(),
+            ctxt: conn.ctxt().clone(),
             handle: Handle::Conn(conn.handle(), handle_type),
             attr_num,
         }
@@ -419,23 +423,27 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_stmt(stmt: <span class="kw-2">&amp;</span>Statement, attr_num: u32) -&gt; AttrValue {
         AttrValue {
-            ctxt: stmt.ctxt(),
+            ctxt: stmt.ctxt().clone(),
             handle: Handle::Stmt(stmt.handle()),
             attr_num,
         }
+    }
+
+    <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ctxt
     }
 
     <span class="kw">fn </span>set_ptr_len(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ptr: <span class="kw-2">*mut </span>c_void, len: u32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.handle {
             Handle::Conn(handle, handle_type) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.ctxt,
+                    <span class="self">self</span>.ctxt(),
                     dpiConn_setOciAttr(<span class="kw-2">*</span>handle, <span class="kw-2">*</span>handle_type, <span class="self">self</span>.attr_num, ptr, len)
                 );
             }
             Handle::Stmt(handle) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.ctxt,
+                    <span class="self">self</span>.ctxt(),
                     dpiStmt_setOciAttr(<span class="kw-2">*</span>handle, <span class="self">self</span>.attr_num, ptr, len)
                 );
             }
@@ -499,13 +507,13 @@
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.handle {
             Handle::Conn(handle, handle_type) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.ctxt,
+                    <span class="self">self</span>.ctxt(),
                     dpiConn_getOciAttr(<span class="kw-2">*</span>handle, <span class="kw-2">*</span>handle_type, <span class="self">self</span>.attr_num, <span class="kw-2">&amp;mut </span>buf, <span class="kw-2">&amp;mut </span>len)
                 );
             }
             Handle::Stmt(handle) =&gt; {
                 <span class="macro">chkerr!</span>(
-                    <span class="self">self</span>.ctxt,
+                    <span class="self">self</span>.ctxt(),
                     dpiStmt_getOciAttr(<span class="kw-2">*</span>handle, <span class="self">self</span>.attr_num, <span class="kw-2">&amp;mut </span>buf, <span class="kw-2">&amp;mut </span>len)
                 );
             }
@@ -729,4 +737,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

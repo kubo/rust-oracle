@@ -1064,7 +1064,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
-        <span class="self">self</span>.conn.ctxt
+        <span class="self">self</span>.conn.ctxt()
     }
 
     <span class="doccomment">/// Returns type information.
@@ -1488,7 +1488,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
-        <span class="self">self</span>.conn.ctxt
+        <span class="self">self</span>.conn.ctxt()
     }
 
     <span class="doccomment">/// Returns type information.
@@ -1739,7 +1739,7 @@
         <span class="kw">let </span>conn = <span class="kw-2">&amp;</span><span class="self">self</span>.internal.conn;
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle)
         );
         <span class="prelude-val">Ok</span>(Object::new(conn.clone(), handle, <span class="self">self</span>.clone()))
@@ -1757,7 +1757,7 @@
         <span class="kw">let </span>conn = <span class="kw-2">&amp;</span><span class="self">self</span>.internal.conn;
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle)
         );
         <span class="prelude-val">Ok</span>(Collection::new(conn.clone(), handle, <span class="self">self</span>.clone()))
@@ -1796,7 +1796,7 @@
     <span class="kw">fn </span>new(conn: Conn, handle: DpiObjectAttr) -&gt; <span class="prelude-ty">Result</span>&lt;ObjectTypeAttr&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>info = MaybeUninit::uninit();
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectAttr_getInfo(handle.raw(), info.as_mut_ptr())
         );
         <span class="kw">let </span>info = <span class="kw">unsafe </span>{ info.assume_init() };
@@ -1860,7 +1860,7 @@
     <span class="kw">fn </span>from_dpi_object_type(conn: Conn, handle: DpiObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;ObjectTypeInternal&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>info = MaybeUninit::uninit();
         <span class="macro">chkerr!</span>(
-            conn.ctxt,
+            conn.ctxt(),
             dpiObjectType_getInfo(handle.raw(), info.as_mut_ptr())
         );
         <span class="kw">let </span>info = <span class="kw">unsafe </span>{ info.assume_init() };
@@ -1873,7 +1873,7 @@
             <span class="kw">let </span>attrnum = info.numAttributes <span class="kw">as </span>usize;
             <span class="kw">let </span><span class="kw-2">mut </span>handles = Vec::&lt;DpiObjectAttr&gt;::with_capacity(attrnum);
             <span class="macro">chkerr!</span>(
-                conn.ctxt,
+                conn.ctxt(),
                 dpiObjectType_getAttributes(
                     handle.raw(),
                     info.numAttributes,
@@ -1945,4 +1945,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="oracle" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
