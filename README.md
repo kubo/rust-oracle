@@ -47,7 +47,7 @@ Feature	| Description | available version
 
 Executes select statements and get rows:
 
-```rust
+```rust,no_run
 use oracle::{Connection, Error};
 
 // Connect to a database.
@@ -86,11 +86,13 @@ for row_result in rows {
              sal,
              comm.map_or("".to_string(), |v| v.to_string()));
 }
+
+# Ok::<(), oracle::Error>(())
 ```
 
 Executes select statements and get the first rows:
 
-```rust
+```rust,no_run
 use oracle::Connection;
 
 // Connect to a database.
@@ -117,11 +119,13 @@ println!(" {:14}| {:>10}    | {:>10}    |",
          row.0,
          row.1,
          row.2.map_or("".to_string(), |v| v.to_string()));
+
+# Ok::<(), oracle::Error>(())
 ```
 
 Executes non-select statements:
 
-```rust
+```rust,no_run
 use oracle::Connection;
 
 // Connect to a database.
@@ -149,11 +153,13 @@ conn.execute("delete from person", &[])?;
 
 // Rollback the transaction.
 conn.rollback()?;
+
+# Ok::<(), oracle::Error>(())
 ```
 
 Prints column information:
 
-```rust
+```rust,no_run
 use oracle::Connection;
 
 // Connect to a database.
@@ -173,11 +179,13 @@ for info in rows.column_info() {
     print!(" {:14}|", info.oracle_type().to_string());
 }
 println!("");
+
+# Ok::<(), oracle::Error>(())
 ```
 
 Prepared statement:
 
-```rust
+```rust,no_run
 use oracle::Connection;
 
 let conn = Connection::connect("scott", "tiger", "//localhost/XE")?;
@@ -188,6 +196,8 @@ let mut stmt = conn.statement("insert into person values (:1, :2)").build()?;
 stmt.execute(&[&1, &"John"])?;
 // Insert another row
 stmt.execute(&[&2, &"Smith"])?;
+
+# Ok::<(), oracle::Error>(())
 ```
 
 This is more efficient than two `conn.execute()`.
@@ -207,7 +217,7 @@ as charset because rust characters are UTF-8.
 The territory component specifies numeric format, date format and so on.
 However it affects only conversion in Oracle. See the following example:
 
-```rust
+```rust,no_run
 use oracle::Connection;
 
 // The territory is France.
@@ -221,6 +231,8 @@ assert_eq!(result, "10,1"); // The decimal mark depends on the territory.
 // 10.1 is fetched as a number and converted to a string in rust-oracle
 let result = conn.query_row_as::<String>("select 10.1 from dual", &[])?;
 assert_eq!(result, "10.1"); // The decimal mark is always period(.).
+
+# Ok::<(), oracle::Error>(())
 ```
 
 Note that NLS_LANG must be set before first rust-oracle function execution if
