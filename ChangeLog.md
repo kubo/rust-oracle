@@ -30,7 +30,7 @@ Fixed Issues:
 
 Changes:
 
-* [`Connection::prepare`] was marked as deprecated.
+* [`Connection::prepare()`] was marked as deprecated.
 
 Internal Changes:
 
@@ -46,21 +46,21 @@ New features:
 * Add query methods for Statement which take ownership (contributed by [GH-50])
 * Support connection pooling
   * [`pool`]
-  * [`Connection::close_with_mode`]
-  * [`Connection::tag`]
-  * [`Connection::tag_found`]
-  * [`Connection::is_new_connection`]
+  * [`Connection::close_with_mode()`]
+  * [`Connection::tag()`]
+  * [`Connection::tag_found()`]
+  * [`Connection::is_new_connection()`]
 * Add methods related to statement caching
-  * [`Connector::stmt_cache_size`]
-  * [`StatementBuilder::exclude_from_cache`]
-  * [`StatementBuilder::tag`]
+  * [`Connector::stmt_cache_size()`]
+  * [`StatementBuilder::exclude_from_cache()`]
+  * [`StatementBuilder::tag()`]
 * Support Advanced Queuing experimentally when `aq_unstable` feature is enabled
   Breaking changes may be introduced by a minor release.
 
 Fixed bugs:
 
-* Fix resource leaks when statement are explicitly closed by [`Statement::close`].
-* Fix syntax typo in doc comment about `row.get_as` ([GH-54])
+* Fix resource leaks when statement are explicitly closed by [`Statement::close()`].
+* Fix syntax typo in doc comment about [`Row::get_as()`] ([GH-54])
 
 Internal Changes:
 
@@ -76,9 +76,9 @@ Fixed bugs:
 
 New features:
 
-* Add [`Connection::statement`][] and [`StatementBuilder`][] to create
-  [`Statement`][] and deprecate [`Connection::prepare`][].
-* Customize prefetch row size ([`StatementBuilder::prefetch_rows`]) [GH-40]
+* Add [`Connection::statement()`][] and [`StatementBuilder`][] to create
+  [`Statement`][] and deprecate [`Connection::prepare()`][].
+* Customize prefetch row size ([`StatementBuilder::prefetch_rows()`]) [GH-40]
 * Read/Write LOBs as streams ([`sql_type::Lob`][], [`sql_type::Clob`][], [`sql_type::Nclob`][] and [`sql_type::Blob`][])
 * Ref cursors including implicit statement results ([`sql_type::RefCursor`][]) [GH-38]
 * Add [`Connection::oci_attr`][], [`Connection::set_oci_attr`][], [`Statement::oci_attr`][] and [`Statement::oci_attr`][]
@@ -106,13 +106,13 @@ Internal Changes:
 Changes:
 
 * Based on ODPI-C 4.1.0
-* The return value of [`DbError.offset()`][] was changed from u16 to u32.
+* The return value of [`DbError::offset()`][] was changed from u16 to u32.
 
 ## 0.3.3 (2020-10-25)
 
 Changes:
 
-* Add new methods [`Connection.call_timeout()`][] and [`Connection.set_call_timeout()`][]
+* Add new methods [`Connection::call_timeout()`][] and [`Connection::set_call_timeout()`][]
 
 ## 0.3.2 (2019-11-14)
 
@@ -126,7 +126,7 @@ Changes:
 
 Changes:
 
-* Add a new method [`Connection.status()`][] and a new enum [`ConnStatus`][]
+* Add a new method [`Connection::status()`][] and a new enum [`ConnStatus`][]
   to get the status of the connection.
 
 ## 0.3.0 (2019-10-02)
@@ -176,7 +176,7 @@ Incompatible changes:
 
 * Remove the associated type `Item` from `RowValue` trait.
 
-* Add `&Connection` argument to trait methods: `ToSql.oratype` and `ToSqlNull.oratype_for_null`.
+* Add `&Connection` argument to trait methods: `ToSql::oratype` and `ToSqlNull::oratype_for_null`.
 
 * Iterator for `&ResultSet<T>` was removed and that for `ResultSet<T>`
   was added again for better ergonomics.
@@ -186,7 +186,7 @@ Incompatible changes:
 Changes:
 
 * Implement `FusedIterator` for `ResultSet`.
-* The return value of [`Connection.object_type()`][] is cached in the connection.  
+* The return value of [`Connection::object_type()`][] is cached in the connection.  
   When "CREATE TYPE", "ALTER TYPE" or "DROP TYPE" is executed, the cache clears.
 * Add `Connection.clear_object_type_cache()`.
 * Update ODPI-C to version 3.2.2.
@@ -217,7 +217,7 @@ Changes:
 * Update ODPI-C to 3.0.0, which includes support for Oracle 18c client.
 
 * New methods
-  * [`Statement.row_count()`][]
+  * [`Statement::row_count()`][]
 
 ## 0.1.1 (2018-07-16)
 
@@ -233,10 +233,10 @@ Changes:
 Changes:
 
 * New methods
-  * [`Statement.is_query()`][]
-  * [`Statement.is_plsql()`][]
-  * [`Statement.is_ddl()`][]
-  * [`Statement.is_dml()`][]
+  * [`Statement::is_query()`][]
+  * [`Statement::is_plsql()`][]
+  * [`Statement::is_ddl()`][]
+  * [`Statement::is_dml()`][]
 
 Incompatible changes:
 
@@ -257,9 +257,9 @@ Incompatible changes:
 
 * The `Other` variant of [`StatetmentType`][] enum was removed. `Commit`, `Rollback`, `ExplainPlan`, `Call` and `Unknown` variants were added to the enum.
 
-* Change the return type of [`ObjectType.new_object()`][] from `Option<Object>` to `Result<Object>`.
+* Change the return type of [`ObjectType::new_object()`][] from `Option<Object>` to `Result<Object>`.
 
-* Change the return type of [`ObjectType.new_collection()`][] from `Option<Collection>` to `Result<Collection>`.
+* Change the return type of [`ObjectType::new_collection()`][] from `Option<Collection>` to `Result<Collection>`.
 
 ## 0.0.7 (2018-03-18)
 
@@ -268,16 +268,16 @@ The method to prepare statements was changed for future extension.
 Changes:
 
 * New methods and structs
-  * [`Statement.returned_values()`][] to support RETURNING INTO clause.
+  * [`Statement::returned_values()`][] to support RETURNING INTO clause.
   * [`StmtParam`][] struct to specify prepared statement parameters.
 
 Incompatible changes:
 
 * Changed Methods
-  * [`Connection::prepare`][]. The `params` argument was added.
+  * [`Connection::prepare()`][]. The `params` argument was added.
 
 * Removed methods
-  * `Statement.set_fetch_array_size()`. Use [`StmtParam::FetchArraySize`][] instead.
+  * `Statement::set_fetch_array_size()`. Use [`StmtParam::FetchArraySize`][] instead.
 
 ## 0.0.6 (2018-03-11)
 
@@ -301,33 +301,33 @@ Incompatible changes:
   * `Connector` (connection builder). Use [`ConnParam`][] in order to specify extra connection parameters instead.
   * `AuthMode`. Use [`ConnParam`][] to specify authentication mode instead.
 * Methods whose return type was changed from `&String` to `&str`.
-  * [`Connection.tag()`][]
-  * [`ColumnInfo.name()`][]
-  * [`DbError.message()`][]
-  * [`DbError.fn_name()`][]
-  * [`DbError.action()`][]
-  * [`ObjectType.schema()`][]
-  * [`ObjectType.name()`][]
-  * [`ObjectTypeAttr.name()`][]
+  * [`Connection::tag()`][]
+  * [`ColumnInfo::name()`][]
+  * [`DbError::message()`][]
+  * [`DbError::fn_name()`][]
+  * [`DbError::action()`][]
+  * [`ObjectType::schema()`][]
+  * [`ObjectType::name()`][]
+  * [`ObjectTypeAttr::name()`][]
 * Methods whose return type was changed from `&Vec<...>` to `&[...]`.
-  * [`Row.sql_values()`][]
-  * [`ResultSet.column_info()`][]
-  * [`ObjectType.attributes()`][]
+  * [`Row::sql_values()`][]
+  * [`ResultSet::column_info()`][]
+  * [`ObjectType::attributes()`][]
 
 ## 0.0.5 (2018-03-04)
 
 New features:
 
 * Add query methods to `Connection` to fetch rows without using `Statement`.
-  * [`Connection.query()`][]
-  * [`Connection.query_named()`][]
-  * [`Connection.query_as()`][]
-  * [`Connection.query_as_named()`][]
+  * [`Connection::query()`][]
+  * [`Connection::query_named()`][]
+  * [`Connection::query_as()`][]
+  * [`Connection::query_as_named()`][]
 * Add query_row methods to `Statement` to fetch a first row without using `ResultSet`.
-  * [`Statement.query_row()`][]
-  * [`Statement.query_row_named()`][]
-  * [`Statement.query_row_as()`][]
-  * [`Statement.query_row_as_named()`][]
+  * [`Statement::query_row()`][]
+  * [`Statement::query_row_named()`][]
+  * [`Statement::query_row_as()`][]
+  * [`Statement::query_row_as_named()`][]
 
 Incompatible changes:
 
@@ -338,35 +338,35 @@ Incompatible changes:
 New features:
 
 * Add query methods to `Statement` to fetch rows as iterator.
-  * [`Statement.query()`][]
-  * [`Statement.query_named()`][]
-  * [`Statement.query_as()`][]
-  * [`Statement.query_as_named()`][]
+  * [`Statement::query()`][]
+  * [`Statement::query_named()`][]
+  * [`Statement::query_as()`][]
+  * [`Statement::query_as_named()`][]
 * Add query_row methods to `Connection` to fetch a first row without using `Statement`.
-  * [`Connection.query_row()`][]
-  * [`Connection.query_row_named()`][]
-  * [`Connection.query_row_as()`][]
-  * [`Connection.query_row_as_named()`][]
+  * [`Connection::query_row()`][]
+  * [`Connection::query_row_named()`][]
+  * [`Connection::query_row_as()`][]
+  * [`Connection::query_row_as_named()`][]
 * Autocommit mode.
 
 Incompatible changes:
 
 * Execute methods fail for select statements. Use query methods instead.
-  * [`Connection.execute()`][]
-  * [`Connection.execute_named()`][]
-  * [`Statement.execute()`][]
-  * [`Statement.execute_named()`][]
+  * [`Connection::execute()`][]
+  * [`Connection::execute_named()`][]
+  * [`Statement::execute()`][]
+  * [`Statement::execute_named()`][]
 * Renamed traits, methods and variants.
   * `ColumnValues` &#x2192; [`RowValue`][]
-  * `Row.values()` &#x2192; [`Row.get_as()`][]
-  * `Row.columns()` &#x2192; [`Row.sql_values()`][]
+  * `Row::values()` &#x2192; [`Row::get_as()`][]
+  * `Row::columns()` &#x2192; [`Row::sql_values()`][]
   * `Error::Overflow` &#x2192; [`Error::OutOfRange`][]
 * Removed methods.
-  * Statement.column_count()
-  * Statement.column_names()
-  * Statement.column_info()
-  * Statement.fetch()
-  * SqlValue.clone()
+  * Statement::column_count()
+  * Statement::column_names()
+  * Statement::column_info()
+  * Statement::fetch()
+  * SqlValue::clone()
 
 [GH-3]: https://github.com/kubo/rust-oracle/issues/3
 [GH-6]: https://github.com/kubo/rust-oracle/issues/6
@@ -383,76 +383,79 @@ Incompatible changes:
 [GH-54]: https://github.com/kubo/rust-oracle/issues/54
 [GH-62]: https://github.com/kubo/rust-oracle/pull/62
 [chrono]: https://docs.rs/chrono/latest/chrono/index.html
-[`pool`]: https://docs.rs/oracle/latest/oracle/pool/index.html
-[`Batch`]: https://docs.rs/oracle/*/oracle/struct.Batch.html
-[`Collection`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html
-[`Collection::indices()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.indices
-[`Collection::iter()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.iter
-[`Collection::values()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.Collection.html#method.values
-[`ColumnInfo.name()`]: https://docs.rs/oracle/*/oracle/struct.ColumnInfo.html#method.name
-[`Connection::connect()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.connect
-[`Connection.call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.call_timeout
-[`Connection.execute()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute
-[`Connection.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.execute_named
+[`pool`]: https://www.jiubao.org/rust-oracle/oracle/pool/index.html
+[`Batch`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html
+[`Collection`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html
+[`Collection::indices()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.indices
+[`Collection::iter()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.iter
+[`Collection::values()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.values
+[`ColumnInfo::name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ColumnInfo.html#method.name
+[`Connection::connect()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.connect
+[`Connection::call_timeout()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.call_timeout
+[`Connection::close_with_mode()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.close_with_mode
+[`Connection::execute()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.execute
+[`Connection::execute_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.execute_named
+[`Connection::is_new_connection()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.is_new_connection
 [`Connection::last_warning()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.last_warning
-[`Connection.object_type()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.object_type
-[`Connection::prepare`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.prepare
-[`Connection.query()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query
-[`Connection.query_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_named
-[`Connection.query_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_as
-[`Connection.query_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_as_named
-[`Connection.query_row()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row
-[`Connection.query_row_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_named
-[`Connection.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as
-[`Connection.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.query_row_as_named
-[`Connection::statement`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.statement
-[`Connection.status()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.status
-[`Connection.set_call_timeout()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.set_call_timeout
-[`Connection.tag()`]: https://docs.rs/oracle/*/oracle/struct.Connection.html#method.tag
-[`Connector::stmt_cache_size`]: https://docs.rs/oracle/*/oracle/struct.Connector.html#method.stmt_cache_size
+[`Connection::object_type()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.object_type
+[`Connection::prepare()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.prepare
+[`Connection::query()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query
+[`Connection::query_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_named
+[`Connection::query_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_as
+[`Connection::query_as_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_as_named
+[`Connection::query_row()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_row
+[`Connection::query_row_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_row_named
+[`Connection::query_row_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_row_as
+[`Connection::query_row_as_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_row_as_named
+[`Connection::statement()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.statement
+[`Connection::status()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.status
+[`Connection::set_call_timeout()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.set_call_timeout
+[`Connection::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.tag
+[`Connection::tag_found()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.tag_found
+[`Connector::stmt_cache_size()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connector.html#method.stmt_cache_size
 [`ConnParam`]: https://docs.rs/oracle/0.2.*/oracle/enum.ConnParam.html
-[`ConnStatus`]: https://docs.rs/oracle/*/oracle/enum.ConnStatus.html
-[`DbError.action()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.action
-[`DbError.fn_name()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.fn_name
-[`DbError.message()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.message
-[`DbError.offset()`]: https://docs.rs/oracle/*/oracle/struct.DbError.html#method.offset
+[`ConnStatus`]: https://www.jiubao.org/rust-oracle/oracle/enum.ConnStatus.html
+[`DbError::action()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.action
+[`DbError::fn_name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.fn_name
+[`DbError::message()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.message
+[`DbError::offset()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.offset
 [`Eq`]: https://doc.rust-lang.org/std/cmp/trait.Eq.html
-[`Error::NoDataFound`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.NoDataFound
-[`Error::OutOfRange`]: https://docs.rs/oracle/*/oracle/enum.Error.html#variant.OutOfRange
-[`FromSql::from_sql`]: https://docs.rs/oracle/latest/oracle/sql_type/trait.FromSql.html#method.from_sql
-[`ObjectType.attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
-[`ObjectType.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
-[`ObjectType.new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection
-[`ObjectType.new_object()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_object
-[`ObjectType.schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
-[`ObjectType::package_name()`]: https://docs.rs/oracle/latest/oracle/sql_type/struct.ObjectType.html#method.package_name
-[`ObjectTypeAttr.name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
-[`ResultSet.column_info()`]: https://docs.rs/oracle/*/oracle/struct.ResultSet.html#method.column_info
-[`Row.sql_values()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.sql_values
-[`Row.get_as()`]: https://docs.rs/oracle/*/oracle/struct.Row.html#method.get_as
-[`RowValue`]: https://docs.rs/oracle/*/oracle/trait.RowValue.html
+[`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
+[`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
+[`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
+[`ObjectType::attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
+[`ObjectType::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
+[`ObjectType::new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection
+[`ObjectType::new_object()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_object
+[`ObjectType::schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
+[`ObjectType::package_name()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.ObjectType.html#method.package_name
+[`ObjectTypeAttr::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
+[`ResultSet::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html#method.column_info
+[`Row::sql_values()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.sql_values
+[`Row::get_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.get_as
+[`RowValue`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
-[`Statement::close`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.close
-[`Statement::last_row_id()`]: https://docs.rs/oracle/latest/oracle/struct.Statement.html#method.last_row_id
-[`Statement.execute()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute
-[`Statement.execute_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.execute_named
-[`Statement.query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query
-[`Statement.query_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_named
-[`Statement.query_as()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_as
-[`Statement.query_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_as_named
-[`Statement.query_row()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row
-[`Statement.query_row_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_named
-[`Statement.query_row_as()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as
-[`Statement.query_row_as_named()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.query_row_as_named
-[`Statement.returned_values()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.returned_values
-[`Statement.row_count()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.row_count
-[`Statement.is_query()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_query
-[`Statement.is_plsql()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_plsql
-[`Statement.is_ddl()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.is_ddl
-[`Statement.is_dml()`]: https://docs.rs/oracle/*/oracle/struct.Statement.html#method.id_dml
-[`StatementBuilder`]: https://docs.rs/oracle/*/oracle/struct.StatementBuilder.html
-[`StatementBuilder::exclude_from_cache`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.exclude_from_cache
-[`StatementBuilder::prefetch_rows`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.prefetch_rows
-[`StatementBuilder::tag`]: https://docs.rs/oracle/latest/oracle/struct.StatementBuilder.html#method.tag
-[`StmtParam`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html
-[`StmtParam::FetchArraySize`]: https://docs.rs/oracle/*/oracle/enum.StmtParam.html#variant.FetchArraySize
+[`Statement::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.close
+[`Statement::last_row_id()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.last_row_id
+[`Statement::execute()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.execute
+[`Statement::execute_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.execute_named
+[`Statement::query()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query
+[`Statement::query_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_named
+[`Statement::query_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_as
+[`Statement::query_as_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_as_named
+[`Statement::query_row()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_row
+[`Statement::query_row_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_row_named
+[`Statement::query_row_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_row_as
+[`Statement::query_row_as_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.query_row_as_named
+[`Statement::returned_values()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.returned_values
+[`Statement::row_count()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.row_count
+[`Statement::is_query()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.is_query
+[`Statement::is_plsql()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.is_plsql
+[`Statement::is_ddl()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.is_ddl
+[`Statement::is_dml()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.id_dml
+[`StatementBuilder`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html
+[`StatementBuilder::exclude_from_cache()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.exclude_from_cache
+[`StatementBuilder::prefetch_rows()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.prefetch_rows
+[`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
+[`StmtParam`]: https://www.jiubao.org/rust-oracle/oracle/enum.StmtParam.html
+[`StmtParam::FetchArraySize`]: https://www.jiubao.org/rust-oracle/oracle/enum.StmtParam.html#variant.FetchArraySize
