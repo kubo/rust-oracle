@@ -259,7 +259,7 @@ pub mod test_util {
     }
 
     pub fn connect() -> Result<Connection> {
-        Connection::connect(&main_user(), &main_password(), &connect_string())
+        Connection::connect(main_user(), main_password(), connect_string())
     }
 
     pub fn check_version(

@@ -91,7 +91,7 @@ pub struct IntervalYM {
 impl IntervalYM {
     pub(crate) fn from_dpi_interval_ym(it: &dpiIntervalYM, oratype: &OracleType) -> IntervalYM {
         let prec = match *oratype {
-            OracleType::IntervalYM(prec) => prec as u8,
+            OracleType::IntervalYM(prec) => prec,
             _ => 2,
         };
         IntervalYM {

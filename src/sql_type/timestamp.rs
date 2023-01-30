@@ -123,7 +123,7 @@ impl Timestamp {
             hour: ts.hour as u32,
             minute: ts.minute as u32,
             second: ts.second as u32,
-            nanosecond: ts.fsecond as u32,
+            nanosecond: ts.fsecond,
             tz_hour_offset: ts.tzHourOffset as i32,
             tz_minute_offset: ts.tzMinuteOffset as i32,
             precision,
