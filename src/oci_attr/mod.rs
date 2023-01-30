@@ -268,22 +268,17 @@ unsafe impl OciAttr for TransactionInProgress {
 /// # use std::thread::sleep;
 /// # use std::time::Duration;
 /// # let mut conn = test_util::connect()?;
-/// # conn.execute("drop table test_sql_fn_code purge", &[]);
-/// # sleep(Duration::from_millis(500));
 ///
-/// let mut stmt = conn.statement("create table test_sql_fn_code (id integer)").build()?;
-/// stmt.execute(&[])?;
-/// // 1 is the function code of CREATE TABLE statements.
-/// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 1);
-/// # sleep(Duration::from_millis(500));
+/// let stmt = conn.execute("insert into TestNumbers values(11, 12, 13, 14, 15)", &[])?;
+/// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 3);
 ///
-/// let mut stmt = conn.statement("drop table test_sql_fn_code purge").build()?;
-/// eprintln!("line: {}", line!());
-/// stmt.execute(&[])?;
-/// eprintln!("line: {}", line!());
-/// // 8 is the function code of DROP TABLE statements.
-/// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 8);
+/// let stmt = conn.execute("update TestNumbers set NumberCol = 13 where IntCol = 11", &[])?;
+/// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 5);
 ///
+/// let stmt = conn.execute("delete TestNumbers where IntCol = 11", &[])?;
+/// assert_eq!(stmt.oci_attr::<SqlFnCode>()?, 9);
+///
+/// # conn.rollback()?;
 /// # Ok::<(), Error>(())
 /// ```
 ///
