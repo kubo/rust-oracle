@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.5.7 (2023-XX-XX)
+## 0.5.7 (2023-01-30)
 
 New features:
 
