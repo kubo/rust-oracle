@@ -64,14 +64,24 @@ where
 impl FromSql for DateTime<Utc> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<Utc>> {
         let ts = val.to_timestamp()?;
-        datetime_from_sql(&Utc, &ts)
+        if ts.with_tz() {
+            datetime_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
+                .map(|val| val.with_timezone(&Utc))
+        } else {
+            datetime_from_sql(&Utc, &ts)
+        }
     }
 }
 
 impl FromSql for DateTime<Local> {
     fn from_sql(val: &SqlValue) -> Result<DateTime<Local>> {
         let ts = val.to_timestamp()?;
-        datetime_from_sql(&Local, &ts)
+        if ts.with_tz() {
+            datetime_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
+                .map(|val| val.with_timezone(&Local))
+        } else {
+            datetime_from_sql(&Local, &ts)
+        }
     }
 }
 
@@ -144,7 +154,12 @@ where
 impl FromSql for Date<Utc> {
     fn from_sql(val: &SqlValue) -> Result<Date<Utc>> {
         let ts = val.to_timestamp()?;
-        date_from_sql(&Utc, &ts)
+        if ts.with_tz() {
+            date_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
+                .map(|val| val.with_timezone(&Utc))
+        } else {
+            date_from_sql(&Utc, &ts)
+        }
     }
 }
 
@@ -152,7 +167,12 @@ impl FromSql for Date<Utc> {
 impl FromSql for Date<Local> {
     fn from_sql(val: &SqlValue) -> Result<Date<Local>> {
         let ts = val.to_timestamp()?;
-        date_from_sql(&Local, &ts)
+        if ts.with_tz() {
+            date_from_sql(&fixed_offset_from_sql(&ts)?, &ts)
+                .map(|val| val.with_timezone(&Local))
+        } else {
+            date_from_sql(&Local, &ts)
+        }
     }
 }
 
