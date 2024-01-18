@@ -28,21 +28,16 @@ use crate::SqlValue;
 #[allow(unused_imports)] // for links in doc comments
 use crate::Connection;
 
-pub struct RowSharedData {
-    column_names: Vec<String>,
-}
-
 /// Row in a result set of a select statement
 pub struct Row {
-    pub(crate) shared: Rc<RowSharedData>,
+    pub(crate) column_info: Rc<Vec<ColumnInfo>>,
     pub(crate) column_values: Vec<SqlValue>,
 }
 
 impl Row {
-    pub(crate) fn new(column_names: Vec<String>, column_values: Vec<SqlValue>) -> Result<Row> {
-        let shared = RowSharedData { column_names };
+    pub(crate) fn new(column_info: Vec<ColumnInfo>, column_values: Vec<SqlValue>) -> Result<Row> {
         Ok(Row {
-            shared: Rc::new(shared),
+            column_info: Rc::new(column_info),
             column_values,
         })
     }
@@ -53,7 +48,7 @@ impl Row {
         I: ColumnIndex,
         T: FromSql,
     {
-        let pos = colidx.idx(&self.shared.column_names)?;
+        let pos = colidx.idx(&self.column_info)?;
         self.column_values[pos].get()
     }
 
@@ -92,8 +87,8 @@ impl Row {
 impl fmt::Debug for Row {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Row {{ ")?;
-        for (name, value) in self.shared.column_names.iter().zip(&self.column_values) {
-            write!(f, "{}: {:?} ", name, value)?;
+        for (info, value) in self.column_info.iter().zip(&self.column_values) {
+            write!(f, "{}: {:?} ", info.name(), value)?;
         }
         write!(f, "}}")
     }
@@ -141,7 +136,7 @@ where
     }
 
     pub fn column_info(&self) -> &[ColumnInfo] {
-        &self.stmt().column_info
+        &self.stmt().row.as_ref().unwrap().column_info
     }
 }
 
@@ -230,7 +225,7 @@ impl RowValue for Row {
             column_values.push(val.dup_by_handle()?);
         }
         Ok(Row {
-            shared: row.shared.clone(),
+            column_info: row.column_info.clone(),
             column_values,
         })
     }

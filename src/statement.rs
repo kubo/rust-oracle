@@ -393,7 +393,6 @@ impl fmt::Display for StatementType {
 pub(crate) struct Stmt {
     pub(crate) conn: Conn,
     pub(crate) handle: *mut dpiStmt,
-    pub(crate) column_info: Vec<ColumnInfo>,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Rc<AtomicU32>,
     pub(crate) query_params: QueryParams,
@@ -410,7 +409,6 @@ impl Stmt {
         Stmt {
             conn,
             handle,
-            column_info: Vec::new(),
             row: None,
             shared_buffer_row_index: Rc::new(AtomicU32::new(0)),
             query_params,
@@ -437,15 +435,13 @@ impl Stmt {
     }
 
     pub(crate) fn init_row(&mut self, num_cols: usize) -> Result<()> {
-        let mut column_names = Vec::with_capacity(num_cols);
+        let mut column_info = Vec::with_capacity(num_cols);
         let mut column_values = Vec::with_capacity(num_cols);
-        self.column_info = Vec::with_capacity(num_cols);
 
         for i in 0..num_cols {
             // set column info
             let ci = ColumnInfo::new(self, i)?;
-            column_names.push(ci.name.clone());
-            self.column_info.push(ci);
+            column_info.push(ci);
             // setup column value
             let mut val = SqlValue::for_column(
                 self.conn.clone(),
@@ -453,7 +449,7 @@ impl Stmt {
                 self.query_params.fetch_array_size,
             );
             val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
-            let oratype = self.column_info[i].oracle_type();
+            let oratype = column_info[i].oracle_type();
             let oratype_i64 = OracleType::Int64;
             let oratype = match *oratype {
                 // When the column type is number whose prec is less than 18
@@ -470,7 +466,7 @@ impl Stmt {
             );
             column_values.push(val);
         }
-        self.row = Some(Row::new(column_names, column_values)?);
+        self.row = Some(Row::new(column_info, column_values)?);
         Ok(())
     }
 
@@ -1430,12 +1426,12 @@ impl<'a> BindIndex for &'a str {
 pub trait ColumnIndex: private::Sealed {
     /// Returns the index of the column specified by `self`.
     #[doc(hidden)]
-    fn idx(&self, column_names: &[String]) -> Result<usize>;
+    fn idx(&self, column_info: &[ColumnInfo]) -> Result<usize>;
 }
 
 impl ColumnIndex for usize {
-    fn idx(&self, column_names: &[String]) -> Result<usize> {
-        let ncols = column_names.len();
+    fn idx(&self, column_info: &[ColumnInfo]) -> Result<usize> {
+        let ncols = column_info.len();
         if *self < ncols {
             Ok(*self)
         } else {
@@ -1445,9 +1441,9 @@ impl ColumnIndex for usize {
 }
 
 impl<'a> ColumnIndex for &'a str {
-    fn idx(&self, column_names: &[String]) -> Result<usize> {
-        for (idx, colname) in column_names.iter().enumerate() {
-            if colname.as_str().eq_ignore_ascii_case(self) {
+    fn idx(&self, column_info: &[ColumnInfo]) -> Result<usize> {
+        for (idx, info) in column_info.iter().enumerate() {
+            if info.name.as_str().eq_ignore_ascii_case(self) {
                 return Ok(idx);
             }
         }
