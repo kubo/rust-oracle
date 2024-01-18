@@ -82,6 +82,10 @@ impl Row {
     {
         <T>::get(self)
     }
+
+    pub fn column_info(&self) -> &[ColumnInfo] {
+        &self.column_info
+    }
 }
 
 impl fmt::Debug for Row {
