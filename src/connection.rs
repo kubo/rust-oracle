@@ -16,7 +16,7 @@
 use std::borrow::ToOwned;
 use std::collections::HashMap;
 use std::fmt;
-use std::mem::{self, MaybeUninit};
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -928,7 +928,7 @@ impl Connection {
     pub fn query_row(&self, sql: &str, params: &[&dyn ToSql]) -> Result<Row> {
         let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         stmt.query_row(params)?;
-        Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
+        Ok(stmt.stmt.row.take().unwrap())
     }
 
     /// Gets one row from a query using named bind parameters.
@@ -939,7 +939,7 @@ impl Connection {
     pub fn query_row_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
         let mut stmt = self.statement(sql).fetch_array_size(1).build()?;
         stmt.query_row_named(params)?;
-        Ok(mem::replace(&mut stmt.stmt.row, None).unwrap())
+        Ok(stmt.stmt.row.take().unwrap())
     }
 
     /// Gets one row from a query as specified type.
