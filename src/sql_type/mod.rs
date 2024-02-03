@@ -289,13 +289,13 @@ impl ToSql for Vec<u8> {
     }
 }
 
-impl<'a> ToSqlNull for &'a str {
+impl ToSqlNull for &str {
     fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(0))
     }
 }
 
-impl<'a> ToSql for &'a str {
+impl ToSql for &str {
     fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::NVarchar2(self.len() as u32))
     }
@@ -304,13 +304,13 @@ impl<'a> ToSql for &'a str {
     }
 }
 
-impl<'a> ToSqlNull for &'a [u8] {
+impl ToSqlNull for &[u8] {
     fn oratype_for_null(_conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(0))
     }
 }
 
-impl<'a> ToSql for &'a [u8] {
+impl ToSql for &[u8] {
     fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(self.len() as u32))
     }
@@ -319,7 +319,7 @@ impl<'a> ToSql for &'a [u8] {
     }
 }
 
-impl<'a, const N: usize> ToSql for &'a [u8; N] {
+impl<const N: usize> ToSql for &[u8; N] {
     fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(OracleType::Raw(self.len() as u32))
     }
@@ -364,7 +364,7 @@ impl ToSql for OracleType {
     }
 }
 
-impl<'a, T: ToSql> ToSql for (&'a T, &'a OracleType) {
+impl<T: ToSql> ToSql for (&T, &OracleType) {
     fn oratype(&self, _conn: &Connection) -> Result<OracleType> {
         Ok(self.1.clone())
     }

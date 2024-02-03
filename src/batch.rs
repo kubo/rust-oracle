@@ -140,13 +140,13 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
     }
 
     /// See ["Error Handling"](Batch#error-handling)
-    pub fn with_batch_errors<'a>(&'a mut self) -> &'a mut BatchBuilder<'conn, 'sql> {
+    pub fn with_batch_errors(&mut self) -> &mut BatchBuilder<'conn, 'sql> {
         self.with_batch_errors = true;
         self
     }
 
     /// See ["Affected Rows"](Batch#affected-rows)
-    pub fn with_row_counts<'a>(&'a mut self) -> &'a mut BatchBuilder<'conn, 'sql> {
+    pub fn with_row_counts(&mut self) -> &mut BatchBuilder<'conn, 'sql> {
         self.with_row_counts = true;
         self
     }
@@ -783,7 +783,7 @@ impl BatchBindIndex for usize {
     }
 }
 
-impl<'a> BatchBindIndex for &'a str {
+impl BatchBindIndex for &str {
     #[doc(hidden)]
     fn idx(&self, batch: &Batch) -> Result<usize> {
         let bindname = self.to_uppercase();

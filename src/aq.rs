@@ -211,7 +211,7 @@ where
     phantom: PhantomData<T>,
 }
 
-impl<'a, T: 'a> Queue<T>
+impl<T> Queue<T>
 where
     T: Payload + ?Sized,
 {
@@ -306,7 +306,7 @@ where
     ///
     /// [`Queue.enqueue`]: #method.enqueue
     /// [`Queue.dequeue_many`]: #method.dequeue_many
-    pub fn enqueue_many<I>(&self, props: I) -> Result<()>
+    pub fn enqueue_many<'a, I>(&'a self, props: I) -> Result<()>
     where
         I: IntoIterator<Item = &'a MsgProps<T>>,
     {

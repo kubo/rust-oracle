@@ -29,8 +29,8 @@ pub struct Scanner<'a> {
     ndigits: u32,
 }
 
-impl<'a> Scanner<'a> {
-    pub fn new(s: &'a str) -> Scanner<'a> {
+impl Scanner<'_> {
+    pub fn new(s: &str) -> Scanner {
         let mut chars = s.chars();
         let char = chars.next();
         Scanner {

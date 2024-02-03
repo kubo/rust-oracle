@@ -217,7 +217,7 @@ mod private {
     impl Sealed for str {}
     impl Sealed for [u8] {}
     impl Sealed for *mut c_void {}
-    impl<'a> Sealed for &'a str {}
+    impl Sealed for &str {}
 }
 
 #[allow(dead_code)]

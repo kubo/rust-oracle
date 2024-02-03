@@ -126,7 +126,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// assert_eq!(stmt.query_row_as::<String>(&[&2])?, "String 2");
     /// # Ok::<(), Error>(())
     /// ```
-    pub fn fetch_array_size<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
+    pub fn fetch_array_size(&mut self, size: u32) -> &mut StatementBuilder<'conn, 'sql> {
         self.query_params.fetch_array_size = size;
         self
     }
@@ -140,7 +140,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// Setting this value to 0 will disable prefetch completely,
     /// which may be useful when the timing for fetching rows must be
     /// controlled by the caller.
-    pub fn prefetch_rows<'a>(&'a mut self, size: u32) -> &'a mut StatementBuilder<'conn, 'sql> {
+    pub fn prefetch_rows(&mut self, size: u32) -> &mut StatementBuilder<'conn, 'sql> {
         self.query_params.prefetch_rows = Some(size);
         self
     }
@@ -182,13 +182,13 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// }
     /// # Ok::<(), Box::<dyn std::error::Error>>(())
     /// ```
-    pub fn lob_locator<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
+    pub fn lob_locator(&mut self) -> &mut StatementBuilder<'conn, 'sql> {
         self.query_params.lob_bind_type = LobBindType::Locator;
         self
     }
 
     // make the visibility public when scrollable cursors is supported.
-    fn scrollable<'a>(&'a mut self, scrollable: bool) -> &'a mut StatementBuilder<'conn, 'sql> {
+    fn scrollable(&mut self, scrollable: bool) -> &mut StatementBuilder<'conn, 'sql> {
         self.scrollable = scrollable;
         self
     }
@@ -245,7 +245,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     /// # assert_eq!(stmt.query_row_as::<i32>(&[])?, 2);
     /// # Ok::<(), Error>(())
     /// ```
-    pub fn tag<'a, T>(&'a mut self, tag_name: T) -> &'a mut StatementBuilder<'conn, 'sql>
+    pub fn tag<T>(&mut self, tag_name: T) -> &mut StatementBuilder<'conn, 'sql>
     where
         T: Into<String>,
     {
@@ -254,7 +254,7 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     }
 
     /// Excludes the statement from the cache even when stmt_cache_size is not zero.
-    pub fn exclude_from_cache<'a>(&'a mut self) -> &'a mut StatementBuilder<'conn, 'sql> {
+    pub fn exclude_from_cache(&mut self) -> &mut StatementBuilder<'conn, 'sql> {
         self.exclude_from_cache = true;
         self
     }
@@ -662,7 +662,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as<'a, T>(&'a mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
+    pub fn query_as<T>(&mut self, params: &[&dyn ToSql]) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {
@@ -677,7 +677,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn into_result_set<'a, T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'a, T>>
+    pub fn into_result_set<T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'conn, T>>
     where
         T: RowValue,
     {
@@ -690,10 +690,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as_named<'a, T>(
-        &'a mut self,
-        params: &[(&str, &dyn ToSql)],
-    ) -> Result<ResultSet<'a, T>>
+    pub fn query_as_named<T>(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<T>>
     where
         T: RowValue,
     {
@@ -708,10 +705,10 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn into_result_set_named<'a, T>(
+    pub fn into_result_set_named<T>(
         mut self,
         params: &[(&str, &dyn ToSql)],
-    ) -> Result<ResultSet<'a, T>>
+    ) -> Result<ResultSet<'conn, T>>
     where
         T: RowValue,
     {
@@ -1405,7 +1402,7 @@ impl BindIndex for usize {
     }
 }
 
-impl<'a> BindIndex for &'a str {
+impl BindIndex for &str {
     fn idx(&self, stmt: &Statement) -> Result<usize> {
         let bindname = self.to_uppercase();
         stmt.bind_names()
@@ -1440,7 +1437,7 @@ impl ColumnIndex for usize {
     }
 }
 
-impl<'a> ColumnIndex for &'a str {
+impl ColumnIndex for &str {
     fn idx(&self, column_info: &[ColumnInfo]) -> Result<usize> {
         for (idx, info) in column_info.iter().enumerate() {
             if info.name.as_str().eq_ignore_ascii_case(self) {
