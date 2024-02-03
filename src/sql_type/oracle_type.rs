@@ -198,6 +198,9 @@ pub enum OracleType {
     /// JSON data type introduced in Oracle 21c
     Json,
 
+    /// XML
+    Xml,
+
     /// Integer type in Oracle object type attributes. This will be renamed to Integer in future.
     Int64,
 
@@ -246,6 +249,7 @@ impl OracleType {
             DPI_ORACLE_TYPE_LONG_VARCHAR => Ok(OracleType::Long),
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
             DPI_ORACLE_TYPE_JSON => Ok(OracleType::Json),
+            DPI_ORACLE_TYPE_XMLTYPE => Ok(OracleType::Xml),
             _ => Err(Error::InternalError(format!(
                 "Unknown oracle type number: {}",
                 info.oracleTypeNum
@@ -306,6 +310,7 @@ impl OracleType {
             )),
             OracleType::Long => Ok((DPI_ORACLE_TYPE_LONG_VARCHAR, NativeType::Char, 0, 0)),
             OracleType::LongRaw => Ok((DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw, 0, 0)),
+            OracleType::Xml => Ok((DPI_ORACLE_TYPE_XMLTYPE, NativeType::Char, 0, 0)),
             OracleType::Int64 => Ok((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, 0, 0)),
             OracleType::UInt64 => Ok((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, 0, 0)),
             _ => Err(Error::InternalError(format!(
@@ -389,6 +394,7 @@ impl fmt::Display for OracleType {
             OracleType::Long => write!(f, "LONG"),
             OracleType::LongRaw => write!(f, "LONG RAW"),
             OracleType::Json => write!(f, "JSON"),
+            OracleType::Xml => write!(f, "XML"),
             OracleType::Int64 => write!(f, "INT64 used internally"),
             OracleType::UInt64 => write!(f, "UINT64 used internally"),
         }

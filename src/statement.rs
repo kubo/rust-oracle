@@ -1529,8 +1529,7 @@ mod tests {
         assert_eq!(colinfo[0].name(), "INTCOL");
         assert_eq!(colinfo[0].oracle_type(), &OracleType::Number(9, 0));
         assert_eq!(colinfo[1].name(), "XMLCOL");
-        // xmltype is reported as long. (https://github.com/oracle/odpi/commit/d51e9c496381427dd09f7fb0cbaab3e152667026)
-        assert_eq!(colinfo[1].oracle_type(), &OracleType::Long);
+        assert_eq!(colinfo[1].oracle_type(), &OracleType::Xml);
         assert_eq!(colinfo.len(), 2);
 
         Ok(())

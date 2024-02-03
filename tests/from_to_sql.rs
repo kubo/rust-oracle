@@ -167,6 +167,15 @@ fn string_from_sql() -> Result<()> {
         let val: String = stmt.bind_value(1)?;
         assert_eq!(val, "FALSE".to_string());
     }
+
+    // Get XMLTYPE
+    let xmldata = "<data>ABCDEFGHIJKLMNOP</data>\n";
+    conn.execute("insert into TestXML values (1, :1)", &[&xmldata])?;
+    assert_eq!(
+        &conn.query_row_as::<String>("select XMLCol from TestXML where IntCol = 1", &[])?,
+        xmldata,
+    );
+    conn.rollback()?;
     Ok(())
 }
 
