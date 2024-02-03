@@ -10,7 +10,7 @@ license = "UPL-1.0/Apache-2.0"
 keywords = ["oracle", "database"]
 readme = "README.md"
 description = "Oracle binding"
-edition = "2018"
+edition = "2021"
 rust-version = "1.60.0"
 
 [package.metadata.docs.rs]
