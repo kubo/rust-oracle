@@ -9,6 +9,7 @@ Incompatible changes:
 New features:
 
 * Add [`Row::column_info()`] to tell column names and types in [`RowValue::get()`]
+* Change the lifetime parameter of [`ResultSet`] to `'static` when it is created by query methods of [`Connection`] or into_result_set methods of [`Statement`].
 
 Changes:
 
@@ -408,6 +409,7 @@ Incompatible changes:
 [`Collection::values()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.values
 [`ColumnIndex`]: https://www.jiubao.org/rust-oracle/oracle/trait.ColumnIndex.html
 [`ColumnInfo::name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ColumnInfo.html#method.name
+[`Connection`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html
 [`Connection::connect()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.connect
 [`Connection::call_timeout()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.call_timeout
 [`Connection::close_with_mode()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.close_with_mode
@@ -450,6 +452,7 @@ Incompatible changes:
 [`ObjectTypeAttr::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
 [ODPI-C release notes]: https://oracle.github.io/odpi/doc/releasenotes.html
 [`OracleType::Xml`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html#variant.Xml
+[`ResultSet`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html
 [`ResultSet::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html#method.column_info
 [`Row::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.column_info
 [`Row::sql_values()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.sql_values
@@ -457,6 +460,7 @@ Incompatible changes:
 [`RowValue`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html
 [`RowValue::get()`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html#tymethod.get
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
+[`Statement`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html
 [`Statement::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.close
 [`Statement::last_row_id()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.last_row_id
 [`Statement::execute()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.execute

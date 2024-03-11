@@ -871,7 +871,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<Row>> {
+    pub fn query(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<'static, Row>> {
         let mut stmt = self.statement(sql).build()?;
         stmt.exec(params, true, "query")?;
         Ok(ResultSet::<Row>::from_stmt(stmt.stmt))
@@ -882,7 +882,11 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_named(&self, sql: &str, params: &[(&str, &dyn ToSql)]) -> Result<ResultSet<Row>> {
+    pub fn query_named(
+        &self,
+        sql: &str,
+        params: &[(&str, &dyn ToSql)],
+    ) -> Result<ResultSet<'static, Row>> {
         let mut stmt = self.statement(sql).build()?;
         stmt.exec_named(params, true, "query_named")?;
         Ok(ResultSet::<Row>::from_stmt(stmt.stmt))
@@ -893,7 +897,7 @@ impl Connection {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn query_as<T>(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<T>>
+    pub fn query_as<T>(&self, sql: &str, params: &[&dyn ToSql]) -> Result<ResultSet<'static, T>>
     where
         T: RowValue,
     {
@@ -911,7 +915,7 @@ impl Connection {
         &self,
         sql: &str,
         params: &[(&str, &dyn ToSql)],
-    ) -> Result<ResultSet<T>>
+    ) -> Result<ResultSet<'static, T>>
     where
         T: RowValue,
     {

@@ -22,11 +22,12 @@ use crate::sql_type::FromSql;
 use crate::statement::Stmt;
 use crate::ColumnIndex;
 use crate::ColumnInfo;
+#[cfg(doc)]
+use crate::Connection;
 use crate::Result;
 use crate::SqlValue;
-
-#[allow(unused_imports)] // for links in doc comments
-use crate::Connection;
+#[cfg(doc)]
+use crate::Statement;
 
 /// Row in a result set of a select statement
 pub struct Row {
@@ -105,6 +106,25 @@ enum StmtHolder<'a> {
 }
 
 /// Result set
+///
+/// # Remarks
+///
+/// The lifetime parameter `'a` is `'static` when this type is created by the following methods.
+///
+/// * [`Connection::query()`]
+/// * [`Connection::query_named()`]
+/// * [`Connection::query_as()`]
+/// * [`Connection::query_as_named()`]
+/// * [`Statement::into_result_set()`]
+/// * [`Statement::into_result_set_named()`]
+///
+/// On the other hand, `'a` refers to [`Statement`] when it is created by the following methods.
+///
+/// * [`Statement::query()`]
+/// * [`Statement::query_named()`]
+/// * [`Statement::query_as()`]
+/// * [`Statement::query_as_named()`]
+///
 #[derive(Debug)]
 pub struct ResultSet<'a, T>
 where

@@ -677,7 +677,7 @@ impl<'conn> Statement<'conn> {
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    pub fn into_result_set<T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'conn, T>>
+    pub fn into_result_set<T>(mut self, params: &[&dyn ToSql]) -> Result<ResultSet<'static, T>>
     where
         T: RowValue,
     {
@@ -708,7 +708,7 @@ impl<'conn> Statement<'conn> {
     pub fn into_result_set_named<T>(
         mut self,
         params: &[(&str, &dyn ToSql)],
-    ) -> Result<ResultSet<'conn, T>>
+    ) -> Result<ResultSet<'static, T>>
     where
         T: RowValue,
     {
