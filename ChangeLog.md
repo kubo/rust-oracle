@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.6.0 (2024-??-??)
+
+Incompatible changes:
+
+* Add a new variant [`OracleType::Xml`]
+
+New features:
+
+* Add [`Row::column_info()`] to tell column names and types in [`RowValue::get()`]
+
+Changes:
+
+* Update ODPI-C to 5.1.0. (see [ODPI-C release notes])
+* Update minimum supported Rust version to 1.60.0
+* Update rust edition to 2021
+* Change a undocumented method of the sealed trait [`ColumnIndex`]
+
 ## 0.5.7 (2023-01-30)
 
 New features:
@@ -20,7 +37,7 @@ Changes:
 
 Internal Changes:
 
-* Update ODPI-C to 4.6.0. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
+* Update ODPI-C to 4.6.0. (see [ODPI-C release notes])
 
 ## 0.5.6 (2022-08-09)
 
@@ -34,7 +51,7 @@ Changes:
 
 Internal Changes:
 
-* Update ODPI-C to 4.4.1. (see [ODPI-C release notes](https://oracle.github.io/odpi/doc/releasenotes.html))
+* Update ODPI-C to 4.4.1. (see [ODPI-C release notes])
 * Suppress 'cargo clippy' warnings
 * Use atomic types instead of RefCell and Mutex
 
@@ -389,6 +406,7 @@ Incompatible changes:
 [`Collection::indices()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.indices
 [`Collection::iter()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.iter
 [`Collection::values()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.values
+[`ColumnIndex`]: https://www.jiubao.org/rust-oracle/oracle/trait.ColumnIndex.html
 [`ColumnInfo::name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ColumnInfo.html#method.name
 [`Connection::connect()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.connect
 [`Connection::call_timeout()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.call_timeout
@@ -430,10 +448,14 @@ Incompatible changes:
 [`ObjectType::schema()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.schema
 [`ObjectType::package_name()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.ObjectType.html#method.package_name
 [`ObjectTypeAttr::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
+[ODPI-C release notes]: https://oracle.github.io/odpi/doc/releasenotes.html
+[`OracleType::Xml`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html#variant.Xml
 [`ResultSet::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html#method.column_info
+[`Row::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.column_info
 [`Row::sql_values()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.sql_values
 [`Row::get_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.get_as
 [`RowValue`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html
+[`RowValue::get()`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html#tymethod.get
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
 [`Statement::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.close
 [`Statement::last_row_id()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.last_row_id
