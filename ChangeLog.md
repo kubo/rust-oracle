@@ -4,6 +4,7 @@
 
 Incompatible changes:
 
+* Remove the lifetype parameter `'conn` from [`Statement`]
 * Add a new variant [`OracleType::Xml`]
 
 New features:

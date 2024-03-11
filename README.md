@@ -40,7 +40,7 @@ The following features can be enabled from Cargo.toml:
 Feature	| Description | available version
 ---|---|---
 `chrono` | Implements [`ToSql`] and [`FromSql`] for [chrono] data types. | any
-`stmt_without_lifetime` | Removes `conn` lifetime from [`Statement`]. This is available to avoid lifetime conflicts. | since&nbsp;0.5.6
+`stmt_without_lifetime` | Removes `conn` lifetime from [`Statement`]. This is available to avoid lifetime conflicts. | 0.5.6&nbsp;only
 `aq_unstable` | Enables [Oracle Advanced Queuing support][aq]. This is unstable. It may be changed incompatibly by minor version upgrades. | since&nbsp;0.5.5
 
 ## Examples

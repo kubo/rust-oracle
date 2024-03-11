@@ -17,7 +17,6 @@ rust-version = "1.60.0"
 features = ["chrono", "aq_unstable"]
 
 [features]
-stmt_without_lifetime = []
 aq_unstable = []
 
 [dependencies]
