@@ -8,13 +8,12 @@ jobs:
       msrv: ${{ steps.msrv.outputs.msrv }}
       rust_toolchains: ${{ steps.msrv.outputs.rust_toolchains }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: msrv
         name: Get minimum supported rust version in Cargo.toml
         run: |
           MSRV=$(sed -n -e 's/rust-version *= *"\(.*\)"/\1/p' Cargo.toml)
-          echo "::set-output name=msrv::$MSRV]"
-          echo "::set-output name=rust_toolchains::[\"stable\", \"$MSRV\"]"
+          echo "rust_toolchains=[\"stable\", \"$MSRV\"]" >> $GITHUB_OUTPUT
 
   tests:
     needs: msrv
@@ -43,7 +42,7 @@ jobs:
           --health-retries 10
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -82,24 +81,24 @@ jobs:
           echo ODPIC_TEST_CONNECT_STRING=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
           echo NLS_LANG=AMERICAN_AMERICA.AL32UTF8 >> $GITHUB_ENV
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust_toolchain }}
-          target: x86_64-pc-windows-gnu
-          override: true
+      - name: install rust
+        run: |
+          rustup install ${{ matrix.rust_toolchain }}
+          rustup target add x86_64-pc-windows-gnu --toolchain ${{ matrix.rust_toolchain }}
+
+      - name: Downgrade chrono to 0.4.31, whose MSRV is 1.57.0, if the rust toolchain isn't stable
+        if: matrix.rust_toolchain != 'stable'
+        run: |
+          cargo update -p chrono --precise 0.4.31
 
       - name: Create Oracle users and schema
         run: |
           sqlplus sys/sys_passwd as sysdba @tests/SetupTest.sql < /dev/null
 
       - name: cargo test (x86_64-unknown-linux-gnu)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features ${{ env.rust_features }} -- --nocapture
+        run: |
+          rustup run ${{ matrix.rust_toolchain }} cargo test --features ${{ env.rust_features }} -- --nocapture
 
       - name: cargo test (x86_64-pc-windows-gnu)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --target x86_64-pc-windows-gnu --features ${{ env.rust_features }} -- --nocapture
+        run: |
+          rustup run ${{ matrix.rust_toolchain }} cargo test --target x86_64-pc-windows-gnu --features ${{ env.rust_features }} -- --nocapture
