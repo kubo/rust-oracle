@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["CloseMode","The mode to use when closing connections to the database"],["Purity","Session Purity"]]};
+window.SIDEBAR_ITEMS = {"enum":["CloseMode","Purity"]};

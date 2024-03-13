@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/object.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/object.rs`."><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -971,7 +972,7 @@
 <a href="#971" id="971">971</a>
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -1034,16 +1035,16 @@
 ///
 /// ```no_run
 /// # use oracle::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_ELEM_INFO_ARRAY is defined as VARRAY (1048576) of NUMBER.
-/// let objtype = conn.object_type(&quot;MDSYS.SDO_ELEM_INFO_ARRAY&quot;)?;
+/// let objtype = conn.object_type("MDSYS.SDO_ELEM_INFO_ARRAY")?;
 ///
 /// // Create a new collection
 /// let mut obj = objtype.new_collection()?;
 /// obj.push(&amp;1);
 /// obj.push(&amp;3);
-/// assert_eq!(obj.to_string(), &quot;MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)&quot;);
+/// assert_eq!(obj.to_string(), "MDSYS.SDO_ELEM_INFO_ARRAY(1, 3)");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
@@ -1074,7 +1075,7 @@
 
     <span class="doccomment">/// Returns the number of elements.
     ///
-    /// This counts also deleted elements. See &quot;Comments&quot; about [OCICollSize()][].
+    /// This counts also deleted elements. See "Comments" about [OCICollSize()][].
     ///
     /// [OCICollSize()]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
     </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
@@ -1090,46 +1091,46 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// // Creates VARRAY type and gets the type information
-    /// conn.execute(&quot;create or replace type string_varray is varray(20) of varchar2(60)&quot;, &amp;[])?;
-    /// let objtype = conn.object_type(&quot;STRING_VARRAY&quot;)?;
+    /// conn.execute("create or replace type string_varray is varray(20) of varchar2(60)", &amp;[])?;
+    /// let objtype = conn.object_type("STRING_VARRAY")?;
     ///
     /// // Creates a VARRAY instance and appends three elements.
     /// let mut coll = objtype.new_collection()?;
-    /// coll.push(&amp;&quot;First Element&quot;)?;
-    /// coll.push(&amp;&quot;Second Element&quot;)?;
-    /// coll.push(&amp;&quot;Third Element&quot;)?;
+    /// coll.push(&amp;"First Element")?;
+    /// coll.push(&amp;"Second Element")?;
+    /// coll.push(&amp;"Third Element")?;
     ///
     /// let vec = coll
     ///     .iter::&lt;String&gt;() // iterator returning Result&lt;(i32, String)&gt;
     ///     .collect::&lt;Result&lt;Vec&lt;_&gt;&gt;&gt;()?;
-    /// assert_eq!(vec[0], (0, &quot;First Element&quot;.to_string()));
-    /// assert_eq!(vec[1], (1, &quot;Second Element&quot;.to_string()));
-    /// assert_eq!(vec[2], (2, &quot;Third Element&quot;.to_string()));
+    /// assert_eq!(vec[0], (0, "First Element".to_string()));
+    /// assert_eq!(vec[1], (1, "Second Element".to_string()));
+    /// assert_eq!(vec[2], (2, "Third Element".to_string()));
     ///
     /// // Creates Table type and gets the type information
-    /// conn.execute(&quot;create or replace type string_table is table of varchar2(60)&quot;, &amp;[])?;
-    /// let objtype = conn.object_type(&quot;STRING_TABLE&quot;)?;
+    /// conn.execute("create or replace type string_table is table of varchar2(60)", &amp;[])?;
+    /// let objtype = conn.object_type("STRING_TABLE")?;
     ///
     /// // Creates a TABLE instance, appends four elements and makes a hole.
     /// let mut coll = objtype.new_collection()?;
-    /// coll.push(&amp;&quot;First Element&quot;)?;
-    /// coll.push(&amp;&quot;Second Element&quot;)?;
-    /// coll.push(&amp;&quot;Third Element&quot;)?;
-    /// coll.push(&amp;&quot;Fourth Element&quot;)?;
-    /// coll.remove(2)?; // Remove &quot;Third Element&quot;
+    /// coll.push(&amp;"First Element")?;
+    /// coll.push(&amp;"Second Element")?;
+    /// coll.push(&amp;"Third Element")?;
+    /// coll.push(&amp;"Fourth Element")?;
+    /// coll.remove(2)?; // Remove "Third Element"
     ///
     /// // iterator returning Result&lt;(i32, String)&gt;
     /// let mut iter = coll.iter::&lt;String&gt;();
-    /// assert_eq!(iter.next().unwrap()?, (0, &quot;First Element&quot;.to_string()));
-    /// assert_eq!(iter.next().unwrap()?, (1, &quot;Second Element&quot;.to_string()));
-    /// assert_eq!(iter.next().unwrap()?, (3, &quot;Fourth Element&quot;.to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (0, "First Element".to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (1, "Second Element".to_string()));
+    /// assert_eq!(iter.next().unwrap()?, (3, "Fourth Element".to_string()));
     /// assert!(iter.next().is_none());
     /// # // check fused
     /// # assert!(iter.next().is_none());
     /// # // backward
-    /// # assert_eq!(iter.next_back().unwrap()?, (3, &quot;Fourth Element&quot;.to_string()));
-    /// # assert_eq!(iter.next_back().unwrap()?, (1, &quot;Second Element&quot;.to_string()));
-    /// # assert_eq!(iter.next_back().unwrap()?, (0, &quot;First Element&quot;.to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (3, "Fourth Element".to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (1, "Second Element".to_string()));
+    /// # assert_eq!(iter.next_back().unwrap()?, (0, "First Element".to_string()));
     /// # assert!(iter.next_back().is_none());
     /// # // check fused
     /// # assert!(iter.next_back().is_none());
@@ -1150,17 +1151,17 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// // Creates Table type and gets the type information
-    /// conn.execute(&quot;create or replace type string_table is table of varchar2(60)&quot;, &amp;[])?;
-    /// let objtype = conn.object_type(&quot;STRING_TABLE&quot;)?;
+    /// conn.execute("create or replace type string_table is table of varchar2(60)", &amp;[])?;
+    /// let objtype = conn.object_type("STRING_TABLE")?;
     ///
     /// // Creates a TABLE instance, appends four elements and makes a hole.
     /// let mut coll = objtype.new_collection()?;
-    /// coll.push(&amp;&quot;First Element&quot;)?; // index 0
-    /// coll.push(&amp;&quot;Second Element&quot;)?; // index 1
-    /// coll.push(&amp;&quot;Third Element&quot;)?; // index 2
-    /// coll.push(&amp;&quot;Fourth Element&quot;)?; // index 3
+    /// coll.push(&amp;"First Element")?; // index 0
+    /// coll.push(&amp;"Second Element")?; // index 1
+    /// coll.push(&amp;"Third Element")?; // index 2
+    /// coll.push(&amp;"Fourth Element")?; // index 3
     /// coll.remove(2)?; // remote index 2
-    /// // coll&#39;s indices are 0, 1 and 3.
+    /// // coll's indices are 0, 1 and 3.
     ///
     /// let mut indices = coll.indices();
     /// assert_eq!(indices.next().unwrap().unwrap(), 0);
@@ -1189,26 +1190,26 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// // Creates VARRAY type and gets the type information
-    /// conn.execute(&quot;create or replace type string_varray3 is varray(20) of varchar2(60)&quot;, &amp;[])?;
-    /// let objtype = conn.object_type(&quot;STRING_VARRAY3&quot;)?;
+    /// conn.execute("create or replace type string_varray3 is varray(20) of varchar2(60)", &amp;[])?;
+    /// let objtype = conn.object_type("STRING_VARRAY3")?;
     ///
     /// // Creates a VARRAY instance and appends three elements.
     /// let mut coll = objtype.new_collection()?;
-    /// coll.push(&amp;&quot;First Element&quot;);
-    /// coll.push(&amp;&quot;Second Element&quot;);
-    /// coll.push(&amp;&quot;Third Element&quot;);
+    /// coll.push(&amp;"First Element");
+    /// coll.push(&amp;"Second Element");
+    /// coll.push(&amp;"Third Element");
     ///
     /// let mut iter = coll.values::&lt;String&gt;();
-    /// assert_eq!(iter.next().unwrap()?, &quot;First Element&quot;.to_string());
-    /// assert_eq!(iter.next().unwrap()?, &quot;Second Element&quot;.to_string());
-    /// assert_eq!(iter.next().unwrap()?, &quot;Third Element&quot;.to_string());
+    /// assert_eq!(iter.next().unwrap()?, "First Element".to_string());
+    /// assert_eq!(iter.next().unwrap()?, "Second Element".to_string());
+    /// assert_eq!(iter.next().unwrap()?, "Third Element".to_string());
     /// assert!(iter.next().is_none());
     /// # // check fused
     /// # assert!(iter.next().is_none());
     /// # // backward
-    /// # assert_eq!(iter.next_back().unwrap()?, &quot;Third Element&quot;.to_string());
-    /// # assert_eq!(iter.next_back().unwrap()?, &quot;Second Element&quot;.to_string());
-    /// # assert_eq!(iter.next_back().unwrap()?, &quot;First Element&quot;.to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, "Third Element".to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, "Second Element".to_string());
+    /// # assert_eq!(iter.next_back().unwrap()?, "First Element".to_string());
     /// # assert!(iter.next_back().is_none());
     /// # // check fused
     /// # assert!(iter.next_back().is_none());
@@ -1224,7 +1225,7 @@
 
     <span class="doccomment">/// Returns the first index.
     ///
-    /// Use this method if indexes of the collection isn&#39;t continuous.
+    /// Use this method if indexes of the collection isn't continuous.
     </span><span class="kw">pub fn </span>first_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
@@ -1241,7 +1242,7 @@
 
     <span class="doccomment">/// Returns the last index.
     ///
-    /// Use this method if indexes of the collection isn&#39;t continuous.
+    /// Use this method if indexes of the collection isn't continuous.
     </span><span class="kw">pub fn </span>last_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
@@ -1258,7 +1259,7 @@
 
     <span class="doccomment">/// Returns the next index following the specified index.
     ///
-    /// Use this method if indexes of the collection isn&#39;t continuous.
+    /// Use this method if indexes of the collection isn't continuous.
     </span><span class="kw">pub fn </span>next_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>next = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
@@ -1275,7 +1276,7 @@
 
     <span class="doccomment">/// Returns the previous index following the specified index.
     ///
-    /// Use this method if indexes of the collection isn&#39;t continuous.
+    /// Use this method if indexes of the collection isn't continuous.
     </span><span class="kw">pub fn </span>prev_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: i32) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
@@ -1407,7 +1408,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Collection {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}(&quot;</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"{}("</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = <span class="self">self</span>.first_index() {
             <span class="kw">let </span><span class="kw-2">mut </span>idx = index;
             <span class="kw">let </span>oratype = <span class="self">self</span>.objtype.element_oracle_type().unwrap();
@@ -1415,33 +1416,33 @@
                 write_literal(f, <span class="kw-2">&amp;</span><span class="self">self</span>.get(idx), oratype)<span class="question-mark">?</span>;
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = <span class="self">self</span>.next_index(idx) {
                     idx = index;
-                    <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">", "</span>)<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
                     <span class="kw">break</span>;
                 }
             }
         }
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">")"</span>)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Collection {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span>oratype = <span class="self">self</span>.objtype.element_oracle_type().unwrap();
-        <span class="macro">write!</span>(f, <span class="string">&quot;Collection({} collection of {}: &quot;</span>, <span class="self">self</span>.objtype, oratype)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"Collection({} collection of {}: "</span>, <span class="self">self</span>.objtype, oratype)<span class="question-mark">?</span>;
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = <span class="self">self</span>.first_index() {
             <span class="kw">let </span><span class="kw-2">mut </span>idx = index;
             <span class="kw">loop </span>{
                 write_literal(f, <span class="kw-2">&amp;</span><span class="self">self</span>.get(idx), oratype)<span class="question-mark">?</span>;
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(index) = <span class="self">self</span>.next_index(idx) {
                     idx = index;
-                    <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">", "</span>)<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
                     <span class="kw">break</span>;
                 }
             }
         }
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">")"</span>)
     }
 }
 
@@ -1449,24 +1450,24 @@
 ///
 /// ```no_run
 /// # use oracle::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // MDSYS.SDO_GEOMETRY
 /// // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-683FF8C5-A773-4018-932D-2AF6EC8BC119
-/// let geom_type = conn.object_type(&quot;MDSYS.SDO_GEOMETRY&quot;)?;
-/// let point_type = conn.object_type(&quot;MDSYS.SDO_POINT_TYPE&quot;)?;
+/// let geom_type = conn.object_type("MDSYS.SDO_GEOMETRY")?;
+/// let point_type = conn.object_type("MDSYS.SDO_POINT_TYPE")?;
 ///
 /// // Create a new object
 /// let mut obj = geom_type.new_object()?;
 /// let mut point = point_type.new_object()?;
-/// point.set(&quot;X&quot;, &amp;-79)?;
-/// point.set(&quot;Y&quot;, &amp;37)?;
-/// obj.set(&quot;SDO_GTYPE&quot;, &amp;2001)?;
-/// obj.set(&quot;SDO_POINT&quot;, &amp;point)?;
-/// assert_eq!(obj.to_string(), &quot;MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(-79, 37, NULL), NULL, NULL)&quot;);
+/// point.set("X", &amp;-79)?;
+/// point.set("Y", &amp;37)?;
+/// obj.set("SDO_GTYPE", &amp;2001)?;
+/// obj.set("SDO_POINT", &amp;point)?;
+/// assert_eq!(obj.to_string(), "MDSYS.SDO_GEOMETRY(2001, NULL, MDSYS.SDO_POINT_TYPE(-79, 37, NULL), NULL, NULL)");
 ///
 /// // Gets an attribute value.
-/// let gtype: i32 = obj.get(&quot;SDO_GTYPE&quot;)?;
+/// let gtype: i32 = obj.get("SDO_GTYPE")?;
 /// assert_eq!(gtype, 2001);
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
@@ -1586,34 +1587,34 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Object {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}(&quot;</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"{}("</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
         <span class="kw">for </span>attr <span class="kw">in </span><span class="self">self</span>.objtype.attributes() {
             <span class="kw">if </span>first {
                 first = <span class="bool-val">false</span>;
             } <span class="kw">else </span>{
-                <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">", "</span>)<span class="question-mark">?</span>;
             }
             write_literal(f, <span class="kw-2">&amp;</span><span class="self">self</span>.get_by_attr(attr), <span class="kw-2">&amp;</span>attr.oratype)<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">")"</span>)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Object {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Object({}(&quot;</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">"Object({}("</span>, <span class="self">self</span>.objtype)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
         <span class="kw">for </span>attr <span class="kw">in </span><span class="self">self</span>.objtype.attributes() {
             <span class="kw">if </span>first {
                 first = <span class="bool-val">false</span>;
             } <span class="kw">else </span>{
-                <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">", "</span>)<span class="question-mark">?</span>;
             }
-            <span class="macro">write!</span>(f, <span class="string">&quot;{}({}): &quot;</span>, attr.name(), attr.oracle_type())<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"{}({}): "</span>, attr.name(), attr.oracle_type())<span class="question-mark">?</span>;
             write_literal(f, <span class="kw-2">&amp;</span><span class="self">self</span>.get_by_attr(attr), <span class="kw-2">&amp;</span>attr.oratype)<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(f, <span class="string">&quot;))&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">"))"</span>)
     }
 }
 
@@ -1628,8 +1629,8 @@
 ///
 /// ```no_run
 /// # use oracle::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-/// let objtype = conn.object_type(&quot;MDSYS.SDO_GEOMETRY&quot;);
+/// let conn = Connection::connect("scott", "tiger", "")?;
+/// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
@@ -1637,16 +1638,16 @@
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-/// // conn.execute(&quot;create table location (name varchar2(60), loc sdo_geometry)&quot;, &amp;[]);
+/// let conn = Connection::connect("scott", "tiger", "")?;
+/// // conn.execute("create table location (name varchar2(60), loc sdo_geometry)", &amp;[]);
 /// let mut stmt = conn
-///     .statement(&quot;select loc from location where name = &#39;...&#39;&quot;)
+///     .statement("select loc from location where name = '...'")
 ///     .build()?;
 /// let rows = stmt.query(&amp;[])?;
 /// let objtype = if let OracleType::Object(ref objtype) = *rows.column_info()[0].oracle_type() {
 ///     objtype
 /// } else {
-///     panic!(&quot;Not an object type&quot;)
+///     panic!("Not an object type")
 /// };
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
@@ -1701,13 +1702,13 @@
         </span>}
     }
 
-    <span class="doccomment">/// Gets the number of attributes if it isn&#39;t a collection.
+    <span class="doccomment">/// Gets the number of attributes if it isn't a collection.
     /// Otherwise, 0.
     </span><span class="kw">pub fn </span>num_attributes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.internal.attrs.len()
     }
 
-    <span class="doccomment">/// Gets a vector of attribute information if it isn&#39;t a collection.
+    <span class="doccomment">/// Gets a vector of attribute information if it isn't a collection.
     /// Otherwise, a zero-length vector.
     ///
     /// # Examples
@@ -1716,10 +1717,10 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-    /// let objtype = conn.object_type(&quot;MDSYS.SDO_GEOMETRY&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
+    /// let objtype = conn.object_type("MDSYS.SDO_GEOMETRY")?;
     /// for attr in objtype.attributes() {
-    ///     println!(&quot;{:-20} {}&quot;, attr.name(), attr.oracle_type());
+    ///     println!("{:-20} {}", attr.name(), attr.oracle_type());
     /// }
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -1731,7 +1732,7 @@
     </span><span class="kw">pub fn </span>new_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Object&gt; {
         <span class="kw">if </span><span class="self">self</span>.is_collection() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
-                <span class="string">&quot;{}.{} isn&#39;t object type.&quot;</span>,
+                <span class="string">"{}.{} isn't object type."</span>,
                 <span class="self">self</span>.schema(),
                 <span class="self">self</span>.name()
             )));
@@ -1749,7 +1750,7 @@
     </span><span class="kw">pub fn </span>new_collection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Collection&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_collection() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
-                <span class="string">&quot;{}.{} isn&#39;t collection type.&quot;</span>,
+                <span class="string">"{}.{} isn't collection type."</span>,
                 <span class="self">self</span>.schema(),
                 <span class="self">self</span>.name()
             )));
@@ -1772,13 +1773,13 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ObjectType {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.internal)
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.internal)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ObjectType {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.internal)
+        <span class="macro">write!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>.internal)
     }
 }
 
@@ -1834,7 +1835,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;ObjectTypeAttr {{ handle: {:?}, name: {:?}, oratype: {:?} }}&quot;</span>,
+            <span class="string">"ObjectTypeAttr {{ handle: {:?}, name: {:?}, oratype: {:?} }}"</span>,
             <span class="self">self</span>.handle.raw(),
             <span class="self">self</span>.name,
             <span class="self">self</span>.oratype
@@ -1915,7 +1916,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ObjectTypeInternal {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}.{}&quot;</span>, <span class="self">self</span>.schema, <span class="self">self</span>.name)
+        <span class="macro">write!</span>(f, <span class="string">"{}.{}"</span>, <span class="self">self</span>.schema, <span class="self">self</span>.name)
     }
 }
 
@@ -1924,25 +1925,24 @@
         <span class="kw">if </span><span class="self">self</span>.elem_oratype.is_some() {
             <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;ObjectType({}.{} collection of {})&quot;</span>,
+                <span class="string">"ObjectType({}.{} collection of {})"</span>,
                 <span class="self">self</span>.schema,
                 <span class="self">self</span>.name,
                 <span class="self">self</span>.elem_oratype.as_ref().unwrap()
             )
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;ObjectType({}.{}(&quot;</span>, <span class="self">self</span>.schema, <span class="self">self</span>.name)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"ObjectType({}.{}("</span>, <span class="self">self</span>.schema, <span class="self">self</span>.name)<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
             <span class="kw">for </span>attr <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.attrs {
                 <span class="kw">if </span>first {
                     first = <span class="bool-val">false</span>;
                 } <span class="kw">else </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">", "</span>)<span class="question-mark">?</span>;
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;{} {}&quot;</span>, attr.name(), attr.oracle_type())<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"{} {}"</span>, attr.name(), attr.oracle_type())<span class="question-mark">?</span>;
             }
-            <span class="macro">write!</span>(f, <span class="string">&quot;))&quot;</span>)
+            <span class="macro">write!</span>(f, <span class="string">"))"</span>)
         }
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/oci_attr/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -379,7 +380,7 @@
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -471,7 +472,7 @@
 /// a database user has a privilege to access `v$parameter`.
 ///
 /// ```sql
-/// select value from v$parameter where name = &#39;max_string_size&#39;
+/// select value from v$parameter where name = 'max_string_size'
 /// ```
 ///
 /// [`OCI_ATTR_VARTYPE_MAXLEN_COMPAT`]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-D8EE68EB-7E38-4068-B06E-DF5686379E5E__GUID-2EFB39BC-6131-4EAD-BBF6-7CA8E5F2BBF4
@@ -507,9 +508,9 @@
 /// conn.set_oci_attr::&lt;CollectCallTime&gt;(&amp;true)?;
 ///
 /// // This SQL consumes one second in the server-side.
-/// conn.execute(&quot;begin dbms_session.sleep(1); end;&quot;, &amp;[])?;
+/// conn.execute("begin dbms_session.sleep(1); end;", &amp;[])?;
 /// let call_time = conn.oci_attr::&lt;CallTime&gt;()?;
-/// assert!(call_time &gt;= Duration::from_secs(1), &quot;call_time is {:?}.&quot;, call_time);
+/// assert!(call_time &gt;= Duration::from_secs(1), "call_time is {:?}.", call_time);
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
@@ -554,9 +555,9 @@
 /// let lob_size = 64 * 1024;
 /// conn.set_oci_attr::&lt;DefaultLobPrefetchSize&gt;(&amp;lob_size)?;
 ///
-/// # conn.execute(&quot;insert into TestCLOBs values (1, &#39;11111111111111111111111111111&#39;)&quot;, &amp;[])?;
+/// # conn.execute("insert into TestCLOBs values (1, '11111111111111111111111111111')", &amp;[])?;
 /// let mut stmt = conn
-///     .statement(&quot;select CLOBCol from TestCLOBs where IntCol = :1&quot;)
+///     .statement("select CLOBCol from TestCLOBs where IntCol = :1")
 ///     .lob_locator()
 ///     .build()?;
 /// let lob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1])?;
@@ -580,7 +581,7 @@
 /// a database user has a privilege to access `v$parameter`.
 ///
 /// ```sql
-/// select value from v$parameter where name = &#39;open_cursors&#39;
+/// select value from v$parameter where name = 'open_cursors'
 /// ```
 ///
 /// Note that this attribute returns a proper value only when connected to a 12.1 server or later.
@@ -611,13 +612,13 @@
 /// #     return Ok(());
 /// # }
 /// # let mut conn = test_util::connect()?;
-/// # conn.execute(&quot;drop table test_sql_fn_code purge&quot;, &amp;[]);
+/// # conn.execute("drop table test_sql_fn_code purge", &amp;[]);
 ///
 /// // no active transaction at first
 /// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, false);
 ///
 /// // start a transaction
-/// conn.execute(&quot;insert into TestTempTable values (1, &#39;val1&#39;)&quot;, &amp;[])?;
+/// conn.execute("insert into TestTempTable values (1, 'val1')", &amp;[])?;
 /// assert_eq!(conn.oci_attr::&lt;TransactionInProgress&gt;()?, true);
 ///
 /// // rollback the transction
@@ -650,13 +651,13 @@
 /// # use std::time::Duration;
 /// # let mut conn = test_util::connect()?;
 ///
-/// let stmt = conn.execute(&quot;insert into TestNumbers values(11, 12, 13, 14, 15)&quot;, &amp;[])?;
+/// let stmt = conn.execute("insert into TestNumbers values(11, 12, 13, 14, 15)", &amp;[])?;
 /// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 3);
 ///
-/// let stmt = conn.execute(&quot;update TestNumbers set NumberCol = 13 where IntCol = 11&quot;, &amp;[])?;
+/// let stmt = conn.execute("update TestNumbers set NumberCol = 13 where IntCol = 11", &amp;[])?;
 /// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 5);
 ///
-/// let stmt = conn.execute(&quot;delete TestNumbers where IntCol = 11&quot;, &amp;[])?;
+/// let stmt = conn.execute("delete TestNumbers where IntCol = 11", &amp;[])?;
 /// assert_eq!(stmt.oci_attr::&lt;SqlFnCode&gt;()?, 9);
 ///
 /// # conn.rollback()?;
@@ -685,8 +686,8 @@
 /// use oracle::oci_attr::Statement;
 /// # let mut conn = test_util::connect()?;
 ///
-/// let mut stmt = conn.statement(&quot;select * from dual&quot;).build()?;
-/// assert_eq!(stmt.oci_attr::&lt;Statement&gt;()?, &quot;select * from dual&quot;);
+/// let mut stmt = conn.statement("select * from dual").build()?;
+/// assert_eq!(stmt.oci_attr::&lt;Statement&gt;()?, "select * from dual");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
@@ -745,20 +746,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_write_server_str_attr() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>conn = test_util::connect()<span class="question-mark">?</span>;
-        conn.set_oci_attr::&lt;InternalName&gt;(<span class="string">&quot;test internal name&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(conn.oci_attr::&lt;InternalName&gt;()<span class="question-mark">?</span>, <span class="string">&quot;test internal name&quot;</span>);
+        conn.set_oci_attr::&lt;InternalName&gt;(<span class="string">"test internal name"</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(conn.oci_attr::&lt;InternalName&gt;()<span class="question-mark">?</span>, <span class="string">"test internal name"</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>write_session_str_attr() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>conn = test_util::connect()<span class="question-mark">?</span>;
-        conn.set_oci_attr::&lt;Module&gt;(<span class="string">&quot;test module name&quot;</span>)<span class="question-mark">?</span>;
+        conn.set_oci_attr::&lt;Module&gt;(<span class="string">"test module name"</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>module =
-            conn.query_row_as::&lt;String&gt;(<span class="string">&quot;select sys_context(&#39;USERENV&#39;, &#39;MODULE&#39;) from dual&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(module, <span class="string">&quot;test module name&quot;</span>);
+            conn.query_row_as::&lt;String&gt;(<span class="string">"select sys_context('USERENV', 'MODULE') from dual"</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(module, <span class="string">"test module name"</span>);
         <span class="prelude-val">Ok</span>(())
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

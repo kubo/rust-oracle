@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pool.rs`."><title>pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1023,7 +1024,7 @@
 <a href="#1023" id="1023">1023</a>
 <a href="#1024" id="1024">1024</a>
 <a href="#1025" id="1025">1025</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -1128,7 +1129,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(msecs))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
-                    <span class="string">&quot;Too long timed wait duration {:?}&quot;</span>,
+                    <span class="string">"Too long timed wait duration {:?}"</span>,
                     dur
                 )))
             }
@@ -1162,7 +1163,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(dur) = dur {
             <span class="kw">match </span>dur.as_secs().try_into() {
                 <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(I32Seconds(secs)),
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">"Too long {} {:?}"</span>, msg, dur))),
             }
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(I32Seconds(-<span class="number">1</span>))
@@ -1195,14 +1196,14 @@
 <span class="kw">impl </span>PoolOptions {
     <span class="kw">pub fn </span>new() -&gt; PoolOptions {
         PoolOptions {
-            username: <span class="string">&quot;&quot;</span>.into(),
-            password: <span class="string">&quot;&quot;</span>.into(),
+            username: <span class="string">""</span>.into(),
+            password: <span class="string">""</span>.into(),
             privilege: <span class="prelude-val">None</span>,
             external_auth: <span class="bool-val">false</span>,
-            tag: <span class="string">&quot;&quot;</span>.into(),
+            tag: <span class="string">""</span>.into(),
             match_any_tag: <span class="bool-val">false</span>,
             purity: <span class="prelude-val">None</span>,
-            connection_class: <span class="string">&quot;&quot;</span>.into(),
+            connection_class: <span class="string">""</span>.into(),
         }
     }
 
@@ -1286,7 +1287,7 @@
     <span class="kw">fn </span>try_from(dur: Duration, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;U32Seconds&gt; {
         <span class="kw">match </span>dur.as_secs().try_into() {
             <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(U32Seconds(secs)),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">"Too long {} {:?}"</span>, msg, dur))),
         }
     }
 }
@@ -1298,7 +1299,7 @@
     <span class="kw">fn </span>try_from(dur: Duration, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;U32Milliseconds&gt; {
         <span class="kw">match </span>dur.as_millis().try_into() {
             <span class="prelude-val">Ok</span>(secs) =&gt; <span class="prelude-val">Ok</span>(U32Milliseconds(secs)),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;Too long {} {:?}&quot;</span>, msg, dur))),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(<span class="string">"Too long {} {:?}"</span>, msg, dur))),
         }
     }
 }
@@ -1390,7 +1391,7 @@
     ///
     /// See also [`Pool::ping_interval`] and [`Pool::set_ping_interval`].
     </span><span class="kw">pub fn </span>ping_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
-        <span class="self">self</span>.ping_interval = <span class="prelude-val">Some</span>(I32Seconds::try_from(dur, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>);
+        <span class="self">self</span>.ping_interval = <span class="prelude-val">Some</span>(I32Seconds::try_from(dur, <span class="string">"ping interval"</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
@@ -1398,7 +1399,7 @@
     /// verify the connection is still valid before the connection is considered
     /// invalid and is dropped. The default value is 5 seconds.
     </span><span class="kw">pub fn </span>ping_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
-        <span class="self">self</span>.ping_timeout = <span class="prelude-val">Some</span>(U32Milliseconds::try_from(dur, <span class="string">&quot;ping timeout&quot;</span>)<span class="question-mark">?</span>);
+        <span class="self">self</span>.ping_timeout = <span class="prelude-val">Some</span>(U32Milliseconds::try_from(dur, <span class="string">"ping timeout"</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
@@ -1439,7 +1440,7 @@
     ///
     /// See also [`Pool::timeout`] and [`Pool::set_timeout`].
     </span><span class="kw">pub fn </span>timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
-        <span class="self">self</span>.timeout = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>);
+        <span class="self">self</span>.timeout = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">"timeout"</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
@@ -1452,13 +1453,13 @@
     ///
     /// See also [`Pool::max_lifetime_connection`] and [`Pool::set_max_lifetime_connection`].
     </span><span class="kw">pub fn </span>max_lifetime_connection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>PoolBuilder&gt; {
-        <span class="self">self</span>.max_lifetime_connection = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>);
+        <span class="self">self</span>.max_lifetime_connection = <span class="prelude-val">Some</span>(U32Seconds::try_from(dur, <span class="string">"max lifetime connection"</span>)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Specifies the name of a PL/SQL procedure in the format
     /// *schema.package.callback_proc* which will be called when a connection is
-    /// checked out from the pool and the requested tag doesn&#39;t match the actual
+    /// checked out from the pool and the requested tag doesn't match the actual
     /// tag assigned to the connection. The procedure accepts the desired
     /// and actual tags as parameters and it is the responsibility of the procedure
     /// to ensure that the connection matches the desired state upon completion. See
@@ -1553,8 +1554,8 @@
 
     <span class="doccomment">/// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].
     ///
-    /// The default value is &quot;rust-oracle : version number&quot;. Only the first 8
-    /// chracters &quot;rust-ora&quot; are displayed when the Oracle server version is
+    /// The default value is "rust-oracle : version number". Only the first 8
+    /// chracters "rust-ora" are displayed when the Oracle server version is
     /// lower than 12.0.1.2.
     ///
     /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE
@@ -1642,7 +1643,7 @@
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
-/// Use a [heterogeneous pool](PoolType::Heterogeneous) to pool different users&#39; connections
+/// Use a [heterogeneous pool](PoolType::Heterogeneous) to pool different users' connections
 ///
 /// ```
 /// # use oracle::Error;
@@ -1664,13 +1665,13 @@
 ///
 /// // Get a connection from the pool.
 /// let conn1 = pool.get()?;
-/// let conn1_user = conn1.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;
+/// let conn1_user = conn1.query_row_as::&lt;String&gt;("select lower(user) from dual", &amp;[])?;
 /// assert_eq!(conn1_user, username);
 ///
-/// // Get an another user&#39;s connection.
+/// // Get an another user's connection.
 /// let opts = PoolOptions::new().username(another_username).password(another_password);
 /// let conn2 = pool.get_with_options(&amp;opts)?; // with connector to pass username and password
-/// let conn2_user = conn2.query_row_as::&lt;String&gt;(&quot;select lower(user) from dual&quot;, &amp;[])?;
+/// let conn2_user = conn2.query_row_as::&lt;String&gt;("select lower(user) from dual", &amp;[])?;
 /// assert_eq!(conn2_user, another_username);
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
@@ -1692,30 +1693,30 @@
 ///     .build()?;
 ///
 /// // Create Pool options to specify a tag.
-/// let opts = PoolOptions::new().tag(&quot;LANG=FRENCH&quot;);
+/// let opts = PoolOptions::new().tag("LANG=FRENCH");
 ///
-/// // Get a connection with tag &quot;LANG=FRENCH&quot;.
+/// // Get a connection with tag "LANG=FRENCH".
 /// // There are no connections with the tag at this point.
 /// let conn = pool.get_with_options(&amp;opts)?;
-/// assert_eq!(conn.tag_found(), false, &quot;conn.tag_found() (1)&quot;); // new connection
+/// assert_eq!(conn.tag_found(), false, "conn.tag_found() (1)"); // new connection
 /// // Change the nls_language for later.
 /// if !conn.tag_found() {
-///   conn.execute(&quot;alter session set nls_language = FRENCH&quot;, &amp;[])?;
+///   conn.execute("alter session set nls_language = FRENCH", &amp;[])?;
 /// }
 /// // ...
 /// // use the connection
 /// // ...
 /// // return it to the pool with new tag.
-/// conn.close_with_mode(conn::CloseMode::Retag(&quot;LANG=FRENCH&quot;))?;
+/// conn.close_with_mode(conn::CloseMode::Retag("LANG=FRENCH"))?;
 ///
-/// // Get a connection with tag &quot;LANG=FRENCH&quot; again.
+/// // Get a connection with tag "LANG=FRENCH" again.
 /// // There is one connection with the tag at this point.
 /// let conn = pool.get_with_options(&amp;opts)?;
-/// assert_eq!(conn.tag_found(), true, &quot;conn.tag_found() (2)&quot;);
-/// assert_eq!(conn.tag(), &quot;LANG=FRENCH&quot;, &quot;conn.tag() (2)&quot;);
+/// assert_eq!(conn.tag_found(), true, "conn.tag_found() (2)");
+/// assert_eq!(conn.tag(), "LANG=FRENCH", "conn.tag() (2)");
 /// // Check whether this is the connection previously
-/// let sql = &quot;select value from nls_session_parameters where parameter = &#39;NLS_LANGUAGE&#39;&quot;;
-/// assert_eq!(conn.query_row_as::&lt;String&gt;(sql, &amp;[])?, &quot;FRENCH&quot;);
+/// let sql = "select value from nls_session_parameters where parameter = 'NLS_LANGUAGE'";
+/// assert_eq!(conn.query_row_as::&lt;String&gt;(sql, &amp;[])?, "FRENCH");
 /// // ...
 /// // The connection has been tagged already. There is no need to set a new tag.
 /// conn.close()?;
@@ -1829,7 +1830,7 @@
                 <span class="prelude-val">Ok</span>(GetMode::TimedWait(Duration::from_millis(val.into())))
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
-                <span class="string">&quot;unknown dpiPoolGetMode {}&quot;</span>,
+                <span class="string">"unknown dpiPoolGetMode {}"</span>,
                 val
             ))),
         }
@@ -1864,7 +1865,7 @@
     ///
     /// See also [`PoolBuilder::max_lifetime_connection`] and [`Pool::max_lifetime_connection`].
     </span><span class="kw">pub fn </span>set_max_lifetime_connection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dur: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = U32Seconds::try_from(dur, <span class="string">&quot;max lifetime connection&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>val = U32Seconds::try_from(dur, <span class="string">"max lifetime connection"</span>)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiPool_setMaxLifetimeSession(<span class="self">self</span>.handle(), val.<span class="number">0</span>)
@@ -1924,7 +1925,7 @@
     ///
     /// See also [`PoolBuilder::ping_interval`] and [`Pool::ping_interval`].
     </span><span class="kw">pub fn </span>set_ping_interval(<span class="kw-2">&amp;mut </span><span class="self">self</span>, interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = I32Seconds::try_from(interval, <span class="string">&quot;ping interval&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>val = I32Seconds::try_from(interval, <span class="string">"ping interval"</span>)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setPingInterval(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2034,7 +2035,7 @@
     ///
     /// See also [`PoolBuilder::timeout`] and [`Pool::timeout`].
     </span><span class="kw">pub fn </span>set_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timeout: Duration) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = U32Seconds::try_from(timeout, <span class="string">&quot;timeout&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>val = U32Seconds::try_from(timeout, <span class="string">"timeout"</span>)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiPool_setTimeout(<span class="self">self</span>.handle(), val.<span class="number">0</span>));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2042,11 +2043,10 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Pool {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Poll {{ handle: {:?}&quot;</span>, <span class="self">self</span>.handle())
+        <span class="macro">write!</span>(f, <span class="string">"Poll {{ handle: {:?}"</span>, <span class="self">self</span>.handle())
     }
 }
 
 <span class="kw">impl </span>AssertSync <span class="kw">for </span>Pool {}
 <span class="kw">impl </span>AssertSend <span class="kw">for </span>Pool {}
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

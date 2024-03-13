@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -381,7 +382,7 @@
 <a href="#381" id="381">381</a>
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -475,30 +476,30 @@
 /// This appears only in boxed data associated with [`Error::ParseError`].
 </span><span class="attr">#[derive(Eq, PartialEq, Clone)]
 </span><span class="kw">pub struct </span>ParseOracleTypeError {
-    typename: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    typename: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
 }
 
 <span class="kw">impl </span>ParseOracleTypeError {
-    <span class="kw">pub fn </span>new(typename: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; ParseOracleTypeError {
+    <span class="kw">pub fn </span>new(typename: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; ParseOracleTypeError {
         ParseOracleTypeError { typename }
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ParseOracleTypeError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{} parse error&quot;</span>, <span class="self">self</span>.typename)
+        <span class="macro">write!</span>(f, <span class="string">"{} parse error"</span>, <span class="self">self</span>.typename)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ParseOracleTypeError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;ParseOracleTypeError&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">"ParseOracleTypeError"</span>)
     }
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>ParseOracleTypeError {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="string">&quot;Oracle type parse error&quot;
+        <span class="string">"Oracle type parse error"
     </span>}
 
     <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>error::Error&gt; {
@@ -562,34 +563,34 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Error::OciError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;OCI Error: {}&quot;</span>, err.message),
-            Error::DpiError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;DPI Error: {}&quot;</span>, err.message),
-            Error::NullValue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NULL value found&quot;</span>),
-            Error::ParseError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, err),
-            Error::OutOfRange(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;out of range: {}&quot;</span>, msg),
+            Error::OciError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"OCI Error: {}"</span>, err.message),
+            Error::DpiError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"DPI Error: {}"</span>, err.message),
+            Error::NullValue =&gt; <span class="macro">write!</span>(f, <span class="string">"NULL value found"</span>),
+            Error::ParseError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, err),
+            Error::OutOfRange(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"out of range: {}"</span>, msg),
             Error::InvalidTypeConversion(<span class="kw-2">ref </span>from, <span class="kw-2">ref </span>to) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid type conversion from {} to {}&quot;</span>, from, to)
+                <span class="macro">write!</span>(f, <span class="string">"invalid type conversion from {} to {}"</span>, from, to)
             }
             Error::InvalidBindIndex(<span class="kw-2">ref </span>idx) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid bind index (one-based): {}&quot;</span>, idx)
+                <span class="macro">write!</span>(f, <span class="string">"invalid bind index (one-based): {}"</span>, idx)
             }
-            Error::InvalidBindName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid bind name: {}&quot;</span>, name),
+            Error::InvalidBindName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid bind name: {}"</span>, name),
             Error::InvalidColumnIndex(<span class="kw-2">ref </span>idx) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;invalid column index (zero-based): {}&quot;</span>, idx)
+                <span class="macro">write!</span>(f, <span class="string">"invalid column index (zero-based): {}"</span>, idx)
             }
-            Error::InvalidColumnName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid column name: {}&quot;</span>, name),
-            Error::InvalidAttributeName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid attribute name: {}&quot;</span>, name),
-            Error::InvalidOperation(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;invalid operation: {}&quot;</span>, msg),
-            Error::UninitializedBindValue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Try to access uninitialized bind value&quot;</span>),
-            Error::NoDataFound =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;No data found&quot;</span>),
+            Error::InvalidColumnName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid column name: {}"</span>, name),
+            Error::InvalidAttributeName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid attribute name: {}"</span>, name),
+            Error::InvalidOperation(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"invalid operation: {}"</span>, msg),
+            Error::UninitializedBindValue =&gt; <span class="macro">write!</span>(f, <span class="string">"Try to access uninitialized bind value"</span>),
+            Error::NoDataFound =&gt; <span class="macro">write!</span>(f, <span class="string">"No data found"</span>),
             Error::BatchErrors(<span class="kw-2">ref </span>errs) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;Batch Error (&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"Batch Error ("</span>)<span class="question-mark">?</span>;
                 <span class="kw">for </span>err <span class="kw">in </span>errs {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}, &quot;</span>, err)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">"{}, "</span>, err)<span class="question-mark">?</span>;
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">")"</span>)
             }
-            Error::InternalError(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Internal Error: {}&quot;</span>, msg),
+            Error::InternalError(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"Internal Error: {}"</span>, msg),
         }
     }
 }
@@ -597,30 +598,30 @@
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Error {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Error::OciError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;OciError({:?})&quot;</span>, err),
-            Error::DpiError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;DpiError({:?})&quot;</span>, err),
-            Error::NullValue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NullValue&quot;</span>),
-            Error::ParseError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ParseError({:?})&quot;</span>, err),
-            Error::OutOfRange(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;OutOfRange({:?})&quot;</span>, msg),
+            Error::OciError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"OciError({:?})"</span>, err),
+            Error::DpiError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"DpiError({:?})"</span>, err),
+            Error::NullValue =&gt; <span class="macro">write!</span>(f, <span class="string">"NullValue"</span>),
+            Error::ParseError(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"ParseError({:?})"</span>, err),
+            Error::OutOfRange(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"OutOfRange({:?})"</span>, msg),
             Error::InvalidTypeConversion(<span class="kw-2">ref </span>from, <span class="kw-2">ref </span>to) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;InvalidTypeConversion(from: {:?}, to: {:?})&quot;</span>, from, to)
+                <span class="macro">write!</span>(f, <span class="string">"InvalidTypeConversion(from: {:?}, to: {:?})"</span>, from, to)
             }
-            Error::InvalidBindIndex(<span class="kw-2">ref </span>idx) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidBindIndex({:?})&quot;</span>, idx),
-            Error::InvalidBindName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidBindName({:?})&quot;</span>, name),
-            Error::InvalidColumnIndex(<span class="kw-2">ref </span>idx) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidColumnIndex({:?})&quot;</span>, idx),
-            Error::InvalidColumnName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidColumnName({:?})&quot;</span>, name),
-            Error::InvalidAttributeName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidAttributeName({:?})&quot;</span>, name),
-            Error::InvalidOperation(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InvalidOperation({:?})&quot;</span>, msg),
-            Error::UninitializedBindValue =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;UninitializedBindValue&quot;</span>),
-            Error::NoDataFound =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NoDataFound&quot;</span>),
+            Error::InvalidBindIndex(<span class="kw-2">ref </span>idx) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidBindIndex({:?})"</span>, idx),
+            Error::InvalidBindName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidBindName({:?})"</span>, name),
+            Error::InvalidColumnIndex(<span class="kw-2">ref </span>idx) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidColumnIndex({:?})"</span>, idx),
+            Error::InvalidColumnName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidColumnName({:?})"</span>, name),
+            Error::InvalidAttributeName(<span class="kw-2">ref </span>name) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidAttributeName({:?})"</span>, name),
+            Error::InvalidOperation(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"InvalidOperation({:?})"</span>, msg),
+            Error::UninitializedBindValue =&gt; <span class="macro">write!</span>(f, <span class="string">"UninitializedBindValue"</span>),
+            Error::NoDataFound =&gt; <span class="macro">write!</span>(f, <span class="string">"NoDataFound"</span>),
             Error::BatchErrors(<span class="kw-2">ref </span>errs) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;BatchErrors(&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"BatchErrors("</span>)<span class="question-mark">?</span>;
                 <span class="kw">for </span>err <span class="kw">in </span>errs {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{:?}, &quot;</span>, err)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">"{:?}, "</span>, err)<span class="question-mark">?</span>;
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">")"</span>)
             }
-            Error::InternalError(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;InternalError({:?})&quot;</span>, msg),
+            Error::InternalError(<span class="kw-2">ref </span>msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"InternalError({:?})"</span>, msg),
         }
     }
 }
@@ -628,22 +629,22 @@
 <span class="kw">impl </span>error::Error <span class="kw">for </span>Error {
     <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Error::OciError(<span class="kw">_</span>) =&gt; <span class="string">&quot;Oracle OCI error&quot;</span>,
-            Error::DpiError(<span class="kw">_</span>) =&gt; <span class="string">&quot;ODPI-C error&quot;</span>,
-            Error::NullValue =&gt; <span class="string">&quot;NULL value&quot;</span>,
-            Error::ParseError(<span class="kw">_</span>) =&gt; <span class="string">&quot;parse error&quot;</span>,
-            Error::OutOfRange(<span class="kw">_</span>) =&gt; <span class="string">&quot;out of range&quot;</span>,
-            Error::InvalidTypeConversion(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">&quot;invalid type conversion&quot;</span>,
-            Error::InvalidBindIndex(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid bind index&quot;</span>,
-            Error::InvalidBindName(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid bind name&quot;</span>,
-            Error::InvalidColumnIndex(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid column index&quot;</span>,
-            Error::InvalidColumnName(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid column name&quot;</span>,
-            Error::InvalidAttributeName(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid attribute name&quot;</span>,
-            Error::InvalidOperation(<span class="kw">_</span>) =&gt; <span class="string">&quot;invalid operation&quot;</span>,
-            Error::UninitializedBindValue =&gt; <span class="string">&quot;uninitialided bind value error&quot;</span>,
-            Error::NoDataFound =&gt; <span class="string">&quot;no data found&quot;</span>,
-            Error::BatchErrors(<span class="kw">_</span>) =&gt; <span class="string">&quot;batch errors&quot;</span>,
-            Error::InternalError(<span class="kw">_</span>) =&gt; <span class="string">&quot;internal error&quot;</span>,
+            Error::OciError(<span class="kw">_</span>) =&gt; <span class="string">"Oracle OCI error"</span>,
+            Error::DpiError(<span class="kw">_</span>) =&gt; <span class="string">"ODPI-C error"</span>,
+            Error::NullValue =&gt; <span class="string">"NULL value"</span>,
+            Error::ParseError(<span class="kw">_</span>) =&gt; <span class="string">"parse error"</span>,
+            Error::OutOfRange(<span class="kw">_</span>) =&gt; <span class="string">"out of range"</span>,
+            Error::InvalidTypeConversion(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="string">"invalid type conversion"</span>,
+            Error::InvalidBindIndex(<span class="kw">_</span>) =&gt; <span class="string">"invalid bind index"</span>,
+            Error::InvalidBindName(<span class="kw">_</span>) =&gt; <span class="string">"invalid bind name"</span>,
+            Error::InvalidColumnIndex(<span class="kw">_</span>) =&gt; <span class="string">"invalid column index"</span>,
+            Error::InvalidColumnName(<span class="kw">_</span>) =&gt; <span class="string">"invalid column name"</span>,
+            Error::InvalidAttributeName(<span class="kw">_</span>) =&gt; <span class="string">"invalid attribute name"</span>,
+            Error::InvalidOperation(<span class="kw">_</span>) =&gt; <span class="string">"invalid operation"</span>,
+            Error::UninitializedBindValue =&gt; <span class="string">"uninitialided bind value error"</span>,
+            Error::NoDataFound =&gt; <span class="string">"no data found"</span>,
+            Error::BatchErrors(<span class="kw">_</span>) =&gt; <span class="string">"batch errors"</span>,
+            Error::InternalError(<span class="kw">_</span>) =&gt; <span class="string">"internal error"</span>,
         }
     }
 
@@ -657,7 +658,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DbError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.message)
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.message)
     }
 }
 
@@ -717,7 +718,7 @@
 
 <span class="kw">pub fn </span>error_from_dpi_error(err: <span class="kw-2">&amp;</span>dpiErrorInfo) -&gt; Error {
     <span class="kw">let </span>err = dberror_from_dpi_error(err);
-    <span class="kw">if </span>err.message().starts_with(<span class="string">&quot;DPI&quot;</span>) {
+    <span class="kw">if </span>err.message().starts_with(<span class="string">"DPI"</span>) {
         Error::DpiError(err)
     } <span class="kw">else </span>{
         Error::OciError(err)
@@ -764,5 +765,4 @@
         }
     }};
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

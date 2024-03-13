@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -961,7 +962,7 @@
 <a href="#961" id="961">961</a>
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -979,7 +980,7 @@
 //       of conditions and the following disclaimer in the documentation and/or other materials
 //       provided with the distribution.
 //
-// THIS SOFTWARE IS PROVIDED BY THE AUTHORS &#39;&#39;AS IS&#39;&#39; AND ANY EXPRESS OR IMPLIED
+// THIS SOFTWARE IS PROVIDED BY THE AUTHORS ''AS IS'' AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 // FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; OR
 // CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
@@ -1077,21 +1078,21 @@
 }
 
 <span class="doccomment">/// A builder to create a [`Batch`] with various configuration
-</span><span class="kw">pub struct </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
-    conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
-    sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+</span><span class="kw">pub struct </span>BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
+    conn: <span class="kw-2">&amp;</span><span class="lifetime">'conn </span>Connection,
+    sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str,
     batch_size: usize,
     with_batch_errors: bool,
     with_row_counts: bool,
     query_params: QueryParams,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
-        conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
-        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+        conn: <span class="kw-2">&amp;</span><span class="lifetime">'conn </span>Connection,
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str,
         batch_size: usize,
-    ) -&gt; BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    ) -&gt; BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         BatchBuilder {
             conn,
             sql,
@@ -1102,21 +1103,21 @@
         }
     }
 
-    <span class="doccomment">/// See [&quot;Error Handling&quot;](Batch#error-handling)
-    </span><span class="kw">pub fn </span>with_batch_errors&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    <span class="doccomment">/// See ["Error Handling"](Batch#error-handling)
+    </span><span class="kw">pub fn </span>with_batch_errors(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.with_batch_errors = <span class="bool-val">true</span>;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// See [&quot;Affected Rows&quot;](Batch#affected-rows)
-    </span><span class="kw">pub fn </span>with_row_counts&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    <span class="doccomment">/// See ["Affected Rows"](Batch#affected-rows)
+    </span><span class="kw">pub fn </span>with_row_counts(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.with_row_counts = <span class="bool-val">true</span>;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Batch&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Batch&lt;<span class="lifetime">'conn</span>&gt;&gt; {
         <span class="kw">let </span>batch_size = u32::try_from(<span class="self">self</span>.batch_size)
-            .map_err(|<span class="kw">_</span>| Error::OutOfRange(<span class="macro">format!</span>(<span class="string">&quot;too large batch_size: {}&quot;</span>, <span class="self">self</span>.batch_size)))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| Error::OutOfRange(<span class="macro">format!</span>(<span class="string">"too large batch_size: {}"</span>, <span class="self">self</span>.batch_size)))<span class="question-mark">?</span>;
         <span class="kw">let </span>conn = <span class="self">self</span>.conn;
         <span class="kw">let </span>sql = to_odpi_str(<span class="self">self</span>.sql);
         <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>dpiStmt = ptr::null_mut();
@@ -1146,7 +1147,7 @@
                 dpiStmt_release(handle);
             }
             <span class="kw">let </span>msg = <span class="macro">format!</span>(
-                <span class="string">&quot;Could not use {} statement&quot;</span>,
+                <span class="string">"Could not use {} statement"</span>,
                 StatementType::from_enum(info.statementType)
             );
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(msg));
@@ -1212,7 +1213,7 @@
 /// 1. [`conn.batch(sql_stmt, batch_size).build()`](Connection::batch) to create [`Batch`].
 /// 2. [`append_row()`](#method.append_row) for each row. Rows in the batch are sent to
 ///    the server when the number of appended rows reaches the batch size.  
-///    **Note:** The &quot;batch errors&quot; option mentioned later changes this behavior.
+///    **Note:** The "batch errors" option mentioned later changes this behavior.
 /// 3. [`execute()`](#method.execute) in the end to send rows which
 ///    have not been sent by `append_row()`.
 ///
@@ -1220,17 +1221,17 @@
 /// # use oracle::Error;
 /// # use oracle::test_util;
 /// # let conn = test_util::connect()?;
-/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// # conn.execute("delete from TestTempTable", &amp;[])?;
+/// let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// let batch_size = 100;
 /// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
 /// for i in 0..1234 { // iterate 1234 times.
 ///     // send rows internally every 100 iterations.
-///     batch.append_row(&amp;[&amp;i, &amp;format!(&quot;value {}&quot;, i)])?;
+///     batch.append_row(&amp;[&amp;i, &amp;format!("value {}", i)])?;
 /// }
 /// batch.execute()?; // send the rest 34 rows.
 /// // Check the number of inserted rows.
-/// assert_eq!(conn.query_row_as::&lt;i32&gt;(&quot;select count(*) from TestTempTable&quot;, &amp;[])?, 1234);
+/// assert_eq!(conn.query_row_as::&lt;i32&gt;("select count(*) from TestTempTable", &amp;[])?, 1234);
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 ///
@@ -1250,27 +1251,27 @@
 /// # use oracle::Error;
 /// # use oracle::test_util;
 /// # let conn = test_util::connect()?;
-/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// # conn.execute("delete from TestTempTable", &amp;[])?;
+/// let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// let batch_size = 10;
 /// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
-/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;
-/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;
-/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.
-/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column
-/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;
+/// batch.append_row(&amp;[&amp;1, &amp;"first row"])?;
+/// batch.append_row(&amp;[&amp;2, &amp;"second row"])?;
+/// batch.append_row(&amp;[&amp;1, &amp;"first row again"])?; // -&gt; ORA-00001: unique constraint violated.
+/// batch.append_row(&amp;[&amp;3, &amp;"third row ".repeat(11)])?; // -&gt; ORA-12899: value too large for column
+/// batch.append_row(&amp;[&amp;4, &amp;"fourth row"])?;
 /// let result = batch.execute();
 /// match result {
 ///     Err(Error::OciError(dberr)) =&gt; {
 ///         assert_eq!(dberr.code(), 1);
-///         assert!(dberr.message().starts_with(&quot;ORA-00001: &quot;));
+///         assert!(dberr.message().starts_with("ORA-00001: "));
 ///     }
-///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),
+///     _ =&gt; panic!("Unexpected batch result: {:?}", result),
 /// }
 ///
 /// // Check the inserted rows.
 /// let mut stmt = conn
-///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)
+///     .statement("select count(*) from TestTempTable where intCol = :1")
 ///     .build()?;
 /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);
 /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);
@@ -1287,7 +1288,7 @@
 /// the behavior of `Batch` as follows:
 /// * `execute()` executes all rows in the batch and return an array of the error information
 ///   with row positions in the batch when the errors are caused by invalid data.
-/// * `append_row()` doesn&#39;t send rows internally when the number of appended rows reaches
+/// * `append_row()` doesn't send rows internally when the number of appended rows reaches
 ///   the batch size. It returns an error when the number exceeds the size instead.
 ///
 /// ```
@@ -1297,15 +1298,15 @@
 /// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {
 /// #     return Ok(()); // skip this test
 /// # }
-/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-/// let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// # conn.execute("delete from TestTempTable", &amp;[])?;
+/// let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// let batch_size = 10;
 /// let mut batch = conn.batch(sql_stmt, batch_size).with_batch_errors().build()?;
-/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row&quot;])?;
-/// batch.append_row(&amp;[&amp;2, &amp;&quot;second row&quot;])?;
-/// batch.append_row(&amp;[&amp;1, &amp;&quot;first row again&quot;])?; // -&gt; ORA-00001: unique constraint violated.
-/// batch.append_row(&amp;[&amp;3, &amp;&quot;third row &quot;.repeat(11)])?; // -&gt; ORA-12899: value too large for column
-/// batch.append_row(&amp;[&amp;4, &amp;&quot;fourth row&quot;])?;
+/// batch.append_row(&amp;[&amp;1, &amp;"first row"])?;
+/// batch.append_row(&amp;[&amp;2, &amp;"second row"])?;
+/// batch.append_row(&amp;[&amp;1, &amp;"first row again"])?; // -&gt; ORA-00001: unique constraint violated.
+/// batch.append_row(&amp;[&amp;3, &amp;"third row ".repeat(11)])?; // -&gt; ORA-12899: value too large for column
+/// batch.append_row(&amp;[&amp;4, &amp;"fourth row"])?;
 /// let result = batch.execute();
 /// match result {
 ///     Err(Error::BatchErrors(mut errs)) =&gt; {
@@ -1314,17 +1315,17 @@
 ///         assert_eq!(errs.len(), 2);
 ///         assert_eq!(errs[0].code(), 1);
 ///         assert_eq!(errs[1].code(), 12899);
-///         assert_eq!(errs[0].offset(), 2); // position of `[&amp;1, &amp;&quot;first row again&quot;]`
-///         assert_eq!(errs[1].offset(), 3); // position of `[&amp;3, &amp;&quot;third row &quot;.repeat(11)]`
-///         assert!(errs[0].message().starts_with(&quot;ORA-00001: &quot;));
-///         assert!(errs[1].message().starts_with(&quot;ORA-12899: &quot;));
+///         assert_eq!(errs[0].offset(), 2); // position of `[&amp;1, &amp;"first row again"]`
+///         assert_eq!(errs[1].offset(), 3); // position of `[&amp;3, &amp;"third row ".repeat(11)]`
+///         assert!(errs[0].message().starts_with("ORA-00001: "));
+///         assert!(errs[1].message().starts_with("ORA-12899: "));
 ///     }
-///     _ =&gt; panic!(&quot;Unexpected batch result: {:?}&quot;, result),
+///     _ =&gt; panic!("Unexpected batch result: {:?}", result),
 /// }
 ///
 /// // Check the inserted rows.
 /// let mut stmt = conn
-///     .statement(&quot;select count(*) from TestTempTable where intCol = :1&quot;)
+///     .statement("select count(*) from TestTempTable where intCol = :1")
 ///     .build()?;
 /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;1])?, 1);
 /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[&amp;2])?, 1);
@@ -1348,8 +1349,8 @@
 /// # if !check_version(&amp;conn, &amp;VER12_1, &amp;VER12_1)? {
 /// #     return Ok(()); // skip this test
 /// # }
-/// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-/// # let sql_stmt = &quot;insert into TestTempTable values(:1, :2)&quot;;
+/// # conn.execute("delete from TestTempTable", &amp;[])?;
+/// # let sql_stmt = "insert into TestTempTable values(:1, :2)";
 /// # let batch_size = 10;
 /// # let mut batch = conn.batch(sql_stmt, batch_size).build()?;
 /// # batch.set_type(1, &amp;OracleType::Int64)?;
@@ -1358,11 +1359,11 @@
 /// #    batch.append_row(&amp;[&amp;i])?;
 /// # }
 /// # batch.execute()?;
-/// let sql_stmt = &quot;update TestTempTable set stringCol = :stringCol where intCol &gt;= :intCol&quot;;
+/// let sql_stmt = "update TestTempTable set stringCol = :stringCol where intCol &gt;= :intCol";
 /// let mut batch = conn.batch(sql_stmt, 3).with_row_counts().build()?;
-/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;a&quot;), (&quot;intCol&quot;, &amp;9)])?; // update 1 row
-/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;b&quot;), (&quot;intCol&quot;, &amp;7)])?; // update 3 rows
-/// batch.append_row_named(&amp;[(&quot;stringCol&quot;, &amp;&quot;c&quot;), (&quot;intCol&quot;, &amp;5)])?; // update 5 rows
+/// batch.append_row_named(&amp;[("stringCol", &amp;"a"), ("intCol", &amp;9)])?; // update 1 row
+/// batch.append_row_named(&amp;[("stringCol", &amp;"b"), ("intCol", &amp;7)])?; // update 3 rows
+/// batch.append_row_named(&amp;[("stringCol", &amp;"c"), ("intCol", &amp;5)])?; // update 5 rows
 /// batch.execute()?;
 /// assert_eq!(batch.row_counts()?, &amp;[1, 3, 5]);
 /// # Ok::&lt;(), Error&gt;(())
@@ -1374,28 +1375,28 @@
 /// or [`Batch::set`]; or by the type specified by [`Batch::set_type`]. Once the
 /// type is determined, there are no ways to change it except the following case.
 ///
-/// For user&#39;s convenience, when the length of character data types is too short,
+/// For user's convenience, when the length of character data types is too short,
 /// the length is extended automatically. For example:
 /// ```no_run
 /// # use oracle::Error;
 /// # use oracle::sql_type::OracleType;
 /// # use oracle::test_util;
 /// # let conn = test_util::connect()?;
-/// # let sql_stmt = &quot;dummy&quot;;
+/// # let sql_stmt = "dummy";
 /// # let batch_size = 10;
 /// let mut batch = conn.batch(sql_stmt, batch_size).build()?;
-/// batch.append_row(&amp;[&amp;&quot;first row&quot;])?; // allocate 64 bytes for each row
-/// batch.append_row(&amp;[&amp;&quot;second row&quot;])?;
+/// batch.append_row(&amp;[&amp;"first row"])?; // allocate 64 bytes for each row
+/// batch.append_row(&amp;[&amp;"second row"])?;
 /// //....
 /// // The following line extends the internal buffer length for each row.
-/// batch.append_row(&amp;[&amp;&quot;assume that data length is over 64 bytes&quot;])?;
+/// batch.append_row(&amp;[&amp;"assume that data length is over 64 bytes"])?;
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 /// Note that extending the internal buffer needs memory copy from existing buffer
 /// to newly allocated buffer. If you know the maximum data length, it is better
 /// to set the size by [`Batch::set_type`].
-</span><span class="kw">pub struct </span>Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
+</span><span class="kw">pub struct </span>Batch&lt;<span class="lifetime">'conn</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) conn: <span class="kw-2">&amp;</span><span class="lifetime">'conn </span>Connection,
     handle: <span class="kw-2">*mut </span>dpiStmt,
     statement_type: StatementType,
     bind_count: usize,
@@ -1409,7 +1410,7 @@
     query_params: QueryParams,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'conn</span>&gt; Batch&lt;<span class="lifetime">'conn</span>&gt; {
     <span class="doccomment">/// Closes the batch before the end of its lifetime.
     </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(<span class="self">self</span>.conn.ctxt(), dpiStmt_close(<span class="self">self</span>.handle, ptr::null(), <span class="number">0</span>));
@@ -1506,8 +1507,8 @@
     /// # use oracle::Error;
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
-    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// # conn.execute("delete from TestTempTable", &amp;[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
     /// let mut batch = conn.batch(sql_stmt, 100).build()?;
     /// assert_eq!(batch.bind_count(), 2);
     /// # Ok::&lt;(), Error&gt;(())
@@ -1522,10 +1523,10 @@
     /// # use oracle::Error;
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
-    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// # conn.execute("delete from TestTempTable", &amp;[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
     /// let batch = conn.batch(sql_stmt, 100).build()?;
-    /// assert_eq!(batch.bind_names(), &amp;[&quot;INTCOL&quot;, &quot;STRINGCOL&quot;]);
+    /// assert_eq!(batch.bind_names(), &amp;["INTCOL", "STRINGCOL"]);
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>bind_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -1537,7 +1538,7 @@
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
-                <span class="string">&quot;Over the max batch size {}&quot;</span>,
+                <span class="string">"Over the max batch size {}"</span>,
                 <span class="self">self</span>.batch_size
             )))
         }
@@ -1550,8 +1551,8 @@
     /// # use oracle::test_util;
     /// # use oracle::sql_type::OracleType;
     /// # let conn = test_util::connect()?;
-    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// # conn.execute("delete from TestTempTable", &amp;[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
     /// let mut batch = conn.batch(sql_stmt, 100).build()?;
     /// batch.set_type(1, &amp;OracleType::Int64)?;
     /// batch.set_type(2, &amp;OracleType::Varchar2(10))?;
@@ -1564,7 +1565,7 @@
         <span class="kw">let </span>pos = bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.bind_types[pos].is_some() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
-                <span class="string">&quot;The bind parameter type at {} has been specified already.&quot;</span>,
+                <span class="string">"The bind parameter type at {} has been specified already."</span>,
                 bindidx
             )));
         }
@@ -1583,21 +1584,21 @@
     /// # use oracle::Error;
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
-    /// # conn.execute(&quot;delete from TestTempTable&quot;, &amp;[])?;
-    /// let sql_stmt = &quot;insert into TestTempTable values(:intCol, :stringCol)&quot;;
+    /// # conn.execute("delete from TestTempTable", &amp;[])?;
+    /// let sql_stmt = "insert into TestTempTable values(:intCol, :stringCol)";
     /// let mut batch = conn.batch(sql_stmt, 100).build()?;
-    /// // The below three lines are same with `batch.append_row(&amp;[&amp;100, &amp;&quot;hundred&quot;])?`.
+    /// // The below three lines are same with `batch.append_row(&amp;[&amp;100, &amp;"hundred"])?`.
     /// batch.set(1, &amp;100)?; // set by position 1
-    /// batch.set(2, &amp;&quot;hundred&quot;)?; // set at position 2
+    /// batch.set(2, &amp;"hundred")?; // set at position 2
     /// batch.append_row(&amp;[])?;
-    /// // The below three lines are same with `batch.append_row(&amp;[(&quot;intCol&quot;, &amp;101), (&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)])?`
-    /// batch.set(&quot;intCol&quot;, &amp;101)?; // set by name &quot;intCol&quot;
-    /// batch.set(&quot;stringCol&quot;, &amp;&quot;hundred one&quot;)?; // set by name &quot;stringCol&quot;
+    /// // The below three lines are same with `batch.append_row(&amp;[("intCol", &amp;101), ("stringCol", &amp;"hundred one")])?`
+    /// batch.set("intCol", &amp;101)?; // set by name "intCol"
+    /// batch.set("stringCol", &amp;"hundred one")?; // set by name "stringCol"
     /// batch.append_row(&amp;[])?;
     /// batch.execute()?;
-    /// let sql_stmt = &quot;select * from TestTempTable where intCol = :1&quot;;
-    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;100])?, (100, &quot;hundred&quot;.to_string()));
-    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;101])?, (101, &quot;hundred one&quot;.to_string()));
+    /// let sql_stmt = "select * from TestTempTable where intCol = :1";
+    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;100])?, (100, "hundred".to_string()));
+    /// assert_eq!(conn.query_row_as::&lt;(i32, String)&gt;(sql_stmt, &amp;[&amp;101])?, (101, "hundred one".to_string()));
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>set&lt;I&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: I, value: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
@@ -1626,7 +1627,7 @@
             <span class="self">self</span>.bind_types[pos] = <span class="prelude-val">Some</span>(bind_type);
         }
         <span class="kw">match </span><span class="self">self</span>.bind_values[pos].set(value) {
-            <span class="prelude-val">Err</span>(Error::DpiError(dberr)) <span class="kw">if </span>dberr.message().starts_with(<span class="string">&quot;DPI-1019:&quot;</span>) =&gt; {
+            <span class="prelude-val">Err</span>(Error::DpiError(dberr)) <span class="kw">if </span>dberr.message().starts_with(<span class="string">"DPI-1019:"</span>) =&gt; {
                 <span class="kw">let </span>bind_type = <span class="self">self</span>.bind_types[pos].as_mut().unwrap();
                 <span class="kw">if </span>bind_type.as_oratype().is_none() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DpiError(dberr));
@@ -1675,7 +1676,7 @@
 
     <span class="doccomment">/// Returns the number of affected rows
     ///
-    /// See [&quot;Affected Rows&quot;](Batch#affected-rows)
+    /// See ["Affected Rows"](Batch#affected-rows)
     </span><span class="kw">pub fn </span>row_counts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u64&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>num_row_counts = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>row_counts = ptr::null_mut();
@@ -1711,7 +1712,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Drop <span class="kw">for </span>Batch&lt;<span class="lifetime">&#39;conn</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'conn</span>&gt; Drop <span class="kw">for </span>Batch&lt;<span class="lifetime">'conn</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">unsafe </span>{ dpiStmt_release(<span class="self">self</span>.handle) };
     }
@@ -1746,7 +1747,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BatchBindIndex <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl </span>BatchBindIndex <span class="kw">for </span><span class="kw-2">&amp;</span>str {
     <span class="attr">#[doc(hidden)]
     </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: <span class="kw-2">&amp;</span>Batch) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span>bindname = <span class="self">self</span>.to_uppercase();
@@ -1772,12 +1773,12 @@
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>TestData {
         int_val: i32,
-        string_val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        string_val: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str,
         error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     }
 
     <span class="kw">impl </span>TestData {
-        <span class="kw">const fn </span>new(int_val: i32, string_val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; TestData {
+        <span class="kw">const fn </span>new(int_val: i32, string_val: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str, error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; TestData {
             TestData {
                 int_val,
                 string_val,
@@ -1793,16 +1794,16 @@
     </span><span class="kw">const </span>ERROR_TOO_LARGE_VALUE: <span class="prelude-ty">Option</span>&lt;i32&gt; = <span class="prelude-val">Some</span>(<span class="number">12899</span>);
 
     <span class="kw">const </span>TEST_DATA: [TestData; <span class="number">10</span>] = [
-        TestData::new(<span class="number">0</span>, <span class="string">&quot;0&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">1</span>, <span class="string">&quot;1111&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">2</span>, <span class="string">&quot;222222222222&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">3</span>, <span class="string">&quot;3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">4</span>, <span class="string">&quot;44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444&quot;</span>, ERROR_TOO_LARGE_VALUE),
-        TestData::new(<span class="number">1</span>, <span class="string">&quot;55555555555555&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
-        TestData::new(<span class="number">6</span>, <span class="string">&quot;66666666666&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">2</span>, <span class="string">&quot;7&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
-        TestData::new(<span class="number">8</span>, <span class="string">&quot;8&quot;</span>, <span class="prelude-val">None</span>),
-        TestData::new(<span class="number">3</span>, <span class="string">&quot;9999999999999999999999999&quot;</span>, ERROR_UNIQUE_INDEX_VIOLATION),
+        TestData::new(<span class="number">0</span>, <span class="string">"0"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">1</span>, <span class="string">"1111"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">2</span>, <span class="string">"222222222222"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">3</span>, <span class="string">"3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">4</span>, <span class="string">"44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444"</span>, ERROR_TOO_LARGE_VALUE),
+        TestData::new(<span class="number">1</span>, <span class="string">"55555555555555"</span>, ERROR_UNIQUE_INDEX_VIOLATION),
+        TestData::new(<span class="number">6</span>, <span class="string">"66666666666"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">2</span>, <span class="string">"7"</span>, ERROR_UNIQUE_INDEX_VIOLATION),
+        TestData::new(<span class="number">8</span>, <span class="string">"8"</span>, <span class="prelude-val">None</span>),
+        TestData::new(<span class="number">3</span>, <span class="string">"9999999999999999999999999"</span>, ERROR_UNIQUE_INDEX_VIOLATION),
     ];
 
     <span class="kw">fn </span>append_rows_then_execute(batch: <span class="kw-2">&amp;mut </span>Batch, rows: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>TestData]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -1815,7 +1816,7 @@
 
     <span class="kw">fn </span>check_rows_inserted(conn: <span class="kw-2">&amp;</span>Connection, expected_rows: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>TestData]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rows =
-            conn.query_as::&lt;(i32, String)&gt;(<span class="string">&quot;select * from TestTempTable order by intCol&quot;</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+            conn.query_as::&lt;(i32, String)&gt;(<span class="string">"select * from TestTempTable order by intCol"</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>expected_rows = expected_rows.to_vec();
         expected_rows.sort_by(|a, b| a.int_val.cmp(<span class="kw-2">&amp;</span>b.int_val));
         <span class="kw">for </span>expected_row <span class="kw">in </span>expected_rows {
@@ -1837,7 +1838,7 @@
             .filter(|data| data.error_code.is_none())
             .collect();
         <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
-            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .batch(<span class="string">"insert into TestTempTable values(:1, :2)"</span>, rows.len())
             .build()
             .unwrap();
         append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows).unwrap();
@@ -1853,7 +1854,7 @@
             .collect();
         <span class="kw">let </span>(rows_first, rows_second) = rows_total.split_at(rows_total.len() / <span class="number">2</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
-            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows_first.len())
+            .batch(<span class="string">"insert into TestTempTable values(:1, :2)"</span>, rows_first.len())
             .build()
             .unwrap();
         append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, rows_first).unwrap();
@@ -1870,7 +1871,7 @@
             .take_while(|data| data.error_code.is_none())
             .collect();
         <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
-            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .batch(<span class="string">"insert into TestTempTable values(:1, :2)"</span>, rows.len())
             .build()
             .unwrap();
         <span class="kw">match </span>append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows) {
@@ -1884,7 +1885,7 @@
                 <span class="macro">assert_eq!</span>(dberr.code(), errcode);
             }
             x =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, x);
+                <span class="macro">panic!</span>(<span class="string">"got {:?}"</span>, x);
             }
         }
         check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>expected_rows).unwrap();
@@ -1899,7 +1900,7 @@
             .filter(|row| row.error_code.is_none())
             .collect();
         <span class="kw">let </span><span class="kw-2">mut </span>batch = conn
-            .batch(<span class="string">&quot;insert into TestTempTable values(:1, :2)&quot;</span>, rows.len())
+            .batch(<span class="string">"insert into TestTempTable values(:1, :2)"</span>, rows.len())
             .with_batch_errors()
             .build()
             .unwrap();
@@ -1918,11 +1919,10 @@
                 <span class="macro">assert_eq!</span>(expected_errors, actual_errors);
             }
             x =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;got {:?}&quot;</span>, x);
+                <span class="macro">panic!</span>(<span class="string">"got {:?}"</span>, x);
             }
         }
         check_rows_inserted(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>expected_rows).unwrap();
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

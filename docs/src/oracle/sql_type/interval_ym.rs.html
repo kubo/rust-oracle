@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/interval_ym.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interval_ym.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/interval_ym.rs`."><title>interval_ym.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -287,7 +288,7 @@
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -326,20 +327,20 @@
 /// let intvl2 = IntervalYM::new(-2, -3);
 ///
 /// // Convert to string.
-/// assert_eq!(intvl1.to_string(), &quot;+000000002-03&quot;);
-/// assert_eq!(intvl2.to_string(), &quot;-000000002-03&quot;);
+/// assert_eq!(intvl1.to_string(), "+000000002-03");
+/// assert_eq!(intvl2.to_string(), "-000000002-03");
 ///
 /// // Create an interval with precision.
 /// let intvl3 = IntervalYM::new(2, 3).and_prec(3);
 ///
 /// // The string representation depends on the precisions.
-/// assert_eq!(intvl3.to_string(), &quot;+002-03&quot;);
+/// assert_eq!(intvl3.to_string(), "+002-03");
 ///
 /// // Precisions are ignored when intervals are compared.
 /// assert!(intvl1 == intvl3);
 ///
 /// // Create an interval from string.
-/// let intvl4: IntervalYM = &quot;+002-3&quot;.parse()?;
+/// let intvl4: IntervalYM = "+002-3".parse()?;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.precision(), 3);
@@ -350,24 +351,24 @@
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalYM
-/// let sql = &quot;select interval &#39;+02-03&#39; year to month from dual&quot;;
+/// let sql = "select interval '+02-03' year to month from dual";
 /// let intvl = conn.query_row_as::&lt;IntervalYM&gt;(sql, &amp;[])?;
-/// assert_eq!(intvl.to_string(), &quot;+02-03&quot;);
+/// assert_eq!(intvl.to_string(), "+02-03");
 ///
 /// // Bind IntervalYM
-/// let sql = &quot;begin \
-///              :outval := to_timestamp(&#39;2017-08-09&#39;, &#39;yyyy-mm-dd&#39;) + :inval; \
-///            end;&quot;;
+/// let sql = "begin \
+///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
+///            end;";
 /// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&amp;[&amp;OracleType::Date, // bind null as date
 ///                &amp;intvl, // bind the intvl variable
 ///               ])?;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (2 years and 3 months)
-/// assert_eq!(outval.to_string(), &quot;2019-11-09 00:00:00&quot;);
+/// assert_eq!(outval.to_string(), "2019-11-09 00:00:00");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -412,7 +413,7 @@
     <span class="doccomment">/// Creates a new IntervalYM with precision.
     ///
     /// The precision affects text representation of IntervalYM.
-    /// It doesn&#39;t affect comparison.
+    /// It doesn't affect comparison.
     </span><span class="kw">pub fn </span>and_prec(<span class="kw-2">&amp;</span><span class="self">self</span>, precision: u8) -&gt; IntervalYM {
         IntervalYM { precision, ..<span class="kw-2">*</span><span class="self">self </span>}
     }
@@ -442,23 +443,23 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>IntervalYM {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.years &lt; <span class="number">0 </span>|| <span class="self">self</span>.months &lt; <span class="number">0 </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;-&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"-"</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;+&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"+"</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">let </span>years = <span class="self">self</span>.years.abs();
         <span class="kw">match </span><span class="self">self</span>.precision {
-            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:02}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:03}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:04}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:05}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:06}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:07}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:08}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:09}&quot;</span>, years)<span class="question-mark">?</span>,
-            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, years)<span class="question-mark">?</span>,
+            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:02}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:03}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:04}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:05}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:06}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:07}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:08}"</span>, years)<span class="question-mark">?</span>,
+            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:09}"</span>, years)<span class="question-mark">?</span>,
+            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, years)<span class="question-mark">?</span>,
         };
-        <span class="macro">write!</span>(f, <span class="string">&quot;-{:02}&quot;</span>, <span class="self">self</span>.months.abs())
+        <span class="macro">write!</span>(f, <span class="string">"-{:02}"</span>, <span class="self">self</span>.months.abs())
     }
 }
 
@@ -466,14 +467,14 @@
     <span class="kw">type </span><span class="prelude-val">Err </span>= ParseOracleTypeError;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">&quot;IntervalYM&quot;</span>);
+        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">"IntervalYM"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(s);
         <span class="kw">let </span>minus = <span class="kw">match </span>s.char() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;+&#39;</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'+'</span>) =&gt; {
                 s.next();
                 <span class="bool-val">false
             </span>}
-            <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'-'</span>) =&gt; {
                 s.next();
                 <span class="bool-val">true
             </span>}
@@ -481,7 +482,7 @@
         };
         <span class="kw">let </span>years = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
         <span class="kw">let </span>precision = s.ndigits();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'-'</span>) = s.char() {
             s.next();
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(err());
@@ -506,75 +507,74 @@
     </span><span class="kw">fn </span>to_string() {
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalYM::new(<span class="number">1</span>, <span class="number">2</span>);
         it.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1-02"</span>);
         it.precision = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1-02"</span>);
         it.precision = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+01-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+01-02"</span>);
         it.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+001-02"</span>);
         it.precision = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+0001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+0001-02"</span>);
         it.precision = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+00001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+00001-02"</span>);
         it.precision = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+000001-02"</span>);
         it.precision = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+0000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+0000001-02"</span>);
         it.precision = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+00000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+00000001-02"</span>);
         it.precision = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+000000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+000000001-02"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalYM::new(-<span class="number">1</span>, -<span class="number">2</span>);
         it.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1-02"</span>);
         it.precision = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1-02"</span>);
         it.precision = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-01-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-01-02"</span>);
         it.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-001-02"</span>);
         it.precision = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-0001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-0001-02"</span>);
         it.precision = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-00001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-00001-02"</span>);
         it.precision = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-000001-02"</span>);
         it.precision = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-0000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-0000001-02"</span>);
         it.precision = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-00000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-00000001-02"</span>);
         it.precision = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-000000001-02&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-000000001-02"</span>);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>parse() {
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalYM::new(<span class="number">1</span>, <span class="number">2</span>);
         it.precision = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;1-2&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+1-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"1-2"</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+1-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+01-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+01-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+0001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+0001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+00001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+00001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+000001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+000001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+0000001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+0000001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+00000001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+00000001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.precision = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+000000001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+000000001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
 
         <span class="kw">let </span>it = IntervalYM::new(-<span class="number">1</span>, -<span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-000000001-02&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-000000001-02"</span>.parse(), <span class="prelude-val">Ok</span>(it));
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

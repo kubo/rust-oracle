@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Indices","An iterator over the indices of a Collection."],["Iter","An iterator over the elements of a Collection."],["Values","An iterator over the values of a Collection."]]};
+window.SIDEBAR_ITEMS = {"struct":["Indices","Iter","Values"]};

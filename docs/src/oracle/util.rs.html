@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/util.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/util.rs`."><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -286,7 +287,7 @@
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -311,14 +312,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::ParseOracleTypeError;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 
-<span class="kw">pub struct </span>Scanner&lt;<span class="lifetime">&#39;a</span>&gt; {
-    chars: str::Chars&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="kw">pub struct </span>Scanner&lt;<span class="lifetime">'a</span>&gt; {
+    chars: str::Chars&lt;<span class="lifetime">'a</span>&gt;,
     char: <span class="prelude-ty">Option</span>&lt;char&gt;,
     ndigits: u32,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Scanner&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub fn </span>new(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; Scanner&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl </span>Scanner&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">pub fn </span>new(s: <span class="kw-2">&amp;</span>str) -&gt; Scanner {
         <span class="kw">let </span><span class="kw-2">mut </span>chars = s.chars();
         <span class="kw">let </span>char = chars.next();
         Scanner {
@@ -343,16 +344,16 @@
         <span class="kw">loop </span>{
             num = num * <span class="number">10
                 </span>+ <span class="kw">match </span><span class="self">self</span>.char {
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;0&#39;</span>) =&gt; <span class="number">0</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;1&#39;</span>) =&gt; <span class="number">1</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;2&#39;</span>) =&gt; <span class="number">2</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;3&#39;</span>) =&gt; <span class="number">3</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;4&#39;</span>) =&gt; <span class="number">4</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;5&#39;</span>) =&gt; <span class="number">5</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;6&#39;</span>) =&gt; <span class="number">6</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;7&#39;</span>) =&gt; <span class="number">7</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;8&#39;</span>) =&gt; <span class="number">8</span>,
-                    <span class="prelude-val">Some</span>(<span class="string">&#39;9&#39;</span>) =&gt; <span class="number">9</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'0'</span>) =&gt; <span class="number">0</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'1'</span>) =&gt; <span class="number">1</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'2'</span>) =&gt; <span class="number">2</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'3'</span>) =&gt; <span class="number">3</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'4'</span>) =&gt; <span class="number">4</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'5'</span>) =&gt; <span class="number">5</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'6'</span>) =&gt; <span class="number">6</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'7'</span>) =&gt; <span class="number">7</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'8'</span>) =&gt; <span class="number">8</span>,
+                    <span class="prelude-val">Some</span>(<span class="string">'9'</span>) =&gt; <span class="number">9</span>,
                     <span class="kw">_ </span>=&gt; {
                         <span class="kw">if </span><span class="self">self</span>.ndigits &gt; <span class="number">0 </span>{
                             <span class="kw">return </span><span class="prelude-val">Some</span>(num);
@@ -372,11 +373,11 @@
 }
 
 <span class="kw">pub fn </span>check_number_format(s: <span class="kw-2">&amp;</span>str) -&gt; result::Result&lt;(), ParseOracleTypeError&gt; {
-    <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">&quot;Oracle number&quot;</span>);
+    <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">"Oracle number"</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(s);
 
     <span class="comment">// optional negative sign
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'-'</span>) = s.char() {
         s.next();
     }
 
@@ -385,7 +386,7 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(err());
     }
     <span class="comment">// optional fractional part
-    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>) = s.char() {
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'.'</span>) = s.char() {
         s.next();
         <span class="kw">if </span>s.read_digits().is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(err());
@@ -393,10 +394,10 @@
     }
     <span class="comment">// an optional exponent
     </span><span class="kw">match </span>s.char() {
-        <span class="prelude-val">Some</span>(<span class="string">&#39;e&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;E&#39;</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="string">'e'</span>) | <span class="prelude-val">Some</span>(<span class="string">'E'</span>) =&gt; {
             s.next();
             <span class="kw">match </span>s.char() {
-                <span class="prelude-val">Some</span>(<span class="string">&#39;+&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">'+'</span>) | <span class="prelude-val">Some</span>(<span class="string">'-'</span>) =&gt; {
                     s.next();
                 }
                 <span class="kw">_ </span>=&gt; (),
@@ -419,10 +420,10 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>upper_half = <span class="number">0u8</span>;
     <span class="kw">for </span>chr <span class="kw">in </span>s.bytes() {
         <span class="kw">let </span>half_byte = <span class="kw">match </span>chr {
-            <span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;9&#39; </span>=&gt; chr - <span class="string">b&#39;0&#39;</span>,
-            <span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;F&#39; </span>=&gt; chr - <span class="string">b&#39;A&#39; </span>+ <span class="number">10</span>,
-            <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;f&#39; </span>=&gt; chr - <span class="string">b&#39;a&#39; </span>+ <span class="number">10</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">&quot;raw&quot;</span>)),
+            <span class="string">b'0'</span>..=<span class="string">b'9' </span>=&gt; chr - <span class="string">b'0'</span>,
+            <span class="string">b'A'</span>..=<span class="string">b'F' </span>=&gt; chr - <span class="string">b'A' </span>+ <span class="number">10</span>,
+            <span class="string">b'a'</span>..=<span class="string">b'f' </span>=&gt; chr - <span class="string">b'a' </span>+ <span class="number">10</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">"raw"</span>)),
         };
         <span class="kw">if </span>upper {
             upper_half = half_byte &lt;&lt; <span class="number">4</span>;
@@ -437,9 +438,9 @@
 <span class="kw">pub fn </span>set_hex_string(s: <span class="kw-2">&amp;mut </span>String, bytes: <span class="kw-2">&amp;</span>[u8]) {
     <span class="kw">let </span>to_hex = |x| {
         <span class="kw">if </span>x &lt; <span class="number">10 </span>{
-            (<span class="string">b&#39;0&#39; </span>+ x) <span class="kw">as </span>char
+            (<span class="string">b'0' </span>+ x) <span class="kw">as </span>char
         } <span class="kw">else </span>{
-            (<span class="string">b&#39;A&#39; </span>+ (x - <span class="number">10</span>)) <span class="kw">as </span>char
+            (<span class="string">b'A' </span>+ (x - <span class="number">10</span>)) <span class="kw">as </span>char
         }
     };
     <span class="kw">for </span>byte <span class="kw">in </span>bytes {
@@ -467,19 +468,19 @@
             | OracleType::BFILE
             | OracleType::Long
             | OracleType::LongRaw =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">"\""</span>)<span class="question-mark">?</span>;
                 <span class="kw">for </span>c <span class="kw">in </span>s.chars() {
-                    <span class="kw">if </span>c == <span class="string">&#39;&quot;&#39; </span>{
-                        <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+                    <span class="kw">if </span>c == <span class="string">'"' </span>{
+                        <span class="macro">write!</span>(f, <span class="string">"\""</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, c)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">"{}"</span>, c)<span class="question-mark">?</span>;
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;&quot;</span>)
+                <span class="macro">write!</span>(f, <span class="string">"\""</span>)
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, s),
+            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, s),
         },
-        <span class="prelude-val">Err</span>(Error::NullValue) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;NULL&quot;</span>),
-        <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;ERR({})&quot;</span>, err),
+        <span class="prelude-val">Err</span>(Error::NullValue) =&gt; <span class="macro">write!</span>(f, <span class="string">"NULL"</span>),
+        <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">"ERR({})"</span>, err),
     }
 }
 
@@ -501,10 +502,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_scanner() {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(<span class="string">&quot;123.4567890&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(<span class="string">"123.4567890"</span>);
         <span class="macro">assert_eq!</span>(s.read_digits(), <span class="prelude-val">Some</span>(<span class="number">123</span>));
         <span class="macro">assert_eq!</span>(s.read_digits(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(s.char(), <span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>));
+        <span class="macro">assert_eq!</span>(s.char(), <span class="prelude-val">Some</span>(<span class="string">'.'</span>));
         s.next();
         <span class="macro">assert_eq!</span>(s.read_digits(), <span class="prelude-val">Some</span>(<span class="number">4567890</span>));
         <span class="macro">assert_eq!</span>(s.char(), <span class="prelude-val">None</span>);
@@ -513,47 +514,47 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_check_number_format() {
         <span class="kw">let </span>ok = <span class="prelude-val">Ok</span>(());
-        <span class="kw">let </span>err = <span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">&quot;Oracle number&quot;</span>));
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;123&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123.&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123.5&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123e&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123e1&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123e+1&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123e-1&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;-123e-10&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;.123&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;0.123&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot; 123&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;a&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;0.0&quot;</span>), ok);
-        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">&quot;9.9&quot;</span>), ok);
+        <span class="kw">let </span>err = <span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">"Oracle number"</span>));
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"123"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123."</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123.5"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123e"</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123e1"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123e+1"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123e-1"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"-123e-10"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">".123"</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"0.123"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">" 123"</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">""</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"a"</span>), err);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"0.0"</span>), ok);
+        <span class="macro">assert_eq!</span>(check_number_format(<span class="string">"9.9"</span>), ok);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_str_into_raw() {
-        <span class="kw">let </span>err = <span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">&quot;raw&quot;</span>));
-        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">&quot;&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]));
-        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">&quot;010203&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]));
-        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">&quot;10203&quot;</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]));
+        <span class="kw">let </span>err = <span class="prelude-val">Err</span>(ParseOracleTypeError::new(<span class="string">"raw"</span>));
+        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">""</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]));
+        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">"010203"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]));
+        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">"10203"</span>), <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]));
         <span class="macro">assert_eq!</span>(
-            parse_str_into_raw(<span class="string">&quot;090a0A0f0F&quot;</span>),
+            parse_str_into_raw(<span class="string">"090a0A0f0F"</span>),
             <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">9</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">15</span>, <span class="number">15</span>])
         );
-        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">&quot;G&quot;</span>), err);
-        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">&quot;g&quot;</span>), err);
+        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">"G"</span>), err);
+        <span class="macro">assert_eq!</span>(parse_str_into_raw(<span class="string">"g"</span>), err);
         <span class="macro">assert_eq!</span>(
-            parse_str_into_raw(<span class="string">&quot;1223344556677889&quot;</span>),
+            parse_str_into_raw(<span class="string">"1223344556677889"</span>),
             <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">0x12</span>, <span class="number">0x23</span>, <span class="number">0x34</span>, <span class="number">0x45</span>, <span class="number">0x56</span>, <span class="number">0x67</span>, <span class="number">0x78</span>, <span class="number">0x89</span>])
         );
         <span class="macro">assert_eq!</span>(
-            parse_str_into_raw(<span class="string">&quot;9aabbccddeeff0&quot;</span>),
+            parse_str_into_raw(<span class="string">"9aabbccddeeff0"</span>),
             <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">0x9a</span>, <span class="number">0xab</span>, <span class="number">0xbc</span>, <span class="number">0xcd</span>, <span class="number">0xde</span>, <span class="number">0xef</span>, <span class="number">0xf0</span>])
         );
         <span class="macro">assert_eq!</span>(
-            parse_str_into_raw(<span class="string">&quot;9AABBCCDDEEFF0&quot;</span>),
+            parse_str_into_raw(<span class="string">"9AABBCCDDEEFF0"</span>),
             <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="number">0x9a</span>, <span class="number">0xab</span>, <span class="number">0xbc</span>, <span class="number">0xcd</span>, <span class="number">0xde</span>, <span class="number">0xef</span>, <span class="number">0xf0</span>])
         );
     }
@@ -574,5 +575,4 @@
         <span class="macro">assert_eq!</span>(duration_to_msecs(Duration::new(<span class="number">50 </span>* <span class="number">24 </span>* <span class="number">60 </span>* <span class="number">60</span>, <span class="number">0</span>)), <span class="prelude-val">None</span>);
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

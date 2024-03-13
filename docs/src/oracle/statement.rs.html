@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1524,36 +1525,7 @@
 <a href="#1524" id="1524">1524</a>
 <a href="#1525" id="1525">1525</a>
 <a href="#1526" id="1526">1526</a>
-<a href="#1527" id="1527">1527</a>
-<a href="#1528" id="1528">1528</a>
-<a href="#1529" id="1529">1529</a>
-<a href="#1530" id="1530">1530</a>
-<a href="#1531" id="1531">1531</a>
-<a href="#1532" id="1532">1532</a>
-<a href="#1533" id="1533">1533</a>
-<a href="#1534" id="1534">1534</a>
-<a href="#1535" id="1535">1535</a>
-<a href="#1536" id="1536">1536</a>
-<a href="#1537" id="1537">1537</a>
-<a href="#1538" id="1538">1538</a>
-<a href="#1539" id="1539">1539</a>
-<a href="#1540" id="1540">1540</a>
-<a href="#1541" id="1541">1541</a>
-<a href="#1542" id="1542">1542</a>
-<a href="#1543" id="1543">1543</a>
-<a href="#1544" id="1544">1544</a>
-<a href="#1545" id="1545">1545</a>
-<a href="#1546" id="1546">1546</a>
-<a href="#1547" id="1547">1547</a>
-<a href="#1548" id="1548">1548</a>
-<a href="#1549" id="1549">1549</a>
-<a href="#1550" id="1550">1550</a>
-<a href="#1551" id="1551">1551</a>
-<a href="#1552" id="1552">1552</a>
-<a href="#1553" id="1553">1553</a>
-<a href="#1554" id="1554">1554</a>
-<a href="#1555" id="1555">1555</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -1568,12 +1540,8 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="attr">#[cfg(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>)]
-</span><span class="kw">use </span>oracle_procmacro::remove_stmt_lifetime;
-<span class="kw">use </span>std::borrow::ToOwned;
+</span><span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::fmt;
-<span class="attr">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
-</span><span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::mem::MaybeUninit;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
@@ -1636,24 +1604,23 @@
 }
 
 <span class="doccomment">/// A builder to create a [`Statement`][] with various configuration
-</span><span class="kw">pub struct </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
-    conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
-    sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+</span><span class="kw">pub struct </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
+    conn: <span class="kw-2">&amp;</span><span class="lifetime">'conn </span>Connection,
+    sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str,
     query_params: QueryParams,
     scrollable: bool,
     tag: String,
     exclude_from_cache: bool,
 }
 
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection, sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str) -&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: <span class="kw-2">&amp;</span><span class="lifetime">'conn </span>Connection, sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str) -&gt; StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         StatementBuilder {
             conn,
             sql,
             query_params: QueryParams::new(),
             scrollable: <span class="bool-val">false</span>,
-            tag: <span class="string">&quot;&quot;</span>.into(),
+            tag: <span class="string">""</span>.into(),
             exclude_from_cache: <span class="bool-val">false</span>,
         }
     }
@@ -1674,14 +1641,14 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// let mut stmt = conn
-    ///     .statement(&quot;select StringCol from TestStrings where IntCol = :1&quot;)
+    ///     .statement("select StringCol from TestStrings where IntCol = :1")
     ///     .fetch_array_size(1)
     ///     .build()?;
-    /// assert_eq!(stmt.query_row_as::&lt;String&gt;(&amp;[&amp;1])?, &quot;String 1&quot;);
-    /// assert_eq!(stmt.query_row_as::&lt;String&gt;(&amp;[&amp;2])?, &quot;String 2&quot;);
+    /// assert_eq!(stmt.query_row_as::&lt;String&gt;(&amp;[&amp;1])?, "String 1");
+    /// assert_eq!(stmt.query_row_as::&lt;String&gt;(&amp;[&amp;2])?, "String 2");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
-    </span><span class="kw">pub fn </span>fetch_array_size&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, size: u32) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">pub fn </span>fetch_array_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u32) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.query_params.fetch_array_size = size;
         <span class="self">self
     </span>}
@@ -1695,7 +1662,7 @@
     /// Setting this value to 0 will disable prefetch completely,
     /// which may be useful when the timing for fetching rows must be
     /// controlled by the caller.
-    </span><span class="kw">pub fn </span>prefetch_rows&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, size: u32) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">pub fn </span>prefetch_rows(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u32) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.query_params.prefetch_rows = <span class="prelude-val">Some</span>(size);
         <span class="self">self
     </span>}
@@ -1703,7 +1670,7 @@
     <span class="doccomment">/// Enables lob data types to be fetched or bound as [`Clob`], [`Nclob`] or [`Blob`].
     ///
     /// Lob data types are internally bound as string or bytes by default.
-    /// It is proper for small data but not for big data. That&#39;s because
+    /// It is proper for small data but not for big data. That's because
     /// when a lob contains 1 gigabyte data, the whole data are copied to the client
     /// and consume 1 gigabyte or more memory. When `lob_locator` is set and
     /// a column is fetched as [`Clob`], data are copied using [`Read::read`].
@@ -1717,11 +1684,11 @@
     /// # use oracle::test_util;
     /// # use std::io::{Read, Write};
     /// # let conn = test_util::connect()?;
-    /// # conn.execute(&quot;delete from TestClobs&quot;, &amp;[])?;
-    /// # conn.execute(&quot;insert into TestClobs values (:1, :2)&quot;, &amp;[&amp;1i32, &amp;&quot;clob data&quot;])?;
+    /// # conn.execute("delete from TestClobs", &amp;[])?;
+    /// # conn.execute("insert into TestClobs values (:1, :2)", &amp;[&amp;1i32, &amp;"clob data"])?;
     /// # let mut out = vec![0u8; 0];
     /// let mut stmt = conn
-    ///     .statement(&quot;select ClobCol from TestClobs where IntCol = :1&quot;)
+    ///     .statement("select ClobCol from TestClobs where IntCol = :1")
     ///     .lob_locator()
     ///     .build()?;
     /// let mut clob = stmt.query_row_as::&lt;Clob&gt;(&amp;[&amp;1i32])?;
@@ -1737,13 +1704,13 @@
     /// }
     /// # Ok::&lt;(), Box::&lt;dyn std::error::Error&gt;&gt;(())
     /// ```
-    </span><span class="kw">pub fn </span>lob_locator&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">pub fn </span>lob_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.query_params.lob_bind_type = LobBindType::Locator;
         <span class="self">self
     </span>}
 
     <span class="comment">// make the visibility public when scrollable cursors is supported.
-    </span><span class="kw">fn </span>scrollable&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, scrollable: bool) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">fn </span>scrollable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, scrollable: bool) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.scrollable = scrollable;
         <span class="self">self
     </span>}
@@ -1763,44 +1730,44 @@
     /// // in the statement cache, the SQL text is used to make a statement.
     /// // The statement is backed to the cache with the tag when
     /// // it is closed.
-    /// let mut stmt = conn.statement(&quot;select 1 from dual&quot;).tag(&quot;query one&quot;).build()?;
+    /// let mut stmt = conn.statement("select 1 from dual").tag("query one").build()?;
     /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[])?, 1);
     /// stmt.close()?;
     ///
     /// // When only a tag is specified and the tag is found in the cache,
     /// // the statement with the tag is returned.
-    /// let mut stmt = conn.statement(&quot;&quot;).tag(&quot;query one&quot;).build()?;
+    /// let mut stmt = conn.statement("").tag("query one").build()?;
     /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[])?, 1);
     /// stmt.close()?;
     ///
-    /// // When only a tag is specified and the tag isn&#39;t found in the cache,
+    /// // When only a tag is specified and the tag isn't found in the cache,
     /// // ORA-24431 is returned.
-    /// let err = conn.statement(&quot;&quot;).tag(&quot;not existing tag&quot;).build().unwrap_err();
+    /// let err = conn.statement("").tag("not existing tag").build().unwrap_err();
     /// match err {
     ///   Error::OciError(err) if err.code() == 24431 =&gt; {
     ///     // ORA-24431: Statement does not exist in the cache
     ///   },
-    ///   _ =&gt; panic!(&quot;unexpected err {:?}&quot;, err),
+    ///   _ =&gt; panic!("unexpected err {:?}", err),
     /// }
     ///
     /// // WARNING: The SQL statement is not checked when the tag is found.
-    /// let mut stmt = conn.statement(&quot;select 2 from dual&quot;).tag(&quot;query one&quot;).build()?;
+    /// let mut stmt = conn.statement("select 2 from dual").tag("query one").build()?;
     /// // The result must be 2 if the SQL text is used. However it is 1
-    /// // because the statement tagged with &quot;query one&quot; is &quot;select 1 from dual&quot;.
+    /// // because the statement tagged with "query one" is "select 1 from dual".
     /// assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[])?, 1);
     /// stmt.close()?;
     ///
     /// # // test whether the statement is tagged when it is closed by drop.
     /// # {
-    /// #    let mut stmt = conn.statement(&quot;select 2 from dual&quot;).tag(&quot;query two&quot;).build()?;
+    /// #    let mut stmt = conn.statement("select 2 from dual").tag("query two").build()?;
     /// #    assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[])?, 2);
     /// #    // stmt is dropped here.
     /// # }
-    /// # let mut stmt = conn.statement(&quot;&quot;).tag(&quot;query two&quot;).build()?;
+    /// # let mut stmt = conn.statement("").tag("query two").build()?;
     /// # assert_eq!(stmt.query_row_as::&lt;i32&gt;(&amp;[])?, 2);
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
-    </span><span class="kw">pub fn </span>tag&lt;<span class="lifetime">&#39;a</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, tag_name: T) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt;
+    </span><span class="kw">pub fn </span>tag&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag_name: T) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt;
     <span class="kw">where
         </span>T: Into&lt;String&gt;,
     {
@@ -1809,19 +1776,19 @@
     </span>}
 
     <span class="doccomment">/// Excludes the statement from the cache even when stmt_cache_size is not zero.
-    </span><span class="kw">pub fn </span>exclude_from_cache&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">pub fn </span>exclude_from_cache(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         <span class="self">self</span>.exclude_from_cache = <span class="bool-val">true</span>;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+    <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         Statement::new(<span class="self">self</span>)
     }
 }
 
 <span class="doccomment">/// Parameters of [`Connection::prepare`]
 ///
-/// No new variants are added to this enum in the future. That&#39;s because
+/// No new variants are added to this enum in the future. That's because
 /// a new variant causes breaking changes. New configuration parameters
 /// are set via [`StatementBuilder`][] instead.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
@@ -1925,21 +1892,21 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StatementType {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            StatementType::Select =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;select&quot;</span>),
-            StatementType::Insert =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;insert&quot;</span>),
-            StatementType::Update =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;update&quot;</span>),
-            StatementType::Delete =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;delete&quot;</span>),
-            StatementType::Merge =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;merge&quot;</span>),
-            StatementType::Create =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;create&quot;</span>),
-            StatementType::Alter =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;alter&quot;</span>),
-            StatementType::Drop =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;drop&quot;</span>),
-            StatementType::Begin =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;PL/SQL(begin)&quot;</span>),
-            StatementType::Declare =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;PL/SQL(declare)&quot;</span>),
-            StatementType::Commit =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;commit&quot;</span>),
-            StatementType::Rollback =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;rollback&quot;</span>),
-            StatementType::ExplainPlan =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;explain plan&quot;</span>),
-            StatementType::Call =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;call&quot;</span>),
-            StatementType::Unknown =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;unknown&quot;</span>),
+            StatementType::Select =&gt; <span class="macro">write!</span>(f, <span class="string">"select"</span>),
+            StatementType::Insert =&gt; <span class="macro">write!</span>(f, <span class="string">"insert"</span>),
+            StatementType::Update =&gt; <span class="macro">write!</span>(f, <span class="string">"update"</span>),
+            StatementType::Delete =&gt; <span class="macro">write!</span>(f, <span class="string">"delete"</span>),
+            StatementType::Merge =&gt; <span class="macro">write!</span>(f, <span class="string">"merge"</span>),
+            StatementType::Create =&gt; <span class="macro">write!</span>(f, <span class="string">"create"</span>),
+            StatementType::Alter =&gt; <span class="macro">write!</span>(f, <span class="string">"alter"</span>),
+            StatementType::Drop =&gt; <span class="macro">write!</span>(f, <span class="string">"drop"</span>),
+            StatementType::Begin =&gt; <span class="macro">write!</span>(f, <span class="string">"PL/SQL(begin)"</span>),
+            StatementType::Declare =&gt; <span class="macro">write!</span>(f, <span class="string">"PL/SQL(declare)"</span>),
+            StatementType::Commit =&gt; <span class="macro">write!</span>(f, <span class="string">"commit"</span>),
+            StatementType::Rollback =&gt; <span class="macro">write!</span>(f, <span class="string">"rollback"</span>),
+            StatementType::ExplainPlan =&gt; <span class="macro">write!</span>(f, <span class="string">"explain plan"</span>),
+            StatementType::Call =&gt; <span class="macro">write!</span>(f, <span class="string">"call"</span>),
+            StatementType::Unknown =&gt; <span class="macro">write!</span>(f, <span class="string">"unknown"</span>),
         }
     }
 }
@@ -1948,7 +1915,6 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Stmt {
     <span class="kw">pub</span>(<span class="kw">crate</span>) conn: Conn,
     <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiStmt,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) column_info: Vec&lt;ColumnInfo&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) row: <span class="prelude-ty">Option</span>&lt;Row&gt;,
     shared_buffer_row_index: Rc&lt;AtomicU32&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) query_params: QueryParams,
@@ -1965,7 +1931,6 @@
         Stmt {
             conn,
             handle,
-            column_info: Vec::new(),
             row: <span class="prelude-val">None</span>,
             shared_buffer_row_index: Rc::new(AtomicU32::new(<span class="number">0</span>)),
             query_params,
@@ -1992,15 +1957,13 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>init_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num_cols: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>column_names = Vec::with_capacity(num_cols);
+        <span class="kw">let </span><span class="kw-2">mut </span>column_info = Vec::with_capacity(num_cols);
         <span class="kw">let </span><span class="kw-2">mut </span>column_values = Vec::with_capacity(num_cols);
-        <span class="self">self</span>.column_info = Vec::with_capacity(num_cols);
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_cols {
             <span class="comment">// set column info
             </span><span class="kw">let </span>ci = ColumnInfo::new(<span class="self">self</span>, i)<span class="question-mark">?</span>;
-            column_names.push(ci.name.clone());
-            <span class="self">self</span>.column_info.push(ci);
+            column_info.push(ci);
             <span class="comment">// setup column value
             </span><span class="kw">let </span><span class="kw-2">mut </span>val = SqlValue::for_column(
                 <span class="self">self</span>.conn.clone(),
@@ -2008,7 +1971,7 @@
                 <span class="self">self</span>.query_params.fetch_array_size,
             );
             val.buffer_row_index = BufferRowIndex::Shared(<span class="self">self</span>.shared_buffer_row_index.clone());
-            <span class="kw">let </span>oratype = <span class="self">self</span>.column_info[i].oracle_type();
+            <span class="kw">let </span>oratype = column_info[i].oracle_type();
             <span class="kw">let </span>oratype_i64 = OracleType::Int64;
             <span class="kw">let </span>oratype = <span class="kw">match </span><span class="kw-2">*</span>oratype {
                 <span class="comment">// When the column type is number whose prec is less than 18
@@ -2025,7 +1988,7 @@
             );
             column_values.push(val);
         }
-        <span class="self">self</span>.row = <span class="prelude-val">Some</span>(Row::new(column_names, column_values)<span class="question-mark">?</span>);
+        <span class="self">self</span>.row = <span class="prelude-val">Some</span>(Row::new(column_info, column_values)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -2065,26 +2028,22 @@
 }
 
 <span class="doccomment">/// Statement
-</span><span class="attr">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
-#[derive(Debug)]
-</span><span class="kw">pub struct </span>Statement&lt;<span class="lifetime">&#39;conn</span>&gt; {
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Statement {
     <span class="kw">pub</span>(<span class="kw">crate</span>) stmt: Stmt,
     statement_type: StatementType,
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec&lt;String&gt;,
     bind_values: Vec&lt;SqlValue&gt;,
-    <span class="attr">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
-    </span>phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>()&gt;,
 }
 
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, remove_stmt_lifetime)]
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;conn</span>&gt; Statement&lt;<span class="lifetime">&#39;conn</span>&gt; {
+<span class="kw">impl </span>Statement {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_params(
-        conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span>Connection,
+        conn: <span class="kw-2">&amp;</span>Connection,
         sql: <span class="kw-2">&amp;</span>str,
         params: <span class="kw-2">&amp;</span>[StmtParam],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = conn.statement(sql);
         <span class="kw">for </span>param <span class="kw">in </span>params {
             <span class="kw">match </span>param {
@@ -2102,7 +2061,7 @@
         builder.build()
     }
 
-    <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&lt;<span class="lifetime">&#39;conn</span>&gt;&gt; {
+    <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span>conn = builder.conn;
         <span class="kw">let </span>sql = to_odpi_str(builder.sql);
         <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span>builder.tag);
@@ -2174,8 +2133,6 @@
             bind_count,
             bind_names,
             bind_values,
-            <span class="attr">#[cfg(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>))]
-            </span>phantom: PhantomData,
         })
     }
 
@@ -2202,7 +2159,7 @@
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
-        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">&quot;query&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">"query"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
@@ -2212,7 +2169,7 @@
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_named(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
-        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">&quot;query_named&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_named"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
@@ -2221,11 +2178,11 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>query_as&lt;<span class="lifetime">&#39;a</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;
+    </span><span class="kw">pub fn </span>query_as&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
-        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">&quot;query_as&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">"query_as"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
@@ -2236,11 +2193,11 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>into_result_set&lt;<span class="lifetime">&#39;a</span>, T&gt;(<span class="kw-2">mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;
+    </span><span class="kw">pub fn </span>into_result_set&lt;T&gt;(<span class="kw-2">mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
-        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">&quot;into_result_set&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">"into_result_set"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::from_stmt(<span class="self">self</span>.stmt))
     }
 
@@ -2249,14 +2206,11 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>query_as_named&lt;<span class="lifetime">&#39;a</span>, T&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;
+    </span><span class="kw">pub fn </span>query_as_named&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
-        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">&quot;query_as_named&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_as_named"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
     }
 
@@ -2267,14 +2221,14 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>into_result_set_named&lt;<span class="lifetime">&#39;a</span>, T&gt;(
+    </span><span class="kw">pub fn </span>into_result_set_named&lt;T&gt;(
         <span class="kw-2">mut </span><span class="self">self</span>,
         params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">&#39;a</span>, T&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
-        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">&quot;into_result_set_named&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">"into_result_set_named"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::from_stmt(<span class="self">self</span>.stmt))
     }
 
@@ -2333,25 +2287,25 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
     /// let mut stmt = conn
-    ///     .statement(&quot;insert into emp(empno, ename) values (113, &#39;John&#39;)&quot;)
+    ///     .statement("insert into emp(empno, ename) values (113, 'John')")
     ///     .build()?;
     /// stmt.execute(&amp;[])?;
     ///
     /// // execute a statement with binding parameters by position
     /// let mut stmt = conn
-    ///     .statement(&quot;insert into emp(empno, ename) values (:1, :2)&quot;)
+    ///     .statement("insert into emp(empno, ename) values (:1, :2)")
     ///     .build()?;
-    /// stmt.execute(&amp;[&amp;114, &amp;&quot;Smith&quot;])?;
-    /// stmt.execute(&amp;[&amp;115, &amp;&quot;Paul&quot;])?;  // execute with other values.
+    /// stmt.execute(&amp;[&amp;114, &amp;"Smith"])?;
+    /// stmt.execute(&amp;[&amp;115, &amp;"Paul"])?;  // execute with other values.
     ///
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>execute(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.exec(params, <span class="bool-val">false</span>, <span class="string">&quot;execute&quot;</span>)
+        <span class="self">self</span>.exec(params, <span class="bool-val">false</span>, <span class="string">"execute"</span>)
     }
 
     <span class="doccomment">/// Binds values by name and executes the statement.
@@ -2363,20 +2317,20 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
     /// let mut stmt = conn
-    ///     .statement(&quot;insert into emp(empno, ename) values (:id, :name)&quot;)
+    ///     .statement("insert into emp(empno, ename) values (:id, :name)")
     ///     .build()?;
-    /// stmt.execute_named(&amp;[(&quot;id&quot;, &amp;114),
-    ///                      (&quot;name&quot;, &amp;&quot;Smith&quot;)])?;
-    /// stmt.execute_named(&amp;[(&quot;id&quot;, &amp;115),
-    ///                      (&quot;name&quot;, &amp;&quot;Paul&quot;)])?; // execute with other values.
+    /// stmt.execute_named(&amp;[("id", &amp;114),
+    ///                      ("name", &amp;"Smith")])?;
+    /// stmt.execute_named(&amp;[("id", &amp;115),
+    ///                      ("name", &amp;"Paul")])?; // execute with other values.
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>execute_named(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.exec_named(params, <span class="bool-val">false</span>, <span class="string">&quot;execute_named&quot;</span>)
+        <span class="self">self</span>.exec_named(params, <span class="bool-val">false</span>, <span class="string">"execute_named"</span>)
     }
 
     <span class="kw">fn </span>check_stmt_type(<span class="kw-2">&amp;</span><span class="self">self</span>, must_be_query: bool, method_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -2385,7 +2339,7 @@
                 <span class="prelude-val">Ok</span>(())
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
-                    <span class="string">&quot;Could not use the `{}` method for non-select statements&quot;</span>,
+                    <span class="string">"Could not use the `{}` method for non-select statements"</span>,
                     method_name
                 )))
             }
@@ -2393,7 +2347,7 @@
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
-                <span class="string">&quot;Could not use the `{}` method for select statements&quot;</span>,
+                <span class="string">"Could not use the `{}` method for select statements"</span>,
                 method_name
             )))
         }
@@ -2473,14 +2427,14 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // SQL statements
-    /// let stmt = conn.statement(&quot;select :val1, :val2, :val1 from dual&quot;).build()?;
+    /// let stmt = conn.statement("select :val1, :val2, :val1 from dual").build()?;
     /// assert_eq!(stmt.bind_count(), 3); // val1, val2 and val1
     ///
     /// // PL/SQL statements
-    /// let stmt = conn.statement(&quot;begin :val1 := :val1 || :val2; end;&quot;).build()?;
+    /// let stmt = conn.statement("begin :val1 := :val1 || :val2; end;").build()?;
     /// assert_eq!(stmt.bind_count(), 2); // val1(twice) and val2
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -2496,15 +2450,15 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
-    /// let stmt = conn.statement(&quot;BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;&quot;).build()?;
+    /// let stmt = conn.statement("BEGIN :val1 := :val2 || :val1 || :aàáâãäå; END;").build()?;
     /// assert_eq!(stmt.bind_count(), 3);
     /// let bind_names = stmt.bind_names();
     /// assert_eq!(bind_names.len(), 3);
-    /// assert_eq!(bind_names[0], &quot;VAL1&quot;);
-    /// assert_eq!(bind_names[1], &quot;VAL2&quot;);
-    /// assert_eq!(bind_names[2], &quot;AÀÁÂÃÄÅ&quot;);
+    /// assert_eq!(bind_names[0], "VAL1");
+    /// assert_eq!(bind_names[1], "VAL2");
+    /// assert_eq!(bind_names[2], "AÀÁÂÃÄÅ");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>bind_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>str&gt; {
@@ -2521,18 +2475,18 @@
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-    /// let mut stmt = conn.statement(&quot;begin :outval := upper(:inval); end;&quot;).build()?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     ///
     /// // Sets NULL whose data type is VARCHAR2(60) to the first bind value.
     /// stmt.bind(1, &amp;OracleType::Varchar2(60))?;
     ///
-    /// // Sets &quot;to be upper-case&quot; to the second by its name.
-    /// stmt.bind(&quot;inval&quot;, &amp;&quot;to be upper-case&quot;)?;
+    /// // Sets "to be upper-case" to the second by its name.
+    /// stmt.bind("inval", &amp;"to be upper-case")?;
     ///
     /// stmt.execute(&amp;[])?;
     /// let outval: String = stmt.bind_value(1)?;
-    /// assert_eq!(outval, &quot;TO BE UPPER-CASE&quot;);
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>bind&lt;I&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bindidx: I, value: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
@@ -2560,22 +2514,22 @@
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
-    /// // Prepares &quot;begin :outval := upper(:inval); end;&quot;,
+    /// // Prepares "begin :outval := upper(:inval); end;",
     /// // sets NULL whose data type is VARCHAR2(60) to the first bind variable,
-    /// // sets &quot;to be upper-case&quot; to the second and then executes it.
-    /// let mut stmt = conn.statement(&quot;begin :outval := upper(:inval); end;&quot;).build()?;
+    /// // sets "to be upper-case" to the second and then executes it.
+    /// let mut stmt = conn.statement("begin :outval := upper(:inval); end;").build()?;
     /// stmt.execute(&amp;[&amp;OracleType::Varchar2(60),
-    ///              &amp;&quot;to be upper-case&quot;])?;
+    ///              &amp;"to be upper-case"])?;
     ///
     /// // Get the first bind value by position.
     /// let outval: String = stmt.bind_value(1)?;
-    /// assert_eq!(outval, &quot;TO BE UPPER-CASE&quot;);
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
     ///
     /// // Get the first bind value by name.
-    /// let outval: String = stmt.bind_value(&quot;outval&quot;)?;
-    /// assert_eq!(outval, &quot;TO BE UPPER-CASE&quot;);
+    /// let outval: String = stmt.bind_value("outval")?;
+    /// assert_eq!(outval, "TO BE UPPER-CASE");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>bind_value&lt;I, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, bindidx: I) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
@@ -2596,30 +2550,30 @@
     ///
     /// ```no_run
     /// # use oracle::*; use oracle::sql_type::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // create a table using identity column (Oracle 12c feature).
-    /// conn.execute(&quot;create table people (id number generated as identity, name varchar2(30))&quot;, &amp;[])?;
+    /// conn.execute("create table people (id number generated as identity, name varchar2(30))", &amp;[])?;
     ///
     /// // insert one person and return the generated id into :id.
-    /// let stmt = conn.execute(&quot;insert into people(name) values (&#39;Asimov&#39;) returning id into :id&quot;, &amp;[&amp;None::&lt;i32&gt;])?;
-    /// let inserted_id: i32 = stmt.returned_values(&quot;id&quot;)?[0];
-    /// println!(&quot;Asimov&#39;s ID is {}&quot;, inserted_id);
+    /// let stmt = conn.execute("insert into people(name) values ('Asimov') returning id into :id", &amp;[&amp;None::&lt;i32&gt;])?;
+    /// let inserted_id: i32 = stmt.returned_values("id")?[0];
+    /// println!("Asimov's ID is {}", inserted_id);
     ///
     /// // insert another person and return the generated id into :id.
-    /// let stmt = conn.execute(&quot;insert into people(name) values (&#39;Clark&#39;) returning id into :id&quot;, &amp;[&amp;None::&lt;i32&gt;])?;
-    /// let inserted_id: i32 = stmt.returned_values(&quot;id&quot;)?[0];
-    /// println!(&quot;Clark&#39;s ID is {}&quot;, inserted_id);
+    /// let stmt = conn.execute("insert into people(name) values ('Clark') returning id into :id", &amp;[&amp;None::&lt;i32&gt;])?;
+    /// let inserted_id: i32 = stmt.returned_values("id")?[0];
+    /// println!("Clark's ID is {}", inserted_id);
     ///
     /// // delete all people and return deleted names into :name.
-    /// let stmt = conn.execute(&quot;delete from people returning name into :name&quot;, &amp;[&amp;OracleType::Varchar2(30)])?;
-    /// let deleted_names: Vec&lt;String&gt; = stmt.returned_values(&quot;name&quot;)?;
+    /// let stmt = conn.execute("delete from people returning name into :name", &amp;[&amp;OracleType::Varchar2(30)])?;
+    /// let deleted_names: Vec&lt;String&gt; = stmt.returned_values("name")?;
     /// for name in deleted_names {
-    ///     println!(&quot;{} is deleted.&quot;, name);
+    ///     println!("{} is deleted.", name);
     /// }
     ///
     /// // cleanup
-    /// conn.execute(&quot;drop table people purge&quot;, &amp;[])?;
+    /// conn.execute("drop table people purge", &amp;[])?;
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>returned_values&lt;I, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, bindidx: I) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;T&gt;&gt;
@@ -2654,12 +2608,12 @@
     /// # use oracle::test_util::{self, check_version, VER12_1};
     /// # let conn = test_util::connect()?;
     /// // number of affected rows
-    /// let stmt = conn.execute(&quot;update TestStrings set StringCol = StringCol where IntCol &gt;= :1&quot;, &amp;[&amp;6])?;
+    /// let stmt = conn.execute("update TestStrings set StringCol = StringCol where IntCol &gt;= :1", &amp;[&amp;6])?;
     /// assert_eq!(stmt.row_count()?, 5);
     ///
     /// // number of fetched rows
     /// let mut stmt = conn
-    ///     .statement(&quot;select * from TestStrings where IntCol &gt;= :1&quot;)
+    ///     .statement("select * from TestStrings where IntCol &gt;= :1")
     ///     .build()?;
     /// assert_eq!(stmt.row_count()?, 0); // before fetch
     /// let mut nrows = 0;
@@ -2697,7 +2651,7 @@
     /// #     return Ok(()); // skip this test
     /// # }
     ///
-    /// let sql = r#&quot;
+    /// let sql = r#"
     /// declare
     ///   cursor1 SYS_REFCURSOR;
     ///   cursor2 SYS_REFCURSOR;
@@ -2710,7 +2664,7 @@
     ///   -- return the second result set
     ///   dbms_sql.return_result(cursor2);
     /// end;
-    /// &quot;#;
+    /// "#;
     ///
     /// let mut stmt = conn.statement(sql).build()?;
     /// stmt.execute(&amp;[&amp;1, &amp;2])?;
@@ -2719,13 +2673,13 @@
     /// let mut opt_cursor = stmt.implicit_result()?;
     /// assert!(opt_cursor.is_some());
     /// let mut cursor = opt_cursor.unwrap();
-    /// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, &quot;String 1&quot;);
+    /// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, "String 1");
     ///
     /// // Get the second result set.
     /// let mut opt_cursor = stmt.implicit_result()?;
     /// assert!(opt_cursor.is_some());
     /// let mut cursor = opt_cursor.unwrap();
-    /// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, &quot;String 2&quot;);
+    /// assert_eq!(cursor.query_row_as::&lt;String&gt;()?, "String 2");
     ///
     /// // No more result sets
     /// let mut opt_cursor = stmt.implicit_result()?;
@@ -2802,13 +2756,13 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// let mut stmt = conn
-    ///     .statement(&quot;insert into TestDates values(100, sysdate, null)&quot;)
+    ///     .statement("insert into TestDates values(100, sysdate, null)")
     ///     .build()?;
     /// stmt.execute(&amp;[])?;
     /// // get the rowid inserted by stmt
     /// let rowid1 = stmt.last_row_id()?;
     /// // get the rowid from database
-    /// let rowid2 = conn.query_row_as::&lt;String&gt;(&quot;select rowid from TestDates where IntCol = 100&quot;, &amp;[])?;
+    /// let rowid2 = conn.query_row_as::&lt;String&gt;("select rowid from TestDates where IntCol = 100", &amp;[])?;
     /// assert_eq!(rowid1, Some(rowid2));
     /// # conn.rollback()?;
     /// # Ok::&lt;(), Error&gt;(())
@@ -2860,15 +2814,15 @@
 ///
 /// ```no_run
 /// # use oracle::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-/// let mut stmt = conn.statement(&quot;select * from emp&quot;).build()?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
+/// let mut stmt = conn.statement("select * from emp").build()?;
 /// let rows = stmt.query(&amp;[])?;
-/// println!(&quot; {:-30} {:-8} {}&quot;, &quot;Name&quot;, &quot;Null?&quot;, &quot;Type&quot;);
-/// println!(&quot; {:-30} {:-8} {}&quot;, &quot;------------------------------&quot;, &quot;--------&quot;, &quot;----------------------------&quot;);
+/// println!(" {:-30} {:-8} {}", "Name", "Null?", "Type");
+/// println!(" {:-30} {:-8} {}", "------------------------------", "--------", "----------------------------");
 /// for info in rows.column_info() {
-///    println!(&quot;{:-30} {:-8} {}&quot;,
+///    println!("{:-30} {:-8} {}",
 ///             info.name(),
-///             if info.nullable() {&quot;&quot;} else {&quot;NOT NULL&quot;},
+///             if info.nullable() {""} else {"NOT NULL"},
 ///             info.oracle_type());
 /// }
 /// # Ok::&lt;(), Error&gt;(())
@@ -2930,9 +2884,9 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ColumnInfo {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">if </span><span class="self">self</span>.nullable {
-            <span class="macro">write!</span>(f, <span class="string">&quot;{} {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.oracle_type)
+            <span class="macro">write!</span>(f, <span class="string">"{} {}"</span>, <span class="self">self</span>.name, <span class="self">self</span>.oracle_type)
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;{} {} NOT NULL&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.oracle_type)
+            <span class="macro">write!</span>(f, <span class="string">"{} {} NOT NULL"</span>, <span class="self">self</span>.name, <span class="self">self</span>.oracle_type)
         }
     }
 }
@@ -2964,7 +2918,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BindIndex <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
+<span class="kw">impl </span>BindIndex <span class="kw">for </span><span class="kw-2">&amp;</span>str {
     <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span>Statement) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
         <span class="kw">let </span>bindname = <span class="self">self</span>.to_uppercase();
         stmt.bind_names()
@@ -2985,12 +2939,12 @@
 </span><span class="kw">pub trait </span>ColumnIndex: private::Sealed {
     <span class="doccomment">/// Returns the index of the column specified by `self`.
     </span><span class="attr">#[doc(hidden)]
-    </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_names: <span class="kw-2">&amp;</span>[String]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
+    </span><span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_info: <span class="kw-2">&amp;</span>[ColumnInfo]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
 }
 
 <span class="kw">impl </span>ColumnIndex <span class="kw">for </span>usize {
-    <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_names: <span class="kw-2">&amp;</span>[String]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
-        <span class="kw">let </span>ncols = column_names.len();
+    <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_info: <span class="kw-2">&amp;</span>[ColumnInfo]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">let </span>ncols = column_info.len();
         <span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>&lt; ncols {
             <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
         } <span class="kw">else </span>{
@@ -2999,10 +2953,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ColumnIndex <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str {
-    <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_names: <span class="kw-2">&amp;</span>[String]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
-        <span class="kw">for </span>(idx, colname) <span class="kw">in </span>column_names.iter().enumerate() {
-            <span class="kw">if </span>colname.as_str().eq_ignore_ascii_case(<span class="self">self</span>) {
+<span class="kw">impl </span>ColumnIndex <span class="kw">for </span><span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, column_info: <span class="kw-2">&amp;</span>[ColumnInfo]) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">for </span>(idx, info) <span class="kw">in </span>column_info.iter().enumerate() {
+            <span class="kw">if </span>info.name.as_str().eq_ignore_ascii_case(<span class="self">self</span>) {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(idx);
             }
         }
@@ -3018,95 +2972,83 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>column_info() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>conn = test_util::connect()<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">&quot;select * from TestDataTypes&quot;</span>).build()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">"select * from TestDataTypes"</span>).build()<span class="question-mark">?</span>;
         <span class="kw">let </span>rows = stmt.query(<span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
         <span class="kw">let </span>colinfo = rows.column_info();
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">&quot;STRINGCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">"STRINGCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Varchar2(<span class="number">100</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">&quot;UNICODECOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">"UNICODECOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::NVarchar2(<span class="number">100</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">2</span>].name(), <span class="string">&quot;FIXEDCHARCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">2</span>].name(), <span class="string">"FIXEDCHARCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">2</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Char(<span class="number">100</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">3</span>].name(), <span class="string">&quot;FIXEDUNICODECOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">3</span>].name(), <span class="string">"FIXEDUNICODECOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">3</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::NChar(<span class="number">100</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">4</span>].name(), <span class="string">&quot;RAWCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">4</span>].name(), <span class="string">"RAWCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">4</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Raw(<span class="number">30</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">5</span>].name(), <span class="string">&quot;FLOATCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">5</span>].name(), <span class="string">"FLOATCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">5</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Float(<span class="number">126</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">6</span>].name(), <span class="string">&quot;DOUBLEPRECCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">6</span>].name(), <span class="string">"DOUBLEPRECCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">6</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Float(<span class="number">126</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">7</span>].name(), <span class="string">&quot;INTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">7</span>].name(), <span class="string">"INTCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">7</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">9</span>, <span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">8</span>].name(), <span class="string">&quot;NUMBERCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">8</span>].name(), <span class="string">"NUMBERCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">8</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">9</span>, <span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">9</span>].name(), <span class="string">&quot;DATECOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">9</span>].name(), <span class="string">"DATECOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">9</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Date);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">10</span>].name(), <span class="string">&quot;TIMESTAMPCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">10</span>].name(), <span class="string">"TIMESTAMPCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">10</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Timestamp(<span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">11</span>].name(), <span class="string">&quot;TIMESTAMPTZCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">11</span>].name(), <span class="string">"TIMESTAMPTZCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">11</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::TimestampTZ(<span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">12</span>].name(), <span class="string">&quot;TIMESTAMPLTZCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">12</span>].name(), <span class="string">"TIMESTAMPLTZCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">12</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::TimestampLTZ(<span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">13</span>].name(), <span class="string">&quot;INTERVALDSCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">13</span>].name(), <span class="string">"INTERVALDSCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">13</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::IntervalDS(<span class="number">2</span>, <span class="number">6</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">14</span>].name(), <span class="string">&quot;INTERVALYMCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">14</span>].name(), <span class="string">"INTERVALYMCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">14</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::IntervalYM(<span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">15</span>].name(), <span class="string">&quot;BINARYFLTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">15</span>].name(), <span class="string">"BINARYFLTCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">15</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::BinaryFloat);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">16</span>].name(), <span class="string">&quot;BINARYDOUBLECOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">16</span>].name(), <span class="string">"BINARYDOUBLECOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">16</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::BinaryDouble);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">17</span>].name(), <span class="string">&quot;CLOBCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">17</span>].name(), <span class="string">"CLOBCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">17</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::CLOB);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">18</span>].name(), <span class="string">&quot;NCLOBCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">18</span>].name(), <span class="string">"NCLOBCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">18</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::NCLOB);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">19</span>].name(), <span class="string">&quot;BLOBCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">19</span>].name(), <span class="string">"BLOBCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">19</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::BLOB);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">20</span>].name(), <span class="string">&quot;BFILECOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">20</span>].name(), <span class="string">"BFILECOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">20</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::BFILE);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">21</span>].name(), <span class="string">&quot;LONGCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">21</span>].name(), <span class="string">"LONGCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">21</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Long);
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">22</span>].name(), <span class="string">&quot;UNCONSTRAINEDCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">22</span>].name(), <span class="string">"UNCONSTRAINEDCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">22</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">0</span>, -<span class="number">127</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">23</span>].name(), <span class="string">&quot;SIGNEDINTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">23</span>].name(), <span class="string">"SIGNEDINTCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">23</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">38</span>, <span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">24</span>].name(), <span class="string">&quot;SUBOBJECTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">24</span>].name(), <span class="string">"SUBOBJECTCOL"</span>);
         <span class="macro">assert_eq!</span>(
             colinfo[<span class="number">24</span>].oracle_type().to_string(),
-            OracleType::Object(conn.object_type(<span class="string">&quot;UDT_SUBOBJECT&quot;</span>)<span class="question-mark">?</span>).to_string()
+            OracleType::Object(conn.object_type(<span class="string">"UDT_SUBOBJECT"</span>)<span class="question-mark">?</span>).to_string()
         );
         <span class="macro">assert_eq!</span>(colinfo.len(), <span class="number">25</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">&quot;select * from TestLongRaws&quot;</span>).build()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">"select * from TestLongRaws"</span>).build()<span class="question-mark">?</span>;
         <span class="kw">let </span>rows = stmt.query(<span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
         <span class="kw">let </span>colinfo = rows.column_info();
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">&quot;INTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">"INTCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">9</span>, <span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">&quot;LONGRAWCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">"LONGRAWCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::LongRaw);
         <span class="macro">assert_eq!</span>(colinfo.len(), <span class="number">2</span>);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">&quot;select * from TestXml&quot;</span>).build()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>stmt = conn.statement(<span class="string">"select * from TestXml"</span>).build()<span class="question-mark">?</span>;
         <span class="kw">let </span>rows = stmt.query(<span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
         <span class="kw">let </span>colinfo = rows.column_info();
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">&quot;INTCOL&quot;</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].name(), <span class="string">"INTCOL"</span>);
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">0</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Number(<span class="number">9</span>, <span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">&quot;XMLCOL&quot;</span>);
-        <span class="comment">// xmltype is reported as long. (https://github.com/oracle/odpi/commit/d51e9c496381427dd09f7fb0cbaab3e152667026)
-        </span><span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Long);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].name(), <span class="string">"XMLCOL"</span>);
+        <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Xml);
         <span class="macro">assert_eq!</span>(colinfo.len(), <span class="number">2</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 }
-
-<span class="attr">#[cfg_attr(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>, doc = <span class="string">&quot;```&quot;</span>)]
-#[cfg_attr(not(feature = <span class="string">&quot;stmt_without_lifetime&quot;</span>), doc = <span class="string">&quot;```compile_fail&quot;</span>)]
-</span><span class="doccomment">/// # use oracle::Statement;
-/// struct Statements {
-///   stmts: Vec&lt;Statement&gt;,
-/// }
-/// ```
-</span><span class="attr">#[cfg(doctest)]
-</span><span class="kw">struct </span>TestStmtWithoutLifetime;
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

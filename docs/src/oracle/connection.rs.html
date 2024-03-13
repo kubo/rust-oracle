@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../source-files.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../oracle/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1844,7 +1845,11 @@
 <a href="#1844" id="1844">1844</a>
 <a href="#1845" id="1845">1845</a>
 <a href="#1846" id="1846">1846</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -1862,7 +1867,7 @@
 </span><span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::collections::HashMap;
 <span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::mem::{<span class="self">self</span>, MaybeUninit};
+<span class="kw">use </span>std::mem::MaybeUninit;
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::sync::atomic::{AtomicBool, Ordering};
 <span class="kw">use </span>std::sync::Arc;
@@ -2105,9 +2110,9 @@
             privilege: <span class="prelude-val">None</span>,
             external_auth: <span class="bool-val">false</span>,
             prelim_auth: <span class="bool-val">false</span>,
-            new_password: <span class="string">&quot;&quot;</span>.into(),
+            new_password: <span class="string">""</span>.into(),
             purity: <span class="prelude-val">None</span>,
-            connection_class: <span class="string">&quot;&quot;</span>.into(),
+            connection_class: <span class="string">""</span>.into(),
             app_context: <span class="macro">vec!</span>[],
             common_params: Default::default(),
         }
@@ -2120,7 +2125,7 @@
     /// ```no_run
     /// # use oracle::*;
     /// // connect system/manager as sysdba
-    /// let conn = Connector::new(&quot;system&quot;, &quot;manager&quot;, &quot;&quot;)
+    /// let conn = Connector::new("system", "manager", "")
     ///     .privilege(Privilege::Sysdba)
     ///     .connect()?;
     /// # Ok::&lt;(), Error&gt;(())
@@ -2136,7 +2141,7 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connector::new(&quot;&quot;, &quot;&quot;, &quot;&quot;)
+    /// let conn = Connector::new("", "", "")
     ///     .external_auth(true)
     ///     .connect()?;
     /// # Ok::&lt;(), Error&gt;(())
@@ -2169,12 +2174,12 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = match Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;) {
+    /// let conn = match Connection::connect("scott", "tiger", "") {
     ///     Ok(conn) =&gt; conn,
     ///     Err(Error::OciError(dberr)) if dberr.code() == 28001 =&gt; {
     ///         // ORA-28001: the password has expired
-    ///         Connector::new(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)
-    ///             .new_password(&quot;jaguar&quot;)
+    ///         Connector::new("scott", "tiger", "")
+    ///             .new_password("jaguar")
     ///             .connect()?
     ///     }
     ///     Err(err) =&gt; return Err(err),
@@ -2228,13 +2233,13 @@
     /// # let password = test_util::main_password();
     /// # let connect_string = test_util::connect_string();
     /// let conn = Connector::new(username, password, connect_string)
-    ///               .app_context(&quot;CLIENTCONTEXT&quot;, &quot;foo&quot;, &quot;bar&quot;)
-    ///               .app_context(&quot;CLIENTCONTEXT&quot;, &quot;baz&quot;, &quot;qux&quot;)
+    ///               .app_context("CLIENTCONTEXT", "foo", "bar")
+    ///               .app_context("CLIENTCONTEXT", "baz", "qux")
     ///               .connect()?;
-    /// let val = conn.query_row_as::&lt;String&gt;(&quot;select sys_context(&#39;CLIENTCONTEXT&#39;, &#39;foo&#39;) from dual&quot;, &amp;[])?;
-    /// assert_eq!(val, &quot;bar&quot;);
-    /// let val = conn.query_row_as::&lt;String&gt;(&quot;select sys_context(&#39;CLIENTCONTEXT&#39;, &#39;baz&#39;) from dual&quot;, &amp;[])?;
-    /// assert_eq!(val, &quot;qux&quot;);
+    /// let val = conn.query_row_as::&lt;String&gt;("select sys_context('CLIENTCONTEXT', 'foo') from dual", &amp;[])?;
+    /// assert_eq!(val, "bar");
+    /// let val = conn.query_row_as::&lt;String&gt;("select sys_context('CLIENTCONTEXT', 'baz') from dual", &amp;[])?;
+    /// assert_eq!(val, "qux");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>app_context&lt;T1, T2, T3&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, namespace: T1, name: T2, value: T3) -&gt; <span class="kw-2">&amp;mut </span>Connector
@@ -2283,8 +2288,8 @@
 
     <span class="doccomment">/// Sets the driver name displayed in [V$SESSION_CONNECT_INFO.CLIENT_DRIVER][].
     ///
-    /// The default value is &quot;rust-oracle : version number&quot;. Only the first 8
-    /// chracters &quot;rust-ora&quot; are displayed when the Oracle server version is
+    /// The default value is "rust-oracle : version number". Only the first 8
+    /// chracters "rust-ora" are displayed when the Oracle server version is
     /// lower than 12.0.1.2.
     ///
     /// [V$SESSION_CONNECT_INFO.CLIENT_DRIVER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-9F0DCAEA-A67E-4183-89E7-B1555DC591CE
@@ -2415,17 +2420,17 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;Conn {{ handle: {:?}, autocommit: {:?}&quot;</span>,
+            <span class="string">"Conn {{ handle: {:?}, autocommit: {:?}"</span>,
             <span class="self">self</span>.handle.raw(),
             <span class="self">self</span>.autocommit,
         )<span class="question-mark">?</span>;
         <span class="kw">if </span>!<span class="self">self</span>.tag.is_empty() {
-            <span class="macro">write!</span>(f, <span class="string">&quot;, tag: {:?}&quot;</span>, <span class="self">self</span>.tag)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">", tag: {:?}"</span>, <span class="self">self</span>.tag)<span class="question-mark">?</span>;
         }
         <span class="kw">if </span><span class="self">self</span>.tag_found {
-            <span class="macro">write!</span>(f, <span class="string">&quot;, tag_found: {:?}&quot;</span>, <span class="self">self</span>.tag_found)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">", tag_found: {:?}"</span>, <span class="self">self</span>.tag_found)<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(f, <span class="string">&quot; }}&quot;</span>)
+        <span class="macro">write!</span>(f, <span class="string">" }}"</span>)
     }
 }
 
@@ -2449,7 +2454,7 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     ///
@@ -2457,8 +2462,8 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;,
-    ///                                &quot;server_name:1521/service_name&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger",
+    ///                                "server_name:1521/service_name")?;
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>connect&lt;U, P, C&gt;(username: U, password: P, connect_string: C) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt;
@@ -2543,8 +2548,8 @@
 
     <span class="kw">pub fn </span>close_with_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, mode: CloseMode) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>(mode, tag) = <span class="kw">match </span>mode {
-            CloseMode::Default =&gt; (DPI_MODE_CONN_CLOSE_DEFAULT, <span class="string">&quot;&quot;</span>),
-            CloseMode::Drop =&gt; (DPI_MODE_CONN_CLOSE_DROP, <span class="string">&quot;&quot;</span>),
+            CloseMode::Default =&gt; (DPI_MODE_CONN_CLOSE_DEFAULT, <span class="string">""</span>),
+            CloseMode::Drop =&gt; (DPI_MODE_CONN_CLOSE_DROP, <span class="string">""</span>),
             CloseMode::Retag(tag) =&gt; (DPI_MODE_CONN_CLOSE_RETAG, tag),
         };
         <span class="kw">let </span>tag = to_odpi_str(tag);
@@ -2563,13 +2568,13 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-    /// let mut stmt = conn.statement(&quot;insert into emp(empno, ename) values (:id, :name)&quot;).build()?;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// let mut stmt = conn.statement("insert into emp(empno, ename) values (:id, :name)").build()?;
     ///
     /// let emp_list = [
-    ///     (7369, &quot;Smith&quot;),
-    ///     (7499, &quot;Allen&quot;),
-    ///     (7521, &quot;Ward&quot;),
+    ///     (7369, "Smith"),
+    ///     (7499, "Allen"),
+    ///     (7521, "Ward"),
     /// ];
     ///
     /// // insert rows using positional parameters
@@ -2578,34 +2583,34 @@
     /// }
     ///
     /// let emp_list = [
-    ///     (7566, &quot;Jones&quot;),
-    ///     (7654, &quot;Martin&quot;),
-    ///     (7698, &quot;Blake&quot;),
+    ///     (7566, "Jones"),
+    ///     (7654, "Martin"),
+    ///     (7698, "Blake"),
     /// ];
     ///
     /// // insert rows using named parameters
     /// for emp in &amp;emp_list {
-    ///    stmt.execute_named(&amp;[(&quot;id&quot;, &amp;emp.0), (&quot;name&quot;, &amp;emp.1)])?;
+    ///    stmt.execute_named(&amp;[("id", &amp;emp.0), ("name", &amp;emp.1)])?;
     /// }
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
     /// to reduce the number of network round trips in case that many rows are
-    /// fetched. When 100 isn&#39;t preferable, use [`StatementBuilder::fetch_array_size`]
+    /// fetched. When 100 isn't preferable, use [`StatementBuilder::fetch_array_size`]
     /// to customize it.
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
     /// let mut stmt = conn
-    ///     .statement(&quot;select empno, ename from emp order by empno fetch first 10 rows only&quot;)
+    ///     .statement("select empno, ename from emp order by empno fetch first 10 rows only")
     ///     .fetch_array_size(10)
     ///     .build()?;
     /// for row_result in stmt.query_as::&lt;(i32, String)&gt;(&amp;[])? {
     ///     let (empno, ename) = row_result?;
-    ///     println!(&quot;empno: {}, ename: {}&quot;, empno, ename);
+    ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -2618,19 +2623,19 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
     /// let mut stmt = conn
-    ///     .statement(&quot;select empno, ename from emp order by empno fetch first 10 rows only&quot;)
+    ///     .statement("select empno, ename from emp order by empno fetch first 10 rows only")
     ///     .prefetch_rows(11)  // add one to avoid a round-trip to check for end-of-fetch
     ///     .build()?;
     /// for row_result in stmt.query_as::&lt;(i32, String)&gt;(&amp;[])? {
     ///     let (empno, ename) = row_result?;
-    ///     println!(&quot;empno: {}, ename: {}&quot;, empno, ename);
+    ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
-    </span><span class="kw">pub fn </span>statement&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str) -&gt; StatementBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    </span><span class="kw">pub fn </span>statement&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'conn </span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str) -&gt; StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         StatementBuilder::new(<span class="self">self</span>, sql)
     }
 
@@ -2649,13 +2654,13 @@
     /// # use oracle::*;
     /// # #[allow(deprecated)]
     /// # fn main() -&gt; Result&lt;()&gt; {
-    /// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
-    /// let mut stmt = conn.prepare(&quot;insert into emp(empno, ename) values (:id, :name)&quot;, &amp;[])?;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
+    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &amp;[])?;
     ///
     /// let emp_list = [
-    ///     (7369, &quot;Smith&quot;),
-    ///     (7499, &quot;Allen&quot;),
-    ///     (7521, &quot;Ward&quot;),
+    ///     (7369, "Smith"),
+    ///     (7499, "Allen"),
+    ///     (7521, "Ward"),
     /// ];
     ///
     /// // insert rows using positional parameters
@@ -2664,34 +2669,34 @@
     /// }
     ///
     /// let emp_list = [
-    ///     (7566, &quot;Jones&quot;),
-    ///     (7654, &quot;Martin&quot;),
-    ///     (7698, &quot;Blake&quot;),
+    ///     (7566, "Jones"),
+    ///     (7654, "Martin"),
+    ///     (7698, "Blake"),
     /// ];
     ///
     /// // insert rows using named parameters
     /// for emp in &amp;emp_list {
-    ///    stmt.execute_named(&amp;[(&quot;id&quot;, &amp;emp.0), (&quot;name&quot;, &amp;emp.1)])?;
+    ///    stmt.execute_named(&amp;[("id", &amp;emp.0), ("name", &amp;emp.1)])?;
     /// }
     /// # Ok(()) }
     /// ```
     ///
     /// Query methods in Connection allocate memory for 100 rows by default
     /// to reduce the number of network round trips in case that many rows are
-    /// fetched. When 100 isn&#39;t preferable, use `StmtParam::FetchArraySize(u32)`
+    /// fetched. When 100 isn't preferable, use `StmtParam::FetchArraySize(u32)`
     /// to customize it.
     ///
     /// ```no_run
     /// # use oracle::*;
     /// # #[allow(deprecated)]
     /// # fn main() -&gt; Result&lt;()&gt; {
-    /// # let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// # let conn = Connection::connect("scott", "tiger", "")?;
     /// // fetch top 10 rows.
-    /// let mut stmt = conn.prepare(&quot;select * from (select empno, ename from emp order by empno) where rownum &lt;= 10&quot;,
+    /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum &lt;= 10",
     ///                             &amp;[StmtParam::FetchArraySize(10)])?;
     /// for row_result in stmt.query_as::&lt;(i32, String)&gt;(&amp;[])? {
     ///     let (empno, ename) = row_result?;
-    ///     println!(&quot;empno: {}, ename: {}&quot;, empno, ename);
+    ///     println!("empno: {}, ename: {}", empno, ename);
     /// }
     /// # Ok(()) }
     /// ```
@@ -2704,11 +2709,11 @@
     <span class="doccomment">/// Creates [BatchBuilder][]
     ///
     /// See [`Batch`].
-    </span><span class="kw">pub fn </span>batch&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt;(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;conn </span><span class="self">self</span>,
-        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;sql </span>str,
+    </span><span class="kw">pub fn </span>batch&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'conn </span><span class="self">self</span>,
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">'sql </span>str,
         max_batch_size: usize,
-    ) -&gt; BatchBuilder&lt;<span class="lifetime">&#39;conn</span>, <span class="lifetime">&#39;sql</span>&gt; {
+    ) -&gt; BatchBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
         BatchBuilder::new(<span class="self">self</span>, sql, max_batch_size)
     }
 
@@ -2717,9 +2722,9 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>query(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
+    </span><span class="kw">pub fn </span>query(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, Row&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).build()<span class="question-mark">?</span>;
-        stmt.exec(params, <span class="bool-val">true</span>, <span class="string">&quot;query&quot;</span>)<span class="question-mark">?</span>;
+        stmt.exec(params, <span class="bool-val">true</span>, <span class="string">"query"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::from_stmt(stmt.stmt))
     }
 
@@ -2728,9 +2733,13 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>query_named(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
+    </span><span class="kw">pub fn </span>query_named(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        sql: <span class="kw-2">&amp;</span>str,
+        params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, Row&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).build()<span class="question-mark">?</span>;
-        stmt.exec_named(params, <span class="bool-val">true</span>, <span class="string">&quot;query_named&quot;</span>)<span class="question-mark">?</span>;
+        stmt.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_named"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::from_stmt(stmt.stmt))
     }
 
@@ -2739,12 +2748,12 @@
     /// See [Query Methods][].
     ///
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
-    </span><span class="kw">pub fn </span>query_as&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;T&gt;&gt;
+    </span><span class="kw">pub fn </span>query_as&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).build()<span class="question-mark">?</span>;
-        stmt.exec(params, <span class="bool-val">true</span>, <span class="string">&quot;query_as&quot;</span>)<span class="question-mark">?</span>;
+        stmt.exec(params, <span class="bool-val">true</span>, <span class="string">"query_as"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;T&gt;::from_stmt(stmt.stmt))
     }
 
@@ -2757,12 +2766,12 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         sql: <span class="kw-2">&amp;</span>str,
         params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;T&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;<span class="lifetime">'static</span>, T&gt;&gt;
     <span class="kw">where
         </span>T: RowValue,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).build()<span class="question-mark">?</span>;
-        stmt.exec_named(params, <span class="bool-val">true</span>, <span class="string">&quot;query_as_named&quot;</span>)<span class="question-mark">?</span>;
+        stmt.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_as_named"</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(ResultSet::&lt;T&gt;::from_stmt(stmt.stmt))
     }
 
@@ -2774,7 +2783,7 @@
     </span><span class="kw">pub fn </span>query_row(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).fetch_array_size(<span class="number">1</span>).build()<span class="question-mark">?</span>;
         stmt.query_row(params)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(mem::replace(<span class="kw-2">&amp;mut </span>stmt.stmt.row, <span class="prelude-val">None</span>).unwrap())
+        <span class="prelude-val">Ok</span>(stmt.stmt.row.take().unwrap())
     }
 
     <span class="doccomment">/// Gets one row from a query using named bind parameters.
@@ -2785,7 +2794,7 @@
     </span><span class="kw">pub fn </span>query_row_named(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stmt = <span class="self">self</span>.statement(sql).fetch_array_size(<span class="number">1</span>).build()<span class="question-mark">?</span>;
         stmt.query_row_named(params)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(mem::replace(<span class="kw-2">&amp;mut </span>stmt.stmt.row, <span class="prelude-val">None</span>).unwrap())
+        <span class="prelude-val">Ok</span>(stmt.stmt.row.take().unwrap())
     }
 
     <span class="doccomment">/// Gets one row from a query as specified type.
@@ -2821,13 +2830,13 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement without bind parameters
-    /// conn.execute(&quot;insert into emp(empno, ename) values (113, &#39;John&#39;)&quot;, &amp;[])?;
+    /// conn.execute("insert into emp(empno, ename) values (113, 'John')", &amp;[])?;
     ///
     /// // execute a statement with binding parameters by position
-    /// conn.execute(&quot;insert into emp(empno, ename) values (:1, :2)&quot;, &amp;[&amp;114, &amp;&quot;Smith&quot;])?;
+    /// conn.execute("insert into emp(empno, ename) values (:1, :2)", &amp;[&amp;114, &amp;"Smith"])?;
     ///
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -2846,12 +2855,12 @@
     ///
     /// ```no_run
     /// # use oracle::*;
-    /// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+    /// let conn = Connection::connect("scott", "tiger", "")?;
     ///
     /// // execute a statement with binding parameters by name
-    /// conn.execute_named(&quot;insert into emp(empno, ename) values (:id, :name)&quot;,
-    ///                    &amp;[(&quot;id&quot;, &amp;114),
-    ///                      (&quot;name&quot;, &amp;&quot;Smith&quot;)])?;
+    /// conn.execute_named("insert into emp(empno, ename) values (:id, :name)",
+    ///                    &amp;[("id", &amp;114),
+    ///                      ("name", &amp;"Smith")])?;
     ///
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -2911,10 +2920,10 @@
     /// });
     ///
     /// // This query is canceled by break_execution.
-    /// let result = conn.query_row_as::&lt;u64&gt;(&quot;select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects&quot;, &amp;[]);
+    /// let result = conn.query_row_as::&lt;u64&gt;("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &amp;[]);
     /// assert!(result.is_err());
     /// let elapsed = now.elapsed();
-    /// assert!(range.contains(&amp;elapsed), &quot;cancel: {:?}, {:?}&quot;, elapsed, result.unwrap_err());
+    /// assert!(range.contains(&amp;elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
     /// # join_handle.join().unwrap();
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -2929,14 +2938,14 @@
     /// # use oracle::Error;
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
-    /// let objtype = conn.object_type(&quot;SDO_GEOMETRY&quot;)?;
-    /// assert_eq!(objtype.schema(), &quot;MDSYS&quot;);
-    /// assert_eq!(objtype.name(), &quot;SDO_GEOMETRY&quot;);
+    /// let objtype = conn.object_type("SDO_GEOMETRY")?;
+    /// assert_eq!(objtype.schema(), "MDSYS");
+    /// assert_eq!(objtype.name(), "SDO_GEOMETRY");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     ///
     /// Note that the object type is cached in the connection.
-    /// However when &quot;CREATE TYPE&quot;, &quot;ALTER TYPE&quot; or &quot;DROP TYPE&quot;
+    /// However when "CREATE TYPE", "ALTER TYPE" or "DROP TYPE"
     /// is executed, the cache clears.
     </span><span class="kw">pub fn </span>object_type(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ObjectType&gt; {
         {
@@ -2989,10 +2998,10 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// let (version, banner) = conn.server_version()?;
-    /// println!(&quot;Oracle Version: {}&quot;, version);
-    /// println!(&quot;--- Version Banner ---&quot;);
-    /// println!(&quot;{}&quot;, banner);
-    /// println!(&quot;---------------------&quot;);
+    /// println!("Oracle Version: {}", version);
+    /// println!("--- Version Banner ---");
+    /// println!("{}", banner);
+    /// println!("---------------------");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>server_version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Version, String)&gt; {
@@ -3076,11 +3085,11 @@
                 OCI_SERVER_NOT_CONNECTED =&gt; <span class="prelude-val">Ok</span>(ConnStatus::NotConnected),
                 OCI_SERVER_NORMAL =&gt; <span class="prelude-val">Ok</span>(ConnStatus::Normal),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
-                    <span class="string">&quot;Unexpected server status: {}&quot;</span>,
+                    <span class="string">"Unexpected server status: {}"</span>,
                     status
                 ))),
             },
-            <span class="prelude-val">Err</span>(Error::DpiError(err)) <span class="kw">if </span>err.message() == <span class="string">&quot;DPI-1010: not connected&quot; </span>=&gt; {
+            <span class="prelude-val">Err</span>(Error::DpiError(err)) <span class="kw">if </span>err.message() == <span class="string">"DPI-1010: not connected" </span>=&gt; {
                 <span class="prelude-val">Ok</span>(ConnStatus::Closed)
             }
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
@@ -3106,7 +3115,7 @@
     /// // This must be done before any SQL execution. Otherwise it is cleared.
     /// if let Some(Error::OciError(dberr)) = conn.last_warning() {
     ///   if dberr.code() == 28002 {
-    ///      println!(&quot;{}&quot;, dberr.message()); // =&gt; &quot;the password will expire within n days.&quot;
+    ///      println!("{}", dberr.message()); // =&gt; "the password will expire within n days."
     ///   }
     /// }
     /// # Ok::&lt;(), Error&gt;(())
@@ -3117,20 +3126,20 @@
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// // create a procedure with compilation error
-    /// let sql = &quot;create or replace procedure my_proc is begin; null; end;&quot;;
+    /// let sql = "create or replace procedure my_proc is begin; null; end;";
     /// conn.execute(sql, &amp;[])?;
     /// match conn.last_warning() {
     ///     Some(Error::OciError(dberr)) if dberr.code() == 24344 =&gt; (),
-    ///     warn =&gt; panic!(&quot;Unexpected last warning: {:?}&quot;, warn),
+    ///     warn =&gt; panic!("Unexpected last warning: {:?}", warn),
     /// }
     ///
     /// // create a procedure without compilation error
-    /// let sql = &quot;create or replace procedure my_proc is begin null; end;&quot;;
+    /// let sql = "create or replace procedure my_proc is begin null; end;";
     /// conn.execute(sql, &amp;[])?;
     /// // The last warning is cleared when a SQL statement is executed successfully without any warning.
     /// match conn.last_warning() {
     ///     None =&gt; (),
-    ///     warn =&gt; panic!(&quot;Unexpected last warning: {:?}&quot;, warn),
+    ///     warn =&gt; panic!("Unexpected last warning: {:?}", warn),
     /// }
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -3223,23 +3232,23 @@
     /// let range = Duration::from_millis(2_900)..=Duration::from_millis(20_000);
     ///
     /// // This query is canceled by timeout.
-    /// let result = conn.query_row_as::&lt;u64&gt;(&quot;select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects&quot;, &amp;[]);
+    /// let result = conn.query_row_as::&lt;u64&gt;("select count(*) from all_objects, all_objects, all_objects, all_objects, all_objects", &amp;[]);
     /// assert!(result.is_err());
     /// let elapsed = now.elapsed();
-    /// assert!(range.contains(&amp;elapsed), &quot;cancel: {:?}, {:?}&quot;, elapsed, result.unwrap_err());
+    /// assert!(range.contains(&amp;elapsed), "cancel: {:?}, {:?}", elapsed, result.unwrap_err());
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>set_call_timeout(<span class="kw-2">&amp;</span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(dur) = dur {
             <span class="kw">let </span>msecs = duration_to_msecs(dur).ok_or_else(|| {
                 Error::OutOfRange(<span class="macro">format!</span>(
-                    <span class="string">&quot;Too large duration {:?}. It must be less than 49.7 days&quot;</span>,
+                    <span class="string">"Too large duration {:?}. It must be less than 49.7 days"</span>,
                     dur
                 ))
             })<span class="question-mark">?</span>;
             <span class="kw">if </span>msecs == <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
-                    <span class="string">&quot;Too short duration {:?}. It must not be submilliseconds&quot;</span>,
+                    <span class="string">"Too short duration {:?}. It must not be submilliseconds"</span>,
                     dur
                 )));
             }
@@ -3262,7 +3271,7 @@
 
     <span class="doccomment">/// Sets current schema associated with the connection
     ///
-    /// `conn.set_current_schema(&quot;MDSYS&quot;)` has same effect with the following SQL.
+    /// `conn.set_current_schema("MDSYS")` has same effect with the following SQL.
     ///
     /// ```sql
     /// ALTER SESSION SET CURRENT_SCHEMA = MDSYS;
@@ -3277,17 +3286,17 @@
     /// # let conn2 = test_util::connect()?;
     ///
     /// // Get the username and sid of connection 1.
-    /// let (username, sid) = conn1.query_row_as::&lt;(String, i32)&gt;(&quot;select user, sys_context(&#39;userenv&#39;, &#39;sid&#39;) from dual&quot;, &amp;[])?;
+    /// let (username, sid) = conn1.query_row_as::&lt;(String, i32)&gt;("select user, sys_context('userenv', 'sid') from dual", &amp;[])?;
     ///
     /// // Create a closure to get the schema name of connection 1 in the database side using connection 2.
-    /// let mut stmt = conn2.statement(&quot;select schemaname from v$session where sid = :1&quot;).build()?;
+    /// let mut stmt = conn2.statement("select schemaname from v$session where sid = :1").build()?;
     /// let mut schema_name = move || { stmt.query_row_as::&lt;String&gt;(&amp;[&amp;sid]) };
     ///
     /// // The default current schema is same with the username.
     /// assert_eq!(schema_name()?, username);
     ///
     /// // Change the current schema of connection 1.
-    /// let new_schema_name = &quot;MDSYS&quot;;
+    /// let new_schema_name = "MDSYS";
     /// conn1.set_current_schema(new_schema_name)?;
     ///
     /// // The current schema of connection 1 in the database side has not been changed yet.
@@ -3295,7 +3304,7 @@
     ///
     /// // Call a function sending packets to the database server.
     /// // The new schema name is prepended to the packets.
-    /// let _ = conn1.query_row_as::&lt;i32&gt;(&quot;select 1 from dual&quot;, &amp;[]);
+    /// let _ = conn1.query_row_as::&lt;i32&gt;("select 1 from dual", &amp;[]);
     ///
     /// // The current schema of connection 1 in the database side is changed.
     /// assert_eq!(schema_name()?, new_schema_name);
@@ -3420,7 +3429,7 @@
     }
 
     <span class="doccomment">/// Sets name of the database operation to be monitored in the database.
-    /// Sets to `&#39;&#39;` if you want to end monitoring the current running database operation.
+    /// Sets to `''` if you want to end monitoring the current running database operation.
     ///
     /// This is same with calling [DBMS_SQL_MONITOR.BEGIN_OPERATION][] but
     /// without executing a statement. The database operation name is piggybacked
@@ -3453,7 +3462,7 @@
     /// ```no_run
     /// # use oracle::*;
     /// // connect as sysdba with prelim_auth mode
-    /// let conn = Connector::new(&quot;sys&quot;, &quot;change_on_install&quot;, &quot;&quot;)
+    /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba)
     ///     .prelim_auth(true)
     ///     .connect()?;
@@ -3463,13 +3472,13 @@
     /// conn.close()?;
     ///
     /// // connect again without prelim_auth
-    /// let conn = Connector::new(&quot;sys&quot;, &quot;change_on_install&quot;, &quot;&quot;)
+    /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba)
     ///     .connect()?;
     ///
     /// // mount and open a database
-    /// conn.execute(&quot;alter database mount&quot;, &amp;[])?;
-    /// conn.execute(&quot;alter database open&quot;, &amp;[])?;
+    /// conn.execute("alter database mount", &amp;[])?;
+    /// conn.execute("alter database open", &amp;[])?;
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     ///
@@ -3508,8 +3517,8 @@
     ///
     /// When this method is called with [`ShutdownMode::Default`],
     /// [`ShutdownMode::Transactional`], [`ShutdownMode::TransactionalLocal`]
-    /// or [`ShutdownMode::Immediate`], execute &quot;alter database close normal&quot;
-    /// and &quot;alter database dismount&quot; and call this method again with
+    /// or [`ShutdownMode::Immediate`], execute "alter database close normal"
+    /// and "alter database dismount" and call this method again with
     /// [`ShutdownMode::Final`].
     ///
     /// When this method is called with [`ShutdownMode::Abort`],
@@ -3522,16 +3531,16 @@
     /// ```no_run
     /// # use oracle::*;
     /// // connect as sysdba
-    /// let conn = Connector::new(&quot;sys&quot;, &quot;change_on_install&quot;, &quot;&quot;)
+    /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba)
     ///     .connect()?;
     ///
-    /// // begin &#39;shutdown immediate&#39;
+    /// // begin 'shutdown immediate'
     /// conn.shutdown_database(ShutdownMode::Immediate)?;
     ///
     /// // close and dismount the database
-    /// conn.execute(&quot;alter database close normal&quot;, &amp;[])?;
-    /// conn.execute(&quot;alter database dismount&quot;, &amp;[])?;
+    /// conn.execute("alter database close normal", &amp;[])?;
+    /// conn.execute("alter database dismount", &amp;[])?;
     ///
     /// // finish shutdown
     /// conn.shutdown_database(ShutdownMode::Final)?;
@@ -3543,10 +3552,10 @@
     /// ```no_run
     /// # use oracle::*;
     /// // connect as sysdba
-    /// let conn = Connector::new(&quot;sys&quot;, &quot;change_on_install&quot;, &quot;&quot;)
+    /// let conn = Connector::new("sys", "change_on_install", "")
     ///     .privilege(Privilege::Sysdba).connect()?;
     ///
-    /// // &#39;shutdown abort&#39;
+    /// // 'shutdown abort'
     /// conn.shutdown_database(ShutdownMode::Abort)?;
     ///
     /// // The database is aborted here.
@@ -3566,7 +3575,7 @@
     }
 
     <span class="doccomment">/// Gets the tag of the connection that was acquired from a connection pool.
-    /// It is `&quot;&quot;` if the connection is a standalone one or not tagged.
+    /// It is `""` if the connection is a standalone one or not tagged.
     ///
     /// # Examples
     ///
@@ -3584,24 +3593,24 @@
     ///
     /// // standalone connection
     /// let conn = Connection::connect(username, password, connect_string)?;
-    /// assert_eq!(conn.tag(), &quot;&quot;);
+    /// assert_eq!(conn.tag(), "");
     /// assert_eq!(conn.tag_found(), false);
     ///
     /// let pool = PoolBuilder::new(username, password, connect_string)
     ///     .build()?;
-    /// let opts = PoolOptions::new().tag(&quot;NAME=VALUE&quot;);
+    /// let opts = PoolOptions::new().tag("NAME=VALUE");
     ///
-    /// // No connections with tag &quot;NAME=VALUE&quot; exist in the pool at first.
+    /// // No connections with tag "NAME=VALUE" exist in the pool at first.
     /// let conn = pool.get_with_options(&amp;opts)?;
-    /// assert_eq!(conn.tag(), &quot;&quot;);
+    /// assert_eq!(conn.tag(), "");
     /// assert_eq!(conn.tag_found(), false);
     /// // Close the connection with setting a new tag.
-    /// conn.close_with_mode(conn::CloseMode::Retag(&quot;NAME=VALUE&quot;))?;
+    /// conn.close_with_mode(conn::CloseMode::Retag("NAME=VALUE"))?;
     ///
-    /// // One connection with tag &quot;NAME=VALUE&quot; exists in the pool now.
+    /// // One connection with tag "NAME=VALUE" exists in the pool now.
     /// let conn = pool.get_with_options(&amp;opts)?;
     /// assert_eq!(conn.tag_found(), true);
-    /// assert_eq!(conn.tag(), &quot;NAME=VALUE&quot;);
+    /// assert_eq!(conn.tag(), "NAME=VALUE");
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>tag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
@@ -3635,17 +3644,17 @@
     /// # let connect_string = &amp;connect_string;
     ///
     /// let conn = Connection::connect(username, password, connect_string)?;
-    /// assert!(conn.is_new_connection(), &quot;standalone connection&quot;);
+    /// assert!(conn.is_new_connection(), "standalone connection");
     ///
     /// let pool = PoolBuilder::new(username, password, connect_string)
     ///     .build()?;
     ///
     /// let conn = pool.get()?; // Get a newly created connection
-    /// assert!(conn.is_new_connection(), &quot;new connectoin from the pool&quot;);
+    /// assert!(conn.is_new_connection(), "new connectoin from the pool");
     /// conn.close()?; // Back the connection to the pool
     ///
     /// let conn = pool.get()?; // Get a connection cached in the pool
-    /// assert!(!conn.is_new_connection(), &quot;cached connectoin in the pool&quot;);
+    /// assert!(!conn.is_new_connection(), "cached connectoin in the pool");
     /// conn.close()?;
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
@@ -3687,8 +3696,7 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Connection {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;Connection {{ conn: {:?}&quot;</span>, <span class="self">self</span>.conn)
+        <span class="macro">write!</span>(f, <span class="string">"Connection {{ conn: {:?}"</span>, <span class="self">self</span>.conn)
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

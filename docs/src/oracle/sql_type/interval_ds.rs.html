@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/interval_ds.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interval_ds.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/interval_ds.rs`."><title>interval_ds.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -452,7 +453,7 @@
 <a href="#452" id="452">452</a>
 <a href="#453" id="453">453</a>
 <a href="#454" id="454">454</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -480,7 +481,7 @@
 ///
 /// [INTVL_DS]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-FD8C41B7-8CDC-4D02-8E6B-5250416BC17D
 ///
-/// This struct doesn&#39;t have arithmetic methods and they won&#39;t be added to avoid
+/// This struct doesn't have arithmetic methods and they won't be added to avoid
 /// reinventing the wheel. If you need methods such as adding an interval to a
 /// timestamp, enable `chrono` feature and use [chrono::Duration][] instead.
 ///
@@ -498,20 +499,20 @@
 /// let intvl2 = IntervalDS::new(-1, -2, -3, -4, -500000000);
 ///
 /// // Convert to string.
-/// assert_eq!(intvl1.to_string(), &quot;+000000001 02:03:04.500000000&quot;);
-/// assert_eq!(intvl2.to_string(), &quot;-000000001 02:03:04.500000000&quot;);
+/// assert_eq!(intvl1.to_string(), "+000000001 02:03:04.500000000");
+/// assert_eq!(intvl2.to_string(), "-000000001 02:03:04.500000000");
 ///
 /// // Create an interval with leading field and fractional second precisions.
 /// let intvl3 = IntervalDS::new(1, 2, 3, 4, 500000000).and_prec(2, 3);
 ///
 /// // The string representation depends on the precisions.
-/// assert_eq!(intvl3.to_string(), &quot;+01 02:03:04.500&quot;);
+/// assert_eq!(intvl3.to_string(), "+01 02:03:04.500");
 ///
 /// // Precisions are ignored when intervals are compared.
 /// assert!(intvl1 == intvl3);
 ///
 /// // Create an interval from string.
-/// let intvl4: IntervalDS = &quot;+1 02:03:04.50&quot;.parse()?;
+/// let intvl4: IntervalDS = "+1 02:03:04.50".parse()?;
 ///
 /// // The precisions are determined by number of decimal digits in the string.
 /// assert_eq!(intvl4.lfprec(), 1);
@@ -523,24 +524,24 @@
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch IntervalDS
-/// let sql = &quot;select interval &#39;+01 02:03:04.500&#39; day to second(3) from dual&quot;;
+/// let sql = "select interval '+01 02:03:04.500' day to second(3) from dual";
 /// let intvl = conn.query_row_as::&lt;IntervalDS&gt;(sql, &amp;[])?;
-/// assert_eq!(intvl.to_string(), &quot;+01 02:03:04.500&quot;);
+/// assert_eq!(intvl.to_string(), "+01 02:03:04.500");
 ///
 /// // Bind IntervalDS
-/// let sql = &quot;begin \
-///              :outval := to_timestamp(&#39;2017-08-09&#39;, &#39;yyyy-mm-dd&#39;) + :inval; \
-///            end;&quot;;
+/// let sql = "begin \
+///              :outval := to_timestamp('2017-08-09', 'yyyy-mm-dd') + :inval; \
+///            end;";
 /// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&amp;[&amp;OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &amp;intvl, // bind the intvl variable
 ///               ])?;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // 2017-08-09 + (1 day, 2 hours, 3 minutes and 4.5 seconds)
-/// assert_eq!(outval.to_string(), &quot;2017-08-10 02:03:04.500&quot;);
+/// assert_eq!(outval.to_string(), "2017-08-10 02:03:04.500");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -602,7 +603,7 @@
     /// `lfprec` and `fsprec` are leading field precision and fractional second
     /// precision respectively.
     /// The precisions affect text representation of IntervalDS.
-    /// They don&#39;t affect comparison.
+    /// They don't affect comparison.
     </span><span class="kw">pub fn </span>and_prec(<span class="kw-2">&amp;</span><span class="self">self</span>, lfprec: u8, fsprec: u8) -&gt; IntervalDS {
         IntervalDS {
             lfprec,
@@ -665,40 +666,40 @@
             </span>|| <span class="self">self</span>.seconds &lt; <span class="number">0
             </span>|| <span class="self">self</span>.nanoseconds &lt; <span class="number">0
         </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;-&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"-"</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">write!</span>(f, <span class="string">&quot;+&quot;</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(f, <span class="string">"+"</span>)<span class="question-mark">?</span>;
         };
         <span class="kw">let </span>days = <span class="self">self</span>.days.abs();
         <span class="kw">match </span><span class="self">self</span>.lfprec {
-            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:02}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:03}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:04}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:05}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:06}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:07}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:08}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:09}&quot;</span>, days)<span class="question-mark">?</span>,
-            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, days)<span class="question-mark">?</span>,
+            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:02}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:03}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:04}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:05}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:06}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:07}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:08}"</span>, days)<span class="question-mark">?</span>,
+            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{:09}"</span>, days)<span class="question-mark">?</span>,
+            <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, days)<span class="question-mark">?</span>,
         };
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot; {:02}:{:02}:{:02}&quot;</span>,
+            <span class="string">" {:02}:{:02}:{:02}"</span>,
             <span class="self">self</span>.hours.abs(),
             <span class="self">self</span>.minutes.abs(),
             <span class="self">self</span>.seconds.abs()
         )<span class="question-mark">?</span>;
         <span class="kw">let </span>nsec = <span class="self">self</span>.nanoseconds.abs();
         <span class="kw">match </span><span class="self">self</span>.fsprec {
-            <span class="number">1 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:01}&quot;</span>, nsec / <span class="number">100000000</span>),
-            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:02}&quot;</span>, nsec / <span class="number">10000000</span>),
-            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:03}&quot;</span>, nsec / <span class="number">1000000</span>),
-            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:04}&quot;</span>, nsec / <span class="number">100000</span>),
-            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:05}&quot;</span>, nsec / <span class="number">10000</span>),
-            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:06}&quot;</span>, nsec / <span class="number">1000</span>),
-            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:07}&quot;</span>, nsec / <span class="number">100</span>),
-            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:08}&quot;</span>, nsec / <span class="number">10</span>),
-            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:09}&quot;</span>, nsec),
+            <span class="number">1 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:01}"</span>, nsec / <span class="number">100000000</span>),
+            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:02}"</span>, nsec / <span class="number">10000000</span>),
+            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:03}"</span>, nsec / <span class="number">1000000</span>),
+            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:04}"</span>, nsec / <span class="number">100000</span>),
+            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:05}"</span>, nsec / <span class="number">10000</span>),
+            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:06}"</span>, nsec / <span class="number">1000</span>),
+            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:07}"</span>, nsec / <span class="number">100</span>),
+            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:08}"</span>, nsec / <span class="number">10</span>),
+            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:09}"</span>, nsec),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
         }
     }
@@ -708,14 +709,14 @@
     <span class="kw">type </span><span class="prelude-val">Err </span>= ParseOracleTypeError;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">&quot;IntervalDS&quot;</span>);
+        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">"IntervalDS"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(s);
         <span class="kw">let </span>minus = <span class="kw">match </span>s.char() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;+&#39;</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'+'</span>) =&gt; {
                 s.next();
                 <span class="bool-val">false
             </span>}
-            <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'-'</span>) =&gt; {
                 s.next();
                 <span class="bool-val">true
             </span>}
@@ -723,19 +724,19 @@
         };
         <span class="kw">let </span>days = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
         <span class="kw">let </span>lfprec = s.ndigits();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) = s.char() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">' '</span>) = s.char() {
             s.next();
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(err());
         }
         <span class="kw">let </span>hours = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
             s.next();
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(err());
         }
         <span class="kw">let </span>minutes = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
             s.next();
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(err());
@@ -743,7 +744,7 @@
         <span class="kw">let </span>seconds = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
         <span class="kw">let </span><span class="kw-2">mut </span>nsecs = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>fsprec = <span class="number">0</span>;
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>) = s.char() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'.'</span>) = s.char() {
             s.next();
             nsecs = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
             <span class="kw">let </span>ndigit = s.ndigits();
@@ -781,67 +782,67 @@
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalDS::new(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">123456789</span>);
         it.lfprec = <span class="number">0</span>;
         it.fsprec = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04"</span>);
         it.fsprec = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.1&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.1"</span>);
         it.fsprec = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.12&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.12"</span>);
         it.fsprec = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.123&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.123"</span>);
         it.fsprec = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.1234&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.1234"</span>);
         it.fsprec = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.12345"</span>);
         it.fsprec = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.123456&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.123456"</span>);
         it.fsprec = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.1234567&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.1234567"</span>);
         it.fsprec = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.12345678&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.12345678"</span>);
         it.fsprec = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;+1 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"+1 02:03:04.123456789"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalDS::new(-<span class="number">1</span>, -<span class="number">2</span>, -<span class="number">3</span>, -<span class="number">4</span>, -<span class="number">123456789</span>);
         it.lfprec = <span class="number">0</span>;
         it.fsprec = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04"</span>);
         it.fsprec = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.1&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.1"</span>);
         it.fsprec = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.12&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.12"</span>);
         it.fsprec = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.123&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.123"</span>);
         it.fsprec = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.1234&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.1234"</span>);
         it.fsprec = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.12345"</span>);
         it.fsprec = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.123456&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.123456"</span>);
         it.fsprec = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.1234567&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.1234567"</span>);
         it.fsprec = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.12345678&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.12345678"</span>);
         it.fsprec = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.123456789"</span>);
 
         it.lfprec = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-1 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-1 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-01 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-01 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-0001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-0001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-00001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-00001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-000001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-000001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-0000001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-0000001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-00000001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-00000001 02:03:04.123456789"</span>);
         it.lfprec = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">&quot;-000000001 02:03:04.123456789&quot;</span>);
+        <span class="macro">assert_eq!</span>(it.to_string(), <span class="string">"-000000001 02:03:04.123456789"</span>);
     }
 
     <span class="attr">#[test]
@@ -849,62 +850,61 @@
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalDS::new(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">0</span>);
         it.lfprec = <span class="number">1</span>;
         it.fsprec = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;1 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;+1 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"1 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"+1 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;01 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"01 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;0001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"0001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;00001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"00001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;000001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"000001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;0000001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"0000001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;00000001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"00000001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.lfprec = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;000000001 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"000000001 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
 
         it.fsprec = <span class="number">1</span>;
         it.nanoseconds = <span class="number">100000000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;000000001 02:03:04.1&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"000000001 02:03:04.1"</span>.parse(), <span class="prelude-val">Ok</span>(it));
 
         <span class="kw">let </span><span class="kw-2">mut </span>it = IntervalDS::new(-<span class="number">1</span>, -<span class="number">2</span>, -<span class="number">3</span>, -<span class="number">4</span>, <span class="number">0</span>);
         it.lfprec = <span class="number">1</span>;
         it.fsprec = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04"</span>.parse(), <span class="prelude-val">Ok</span>(it));
 
         it.fsprec = <span class="number">1</span>;
         it.nanoseconds = -<span class="number">100000000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.1&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.1"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">2</span>;
         it.nanoseconds = -<span class="number">120000000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.12&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.12"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">3</span>;
         it.nanoseconds = -<span class="number">123000000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.123&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.123"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">4</span>;
         it.nanoseconds = -<span class="number">123400000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.1234&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.1234"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">5</span>;
         it.nanoseconds = -<span class="number">123450000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.12345&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.12345"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">6</span>;
         it.nanoseconds = -<span class="number">123456000</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.123456&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.123456"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">7</span>;
         it.nanoseconds = -<span class="number">123456700</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.1234567&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.1234567"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">8</span>;
         it.nanoseconds = -<span class="number">123456780</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.12345678&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.12345678"</span>.parse(), <span class="prelude-val">Ok</span>(it));
         it.fsprec = <span class="number">9</span>;
         it.nanoseconds = -<span class="number">123456789</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-1 02:03:04.123456789&quot;</span>.parse(), <span class="prelude-val">Ok</span>(it));
+        <span class="macro">assert_eq!</span>(<span class="string">"-1 02:03:04.123456789"</span>.parse(), <span class="prelude-val">Ok</span>(it));
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/timestamp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>timestamp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../oracle/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_type/timestamp.rs`."><title>timestamp.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -582,7 +583,7 @@
 <a href="#582" id="582">582</a>
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
-</pre><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
@@ -610,7 +611,7 @@
 ///
 /// [Datetime]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-3A1B7AC6-2EDB-4DDC-9C9D-223D4C72AC74
 ///
-/// This struct doesn&#39;t have arithmetic methods and they won&#39;t be added to avoid
+/// This struct doesn't have arithmetic methods and they won't be added to avoid
 /// reinventing the wheel. If you need methods such as adding an interval to a
 /// timestamp, enable `chrono` feature and use [chrono::Date][], [chrono::DateTime][],
 /// [chrono::naive::NaiveDate][] or [chrono::naive::NaiveDateTime][] instead.
@@ -628,25 +629,25 @@
 /// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
 ///
 /// // Convert to string.
-/// assert_eq!(ts1.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);
+/// assert_eq!(ts1.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Create a timestamp with time zone (-8:00).
 /// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_tz_hm_offset(-8, 0);
 ///
 /// // Convert to string.
-/// assert_eq!(ts2.to_string(), &quot;2017-08-09 11:22:33.500000000 -08:00&quot;);
+/// assert_eq!(ts2.to_string(), "2017-08-09 11:22:33.500000000 -08:00");
 ///
 /// // Create a timestamp with precision
 /// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_prec(3);
 ///
 /// // The string representation depends on the precision.
-/// assert_eq!(ts3.to_string(), &quot;2017-08-09 11:22:33.500&quot;);
+/// assert_eq!(ts3.to_string(), "2017-08-09 11:22:33.500");
 ///
 /// // Precisions are ignored when intervals are compared.
 /// assert_eq!(ts1, ts3);
 ///
 /// // Create a timestamp from string.
-/// let ts4: Timestamp = &quot;2017-08-09 11:22:33.500 -08:00&quot;.parse()?;
+/// let ts4: Timestamp = "2017-08-09 11:22:33.500 -08:00".parse()?;
 ///
 /// // The precision is determined by number of decimal digits in the string.
 /// assert_eq!(ts4.precision(), 3);
@@ -657,24 +658,24 @@
 ///
 /// ```no_run
 /// # use oracle::*; use oracle::sql_type::*;
-/// let conn = Connection::connect(&quot;scott&quot;, &quot;tiger&quot;, &quot;&quot;)?;
+/// let conn = Connection::connect("scott", "tiger", "")?;
 ///
 /// // Fetch Timestamp
-/// let sql = &quot;select TIMESTAMP &#39;2017-08-09 11:22:33.500&#39; from dual&quot;;
+/// let sql = "select TIMESTAMP '2017-08-09 11:22:33.500' from dual";
 /// let ts = conn.query_row_as::&lt;Timestamp&gt;(sql, &amp;[])?;
-/// assert_eq!(ts.to_string(), &quot;2017-08-09 11:22:33.500000000&quot;);
+/// assert_eq!(ts.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Bind Timestamp
-/// let sql = &quot;begin \
-///              :outval := :inval + interval &#39;+1 02:03:04.5&#39; day to second; \
-///            end;&quot;;
+/// let sql = "begin \
+///              :outval := :inval + interval '+1 02:03:04.5' day to second; \
+///            end;";
 /// let mut stmt = conn.statement(sql).build()?;
 /// stmt.execute(&amp;[&amp;OracleType::Timestamp(3), // bind null as timestamp(3)
 ///                &amp;ts, // bind the ts variable
 ///               ])?;
 /// let outval: Timestamp = stmt.bind_value(1)?; // get the first bind value.
 /// // ts + (1 day, 2 hours, 3 minutes and 4.5 seconds)
-/// assert_eq!(outval.to_string(), &quot;2017-08-10 13:25:38.000&quot;);
+/// assert_eq!(outval.to_string(), "2017-08-10 13:25:38.000");
 /// # Ok::&lt;(), Error&gt;(())
 /// ```
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
@@ -784,7 +785,7 @@
     <span class="doccomment">/// Creates a timestamp with precision.
     ///
     /// The precision affects text representation of Timestamp.
-    /// It doesn&#39;t affect comparison.
+    /// It doesn't affect comparison.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>and_prec(<span class="kw-2">&amp;</span><span class="self">self</span>, precision: u8) -&gt; Timestamp {
         Timestamp { precision, ..<span class="kw-2">*</span><span class="self">self </span>}
@@ -840,7 +841,7 @@
         <span class="self">self</span>.precision
     }
 
-    <span class="doccomment">/// Returns true when the timestamp&#39;s text representation includes time zone information.
+    <span class="doccomment">/// Returns true when the timestamp's text representation includes time zone information.
     /// Otherwise, false.
     </span><span class="kw">pub fn </span>with_tz(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.with_tz
@@ -870,30 +871,30 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;{}-{:02}-{:02} {:02}:{:02}:{:02}&quot;</span>,
+            <span class="string">"{}-{:02}-{:02} {:02}:{:02}:{:02}"</span>,
             <span class="self">self</span>.year, <span class="self">self</span>.month, <span class="self">self</span>.day, <span class="self">self</span>.hour, <span class="self">self</span>.minute, <span class="self">self</span>.second
         )<span class="question-mark">?</span>;
         <span class="kw">match </span><span class="self">self</span>.precision {
-            <span class="number">1 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:01}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100000000</span>)<span class="question-mark">?</span>,
-            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:02}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10000000</span>)<span class="question-mark">?</span>,
-            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:03}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">1000000</span>)<span class="question-mark">?</span>,
-            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:04}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100000</span>)<span class="question-mark">?</span>,
-            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:05}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10000</span>)<span class="question-mark">?</span>,
-            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:06}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">1000</span>)<span class="question-mark">?</span>,
-            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:07}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">100</span>)<span class="question-mark">?</span>,
-            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:08}&quot;</span>, <span class="self">self</span>.nanosecond / <span class="number">10</span>)<span class="question-mark">?</span>,
-            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.{:09}&quot;</span>, <span class="self">self</span>.nanosecond)<span class="question-mark">?</span>,
+            <span class="number">1 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:01}"</span>, <span class="self">self</span>.nanosecond / <span class="number">100000000</span>)<span class="question-mark">?</span>,
+            <span class="number">2 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:02}"</span>, <span class="self">self</span>.nanosecond / <span class="number">10000000</span>)<span class="question-mark">?</span>,
+            <span class="number">3 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:03}"</span>, <span class="self">self</span>.nanosecond / <span class="number">1000000</span>)<span class="question-mark">?</span>,
+            <span class="number">4 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:04}"</span>, <span class="self">self</span>.nanosecond / <span class="number">100000</span>)<span class="question-mark">?</span>,
+            <span class="number">5 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:05}"</span>, <span class="self">self</span>.nanosecond / <span class="number">10000</span>)<span class="question-mark">?</span>,
+            <span class="number">6 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:06}"</span>, <span class="self">self</span>.nanosecond / <span class="number">1000</span>)<span class="question-mark">?</span>,
+            <span class="number">7 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:07}"</span>, <span class="self">self</span>.nanosecond / <span class="number">100</span>)<span class="question-mark">?</span>,
+            <span class="number">8 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:08}"</span>, <span class="self">self</span>.nanosecond / <span class="number">10</span>)<span class="question-mark">?</span>,
+            <span class="number">9 </span>=&gt; <span class="macro">write!</span>(f, <span class="string">".{:09}"</span>, <span class="self">self</span>.nanosecond)<span class="question-mark">?</span>,
             <span class="kw">_ </span>=&gt; (),
         }
         <span class="kw">if </span><span class="self">self</span>.with_tz {
             <span class="kw">let </span>sign = <span class="kw">if </span><span class="self">self</span>.tz_hour_offset &lt; <span class="number">0 </span>|| <span class="self">self</span>.tz_minute_offset &lt; <span class="number">0 </span>{
-                <span class="string">&#39;-&#39;
+                <span class="string">'-'
             </span>} <span class="kw">else </span>{
-                <span class="string">&#39;+&#39;
+                <span class="string">'+'
             </span>};
             <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot; {}{:02}:{:02}&quot;</span>,
+                <span class="string">" {}{:02}:{:02}"</span>,
                 sign,
                 <span class="self">self</span>.tz_hour_offset.abs(),
                 <span class="self">self</span>.tz_minute_offset.abs()
@@ -907,9 +908,9 @@
     <span class="kw">type </span><span class="prelude-val">Err </span>= ParseOracleTypeError;
 
     <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">&quot;Timestamp&quot;</span>);
+        <span class="kw">let </span>err = || ParseOracleTypeError::new(<span class="string">"Timestamp"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>s = Scanner::new(s);
-        <span class="kw">let </span>minus = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+        <span class="kw">let </span>minus = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'-'</span>) = s.char() {
             s.next();
             <span class="bool-val">true
         </span>} <span class="kw">else </span>{
@@ -919,17 +920,17 @@
         <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>day = <span class="number">1</span>;
         <span class="kw">match </span>s.char() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) | <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) | <span class="prelude-val">None </span>=&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'T'</span>) | <span class="prelude-val">Some</span>(<span class="string">' '</span>) | <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">if </span>year &gt; <span class="number">10000 </span>{
                     day = year % <span class="number">100</span>;
                     month = (year / <span class="number">100</span>) % <span class="number">100</span>;
                     year /= <span class="number">10000</span>;
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="string">'-'</span>) =&gt; {
                 s.next();
                 month = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) = s.char() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'-'</span>) = s.char() {
                     s.next();
                     day = s.read_digits().ok_or_else(err)<span class="question-mark">?
                 </span>}
@@ -946,13 +947,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>with_tz = <span class="bool-val">false</span>;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = s.char() {
             <span class="kw">match </span>c {
-                <span class="string">&#39;T&#39; </span>| <span class="string">&#39; &#39; </span>=&gt; {
+                <span class="string">'T' </span>| <span class="string">' ' </span>=&gt; {
                     s.next();
                     hour = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
                         s.next();
                         min = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
                             s.next();
                             sec = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
                         }
@@ -967,7 +968,7 @@
                 }
                 <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err()),
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;.&#39;</span>) = s.char() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">'.'</span>) = s.char() {
                 s.next();
                 nsec = s.read_digits().ok_or_else(err)<span class="question-mark">?</span>;
                 <span class="kw">let </span>ndigit = s.ndigits();
@@ -981,14 +982,14 @@
                     }
                 }
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>) = s.char() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">' '</span>) = s.char() {
                 s.next();
             }
             <span class="kw">match </span>s.char() {
-                <span class="prelude-val">Some</span>(<span class="string">&#39;+&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">'+'</span>) =&gt; {
                     s.next();
                     tz_hour = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
                         s.next();
                         tz_min = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
                     } <span class="kw">else </span>{
@@ -997,10 +998,10 @@
                     }
                     with_tz = <span class="bool-val">true</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="string">&#39;-&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">'-'</span>) =&gt; {
                     s.next();
                     tz_hour = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>) = s.char() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">':'</span>) = s.char() {
                         s.next();
                         tz_min = s.read_digits().ok_or_else(err)<span class="question-mark">? </span><span class="kw">as </span>i32;
                     } <span class="kw">else </span>{
@@ -1011,7 +1012,7 @@
                     tz_min = -tz_min;
                     with_tz = <span class="bool-val">true</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="string">&#39;Z&#39;</span>) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="string">'Z'</span>) =&gt; {
                     s.next();
                     with_tz = <span class="bool-val">true</span>;
                 }
@@ -1047,44 +1048,44 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ts = Timestamp::new(<span class="number">2012</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">890123456</span>).and_tz_hm_offset(<span class="number">8</span>, <span class="number">45</span>);
         ts.with_tz = <span class="bool-val">false</span>;
         ts.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07"</span>);
         ts.precision = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.8"</span>);
         ts.precision = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.89"</span>);
         ts.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.890"</span>);
         ts.precision = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.8901"</span>);
         ts.precision = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.89012"</span>);
         ts.precision = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.890123"</span>);
         ts.precision = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.8901234"</span>);
         ts.precision = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.89012345"</span>);
         ts.precision = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.890123456"</span>);
         ts.with_tz = <span class="bool-val">true</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456 +08:45&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.890123456 +08:45"</span>);
         ts.tz_hour_offset = -<span class="number">8</span>;
         ts.tz_minute_offset = -<span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07.890123456 -08:45&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07.890123456 -08:45"</span>);
         ts.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"2012-03-04 05:06:07 -08:45"</span>);
         ts.year = -<span class="number">123</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -08:45&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"-123-03-04 05:06:07 -08:45"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>ts = ts.and_tz_offset(-<span class="number">3600 </span>- <span class="number">1800</span>);
         <span class="macro">assert_eq!</span>(ts.tz_hour_offset, -<span class="number">1</span>);
         <span class="macro">assert_eq!</span>(ts.tz_minute_offset, -<span class="number">30</span>);
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -01:30&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"-123-03-04 05:06:07 -01:30"</span>);
         ts.tz_hour_offset = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 -00:30&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"-123-03-04 05:06:07 -00:30"</span>);
         ts.tz_minute_offset = <span class="number">30</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 +00:30&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"-123-03-04 05:06:07 +00:30"</span>);
         ts.tz_minute_offset = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">&quot;-123-03-04 05:06:07 +00:00&quot;</span>);
+        <span class="macro">assert_eq!</span>(ts.to_string(), <span class="string">"-123-03-04 05:06:07 +00:00"</span>);
     }
 
     <span class="attr">#[test]
@@ -1094,77 +1095,76 @@
             </span><span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>,
         ); <span class="comment">// hour, minute, second, nanosecond,
         </span>ts.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.month = <span class="number">3</span>;
         ts.day = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"20120304"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.hour = <span class="number">5</span>;
         ts.minute = <span class="number">6</span>;
         ts.second = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04T05:06:07"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"20120304T050607"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">800000000</span>;
         ts.precision = <span class="number">1</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.8"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890000000</span>;
         ts.precision = <span class="number">2</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04T05:06:07.89&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04T05:06:07.89"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890000000</span>;
         ts.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;20120304T050607.890&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"20120304T050607.890"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890100000</span>;
         ts.precision = <span class="number">4</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.8901"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890120000</span>;
         ts.precision = <span class="number">5</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.89012"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890123000</span>;
         ts.precision = <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.890123"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890123400</span>;
         ts.precision = <span class="number">7</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.8901234"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890123450</span>;
         ts.precision = <span class="number">8</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.89012345"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">890123456</span>;
         ts.precision = <span class="number">9</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.890123456&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.8901234567&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.89012345678&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.890123456"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.8901234567"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.89012345678"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.with_tz = <span class="bool-val">true</span>;
         ts.nanosecond = <span class="number">0</span>;
         ts.precision = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07Z&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+00:00&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +00:00&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0000&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0000&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07Z"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07+00:00"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 +00:00"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07+0000"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 +0000"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.tz_hour_offset = <span class="number">8</span>;
         ts.tz_minute_offset = <span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07+0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 +0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07+08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 +08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07+0845"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 +0845"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.tz_hour_offset = -<span class="number">8</span>;
         ts.tz_minute_offset = -<span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07-0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07 -0845&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07-08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 -08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07-0845"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07 -0845"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.nanosecond = <span class="number">123000000</span>;
         ts.precision = <span class="number">3</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123-08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;2012-03-04 05:06:07.123 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.123-08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"2012-03-04 05:06:07.123 -08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.year = -<span class="number">123</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -08:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"-123-03-04 05:06:07.123 -08:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.tz_hour_offset = <span class="number">0</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 -00:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"-123-03-04 05:06:07.123 -00:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
         ts.tz_minute_offset = <span class="number">45</span>;
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;-123-03-04 05:06:07.123 +00:45&quot;</span>.parse(), <span class="prelude-val">Ok</span>(ts));
+        <span class="macro">assert_eq!</span>(<span class="string">"-123-03-04 05:06:07.123 +00:45"</span>.parse(), <span class="prelude-val">Ok</span>(ts));
     }
 }
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0 (fc594f156 2023-01-24)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</code></pre></div></section></main></body></html>
