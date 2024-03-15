@@ -2,9 +2,9 @@
 
 ## 0.6.0 (2024-??-??)
 
-Incompatible changes:
+Breaking changes:
 
-* Remove the lifetype parameter `'conn` from [`Statement`]
+* Remove the lifetype parameter `'conn` from [`Statement`] and remove `stmt_without_lifetime` feature added at 0.5.7
 * Add a new variant [`OracleType::Xml`]
 
 New features:

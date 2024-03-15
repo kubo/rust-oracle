@@ -790,7 +790,7 @@ impl Connection {
 
     /// Creates a [`Statement`][] with parameters
     ///
-    /// This will be marked as [deprecated][] at version 0.6.x. Please use [`statement(sql).build()`](#method.statement)
+    /// This is marked as [deprecated][]. Use [`statement(sql).build()`](#method.statement)
     /// instead. The `statement()` method was added to follow [this API guideline](https://rust-lang.github.io/api-guidelines/type-safety.html#c-builder).
     ///
     /// [deprecated]: https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html
@@ -850,7 +850,7 @@ impl Connection {
     /// # Ok(()) }
     /// ```
     ///
-    #[deprecated]
+    #[deprecated(since = "0.5.3", note = "Use Connection::statement instead.")]
     pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
         Statement::from_params(self, sql, params)
     }
