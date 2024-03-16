@@ -32,11 +32,14 @@ use crate::Statement;
 /// Row in a result set of a select statement
 pub struct Row {
     pub(crate) column_info: Rc<Vec<ColumnInfo>>,
-    pub(crate) column_values: Vec<SqlValue>,
+    pub(crate) column_values: Vec<SqlValue<'static>>,
 }
 
 impl Row {
-    pub(crate) fn new(column_info: Vec<ColumnInfo>, column_values: Vec<SqlValue>) -> Result<Row> {
+    pub(crate) fn new(
+        column_info: Vec<ColumnInfo>,
+        column_values: Vec<SqlValue<'static>>,
+    ) -> Result<Row> {
         Ok(Row {
             column_info: Rc::new(column_info),
             column_values,

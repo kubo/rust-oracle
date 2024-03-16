@@ -508,7 +508,7 @@ pub struct Statement {
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec<String>,
-    bind_values: Vec<SqlValue>,
+    bind_values: Vec<SqlValue<'static>>,
 }
 
 impl Statement {

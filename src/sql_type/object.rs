@@ -341,13 +341,22 @@ impl Collection {
             },
             _ => (),
         }
-        let sql_value = SqlValue::from_oratype(self.conn.clone(), oratype, &mut data)?;
-        let native_type_num = sql_value.native_type_num();
-        chkerr!(
-            self.ctxt(),
-            dpiObject_getElementValueByIndex(self.handle, index, native_type_num, &mut data)
-        );
-        let res = sql_value.get();
+        let res;
+        let native_type_num;
+        {
+            let sql_value = SqlValue::from_oratype(self.conn.clone(), oratype, &mut data)?;
+            native_type_num = sql_value.native_type_num();
+            chkerr!(
+                self.ctxt(),
+                dpiObject_getElementValueByIndex(
+                    self.handle,
+                    index,
+                    native_type_num,
+                    sql_value.data
+                )
+            );
+            res = sql_value.get();
+        }
         unsafe { release_dpi_data(&data, native_type_num) };
         res
     }
@@ -364,7 +373,7 @@ impl Collection {
                 self.handle,
                 index,
                 sql_value.native_type_num(),
-                &mut data
+                sql_value.data
             )
         );
         Ok(())
@@ -378,7 +387,7 @@ impl Collection {
         sql_value.set(value)?;
         chkerr!(
             self.ctxt(),
-            dpiObject_appendElement(self.handle, sql_value.native_type_num(), &mut data)
+            dpiObject_appendElement(self.handle, sql_value.native_type_num(), sql_value.data)
         );
         Ok(())
     }
@@ -544,13 +553,22 @@ impl Object {
             },
             _ => (),
         }
-        let sql_value = SqlValue::from_oratype(self.conn.clone(), &attr.oratype, &mut data)?;
-        let native_type_num = sql_value.native_type_num();
-        chkerr!(
-            self.ctxt(),
-            dpiObject_getAttributeValue(self.handle, attr.handle.raw(), native_type_num, &mut data)
-        );
-        let res = sql_value.get();
+        let res;
+        let native_type_num;
+        {
+            let sql_value = SqlValue::from_oratype(self.conn.clone(), &attr.oratype, &mut data)?;
+            native_type_num = sql_value.native_type_num();
+            chkerr!(
+                self.ctxt(),
+                dpiObject_getAttributeValue(
+                    self.handle,
+                    attr.handle.raw(),
+                    native_type_num,
+                    sql_value.data
+                )
+            );
+            res = sql_value.get();
+        }
         unsafe { release_dpi_data(&data, native_type_num) };
         res
     }
@@ -576,7 +594,7 @@ impl Object {
                 self.handle,
                 attrtype.handle.raw(),
                 sql_value.native_type_num(),
-                &mut data
+                sql_value.data
             )
         );
         Ok(())

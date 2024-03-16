@@ -6,6 +6,8 @@ Breaking changes:
 
 * Remove the lifetype parameter `'conn` from [`Statement`] and remove `stmt_without_lifetime` feature added at 0.5.7
 * Add a new variant [`OracleType::Xml`]
+* Add a lifetime parameter to [`SqlValue`]
+* Remove [`SqlValue::dup`]
 
 New features:
 
@@ -461,6 +463,8 @@ Incompatible changes:
 [`RowValue`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html
 [`RowValue::get()`]: https://www.jiubao.org/rust-oracle/oracle/trait.RowValue.html#tymethod.get
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
+[`SqlValue`]: https://www.jiubao.org/rust-oracle/oracle/struct.SqlValue.html
+[`SqlValue::dup`]: https://docs.rs/oracle/0.5.7/oracle/struct.SqlValue.html#method.dup
 [`Statement`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html
 [`Statement::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.close
 [`Statement::last_row_id()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.last_row_id

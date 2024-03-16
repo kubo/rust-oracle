@@ -437,7 +437,7 @@ pub struct Batch<'conn> {
     statement_type: StatementType,
     bind_count: usize,
     bind_names: Vec<String>,
-    bind_values: Vec<SqlValue>,
+    bind_values: Vec<SqlValue<'conn>>,
     bind_types: Vec<Option<BindType>>,
     batch_index: u32,
     batch_size: u32,

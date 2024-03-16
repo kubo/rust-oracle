@@ -15,6 +15,7 @@
 
 use std::convert::TryInto;
 use std::fmt;
+use std::marker::PhantomData;
 use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
@@ -46,7 +47,6 @@ use crate::to_rust_str;
 use crate::util::check_number_format;
 use crate::util::parse_str_into_raw;
 use crate::util::set_hex_string;
-use crate::Connection;
 use crate::Context;
 use crate::Error;
 use crate::Result;
@@ -129,10 +129,11 @@ pub enum BufferRowIndex {
 ///
 /// When this is a bind value in a SQL statement, the Oracle type is determined
 /// by [`ToSql::oratype`].
-pub struct SqlValue {
+pub struct SqlValue<'a> {
     conn: Conn,
     pub(crate) handle: *mut dpiVar,
-    data: *mut dpiData,
+    pub(crate) data: *mut dpiData,
+    phantom: PhantomData<&'a ()>,
     native_type: NativeType,
     oratype: Option<OracleType>,
     pub(crate) array_size: u32,
@@ -143,17 +144,18 @@ pub struct SqlValue {
     pub(crate) query_params: QueryParams,
 }
 
-impl SqlValue {
+impl SqlValue<'_> {
     fn new(
         conn: Conn,
         lob_bind_type: LobBindType,
         query_params: QueryParams,
         array_size: u32,
-    ) -> SqlValue {
+    ) -> SqlValue<'static> {
         SqlValue {
             conn,
             handle: ptr::null_mut(),
             data: ptr::null_mut(),
+            phantom: PhantomData,
             native_type: NativeType::Int64,
             oratype: None,
             array_size,
@@ -165,25 +167,34 @@ impl SqlValue {
         }
     }
 
-    pub(crate) fn for_bind(conn: Conn, query_params: QueryParams, array_size: u32) -> SqlValue {
+    pub(crate) fn for_bind(
+        conn: Conn,
+        query_params: QueryParams,
+        array_size: u32,
+    ) -> SqlValue<'static> {
         SqlValue::new(conn, LobBindType::Locator, query_params, array_size)
     }
 
-    pub(crate) fn for_column(conn: Conn, query_params: QueryParams, array_size: u32) -> SqlValue {
+    pub(crate) fn for_column(
+        conn: Conn,
+        query_params: QueryParams,
+        array_size: u32,
+    ) -> SqlValue<'static> {
         SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size)
     }
 
     // for object type
-    pub(crate) fn from_oratype(
+    pub(crate) fn from_oratype<'a>(
         conn: Conn,
         oratype: &OracleType,
-        data: &mut dpiData,
-    ) -> Result<SqlValue> {
+        data: &'a mut dpiData,
+    ) -> Result<SqlValue<'a>> {
         let (_, native_type, _, _) = oratype.var_create_param()?;
         Ok(SqlValue {
             conn,
             handle: ptr::null_mut(),
             data: data as *mut dpiData,
+            phantom: PhantomData,
             native_type,
             oratype: Some(oratype.clone()),
             array_size: 0,
@@ -800,12 +811,7 @@ impl SqlValue {
         Ok(())
     }
 
-    /// Returns a duplicated value of self.
-    pub fn dup(&self, _conn: &Connection) -> Result<SqlValue> {
-        self.dup_by_handle()
-    }
-
-    pub(crate) fn dup_by_handle(&self) -> Result<SqlValue> {
+    pub(crate) fn dup_by_handle(&self) -> Result<SqlValue<'static>> {
         let mut val = SqlValue::new(
             self.conn.clone(),
             self.lob_bind_type,
@@ -1271,6 +1277,7 @@ impl SqlValue {
             conn: self.conn.clone(),
             handle: ptr::null_mut(),
             data: self.data,
+            phantom: PhantomData,
             native_type: self.native_type.clone(),
             oratype: self.oratype.clone(),
             array_size: self.array_size,
@@ -1283,7 +1290,7 @@ impl SqlValue {
     }
 }
 
-impl fmt::Display for SqlValue {
+impl fmt::Display for SqlValue<'_> {
     /// Formats any SQL value to string using the given formatter.
     /// Note that both a null value and a string `NULL` are formatted
     /// as `NULL`.
@@ -1300,7 +1307,7 @@ impl fmt::Display for SqlValue {
     }
 }
 
-impl fmt::Debug for SqlValue {
+impl fmt::Debug for SqlValue<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(ref oratype) = self.oratype {
             write!(f, "SqlValue {{ val: ")?;
@@ -1327,7 +1334,7 @@ impl fmt::Debug for SqlValue {
     }
 }
 
-impl Drop for SqlValue {
+impl Drop for SqlValue<'_> {
     fn drop(&mut self) {
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };
