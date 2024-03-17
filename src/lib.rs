@@ -166,6 +166,9 @@ define_dpi_data_with_refcount!(Queue);
 // define DpiObject wrapping *mut dpiObject.
 define_dpi_data_with_refcount!(Object, nosync);
 
+// define DpiVar wrapping *mut dpiVar.
+define_dpi_data_with_refcount!(Var, nosync);
+
 trait AssertSend: Send {}
 trait AssertSync: Sync {}
 

@@ -608,7 +608,7 @@ impl<'conn> Batch<'conn> {
         self.bind_values[pos].init_handle(oratype)?;
         chkerr!(
             self.conn.ctxt(),
-            bindidx.bind(self.handle, self.bind_values[pos].handle)
+            bindidx.bind(self.handle, self.bind_values[pos].handle()?)
         );
         self.bind_types[pos] = Some(BindType::new(oratype));
         Ok(())
@@ -658,7 +658,7 @@ impl<'conn> Batch<'conn> {
             self.bind_values[pos].init_handle(bind_type.as_oratype().unwrap_or(&oratype))?;
             chkerr!(
                 self.conn.ctxt(),
-                bindidx.bind(self.handle, self.bind_values[pos].handle)
+                bindidx.bind(self.handle, self.bind_values[pos].handle()?)
             );
             self.bind_types[pos] = Some(bind_type);
         }
@@ -683,9 +683,9 @@ impl<'conn> Batch<'conn> {
                     chkerr!(
                         self.conn.ctxt(),
                         dpiVar_copyData(
-                            new_sql_value.handle,
+                            new_sql_value.handle()?,
                             idx,
-                            self.bind_values[pos].handle,
+                            self.bind_values[pos].handle()?,
                             idx
                         )
                     );
@@ -694,7 +694,7 @@ impl<'conn> Batch<'conn> {
                 new_sql_value.set(value)?;
                 chkerr!(
                     self.conn.ctxt(),
-                    bindidx.bind(self.handle, new_sql_value.handle)
+                    bindidx.bind(self.handle, new_sql_value.handle()?)
                 );
                 self.bind_values[pos] = new_sql_value;
                 Ok(())

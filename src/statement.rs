@@ -18,8 +18,8 @@ use std::fmt;
 use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
-use std::rc::Rc;
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
 
 use crate::binding::*;
 use crate::chkerr;
@@ -389,7 +389,7 @@ pub(crate) struct Stmt {
     pub(crate) conn: Conn,
     pub(crate) handle: *mut dpiStmt,
     pub(crate) row: Option<Row>,
-    shared_buffer_row_index: Rc<AtomicU32>,
+    shared_buffer_row_index: Arc<AtomicU32>,
     pub(crate) query_params: QueryParams,
     tag: String,
 }
@@ -405,7 +405,7 @@ impl Stmt {
             conn,
             handle,
             row: None,
-            shared_buffer_row_index: Rc::new(AtomicU32::new(0)),
+            shared_buffer_row_index: Arc::new(AtomicU32::new(0)),
             query_params,
             tag,
         }
@@ -457,7 +457,7 @@ impl Stmt {
             val.init_handle(oratype)?;
             chkerr!(
                 self.ctxt(),
-                dpiStmt_define(self.handle, (i + 1) as u32, val.handle)
+                dpiStmt_define(self.handle, (i + 1) as u32, val.handle()?)
             );
             column_values.push(val);
         }
@@ -971,7 +971,7 @@ impl Statement {
         if self.bind_values[pos].init_handle(&value.oratype(&conn)?)? {
             chkerr!(
                 self.ctxt(),
-                bindidx.bind(self.handle(), self.bind_values[pos].handle)
+                bindidx.bind(self.handle(), self.bind_values[pos].handle()?)
             );
         }
         self.bind_values[pos].set(value)
@@ -1059,7 +1059,7 @@ impl Statement {
         if rows == 0 {
             return Ok(vec![]);
         }
-        let mut sqlval = self.bind_values[bindidx.idx(self)?].unsafely_clone();
+        let mut sqlval = self.bind_values[bindidx.idx(self)?].clone_with_narrow_lifetime()?;
         if rows > sqlval.array_size as u64 {
             rows = sqlval.array_size as u64;
         }

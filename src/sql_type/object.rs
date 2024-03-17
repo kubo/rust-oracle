@@ -357,7 +357,7 @@ impl Collection {
                     self.handle(),
                     index,
                     native_type_num,
-                    sql_value.data
+                    sql_value.data()?
                 )
             );
             res = sql_value.get();
@@ -378,7 +378,7 @@ impl Collection {
                 self.handle(),
                 index,
                 sql_value.native_type_num(),
-                sql_value.data
+                sql_value.data()?
             )
         );
         Ok(())
@@ -392,7 +392,11 @@ impl Collection {
         sql_value.set(value)?;
         chkerr!(
             self.ctxt(),
-            dpiObject_appendElement(self.handle(), sql_value.native_type_num(), sql_value.data)
+            dpiObject_appendElement(
+                self.handle(),
+                sql_value.native_type_num(),
+                sql_value.data()?
+            )
         );
         Ok(())
     }
@@ -568,7 +572,7 @@ impl Object {
                     self.handle(),
                     attr.handle.raw(),
                     native_type_num,
-                    sql_value.data
+                    sql_value.data()?
                 )
             );
             res = sql_value.get();
@@ -598,7 +602,7 @@ impl Object {
                 self.handle(),
                 attrtype.handle.raw(),
                 sql_value.native_type_num(),
-                sql_value.data
+                sql_value.data()?
             )
         );
         Ok(())
