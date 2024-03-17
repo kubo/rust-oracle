@@ -1171,6 +1171,7 @@
 <a href="#1170" id="1170">1170</a>
 <a href="#1171" id="1171">1171</a>
 <a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)
 //!
 //! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.
@@ -1286,6 +1287,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="kw">use </span><span class="kw">crate</span>::DpiMsgProps;
+<span class="kw">use </span><span class="kw">crate</span>::DpiObject;
 <span class="kw">use </span><span class="kw">crate</span>::DpiQueue;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
@@ -1346,12 +1348,12 @@
 
     <span class="kw">fn </span>get(props: <span class="kw-2">&amp;</span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Object&gt; {
         <span class="kw">let </span>objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>obj_handle = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>obj_handle = DpiObject::null();
         <span class="macro">chkerr!</span>(
             props.ctxt(),
             dpiMsgProps_getPayload(
                 props.handle.raw,
-                <span class="kw-2">&amp;mut </span>obj_handle,
+                <span class="kw-2">&amp;mut </span>obj_handle.raw,
                 ptr::null_mut(),
                 ptr::null_mut()
             )
@@ -1362,7 +1364,7 @@
     <span class="kw">fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>, props: <span class="kw-2">&amp;mut </span>MsgProps&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
             props.ctxt(),
-            dpiMsgProps_setPayloadObject(props.handle.raw, <span class="self">self</span>.handle)
+            dpiMsgProps_setPayloadObject(props.handle.raw, <span class="self">self</span>.handle())
         );
         props.payload_type = <span class="prelude-val">Some</span>(<span class="self">self</span>.object_type().clone());
         <span class="prelude-val">Ok</span>(())

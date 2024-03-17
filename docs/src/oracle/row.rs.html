@@ -430,6 +430,9 @@
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -464,11 +467,14 @@
 <span class="doccomment">/// Row in a result set of a select statement
 </span><span class="kw">pub struct </span>Row {
     <span class="kw">pub</span>(<span class="kw">crate</span>) column_info: Rc&lt;Vec&lt;ColumnInfo&gt;&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) column_values: Vec&lt;SqlValue&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) column_values: Vec&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt;,
 }
 
 <span class="kw">impl </span>Row {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(column_info: Vec&lt;ColumnInfo&gt;, column_values: Vec&lt;SqlValue&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        column_info: Vec&lt;ColumnInfo&gt;,
+        column_values: Vec&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="prelude-val">Ok</span>(Row {
             column_info: Rc::new(column_info),
             column_values,

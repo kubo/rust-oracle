@@ -972,6 +972,23 @@
 <a href="#971" id="971">971</a>
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -991,7 +1008,6 @@
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::mem::{<span class="self">self</span>, MaybeUninit};
 <span class="kw">use </span>std::os::raw::c_char;
-<span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
@@ -1003,8 +1019,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="kw">use </span><span class="kw">crate</span>::util::write_literal;
+<span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::DpiObject;
 <span class="kw">use </span><span class="kw">crate</span>::DpiObjectAttr;
 <span class="kw">use </span><span class="kw">crate</span>::DpiObjectType;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
@@ -1051,12 +1069,12 @@
 /// Note: Methods in the type may be changed in future.
 </span><span class="kw">pub struct </span>Collection {
     conn: Conn,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiObject,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: DpiObject,
     objtype: ObjectType,
 }
 
 <span class="kw">impl </span>Collection {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: Conn, handle: <span class="kw-2">*mut </span>dpiObject, objtype: ObjectType) -&gt; Collection {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: Conn, handle: DpiObject, objtype: ObjectType) -&gt; Collection {
         Collection {
             conn,
             handle,
@@ -1066,6 +1084,10 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
         <span class="self">self</span>.conn.ctxt()
+    }
+
+    <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiObject {
+        <span class="self">self</span>.handle.raw
     }
 
     <span class="doccomment">/// Returns type information.
@@ -1080,7 +1102,7 @@
     /// [OCICollSize()]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B8F6665F-12F1-43DB-A27E-82A2A655D701
     </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_getSize(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>size));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_getSize(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>size));
         <span class="prelude-val">Ok</span>(size)
     }
 
@@ -1231,7 +1253,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_getFirstIndex(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>index, <span class="kw-2">&amp;mut </span>exists)
+            dpiObject_getFirstIndex(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>index, <span class="kw-2">&amp;mut </span>exists)
         );
         <span class="kw">if </span>exists != <span class="number">0 </span>{
             <span class="prelude-val">Ok</span>(index)
@@ -1248,7 +1270,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_getLastIndex(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>index, <span class="kw-2">&amp;mut </span>exists)
+            dpiObject_getLastIndex(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>index, <span class="kw-2">&amp;mut </span>exists)
         );
         <span class="kw">if </span>exists != <span class="number">0 </span>{
             <span class="prelude-val">Ok</span>(index)
@@ -1265,7 +1287,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_getNextIndex(<span class="self">self</span>.handle, index, <span class="kw-2">&amp;mut </span>next, <span class="kw-2">&amp;mut </span>exists)
+            dpiObject_getNextIndex(<span class="self">self</span>.handle(), index, <span class="kw-2">&amp;mut </span>next, <span class="kw-2">&amp;mut </span>exists)
         );
         <span class="kw">if </span>exists != <span class="number">0 </span>{
             <span class="prelude-val">Ok</span>(next)
@@ -1282,7 +1304,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_getPrevIndex(<span class="self">self</span>.handle, index, <span class="kw-2">&amp;mut </span>prev, <span class="kw-2">&amp;mut </span>exists)
+            dpiObject_getPrevIndex(<span class="self">self</span>.handle(), index, <span class="kw-2">&amp;mut </span>prev, <span class="kw-2">&amp;mut </span>exists)
         );
         <span class="kw">if </span>exists != <span class="number">0 </span>{
             <span class="prelude-val">Ok</span>(prev)
@@ -1296,7 +1318,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>exists = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_getElementExistsByIndex(<span class="self">self</span>.handle, index, <span class="kw-2">&amp;mut </span>exists)
+            dpiObject_getElementExistsByIndex(<span class="self">self</span>.handle(), index, <span class="kw-2">&amp;mut </span>exists)
         );
         <span class="prelude-val">Ok</span>(exists != <span class="number">0</span>)
     }
@@ -1315,13 +1337,22 @@
             },
             <span class="kw">_ </span>=&gt; (),
         }
-        <span class="kw">let </span>sql_value = SqlValue::from_oratype(<span class="self">self</span>.conn.clone(), oratype, <span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
-        <span class="kw">let </span>native_type_num = sql_value.native_type_num();
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt(),
-            dpiObject_getElementValueByIndex(<span class="self">self</span>.handle, index, native_type_num, <span class="kw-2">&amp;mut </span>data)
-        );
-        <span class="kw">let </span>res = sql_value.get();
+        <span class="kw">let </span>res;
+        <span class="kw">let </span>native_type_num;
+        {
+            <span class="kw">let </span>sql_value = SqlValue::from_oratype(<span class="self">self</span>.conn.clone(), oratype, <span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
+            native_type_num = sql_value.native_type_num();
+            <span class="macro">chkerr!</span>(
+                <span class="self">self</span>.ctxt(),
+                dpiObject_getElementValueByIndex(
+                    <span class="self">self</span>.handle(),
+                    index,
+                    native_type_num,
+                    sql_value.data
+                )
+            );
+            res = sql_value.get();
+        }
         <span class="kw">unsafe </span>{ release_dpi_data(<span class="kw-2">&amp;</span>data, native_type_num) };
         res
     }
@@ -1335,10 +1366,10 @@
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiObject_setElementValueByIndex(
-                <span class="self">self</span>.handle,
+                <span class="self">self</span>.handle(),
                 index,
                 sql_value.native_type_num(),
-                <span class="kw-2">&amp;mut </span>data
+                sql_value.data
             )
         );
         <span class="prelude-val">Ok</span>(())
@@ -1352,7 +1383,7 @@
         sql_value.set(value)<span class="question-mark">?</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_appendElement(<span class="self">self</span>.handle, sql_value.native_type_num(), <span class="kw-2">&amp;mut </span>data)
+            dpiObject_appendElement(<span class="self">self</span>.handle(), sql_value.native_type_num(), sql_value.data)
         );
         <span class="prelude-val">Ok</span>(())
     }
@@ -1363,7 +1394,7 @@
     </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: i32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiObject_deleteElementByIndex(<span class="self">self</span>.handle, index)
+            dpiObject_deleteElementByIndex(<span class="self">self</span>.handle(), index)
         );
         <span class="prelude-val">Ok</span>(())
     }
@@ -1373,21 +1404,14 @@
     /// If the number of of elements to trim exceeds the current size
     /// of the collection an error is returned.
     </span><span class="kw">pub fn </span>trim(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_trim(<span class="self">self</span>.handle, len <span class="kw">as </span>u32));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_trim(<span class="self">self</span>.handle(), len <span class="kw">as </span>u32));
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>Clone <span class="kw">for </span>Collection {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Collection {
-        <span class="kw">unsafe </span>{ dpiObject_addRef(<span class="self">self</span>.handle) };
-        Collection::new(<span class="self">self</span>.conn.clone(), <span class="self">self</span>.handle, <span class="self">self</span>.objtype.clone())
-    }
-}
-
-<span class="kw">impl </span>Drop <span class="kw">for </span>Collection {
-    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let _ </span>= <span class="kw">unsafe </span>{ dpiObject_release(<span class="self">self</span>.handle) };
+        Collection::new(<span class="self">self</span>.conn.clone(), <span class="self">self</span>.handle.clone(), <span class="self">self</span>.objtype.clone())
     }
 }
 
@@ -1446,6 +1470,8 @@
     }
 }
 
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>Collection {}
+
 <span class="doccomment">/// Oracle-specific object data type
 ///
 /// ```no_run
@@ -1475,12 +1501,12 @@
 /// Note: Methods in the type may be changed in future.
 </span><span class="kw">pub struct </span>Object {
     conn: Conn,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiObject,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: DpiObject,
     objtype: ObjectType,
 }
 
 <span class="kw">impl </span>Object {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: Conn, handle: <span class="kw-2">*mut </span>dpiObject, objtype: ObjectType) -&gt; Object {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: Conn, handle: DpiObject, objtype: ObjectType) -&gt; Object {
         Object {
             conn,
             handle,
@@ -1490,6 +1516,10 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ctxt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Context {
         <span class="self">self</span>.conn.ctxt()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiObject {
+        <span class="self">self</span>.handle.raw
     }
 
     <span class="doccomment">/// Returns type information.
@@ -1518,13 +1548,22 @@
             },
             <span class="kw">_ </span>=&gt; (),
         }
-        <span class="kw">let </span>sql_value = SqlValue::from_oratype(<span class="self">self</span>.conn.clone(), <span class="kw-2">&amp;</span>attr.oratype, <span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
-        <span class="kw">let </span>native_type_num = sql_value.native_type_num();
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt(),
-            dpiObject_getAttributeValue(<span class="self">self</span>.handle, attr.handle.raw(), native_type_num, <span class="kw-2">&amp;mut </span>data)
-        );
-        <span class="kw">let </span>res = sql_value.get();
+        <span class="kw">let </span>res;
+        <span class="kw">let </span>native_type_num;
+        {
+            <span class="kw">let </span>sql_value = SqlValue::from_oratype(<span class="self">self</span>.conn.clone(), <span class="kw-2">&amp;</span>attr.oratype, <span class="kw-2">&amp;mut </span>data)<span class="question-mark">?</span>;
+            native_type_num = sql_value.native_type_num();
+            <span class="macro">chkerr!</span>(
+                <span class="self">self</span>.ctxt(),
+                dpiObject_getAttributeValue(
+                    <span class="self">self</span>.handle(),
+                    attr.handle.raw(),
+                    native_type_num,
+                    sql_value.data
+                )
+            );
+            res = sql_value.get();
+        }
         <span class="kw">unsafe </span>{ release_dpi_data(<span class="kw-2">&amp;</span>data, native_type_num) };
         res
     }
@@ -1547,10 +1586,10 @@
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiObject_setAttributeValue(
-                <span class="self">self</span>.handle,
+                <span class="self">self</span>.handle(),
                 attrtype.handle.raw(),
                 sql_value.native_type_num(),
-                <span class="kw-2">&amp;mut </span>data
+                sql_value.data
             )
         );
         <span class="prelude-val">Ok</span>(())
@@ -1559,14 +1598,7 @@
 
 <span class="kw">impl </span>Clone <span class="kw">for </span>Object {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Object {
-        <span class="kw">unsafe </span>{ dpiObject_addRef(<span class="self">self</span>.handle) };
-        Object::new(<span class="self">self</span>.conn.clone(), <span class="self">self</span>.handle, <span class="self">self</span>.objtype.clone())
-    }
-}
-
-<span class="kw">impl </span>Drop <span class="kw">for </span>Object {
-    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let _ </span>= <span class="kw">unsafe </span>{ dpiObject_release(<span class="self">self</span>.handle) };
+        Object::new(<span class="self">self</span>.conn.clone(), <span class="self">self</span>.handle.clone(), <span class="self">self</span>.objtype.clone())
     }
 }
 
@@ -1617,6 +1649,8 @@
         <span class="macro">write!</span>(f, <span class="string">"))"</span>)
     }
 }
+
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>Object {}
 
 <span class="doccomment">/// Type information about Object or Collection data type
 ///
@@ -1738,10 +1772,10 @@
             )));
         }
         <span class="kw">let </span>conn = <span class="kw-2">&amp;</span><span class="self">self</span>.internal.conn;
-        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiObject::null();
         <span class="macro">chkerr!</span>(
             conn.ctxt(),
-            dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle)
+            dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle.raw)
         );
         <span class="prelude-val">Ok</span>(Object::new(conn.clone(), handle, <span class="self">self</span>.clone()))
     }
@@ -1756,10 +1790,10 @@
             )));
         }
         <span class="kw">let </span>conn = <span class="kw-2">&amp;</span><span class="self">self</span>.internal.conn;
-        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiObject::null();
         <span class="macro">chkerr!</span>(
             conn.ctxt(),
-            dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle)
+            dpiObjectType_createObject(<span class="self">self</span>.internal.handle.raw(), <span class="kw-2">&amp;mut </span>handle.raw)
         );
         <span class="prelude-val">Ok</span>(Collection::new(conn.clone(), handle, <span class="self">self</span>.clone()))
     }

@@ -2641,7 +2641,7 @@
 
     <span class="doccomment">/// Creates a [`Statement`][] with parameters
     ///
-    /// This will be marked as [deprecated][] at version 0.6.x. Please use [`statement(sql).build()`](#method.statement)
+    /// This is marked as [deprecated][]. Use [`statement(sql).build()`](#method.statement)
     /// instead. The `statement()` method was added to follow [this API guideline](https://rust-lang.github.io/api-guidelines/type-safety.html#c-builder).
     ///
     /// [deprecated]: https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html
@@ -2701,7 +2701,7 @@
     /// # Ok(()) }
     /// ```
     ///
-    </span><span class="attr">#[deprecated]
+    </span><span class="attr">#[deprecated(since = <span class="string">"0.5.3"</span>, note = <span class="string">"Use Connection::statement instead."</span>)]
     </span><span class="kw">pub fn </span>prepare(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[StmtParam]) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         Statement::from_params(<span class="self">self</span>, sql, params)
     }

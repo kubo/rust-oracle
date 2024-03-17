@@ -271,6 +271,37 @@
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
 <a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -350,6 +381,21 @@
 
 <span class="macro">macro_rules! </span>define_dpi_data_with_refcount {
     (<span class="macro-nonterminal">$name</span>:ident) =&gt; {
+        <span class="macro">define_dpi_data_with_refcount!</span>(__define_struct__, <span class="macro-nonterminal">$name</span>);
+        <span class="macro">paste::item! </span>{
+            <span class="kw">unsafe impl </span>Send <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
+            <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
+        }
+    };
+
+    (<span class="macro-nonterminal">$name</span>:ident, nosync) =&gt; {
+        <span class="macro">define_dpi_data_with_refcount!</span>(__define_struct__, <span class="macro-nonterminal">$name</span>);
+        <span class="macro">paste::item! </span>{
+            <span class="kw">unsafe impl </span>Send <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
+        }
+    };
+
+    (__define_struct__, <span class="macro-nonterminal">$name</span>:ident) =&gt; {
         <span class="macro">paste::item! </span>{
             <span class="kw">struct </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
                 raw: <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;],
@@ -366,6 +412,18 @@
                     [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] { raw }
                 }
 
+                <span class="attr">#[allow(dead_code)]
+                </span><span class="kw">fn </span>null() -&gt; [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                    [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
+                        raw: ptr::null_mut(),
+                    }
+                }
+
+                <span class="attr">#[allow(dead_code)]
+                </span><span class="kw">fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+                    <span class="self">self</span>.raw.is_null()
+                }
+
                 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>[&lt;dpi <span class="macro-nonterminal">$name</span>&gt;] {
                     <span class="self">self</span>.raw
                 }
@@ -373,19 +431,20 @@
 
             <span class="kw">impl </span>Clone <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
                 <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
-                    <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_addRef&gt;](<span class="self">self</span>.raw()) };
+                    <span class="kw">if </span>!<span class="self">self</span>.is_null() {
+                        <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_addRef&gt;](<span class="self">self</span>.raw()) };
+                    }
                     [&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;]::new(<span class="self">self</span>.raw())
                 }
             }
 
             <span class="kw">impl </span>Drop <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {
                 <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-                    <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_release&gt;](<span class="self">self</span>.raw()) };
+                   <span class="kw">if </span>!<span class="self">self</span>.is_null() {
+                       <span class="kw">unsafe </span>{ [&lt;dpi <span class="macro-nonterminal">$name </span>_release&gt;](<span class="self">self</span>.raw()) };
+                   }
                 }
             }
-
-            <span class="kw">unsafe impl </span>Send <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
-            <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>[&lt;Dpi <span class="macro-nonterminal">$name</span>&gt;] {}
         }
     };
 }
@@ -407,6 +466,9 @@
 
 <span class="comment">// define DpiQueue wrapping *mut dpiQueue.
 </span><span class="macro">define_dpi_data_with_refcount!</span>(Queue);
+
+<span class="comment">// define DpiObject wrapping *mut dpiObject.
+</span><span class="macro">define_dpi_data_with_refcount!</span>(Object, nosync);
 
 <span class="kw">trait </span>AssertSend: Send {}
 <span class="kw">trait </span>AssertSync: Sync {}

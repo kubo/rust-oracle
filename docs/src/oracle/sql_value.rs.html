@@ -1338,6 +1338,13 @@
 <a href="#1337" id="1337">1337</a>
 <a href="#1338" id="1338">1338</a>
 <a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1355,6 +1362,7 @@
 
 </span><span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::rc::Rc;
@@ -1386,8 +1394,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::util::check_number_format;
 <span class="kw">use </span><span class="kw">crate</span>::util::parse_str_into_raw;
 <span class="kw">use </span><span class="kw">crate</span>::util::set_hex_string;
-<span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::DpiObject;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 
@@ -1469,67 +1477,78 @@
 ///
 /// When this is a bind value in a SQL statement, the Oracle type is determined
 /// by [`ToSql::oratype`].
-</span><span class="kw">pub struct </span>SqlValue {
+</span><span class="kw">pub struct </span>SqlValue&lt;<span class="lifetime">'a</span>&gt; {
     conn: Conn,
     <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiVar,
-    data: <span class="kw-2">*mut </span>dpiData,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) data: <span class="kw-2">*mut </span>dpiData,
+    phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
     native_type: NativeType,
     oratype: <span class="prelude-ty">Option</span>&lt;OracleType&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) array_size: u32,
     <span class="kw">pub</span>(<span class="kw">crate</span>) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec&lt;u8&gt;,
-    keep_dpiobj: <span class="kw-2">*mut </span>dpiObject,
+    keep_dpiobj: DpiObject,
     <span class="kw">pub</span>(<span class="kw">crate</span>) lob_bind_type: LobBindType,
     <span class="kw">pub</span>(<span class="kw">crate</span>) query_params: QueryParams,
 }
 
-<span class="kw">impl </span>SqlValue {
+<span class="kw">impl </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>new(
         conn: Conn,
         lob_bind_type: LobBindType,
         query_params: QueryParams,
         array_size: u32,
-    ) -&gt; SqlValue {
+    ) -&gt; SqlValue&lt;<span class="lifetime">'static</span>&gt; {
         SqlValue {
             conn,
             handle: ptr::null_mut(),
             data: ptr::null_mut(),
+            phantom: PhantomData,
             native_type: NativeType::Int64,
             oratype: <span class="prelude-val">None</span>,
             array_size,
             buffer_row_index: BufferRowIndex::Owned(<span class="number">0</span>),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type,
             query_params,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_bind(conn: Conn, query_params: QueryParams, array_size: u32) -&gt; SqlValue {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_bind(
+        conn: Conn,
+        query_params: QueryParams,
+        array_size: u32,
+    ) -&gt; SqlValue&lt;<span class="lifetime">'static</span>&gt; {
         SqlValue::new(conn, LobBindType::Locator, query_params, array_size)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_column(conn: Conn, query_params: QueryParams, array_size: u32) -&gt; SqlValue {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_column(
+        conn: Conn,
+        query_params: QueryParams,
+        array_size: u32,
+    ) -&gt; SqlValue&lt;<span class="lifetime">'static</span>&gt; {
         SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size)
     }
 
     <span class="comment">// for object type
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_oratype(
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_oratype&lt;<span class="lifetime">'a</span>&gt;(
         conn: Conn,
         oratype: <span class="kw-2">&amp;</span>OracleType,
-        data: <span class="kw-2">&amp;mut </span>dpiData,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&gt; {
+        data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>dpiData,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, native_type, <span class="kw">_</span>, <span class="kw">_</span>) = oratype.var_create_param()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SqlValue {
             conn,
             handle: ptr::null_mut(),
             data: data <span class="kw">as </span><span class="kw-2">*mut </span>dpiData,
+            phantom: PhantomData,
             native_type,
             oratype: <span class="prelude-val">Some</span>(oratype.clone()),
             array_size: <span class="number">0</span>,
             buffer_row_index: BufferRowIndex::Owned(<span class="number">0</span>),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type: LobBindType::Locator,
             query_params: QueryParams::new(),
         })
@@ -1931,14 +1950,22 @@
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_addRef(dpiobj));
-        <span class="prelude-val">Ok</span>(Collection::new(<span class="self">self</span>.conn.clone(), dpiobj, objtype.clone()))
+        <span class="prelude-val">Ok</span>(Collection::new(
+            <span class="self">self</span>.conn.clone(),
+            DpiObject::new(dpiobj),
+            objtype.clone(),
+        ))
     }
 
     <span class="kw">fn </span>get_object_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, objtype: <span class="kw-2">&amp;</span>ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;Object&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_addRef(dpiobj));
-        <span class="prelude-val">Ok</span>(Object::new(<span class="self">self</span>.conn.clone(), dpiobj, objtype.clone()))
+        <span class="prelude-val">Ok</span>(Object::new(
+            <span class="self">self</span>.conn.clone(),
+            DpiObject::new(dpiobj),
+            objtype.clone(),
+        ))
     }
 
     <span class="doccomment">/// Gets the SQL value as bool. The native_type must be
@@ -2106,20 +2133,14 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>set_object_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, obj: <span class="kw-2">*mut </span>dpiObject) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>set_object_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, obj: <span class="kw-2">&amp;</span>DpiObject) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.handle.is_null() {
-            <span class="kw">if </span>!<span class="self">self</span>.keep_dpiobj.is_null() {
-                <span class="kw">unsafe </span>{ dpiObject_release(<span class="self">self</span>.keep_dpiobj) };
-            }
-            <span class="kw">unsafe </span>{
-                dpiObject_addRef(obj);
-                dpiData_setObject(<span class="self">self</span>.data(), obj)
-            }
-            <span class="self">self</span>.keep_dpiobj = obj;
+            <span class="kw">unsafe </span>{ dpiData_setObject(<span class="self">self</span>.data(), obj.raw) }
+            <span class="self">self</span>.keep_dpiobj = obj.clone();
         } <span class="kw">else </span>{
             <span class="macro">chkerr!</span>(
                 <span class="self">self</span>.ctxt(),
-                dpiVar_setFromObject(<span class="self">self</span>.handle, <span class="self">self</span>.buffer_row_index(), obj)
+                dpiVar_setFromObject(<span class="self">self</span>.handle, <span class="self">self</span>.buffer_row_index(), obj.raw)
             );
         }
         <span class="prelude-val">Ok</span>(())
@@ -2140,12 +2161,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns a duplicated value of self.
-    </span><span class="kw">pub fn </span>dup(<span class="kw-2">&amp;</span><span class="self">self</span>, _conn: <span class="kw-2">&amp;</span>Connection) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&gt; {
-        <span class="self">self</span>.dup_by_handle()
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dup_by_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dup_by_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>val = SqlValue::new(
             <span class="self">self</span>.conn.clone(),
             <span class="self">self</span>.lob_bind_type,
@@ -2538,7 +2554,7 @@
     <span class="doccomment">/// Sets Object to the Sql Value
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_object(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Object) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
-            NativeType::Object(<span class="kw">_</span>) =&gt; <span class="self">self</span>.set_object_unchecked(val.handle),
+            NativeType::Object(<span class="kw">_</span>) =&gt; <span class="self">self</span>.set_object_unchecked(<span class="kw-2">&amp;</span>val.handle),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_from_rust_type(<span class="string">"Object"</span>),
         }
     }
@@ -2546,7 +2562,7 @@
     <span class="doccomment">/// Sets Collection to the Sql Value
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_collection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Collection) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
-            NativeType::Object(<span class="kw">_</span>) =&gt; <span class="self">self</span>.set_object_unchecked(val.handle),
+            NativeType::Object(<span class="kw">_</span>) =&gt; <span class="self">self</span>.set_object_unchecked(<span class="kw-2">&amp;</span>val.handle),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_from_rust_type(<span class="string">"Collection"</span>),
         }
     }
@@ -2611,19 +2627,20 @@
             conn: <span class="self">self</span>.conn.clone(),
             handle: ptr::null_mut(),
             data: <span class="self">self</span>.data,
+            phantom: PhantomData,
             native_type: <span class="self">self</span>.native_type.clone(),
             oratype: <span class="self">self</span>.oratype.clone(),
             array_size: <span class="self">self</span>.array_size,
             buffer_row_index: BufferRowIndex::Owned(<span class="number">0</span>),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type: <span class="self">self</span>.lob_bind_type,
             query_params: <span class="self">self</span>.query_params.clone(),
         }
     }
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>SqlValue {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Formats any SQL value to string using the given formatter.
     /// Note that both a null value and a string `NULL` are formatted
     /// as `NULL`.
@@ -2640,7 +2657,7 @@
     }
 }
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SqlValue {
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>oratype) = <span class="self">self</span>.oratype {
             <span class="macro">write!</span>(f, <span class="string">"SqlValue {{ val: "</span>)<span class="question-mark">?</span>;
@@ -2667,13 +2684,10 @@
     }
 }
 
-<span class="kw">impl </span>Drop <span class="kw">for </span>SqlValue {
+<span class="kw">impl </span>Drop <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span>!<span class="self">self</span>.handle.is_null() {
             <span class="kw">unsafe </span>{ dpiVar_release(<span class="self">self</span>.handle) };
-        }
-        <span class="kw">if </span>!<span class="self">self</span>.keep_dpiobj.is_null() {
-            <span class="kw">unsafe </span>{ dpiObject_release(<span class="self">self</span>.keep_dpiobj) };
         }
     }
 }

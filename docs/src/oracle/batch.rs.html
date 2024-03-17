@@ -1401,7 +1401,7 @@
     statement_type: StatementType,
     bind_count: usize,
     bind_names: Vec&lt;String&gt;,
-    bind_values: Vec&lt;SqlValue&gt;,
+    bind_values: Vec&lt;SqlValue&lt;<span class="lifetime">'conn</span>&gt;&gt;,
     bind_types: Vec&lt;<span class="prelude-ty">Option</span>&lt;BindType&gt;&gt;,
     batch_index: u32,
     batch_size: u32,

@@ -2035,7 +2035,7 @@
     is_returning: bool,
     bind_count: usize,
     bind_names: Vec&lt;String&gt;,
-    bind_values: Vec&lt;SqlValue&gt;,
+    bind_values: Vec&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt;,
 }
 
 <span class="kw">impl </span>Statement {
