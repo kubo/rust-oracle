@@ -77,6 +77,21 @@ pub type Result<T> = result::Result<T, Error>;
 
 macro_rules! define_dpi_data_with_refcount {
     ($name:ident) => {
+        define_dpi_data_with_refcount!(__define_struct__, $name);
+        paste::item! {
+            unsafe impl Send for [<Dpi $name>] {}
+            unsafe impl Sync for [<Dpi $name>] {}
+        }
+    };
+
+    ($name:ident, nosync) => {
+        define_dpi_data_with_refcount!(__define_struct__, $name);
+        paste::item! {
+            unsafe impl Send for [<Dpi $name>] {}
+        }
+    };
+
+    (__define_struct__, $name:ident) => {
         paste::item! {
             struct [<Dpi $name>] {
                 raw: *mut [<dpi $name>],
@@ -93,6 +108,18 @@ macro_rules! define_dpi_data_with_refcount {
                     [<Dpi $name>] { raw }
                 }
 
+                #[allow(dead_code)]
+                fn null() -> [<Dpi $name>] {
+                    [<Dpi $name>] {
+                        raw: ptr::null_mut(),
+                    }
+                }
+
+                #[allow(dead_code)]
+                fn is_null(&self) -> bool {
+                    self.raw.is_null()
+                }
+
                 pub(crate) fn raw(&self) -> *mut [<dpi $name>] {
                     self.raw
                 }
@@ -100,19 +127,20 @@ macro_rules! define_dpi_data_with_refcount {
 
             impl Clone for [<Dpi $name>] {
                 fn clone(&self) -> [<Dpi $name>] {
-                    unsafe { [<dpi $name _addRef>](self.raw()) };
+                    if !self.is_null() {
+                        unsafe { [<dpi $name _addRef>](self.raw()) };
+                    }
                     [<Dpi $name>]::new(self.raw())
                 }
             }
 
             impl Drop for [<Dpi $name>] {
                 fn drop(&mut self) {
-                    unsafe { [<dpi $name _release>](self.raw()) };
+                   if !self.is_null() {
+                       unsafe { [<dpi $name _release>](self.raw()) };
+                   }
                 }
             }
-
-            unsafe impl Send for [<Dpi $name>] {}
-            unsafe impl Sync for [<Dpi $name>] {}
         }
     };
 }
@@ -134,6 +162,9 @@ define_dpi_data_with_refcount!(ObjectAttr);
 
 // define DpiQueue wrapping *mut dpiQueue.
 define_dpi_data_with_refcount!(Queue);
+
+// define DpiObject wrapping *mut dpiObject.
+define_dpi_data_with_refcount!(Object, nosync);
 
 trait AssertSend: Send {}
 trait AssertSync: Sync {}

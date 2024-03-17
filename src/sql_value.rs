@@ -48,6 +48,7 @@ use crate::util::check_number_format;
 use crate::util::parse_str_into_raw;
 use crate::util::set_hex_string;
 use crate::Context;
+use crate::DpiObject;
 use crate::Error;
 use crate::Result;
 
@@ -139,7 +140,7 @@ pub struct SqlValue<'a> {
     pub(crate) array_size: u32,
     pub(crate) buffer_row_index: BufferRowIndex,
     keep_bytes: Vec<u8>,
-    keep_dpiobj: *mut dpiObject,
+    keep_dpiobj: DpiObject,
     pub(crate) lob_bind_type: LobBindType,
     pub(crate) query_params: QueryParams,
 }
@@ -161,7 +162,7 @@ impl SqlValue<'_> {
             array_size,
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type,
             query_params,
         }
@@ -200,7 +201,7 @@ impl SqlValue<'_> {
             array_size: 0,
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type: LobBindType::Locator,
             query_params: QueryParams::new(),
         })
@@ -602,14 +603,22 @@ impl SqlValue<'_> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
         chkerr!(self.ctxt(), dpiObject_addRef(dpiobj));
-        Ok(Collection::new(self.conn.clone(), dpiobj, objtype.clone()))
+        Ok(Collection::new(
+            self.conn.clone(),
+            DpiObject::new(dpiobj),
+            objtype.clone(),
+        ))
     }
 
     fn get_object_unchecked(&self, objtype: &ObjectType) -> Result<Object> {
         self.check_not_null()?;
         let dpiobj = unsafe { dpiData_getObject(self.data()) };
         chkerr!(self.ctxt(), dpiObject_addRef(dpiobj));
-        Ok(Object::new(self.conn.clone(), dpiobj, objtype.clone()))
+        Ok(Object::new(
+            self.conn.clone(),
+            DpiObject::new(dpiobj),
+            objtype.clone(),
+        ))
     }
 
     /// Gets the SQL value as bool. The native_type must be
@@ -777,20 +786,14 @@ impl SqlValue<'_> {
         Ok(())
     }
 
-    fn set_object_unchecked(&mut self, obj: *mut dpiObject) -> Result<()> {
+    fn set_object_unchecked(&mut self, obj: &DpiObject) -> Result<()> {
         if self.handle.is_null() {
-            if !self.keep_dpiobj.is_null() {
-                unsafe { dpiObject_release(self.keep_dpiobj) };
-            }
-            unsafe {
-                dpiObject_addRef(obj);
-                dpiData_setObject(self.data(), obj)
-            }
-            self.keep_dpiobj = obj;
+            unsafe { dpiData_setObject(self.data(), obj.raw) }
+            self.keep_dpiobj = obj.clone();
         } else {
             chkerr!(
                 self.ctxt(),
-                dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj)
+                dpiVar_setFromObject(self.handle, self.buffer_row_index(), obj.raw)
             );
         }
         Ok(())
@@ -1204,7 +1207,7 @@ impl SqlValue<'_> {
     /// Sets Object to the Sql Value
     pub(crate) fn set_object(&mut self, val: &Object) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) => self.set_object_unchecked(val.handle),
+            NativeType::Object(_) => self.set_object_unchecked(&val.handle),
             _ => self.invalid_conversion_from_rust_type("Object"),
         }
     }
@@ -1212,7 +1215,7 @@ impl SqlValue<'_> {
     /// Sets Collection to the Sql Value
     pub(crate) fn set_collection(&mut self, val: &Collection) -> Result<()> {
         match self.native_type {
-            NativeType::Object(_) => self.set_object_unchecked(val.handle),
+            NativeType::Object(_) => self.set_object_unchecked(&val.handle),
             _ => self.invalid_conversion_from_rust_type("Collection"),
         }
     }
@@ -1283,7 +1286,7 @@ impl SqlValue<'_> {
             array_size: self.array_size,
             buffer_row_index: BufferRowIndex::Owned(0),
             keep_bytes: Vec::new(),
-            keep_dpiobj: ptr::null_mut(),
+            keep_dpiobj: DpiObject::null(),
             lob_bind_type: self.lob_bind_type,
             query_params: self.query_params.clone(),
         }
@@ -1338,9 +1341,6 @@ impl Drop for SqlValue<'_> {
     fn drop(&mut self) {
         if !self.handle.is_null() {
             unsafe { dpiVar_release(self.handle) };
-        }
-        if !self.keep_dpiobj.is_null() {
-            unsafe { dpiObject_release(self.keep_dpiobj) };
         }
     }
 }

@@ -13,6 +13,7 @@ New features:
 
 * Add [`Row::column_info()`] to tell column names and types in [`RowValue::get()`]
 * Change the lifetime parameter of [`ResultSet`] to `'static` when it is created by query methods of [`Connection`] or into_result_set methods of [`Statement`].
+* `Send` is implemented for [`Object`] and [`Collection`] now.
 
 Changes:
 
@@ -446,6 +447,7 @@ Incompatible changes:
 [`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
+[`Object`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Object.html
 [`ObjectType::attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
 [`ObjectType::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
 [`ObjectType::new_collection()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.new_collection

@@ -113,6 +113,7 @@ use crate::to_rust_slice;
 use crate::Connection;
 use crate::Context;
 use crate::DpiMsgProps;
+use crate::DpiObject;
 use crate::DpiQueue;
 use crate::Error;
 use crate::Result;
@@ -173,12 +174,12 @@ impl Payload for Object {
 
     fn get(props: &MsgProps<Self>) -> Result<Object> {
         let objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)?;
-        let mut obj_handle = ptr::null_mut();
+        let mut obj_handle = DpiObject::null();
         chkerr!(
             props.ctxt(),
             dpiMsgProps_getPayload(
                 props.handle.raw,
-                &mut obj_handle,
+                &mut obj_handle.raw,
                 ptr::null_mut(),
                 ptr::null_mut()
             )
@@ -189,7 +190,7 @@ impl Payload for Object {
     fn set(&self, props: &mut MsgProps<Self>) -> Result<()> {
         chkerr!(
             props.ctxt(),
-            dpiMsgProps_setPayloadObject(props.handle.raw, self.handle)
+            dpiMsgProps_setPayloadObject(props.handle.raw, self.handle())
         );
         props.payload_type = Some(self.object_type().clone());
         Ok(())
