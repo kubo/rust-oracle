@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1510,21 +1511,6 @@
 <a href="#1509" id="1509">1509</a>
 <a href="#1510" id="1510">1510</a>
 <a href="#1511" id="1511">1511</a>
-<a href="#1512" id="1512">1512</a>
-<a href="#1513" id="1513">1513</a>
-<a href="#1514" id="1514">1514</a>
-<a href="#1515" id="1515">1515</a>
-<a href="#1516" id="1516">1516</a>
-<a href="#1517" id="1517">1517</a>
-<a href="#1518" id="1518">1518</a>
-<a href="#1519" id="1519">1519</a>
-<a href="#1520" id="1520">1520</a>
-<a href="#1521" id="1521">1521</a>
-<a href="#1522" id="1522">1522</a>
-<a href="#1523" id="1523">1523</a>
-<a href="#1524" id="1524">1524</a>
-<a href="#1525" id="1525">1525</a>
-<a href="#1526" id="1526">1526</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1545,8 +1531,8 @@
 <span class="kw">use </span>std::mem::MaybeUninit;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
-<span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
+<span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
@@ -1564,8 +1550,10 @@
 <span class="kw">use </span><span class="kw">crate</span>::sql_value::BufferRowIndex;
 <span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
+<span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::DpiStmt;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::ResultSet;
@@ -1914,25 +1902,20 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Stmt {
     <span class="kw">pub</span>(<span class="kw">crate</span>) conn: Conn,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiStmt,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: DpiStmt,
     <span class="kw">pub</span>(<span class="kw">crate</span>) row: <span class="prelude-ty">Option</span>&lt;Row&gt;,
-    shared_buffer_row_index: Rc&lt;AtomicU32&gt;,
+    shared_buffer_row_index: Arc&lt;AtomicU32&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) query_params: QueryParams,
     tag: String,
 }
 
 <span class="kw">impl </span>Stmt {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
-        conn: Conn,
-        handle: <span class="kw-2">*mut </span>dpiStmt,
-        query_params: QueryParams,
-        tag: String,
-    ) -&gt; Stmt {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(conn: Conn, handle: DpiStmt, query_params: QueryParams, tag: String) -&gt; Stmt {
         Stmt {
             conn,
             handle,
             row: <span class="prelude-val">None</span>,
-            shared_buffer_row_index: Rc::new(AtomicU32::new(<span class="number">0</span>)),
+            shared_buffer_row_index: Arc::new(AtomicU32::new(<span class="number">0</span>)),
             query_params,
             tag,
         }
@@ -1947,12 +1930,12 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiStmt {
-        <span class="self">self</span>.handle
+        <span class="self">self</span>.handle.raw
     }
 
     <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_close(<span class="self">self</span>.handle, tag.ptr, tag.len));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_close(<span class="self">self</span>.handle(), tag.ptr, tag.len));
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1984,7 +1967,7 @@
             val.init_handle(oratype)<span class="question-mark">?</span>;
             <span class="macro">chkerr!</span>(
                 <span class="self">self</span>.ctxt(),
-                dpiStmt_define(<span class="self">self</span>.handle, (i + <span class="number">1</span>) <span class="kw">as </span>u32, val.handle)
+                dpiStmt_define(<span class="self">self</span>.handle(), (i + <span class="number">1</span>) <span class="kw">as </span>u32, val.handle()<span class="question-mark">?</span>)
             );
             column_values.push(val);
         }
@@ -1997,7 +1980,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>buffer_row_index = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiStmt_fetch(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>found, <span class="kw-2">&amp;mut </span>buffer_row_index)
+            dpiStmt_fetch(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>found, <span class="kw-2">&amp;mut </span>buffer_row_index)
         );
         <span class="prelude-val">Ok</span>(<span class="kw">if </span>found != <span class="number">0 </span>{
             <span class="self">self</span>.shared_buffer_row_index
@@ -2015,15 +1998,16 @@
 
     <span class="kw">pub fn </span>row_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_getRowCount(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>count));
+        <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_getRowCount(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>count));
         <span class="prelude-val">Ok</span>(count)
     }
 }
 
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>Stmt {}
+
 <span class="kw">impl </span>Drop <span class="kw">for </span>Stmt {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let _ </span>= <span class="self">self</span>.close();
-        <span class="kw">unsafe </span>{ dpiStmt_release(<span class="self">self</span>.handle) };
     }
 }
 
@@ -2065,7 +2049,7 @@
         <span class="kw">let </span>conn = builder.conn;
         <span class="kw">let </span>sql = to_odpi_str(builder.sql);
         <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span>builder.tag);
-        <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>dpiStmt = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiStmt::null();
         <span class="macro">chkerr!</span>(
             conn.ctxt(),
             dpiConn_prepareStmt(
@@ -2075,26 +2059,14 @@
                 sql.len,
                 tag.ptr,
                 tag.len,
-                <span class="kw-2">&amp;mut </span>handle
+                <span class="kw-2">&amp;mut </span>handle.raw
             )
         );
         <span class="kw">let </span><span class="kw-2">mut </span>info = MaybeUninit::uninit();
-        <span class="macro">chkerr!</span>(
-            conn.ctxt(),
-            dpiStmt_getInfo(handle, info.as_mut_ptr()),
-            <span class="kw">unsafe </span>{
-                dpiStmt_release(handle);
-            }
-        );
+        <span class="macro">chkerr!</span>(conn.ctxt(), dpiStmt_getInfo(handle.raw, info.as_mut_ptr()));
         <span class="kw">let </span>info = <span class="kw">unsafe </span>{ info.assume_init() };
         <span class="kw">let </span><span class="kw-2">mut </span>num = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(
-            conn.ctxt(),
-            dpiStmt_getBindCount(handle, <span class="kw-2">&amp;mut </span>num),
-            <span class="kw">unsafe </span>{
-                dpiStmt_release(handle);
-            }
-        );
+        <span class="macro">chkerr!</span>(conn.ctxt(), dpiStmt_getBindCount(handle.raw, <span class="kw-2">&amp;mut </span>num));
         <span class="kw">let </span>bind_count = num <span class="kw">as </span>usize;
         <span class="kw">let </span><span class="kw-2">mut </span>bind_names = Vec::with_capacity(bind_count);
         <span class="kw">let </span><span class="kw-2">mut </span>bind_values = Vec::with_capacity(bind_count);
@@ -2103,10 +2075,12 @@
             <span class="kw">let </span><span class="kw-2">mut </span>lengths = <span class="macro">vec!</span>[<span class="number">0</span>; bind_count];
             <span class="macro">chkerr!</span>(
                 conn.ctxt(),
-                dpiStmt_getBindNames(handle, <span class="kw-2">&amp;mut </span>num, names.as_mut_ptr(), lengths.as_mut_ptr()),
-                <span class="kw">unsafe </span>{
-                    dpiStmt_release(handle);
-                }
+                dpiStmt_getBindNames(
+                    handle.raw,
+                    <span class="kw-2">&amp;mut </span>num,
+                    names.as_mut_ptr(),
+                    lengths.as_mut_ptr()
+                )
             );
             bind_names = Vec::with_capacity(num <span class="kw">as </span>usize);
             <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..(num <span class="kw">as </span>usize) {
@@ -2119,9 +2093,7 @@
             }
         };
         <span class="kw">let </span>tag = <span class="kw">if </span>builder.exclude_from_cache {
-            <span class="macro">chkerr!</span>(conn.ctxt(), dpiStmt_deleteFromCache(handle), <span class="kw">unsafe </span>{
-                dpiStmt_release(handle);
-            });
+            <span class="macro">chkerr!</span>(conn.ctxt(), dpiStmt_deleteFromCache(handle.raw));
             String::new()
         } <span class="kw">else </span>{
             builder.tag.clone()
@@ -2150,7 +2122,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiStmt {
-        <span class="self">self</span>.stmt.handle
+        <span class="self">self</span>.stmt.handle.raw
     }
 
     <span class="doccomment">/// Executes the prepared statement and returns a result set containing [`Row`]s.
@@ -2498,7 +2470,7 @@
         <span class="kw">if </span><span class="self">self</span>.bind_values[pos].init_handle(<span class="kw-2">&amp;</span>value.oratype(<span class="kw-2">&amp;</span>conn)<span class="question-mark">?</span>)<span class="question-mark">? </span>{
             <span class="macro">chkerr!</span>(
                 <span class="self">self</span>.ctxt(),
-                bindidx.bind(<span class="self">self</span>.handle(), <span class="self">self</span>.bind_values[pos].handle)
+                bindidx.bind(<span class="self">self</span>.handle(), <span class="self">self</span>.bind_values[pos].handle()<span class="question-mark">?</span>)
             );
         }
         <span class="self">self</span>.bind_values[pos].set(value)
@@ -2586,7 +2558,7 @@
         <span class="kw">if </span>rows == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]);
         }
-        <span class="kw">let </span><span class="kw-2">mut </span>sqlval = <span class="self">self</span>.bind_values[bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>].unsafely_clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>sqlval = <span class="self">self</span>.bind_values[bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>].clone_with_narrow_lifetime()<span class="question-mark">?</span>;
         <span class="kw">if </span>rows &gt; sqlval.array_size <span class="kw">as </span>u64 {
             rows = sqlval.array_size <span class="kw">as </span>u64;
         }
@@ -2687,22 +2659,19 @@
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>implicit_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RefCursor&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiStmt::null();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiStmt_getImplicitResult(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle)
+            dpiStmt_getImplicitResult(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>handle.raw)
         );
         <span class="kw">if </span>handle.is_null() {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         } <span class="kw">else </span>{
-            <span class="kw">let </span>cursor = RefCursor::from_raw(
+            <span class="kw">let </span>cursor = RefCursor::from_handle(
                 <span class="self">self</span>.stmt.conn.clone(),
                 handle,
                 <span class="self">self</span>.stmt.query_params.clone(),
             )<span class="question-mark">?</span>;
-            <span class="kw">unsafe </span>{
-                dpiStmt_release(handle);
-            }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(cursor))
         }
     }
@@ -2805,6 +2774,8 @@
         <span class="kw">unsafe </span>{ &lt;T::DataType&gt;::set(<span class="kw-2">&amp;mut </span>attr_value, value) }
     }
 }
+
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>Statement {}
 
 <span class="doccomment">/// Column information in a select statement
 ///

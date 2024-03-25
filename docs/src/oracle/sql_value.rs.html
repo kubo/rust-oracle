@@ -1,5 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_value.rs`."><title>sql_value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_value.rs`."><title>sql_value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1345,6 +1346,18 @@
 <a href="#1344" id="1344">1344</a>
 <a href="#1345" id="1345">1345</a>
 <a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1362,12 +1375,11 @@
 
 </span><span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::marker::PhantomData;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
-<span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::str;
 <span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
+<span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
@@ -1394,8 +1406,11 @@
 <span class="kw">use </span><span class="kw">crate</span>::util::check_number_format;
 <span class="kw">use </span><span class="kw">crate</span>::util::parse_str_into_raw;
 <span class="kw">use </span><span class="kw">crate</span>::util::set_hex_string;
+<span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="kw">use </span><span class="kw">crate</span>::DpiObject;
+<span class="kw">use </span><span class="kw">crate</span>::DpiStmt;
+<span class="kw">use </span><span class="kw">crate</span>::DpiVar;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 
@@ -1466,9 +1481,17 @@
 }
 
 <span class="kw">pub enum </span><span class="macro-nonterminal">BufferRowIndex </span>{
-    Shared(Rc&lt;AtomicU32&gt;),
+    Shared(Arc&lt;AtomicU32&gt;),
     Owned(u32),
 }
+
+<span class="kw">enum </span>DpiData&lt;<span class="lifetime">'a</span>&gt; {
+    Data(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>dpiData),
+    Var(DpiVar, <span class="kw-2">*mut </span>dpiData),
+    Null,
+}
+
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>DpiData&lt;<span class="lifetime">'_</span>&gt; {}
 
 <span class="doccomment">/// A type containing an Oracle value
 ///
@@ -1479,9 +1502,7 @@
 /// by [`ToSql::oratype`].
 </span><span class="kw">pub struct </span>SqlValue&lt;<span class="lifetime">'a</span>&gt; {
     conn: Conn,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) handle: <span class="kw-2">*mut </span>dpiVar,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) data: <span class="kw-2">*mut </span>dpiData,
-    phantom: PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;,
+    data: DpiData&lt;<span class="lifetime">'a</span>&gt;,
     native_type: NativeType,
     oratype: <span class="prelude-ty">Option</span>&lt;OracleType&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) array_size: u32,
@@ -1501,9 +1522,7 @@
     ) -&gt; SqlValue&lt;<span class="lifetime">'static</span>&gt; {
         SqlValue {
             conn,
-            handle: ptr::null_mut(),
-            data: ptr::null_mut(),
-            phantom: PhantomData,
+            data: DpiData::Null,
             native_type: NativeType::Int64,
             oratype: <span class="prelude-val">None</span>,
             array_size,
@@ -1540,9 +1559,7 @@
         <span class="kw">let </span>(<span class="kw">_</span>, native_type, <span class="kw">_</span>, <span class="kw">_</span>) = oratype.var_create_param()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(SqlValue {
             conn,
-            handle: ptr::null_mut(),
-            data: data <span class="kw">as </span><span class="kw-2">*mut </span>dpiData,
-            phantom: PhantomData,
+            data: DpiData::Data(data),
             native_type,
             oratype: <span class="prelude-val">Some</span>(oratype.clone()),
             array_size: <span class="number">0</span>,
@@ -1559,9 +1576,10 @@
     }
 
     <span class="kw">fn </span>handle_is_reusable(<span class="kw-2">&amp;</span><span class="self">self</span>, oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
-        <span class="kw">if </span><span class="self">self</span>.handle.is_null() {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
-        }
+        <span class="kw">match </span><span class="self">self</span>.data {
+            DpiData::Var(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
+        };
         <span class="kw">let </span>current_oratype = <span class="kw">match </span><span class="self">self</span>.oratype {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>oratype) =&gt; oratype,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
@@ -1587,12 +1605,7 @@
         <span class="kw">if </span><span class="self">self</span>.handle_is_reusable(oratype)<span class="question-mark">? </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
         }
-        <span class="kw">if </span>!<span class="self">self</span>.handle.is_null() {
-            <span class="kw">unsafe </span>{ dpiVar_release(<span class="self">self</span>.handle) };
-        }
-        <span class="self">self</span>.handle = ptr::null_mut();
-        <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>dpiVar = ptr::null_mut();
-        <span class="kw">let </span><span class="kw-2">mut </span>data: <span class="kw-2">*mut </span>dpiData = ptr::null_mut();
+        <span class="self">self</span>.data = DpiData::Null;
         <span class="kw">let </span>(oratype_num, native_type, size, size_is_byte) = <span class="kw">match </span><span class="self">self</span>.lob_bind_type {
             LobBindType::Bytes =&gt; <span class="kw">match </span>oratype {
                 OracleType::CLOB =&gt; <span class="kw-2">&amp;</span>OracleType::Long,
@@ -1608,6 +1621,8 @@
             LobBindType::Locator =&gt; oratype,
         }
         .var_create_param()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiVar::null();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = ptr::null_mut();
         <span class="kw">let </span>native_type_num = native_type.to_native_type_num();
         <span class="kw">let </span>object_type_handle = native_type.to_object_type_handle();
         <span class="macro">chkerr!</span>(
@@ -1621,12 +1636,11 @@
                 size_is_byte,
                 <span class="number">0</span>,
                 object_type_handle,
-                <span class="kw-2">&amp;mut </span>handle,
+                <span class="kw-2">&amp;mut </span>handle.raw,
                 <span class="kw-2">&amp;mut </span>data
             )
         );
-        <span class="self">self</span>.handle = handle;
-        <span class="self">self</span>.data = data;
+        <span class="self">self</span>.data = DpiData::Var(handle, data);
         <span class="self">self</span>.native_type = native_type;
         <span class="self">self</span>.oratype = <span class="prelude-val">Some</span>(oratype.clone());
         <span class="kw">if </span>native_type_num == DPI_NATIVE_TYPE_STMT {
@@ -1641,15 +1655,16 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fix_internal_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>handle = <span class="self">self</span>.handle()<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>num = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>data = ptr::null_mut();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiVar_getReturnedData(<span class="self">self</span>.handle, <span class="number">0</span>, <span class="kw-2">&amp;mut </span>num, <span class="kw-2">&amp;mut </span>data)
+            dpiVar_getReturnedData(handle, <span class="number">0</span>, <span class="kw-2">&amp;mut </span>num, <span class="kw-2">&amp;mut </span>data)
         );
         <span class="kw">if </span>num != <span class="number">0 </span>{
             <span class="self">self</span>.array_size = num;
-            <span class="self">self</span>.data = data;
+            <span class="self">self</span>.data = DpiData::Var(DpiVar::with_add_ref(handle), data);
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1661,8 +1676,27 @@
         }
     }
 
-    <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>dpiData {
-        <span class="kw">unsafe </span>{ <span class="self">self</span>.data.offset(<span class="self">self</span>.buffer_row_index() <span class="kw">as </span>isize) }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>dpiVar&gt; {
+        <span class="kw">if let </span>DpiData::Var(var, <span class="kw">_</span>) = <span class="kw-2">&amp;</span><span class="self">self</span>.data {
+            <span class="prelude-val">Ok</span>(var.raw)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::InternalError(
+                <span class="string">"dpVar handle isn't initialized"</span>.into(),
+            ))
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>dpiData&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut *</span><span class="kw">match </span><span class="self">self</span>.data {
+                DpiData::Data(<span class="kw-2">ref </span>data) =&gt; <span class="kw-2">*</span>data <span class="kw">as </span><span class="kw-2">*const </span>dpiData <span class="kw">as </span><span class="kw-2">*mut </span>dpiData,
+                DpiData::Var(<span class="kw">_</span>, data) =&gt; data,
+                DpiData::Null =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InternalError(<span class="string">"dpData isn't initialized"</span>.into()));
+                }
+            }
+            .offset(<span class="self">self</span>.buffer_row_index() <span class="kw">as </span>isize))
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>native_type_num(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; dpiNativeTypeNum {
@@ -1743,14 +1777,12 @@
 
     <span class="doccomment">/// Returns `Ok(true)` when the SQL value is null. `Ok(false)` when it isn't null.
     </span><span class="kw">pub fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>((<span class="kw-2">*</span><span class="self">self</span>.data()).isNull != <span class="number">0</span>) }
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.data()<span class="question-mark">?</span>.isNull != <span class="number">0</span>)
     }
 
     <span class="doccomment">/// Sets null to the SQL value.
     </span><span class="kw">pub fn </span>set_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{
-            (<span class="kw-2">*</span><span class="self">self</span>.data()).isNull = <span class="number">1</span>;
-        }
+        <span class="self">self</span>.data()<span class="question-mark">?</span>.isNull = <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -1778,28 +1810,28 @@
     /// NativeType::Int64. Otherwise, this returns unexpected value.
     </span><span class="kw">fn </span>get_i64_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i64&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getInt64(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getInt64(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="doccomment">/// Gets the SQL value as u64. The native_type must be
     /// NativeType::UInt64. Otherwise, this returns unexpected value.
     </span><span class="kw">fn </span>get_u64_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getUint64(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getUint64(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="doccomment">/// Gets the SQL value as f32. The native_type must be
     /// NativeType::Float. Otherwise, this returns unexpected value.
     </span><span class="kw">fn </span>get_f32_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f32&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getFloat(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getFloat(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="doccomment">/// Gets the SQL value as f64. The native_type must be
     /// NativeType::Double. Otherwise, this returns unexpected value.
     </span><span class="kw">fn </span>get_f64_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f64&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getDouble(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getDouble(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="doccomment">/// Gets the SQL value as utf8 string. The native_type must be
@@ -1808,7 +1840,7 @@
     </span><span class="kw">fn </span>get_string_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data());
+            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(to_rust_str((<span class="kw-2">*</span>bytes).ptr, (<span class="kw-2">*</span>bytes).length))
         }
     }
@@ -1818,7 +1850,7 @@
     </span><span class="kw">fn </span>get_raw_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data());
+            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>vec = Vec::with_capacity((<span class="kw-2">*</span>bytes).length <span class="kw">as </span>usize);
             vec.extend_from_slice(to_rust_slice((<span class="kw-2">*</span>bytes).ptr, (<span class="kw-2">*</span>bytes).length));
             <span class="prelude-val">Ok</span>(vec)
@@ -1830,7 +1862,7 @@
     </span><span class="kw">fn </span>get_raw_as_hex_string_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data());
+            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>str = String::with_capacity(((<span class="kw-2">*</span>bytes).length * <span class="number">2</span>) <span class="kw">as </span>usize);
             set_hex_string(<span class="kw-2">&amp;mut </span>str, to_rust_slice((<span class="kw-2">*</span>bytes).ptr, (<span class="kw-2">*</span>bytes).length));
             <span class="prelude-val">Ok</span>(str)
@@ -1842,7 +1874,7 @@
     </span><span class="kw">fn </span>get_timestamp_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Timestamp&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>ts = dpiData_getTimestamp(<span class="self">self</span>.data());
+            <span class="kw">let </span>ts = dpiData_getTimestamp(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(Timestamp::from_dpi_timestamp(<span class="kw-2">&amp;*</span>ts, <span class="self">self</span>.oracle_type()<span class="question-mark">?</span>))
         }
     }
@@ -1852,7 +1884,7 @@
     </span><span class="kw">fn </span>get_interval_ds_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IntervalDS&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>it = dpiData_getIntervalDS(<span class="self">self</span>.data());
+            <span class="kw">let </span>it = dpiData_getIntervalDS(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(IntervalDS::from_dpi_interval_ds(<span class="kw-2">&amp;*</span>it, <span class="self">self</span>.oracle_type()<span class="question-mark">?</span>))
         }
     }
@@ -1862,7 +1894,7 @@
     </span><span class="kw">fn </span>get_interval_ym_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IntervalYM&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>it = dpiData_getIntervalYM(<span class="self">self</span>.data());
+            <span class="kw">let </span>it = dpiData_getIntervalYM(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="prelude-val">Ok</span>(IntervalYM::from_dpi_interval_ym(<span class="kw-2">&amp;*</span>it, <span class="self">self</span>.oracle_type()<span class="question-mark">?</span>))
         }
     }
@@ -1870,7 +1902,7 @@
     <span class="kw">fn </span>get_clob_as_string_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">const </span>READ_CHAR_SIZE: u64 = <span class="number">8192</span>;
-        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="kw">let </span><span class="kw-2">mut </span>total_char_size = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>total_byte_size = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>bufsiz = <span class="number">0</span>;
@@ -1898,7 +1930,7 @@
 
     <span class="kw">fn </span>get_blob_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="kw">let </span><span class="kw-2">mut </span>total_size = <span class="number">0</span>;
         <span class="kw">unsafe </span>{
             dpiLob_getSize(lob, <span class="kw-2">&amp;mut </span>total_size);
@@ -1924,7 +1956,7 @@
     <span class="kw">fn </span>get_blob_as_hex_string_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
         <span class="kw">const </span>READ_SIZE: u64 = <span class="number">8192</span>;
-        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="kw">let </span><span class="kw-2">mut </span>total_size = <span class="number">0</span>;
         <span class="kw">unsafe </span>{
             dpiLob_getSize(lob, <span class="kw-2">&amp;mut </span>total_size);
@@ -1948,7 +1980,7 @@
 
     <span class="kw">fn </span>get_collection_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, objtype: <span class="kw-2">&amp;</span>ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;Collection&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_addRef(dpiobj));
         <span class="prelude-val">Ok</span>(Collection::new(
             <span class="self">self</span>.conn.clone(),
@@ -1959,7 +1991,7 @@
 
     <span class="kw">fn </span>get_object_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, objtype: <span class="kw-2">&amp;</span>ObjectType) -&gt; <span class="prelude-ty">Result</span>&lt;Object&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>dpiobj = <span class="kw">unsafe </span>{ dpiData_getObject(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiObject_addRef(dpiobj));
         <span class="prelude-val">Ok</span>(Object::new(
             <span class="self">self</span>.conn.clone(),
@@ -1972,7 +2004,7 @@
     /// NativeType::Boolean. Otherwise, this returns unexpected value.
     </span><span class="kw">fn </span>get_bool_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getBool(<span class="self">self</span>.data()) != <span class="number">0</span>) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getBool(<span class="self">self</span>.data()<span class="question-mark">?</span>) != <span class="number">0</span>) }
     }
 
     <span class="kw">fn </span>get_rowid_as_string_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
@@ -1981,19 +2013,19 @@
         <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiRowid_getStringValue((<span class="kw-2">*</span><span class="self">self</span>.data()).value.asRowid, <span class="kw-2">&amp;mut </span>ptr, <span class="kw-2">&amp;mut </span>len)
+            dpiRowid_getStringValue(<span class="self">self</span>.data()<span class="question-mark">?</span>.value.asRowid, <span class="kw-2">&amp;mut </span>ptr, <span class="kw-2">&amp;mut </span>len)
         );
         <span class="prelude-val">Ok</span>(to_rust_str(ptr, len))
     }
 
     <span class="kw">fn </span>get_lob_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>dpiLob&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getLOB(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="kw">fn </span>get_stmt_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>dpiStmt&gt; {
         <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
-        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getStmt(<span class="self">self</span>.data())) }
+        <span class="kw">unsafe </span>{ <span class="prelude-val">Ok</span>(dpiData_getStmt(<span class="self">self</span>.data()<span class="question-mark">?</span>)) }
     }
 
     <span class="comment">//
@@ -2003,54 +2035,59 @@
     </span><span class="doccomment">/// Sets i64 to the SQL value. The native_type must be
     /// NativeType::Int64. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_i64_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: i64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setInt64(<span class="self">self</span>.data(), val) }
+        <span class="kw">unsafe </span>{ dpiData_setInt64(<span class="self">self</span>.data()<span class="question-mark">?</span>, val) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets u64 to the SQL value. The native_type must be
     /// NativeType::UInt64. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_u64_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: u64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setUint64(<span class="self">self</span>.data(), val) }
+        <span class="kw">unsafe </span>{ dpiData_setUint64(<span class="self">self</span>.data()<span class="question-mark">?</span>, val) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets f32 to the SQL value. The native_type must be
     /// NativeType::Float. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_f32_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: f32) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setFloat(<span class="self">self</span>.data(), val) }
+        <span class="kw">unsafe </span>{ dpiData_setFloat(<span class="self">self</span>.data()<span class="question-mark">?</span>, val) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets f64 to the SQL value. The native_type must be
     /// NativeType::Double. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_f64_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: f64) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setDouble(<span class="self">self</span>.data(), val) }
+        <span class="kw">unsafe </span>{ dpiData_setDouble(<span class="self">self</span>.data()<span class="question-mark">?</span>, val) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>set_bytes_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.handle.is_null() {
-            <span class="self">self</span>.keep_bytes = Vec::with_capacity(val.len());
-            <span class="self">self</span>.keep_bytes.extend_from_slice(val);
-            <span class="kw">unsafe </span>{
-                dpiData_setBytes(
-                    <span class="self">self</span>.data(),
-                    <span class="self">self</span>.keep_bytes.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_char,
-                    val.len() <span class="kw">as </span>u32,
-                );
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
+            DpiData::Data(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.keep_bytes = Vec::with_capacity(val.len());
+                <span class="self">self</span>.keep_bytes.extend_from_slice(val);
+                <span class="kw">unsafe </span>{
+                    dpiData_setBytes(
+                        <span class="self">self</span>.data()<span class="question-mark">?</span>,
+                        <span class="self">self</span>.keep_bytes.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_char,
+                        val.len() <span class="kw">as </span>u32,
+                    );
+                }
+                <span class="prelude-val">Ok</span>(())
             }
-        } <span class="kw">else </span>{
-            <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.ctxt(),
-                dpiVar_setFromBytes(
-                    <span class="self">self</span>.handle,
-                    <span class="self">self</span>.buffer_row_index(),
-                    val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
-                    val.len() <span class="kw">as </span>u32
-                )
-            );
+            DpiData::Var(handle, <span class="kw">_</span>) =&gt; {
+                <span class="macro">chkerr!</span>(
+                    <span class="self">self</span>.ctxt(),
+                    dpiVar_setFromBytes(
+                        handle.raw,
+                        <span class="self">self</span>.buffer_row_index(),
+                        val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
+                        val.len() <span class="kw">as </span>u32
+                    )
+                );
+                <span class="prelude-val">Ok</span>(())
+            }
+            DpiData::Null =&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="string">"dpiData isn't initialized"</span>.into())),
         }
-        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets utf8 string to the SQL value. The native_type must be
@@ -2071,7 +2108,7 @@
     </span><span class="kw">fn </span>set_timestamp_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>Timestamp) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">unsafe </span>{
             dpiData_setTimestamp(
-                <span class="self">self</span>.data(),
+                <span class="self">self</span>.data()<span class="question-mark">?</span>,
                 val.year() <span class="kw">as </span>i16,
                 val.month() <span class="kw">as </span>u8,
                 val.day() <span class="kw">as </span>u8,
@@ -2091,7 +2128,7 @@
     </span><span class="kw">fn </span>set_interval_ds_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>IntervalDS) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">unsafe </span>{
             dpiData_setIntervalDS(
-                <span class="self">self</span>.data(),
+                <span class="self">self</span>.data()<span class="question-mark">?</span>,
                 val.days(),
                 val.hours(),
                 val.minutes(),
@@ -2105,58 +2142,59 @@
     <span class="doccomment">/// Sets IntervalYM to the SQL value. The native_type must be
     /// NativeType::IntervalYM. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_interval_ym_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>IntervalYM) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setIntervalYM(<span class="self">self</span>.data(), val.years(), val.months()) }
+        <span class="kw">unsafe </span>{ dpiData_setIntervalYM(<span class="self">self</span>.data()<span class="question-mark">?</span>, val.years(), val.months()) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>set_string_to_clob_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>ptr = val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
         <span class="kw">let </span>len = val.len() <span class="kw">as </span>u64;
-        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_trim(lob, <span class="number">0</span>));
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_writeBytes(lob, <span class="number">1</span>, ptr, len));
-        <span class="kw">unsafe </span>{
-            (<span class="kw-2">*</span><span class="self">self</span>.data()).isNull = <span class="number">0</span>;
-        }
+        <span class="self">self</span>.data()<span class="question-mark">?</span>.isNull = <span class="number">0</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>set_raw_to_blob_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>ptr = val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
         <span class="kw">let </span>len = val.len() <span class="kw">as </span>u64;
-        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()) };
+        <span class="kw">let </span>lob = <span class="kw">unsafe </span>{ dpiData_getLOB(<span class="self">self</span>.data()<span class="question-mark">?</span>) };
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_trim(lob, <span class="number">0</span>));
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiLob_writeBytes(lob, <span class="number">1</span>, ptr, len));
-        <span class="kw">unsafe </span>{
-            (<span class="kw-2">*</span><span class="self">self</span>.data()).isNull = <span class="number">0</span>;
-        }
+        <span class="self">self</span>.data()<span class="question-mark">?</span>.isNull = <span class="number">0</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>set_object_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, obj: <span class="kw-2">&amp;</span>DpiObject) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.handle.is_null() {
-            <span class="kw">unsafe </span>{ dpiData_setObject(<span class="self">self</span>.data(), obj.raw) }
-            <span class="self">self</span>.keep_dpiobj = obj.clone();
-        } <span class="kw">else </span>{
-            <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.ctxt(),
-                dpiVar_setFromObject(<span class="self">self</span>.handle, <span class="self">self</span>.buffer_row_index(), obj.raw)
-            );
+        <span class="kw">match </span><span class="self">self</span>.data {
+            DpiData::Data(<span class="kw">_</span>) =&gt; {
+                <span class="kw">unsafe </span>{ dpiData_setObject(<span class="self">self</span>.data()<span class="question-mark">?</span>, obj.raw) }
+                <span class="self">self</span>.keep_dpiobj = obj.clone();
+                <span class="prelude-val">Ok</span>(())
+            }
+            DpiData::Var(<span class="kw-2">ref </span>var, <span class="kw">_</span>) =&gt; {
+                <span class="macro">chkerr!</span>(
+                    <span class="self">self</span>.ctxt(),
+                    dpiVar_setFromObject(var.raw, <span class="self">self</span>.buffer_row_index(), obj.raw)
+                );
+                <span class="prelude-val">Ok</span>(())
+            }
+            DpiData::Null =&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="string">"dpiData isn't initialized"</span>.into())),
         }
-        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Sets bool to the SQL value. The native_type must be
     /// NativeType::Boolean. Otherwise, this may cause access violation.
     </span><span class="kw">fn </span>set_bool_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">unsafe </span>{ dpiData_setBool(<span class="self">self</span>.data(), i32::from(val)) }
+        <span class="kw">unsafe </span>{ dpiData_setBool(<span class="self">self</span>.data()<span class="question-mark">?</span>, i32::from(val)) }
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>set_lob_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lob: <span class="kw-2">*mut </span>dpiLob) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
-            dpiVar_setFromLob(<span class="self">self</span>.handle, <span class="self">self</span>.buffer_row_index(), lob)
+            dpiVar_setFromLob(<span class="self">self</span>.handle()<span class="question-mark">?</span>, <span class="self">self</span>.buffer_row_index(), lob)
         );
         <span class="prelude-val">Ok</span>(())
     }
@@ -2172,10 +2210,7 @@
             val.init_handle(oratype)<span class="question-mark">?</span>;
             <span class="macro">chkerr!</span>(
                 <span class="self">self</span>.ctxt(),
-                dpiVar_copyData(val.handle, <span class="number">0</span>, <span class="self">self</span>.handle, <span class="self">self</span>.buffer_row_index()),
-                <span class="kw">unsafe </span>{
-                    dpiVar_release(val.handle);
-                }
+                dpiVar_copyData(val.handle()<span class="question-mark">?</span>, <span class="number">0</span>, <span class="self">self</span>.handle()<span class="question-mark">?</span>, <span class="self">self</span>.buffer_row_index())
             );
         }
         <span class="prelude-val">Ok</span>(val)
@@ -2431,9 +2466,9 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_ref_cursor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RefCursor&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
-            NativeType::Stmt =&gt; <span class="prelude-val">Ok</span>(RefCursor::from_raw(
+            NativeType::Stmt =&gt; <span class="prelude-val">Ok</span>(RefCursor::from_handle(
                 <span class="self">self</span>.conn.clone(),
-                <span class="self">self</span>.get_stmt_unchecked()<span class="question-mark">?</span>,
+                DpiStmt::with_add_ref(<span class="self">self</span>.get_stmt_unchecked()<span class="question-mark">?</span>),
                 <span class="self">self</span>.query_params.clone(),
             )<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"RefCursor"</span>),
@@ -2620,14 +2655,10 @@
         <span class="self">self</span>.invalid_conversion_from_rust_type(<span class="string">"Nclob"</span>)
     }
 
-    <span class="doccomment">/// The cloned value must not live longer than self.
-    /// Otherwise it may cause access violation.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unsafely_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SqlValue {
-        SqlValue {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clone_with_narrow_lifetime(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&gt; {
+        <span class="prelude-val">Ok</span>(SqlValue {
             conn: <span class="self">self</span>.conn.clone(),
-            handle: ptr::null_mut(),
-            data: <span class="self">self</span>.data,
-            phantom: PhantomData,
+            data: DpiData::Data(<span class="self">self</span>.data()<span class="question-mark">?</span>),
             native_type: <span class="self">self</span>.native_type.clone(),
             oratype: <span class="self">self</span>.oratype.clone(),
             array_size: <span class="self">self</span>.array_size,
@@ -2636,9 +2667,11 @@
             keep_dpiobj: DpiObject::null(),
             lob_bind_type: <span class="self">self</span>.lob_bind_type,
             query_params: <span class="self">self</span>.query_params.clone(),
-        }
+        })
     }
 }
+
+<span class="kw">impl </span>AssertSend <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {}
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
     <span class="doccomment">/// Formats any SQL value to string using the given formatter.
@@ -2680,14 +2713,6 @@
             )
         } <span class="kw">else </span>{
             <span class="macro">write!</span>(f, <span class="string">"SqlValue {{ uninitialized }}"</span>)
-        }
-    }
-}
-
-<span class="kw">impl </span>Drop <span class="kw">for </span>SqlValue&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">if </span>!<span class="self">self</span>.handle.is_null() {
-            <span class="kw">unsafe </span>{ dpiVar_release(<span class="self">self</span>.handle) };
         }
     }
 }
