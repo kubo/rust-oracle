@@ -93,6 +93,7 @@ macro_rules! define_dpi_data_with_refcount {
 
     (__define_struct__, $name:ident) => {
         paste::item! {
+            #[derive(Debug)]
             struct [<Dpi $name>] {
                 raw: *mut [<dpi $name>],
             }
@@ -165,6 +166,9 @@ define_dpi_data_with_refcount!(Queue);
 
 // define DpiObject wrapping *mut dpiObject.
 define_dpi_data_with_refcount!(Object, nosync);
+
+// define DpiStmt wrapping *mut dpiStmt.
+define_dpi_data_with_refcount!(Stmt, nosync);
 
 // define DpiVar wrapping *mut dpiVar.
 define_dpi_data_with_refcount!(Var, nosync);

@@ -13,7 +13,7 @@ New features:
 
 * Add [`Row::column_info()`] to tell column names and types in [`RowValue::get()`]
 * Change the lifetime parameter of [`ResultSet`] to `'static` when it is created by query methods of [`Connection`] or into_result_set methods of [`Statement`].
-* `Send` is implemented for [`SqlValue`], [`Object`] and [`Collection`].
+* `Send` is implemented for [`Statement`], [`SqlValue`], [`Object`] and [`Collection`].
 
 Changes:
 

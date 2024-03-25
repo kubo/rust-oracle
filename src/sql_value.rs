@@ -49,6 +49,7 @@ use crate::util::set_hex_string;
 use crate::AssertSend;
 use crate::Context;
 use crate::DpiObject;
+use crate::DpiStmt;
 use crate::DpiVar;
 use crate::Error;
 use crate::Result;
@@ -1105,9 +1106,9 @@ impl SqlValue<'_> {
 
     pub(crate) fn to_ref_cursor(&self) -> Result<RefCursor> {
         match self.native_type {
-            NativeType::Stmt => Ok(RefCursor::from_raw(
+            NativeType::Stmt => Ok(RefCursor::from_handle(
                 self.conn.clone(),
-                self.get_stmt_unchecked()?,
+                DpiStmt::with_add_ref(self.get_stmt_unchecked()?),
                 self.query_params.clone(),
             )?),
             _ => self.invalid_conversion_to_rust_type("RefCursor"),

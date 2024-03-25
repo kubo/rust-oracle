@@ -16,7 +16,7 @@
 use std::fmt;
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::sql_type::FromSql;
 use crate::statement::Stmt;
@@ -31,7 +31,7 @@ use crate::Statement;
 
 /// Row in a result set of a select statement
 pub struct Row {
-    pub(crate) column_info: Rc<Vec<ColumnInfo>>,
+    pub(crate) column_info: Arc<Vec<ColumnInfo>>,
     pub(crate) column_values: Vec<SqlValue<'static>>,
 }
 
@@ -41,7 +41,7 @@ impl Row {
         column_values: Vec<SqlValue<'static>>,
     ) -> Result<Row> {
         Ok(Row {
-            column_info: Rc::new(column_info),
+            column_info: Arc::new(column_info),
             column_values,
         })
     }

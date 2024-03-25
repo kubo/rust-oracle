@@ -37,8 +37,10 @@ use crate::sql_type::{Blob, Clob, Nclob};
 use crate::sql_value::BufferRowIndex;
 use crate::to_odpi_str;
 use crate::to_rust_str;
+use crate::AssertSend;
 use crate::Connection;
 use crate::Context;
+use crate::DpiStmt;
 use crate::Error;
 use crate::Result;
 use crate::ResultSet;
@@ -387,7 +389,7 @@ impl fmt::Display for StatementType {
 #[derive(Debug)]
 pub(crate) struct Stmt {
     pub(crate) conn: Conn,
-    pub(crate) handle: *mut dpiStmt,
+    pub(crate) handle: DpiStmt,
     pub(crate) row: Option<Row>,
     shared_buffer_row_index: Arc<AtomicU32>,
     pub(crate) query_params: QueryParams,
@@ -395,12 +397,7 @@ pub(crate) struct Stmt {
 }
 
 impl Stmt {
-    pub(crate) fn new(
-        conn: Conn,
-        handle: *mut dpiStmt,
-        query_params: QueryParams,
-        tag: String,
-    ) -> Stmt {
+    pub(crate) fn new(conn: Conn, handle: DpiStmt, query_params: QueryParams, tag: String) -> Stmt {
         Stmt {
             conn,
             handle,
@@ -420,12 +417,12 @@ impl Stmt {
     }
 
     pub(crate) fn handle(&self) -> *mut dpiStmt {
-        self.handle
+        self.handle.raw
     }
 
     fn close(&mut self) -> Result<()> {
         let tag = to_odpi_str(&self.tag);
-        chkerr!(self.ctxt(), dpiStmt_close(self.handle, tag.ptr, tag.len));
+        chkerr!(self.ctxt(), dpiStmt_close(self.handle(), tag.ptr, tag.len));
         Ok(())
     }
 
@@ -457,7 +454,7 @@ impl Stmt {
             val.init_handle(oratype)?;
             chkerr!(
                 self.ctxt(),
-                dpiStmt_define(self.handle, (i + 1) as u32, val.handle()?)
+                dpiStmt_define(self.handle(), (i + 1) as u32, val.handle()?)
             );
             column_values.push(val);
         }
@@ -470,7 +467,7 @@ impl Stmt {
         let mut buffer_row_index = 0;
         chkerr!(
             self.ctxt(),
-            dpiStmt_fetch(self.handle, &mut found, &mut buffer_row_index)
+            dpiStmt_fetch(self.handle(), &mut found, &mut buffer_row_index)
         );
         Ok(if found != 0 {
             self.shared_buffer_row_index
@@ -488,7 +485,7 @@ impl Stmt {
 
     pub fn row_count(&self) -> Result<u64> {
         let mut count = 0;
-        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle, &mut count));
+        chkerr!(self.ctxt(), dpiStmt_getRowCount(self.handle(), &mut count));
         Ok(count)
     }
 }
@@ -496,7 +493,6 @@ impl Stmt {
 impl Drop for Stmt {
     fn drop(&mut self) {
         let _ = self.close();
-        unsafe { dpiStmt_release(self.handle) };
     }
 }
 
@@ -538,7 +534,7 @@ impl Statement {
         let conn = builder.conn;
         let sql = to_odpi_str(builder.sql);
         let tag = to_odpi_str(&builder.tag);
-        let mut handle: *mut dpiStmt = ptr::null_mut();
+        let mut handle = DpiStmt::null();
         chkerr!(
             conn.ctxt(),
             dpiConn_prepareStmt(
@@ -548,26 +544,14 @@ impl Statement {
                 sql.len,
                 tag.ptr,
                 tag.len,
-                &mut handle
+                &mut handle.raw
             )
         );
         let mut info = MaybeUninit::uninit();
-        chkerr!(
-            conn.ctxt(),
-            dpiStmt_getInfo(handle, info.as_mut_ptr()),
-            unsafe {
-                dpiStmt_release(handle);
-            }
-        );
+        chkerr!(conn.ctxt(), dpiStmt_getInfo(handle.raw, info.as_mut_ptr()));
         let info = unsafe { info.assume_init() };
         let mut num = 0;
-        chkerr!(
-            conn.ctxt(),
-            dpiStmt_getBindCount(handle, &mut num),
-            unsafe {
-                dpiStmt_release(handle);
-            }
-        );
+        chkerr!(conn.ctxt(), dpiStmt_getBindCount(handle.raw, &mut num));
         let bind_count = num as usize;
         let mut bind_names = Vec::with_capacity(bind_count);
         let mut bind_values = Vec::with_capacity(bind_count);
@@ -576,10 +560,12 @@ impl Statement {
             let mut lengths = vec![0; bind_count];
             chkerr!(
                 conn.ctxt(),
-                dpiStmt_getBindNames(handle, &mut num, names.as_mut_ptr(), lengths.as_mut_ptr()),
-                unsafe {
-                    dpiStmt_release(handle);
-                }
+                dpiStmt_getBindNames(
+                    handle.raw,
+                    &mut num,
+                    names.as_mut_ptr(),
+                    lengths.as_mut_ptr()
+                )
             );
             bind_names = Vec::with_capacity(num as usize);
             for i in 0..(num as usize) {
@@ -592,9 +578,7 @@ impl Statement {
             }
         };
         let tag = if builder.exclude_from_cache {
-            chkerr!(conn.ctxt(), dpiStmt_deleteFromCache(handle), unsafe {
-                dpiStmt_release(handle);
-            });
+            chkerr!(conn.ctxt(), dpiStmt_deleteFromCache(handle.raw));
             String::new()
         } else {
             builder.tag.clone()
@@ -623,7 +607,7 @@ impl Statement {
     }
 
     pub(crate) fn handle(&self) -> *mut dpiStmt {
-        self.stmt.handle
+        self.stmt.handle.raw
     }
 
     /// Executes the prepared statement and returns a result set containing [`Row`]s.
@@ -1160,22 +1144,19 @@ impl Statement {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn implicit_result(&self) -> Result<Option<RefCursor>> {
-        let mut handle = ptr::null_mut();
+        let mut handle = DpiStmt::null();
         chkerr!(
             self.ctxt(),
-            dpiStmt_getImplicitResult(self.handle(), &mut handle)
+            dpiStmt_getImplicitResult(self.handle(), &mut handle.raw)
         );
         if handle.is_null() {
             Ok(None)
         } else {
-            let cursor = RefCursor::from_raw(
+            let cursor = RefCursor::from_handle(
                 self.stmt.conn.clone(),
                 handle,
                 self.stmt.query_params.clone(),
             )?;
-            unsafe {
-                dpiStmt_release(handle);
-            }
             Ok(Some(cursor))
         }
     }
@@ -1278,6 +1259,8 @@ impl Statement {
         unsafe { <T::DataType>::set(&mut attr_value, value) }
     }
 }
+
+impl AssertSend for Statement {}
 
 /// Column information in a select statement
 ///

@@ -22,6 +22,7 @@ use crate::sql_type::ToSqlNull;
 use crate::statement::QueryParams;
 use crate::statement::Stmt;
 use crate::Connection;
+use crate::DpiStmt;
 use crate::Error;
 use crate::Result;
 use crate::ResultSet;
@@ -112,21 +113,20 @@ pub struct RefCursor {
 }
 
 impl RefCursor {
-    pub(crate) fn from_raw(
+    pub(crate) fn from_handle(
         conn: Conn,
-        handle: *mut dpiStmt,
+        handle: DpiStmt,
         query_params: QueryParams,
     ) -> Result<RefCursor> {
         chkerr!(
             conn.ctxt(),
-            dpiStmt_setFetchArraySize(handle, query_params.fetch_array_size)
+            dpiStmt_setFetchArraySize(handle.raw, query_params.fetch_array_size)
         );
         let mut num_query_columns = 0;
         chkerr!(
             conn.ctxt(),
-            dpiStmt_getNumQueryColumns(handle, &mut num_query_columns)
+            dpiStmt_getNumQueryColumns(handle.raw, &mut num_query_columns)
         );
-        chkerr!(conn.ctxt(), dpiStmt_addRef(handle));
         let mut stmt = Stmt::new(conn, handle, query_params, "".into());
         stmt.init_row(num_query_columns as usize)?;
         Ok(RefCursor { stmt })
