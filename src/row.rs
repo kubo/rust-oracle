@@ -20,6 +20,7 @@ use std::sync::Arc;
 
 use crate::sql_type::FromSql;
 use crate::statement::Stmt;
+use crate::AssertSend;
 use crate::ColumnIndex;
 use crate::ColumnInfo;
 #[cfg(doc)]
@@ -91,6 +92,8 @@ impl Row {
         &self.column_info
     }
 }
+
+impl AssertSend for Row {}
 
 impl fmt::Debug for Row {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -166,6 +169,8 @@ where
         &self.stmt().row.as_ref().unwrap().column_info
     }
 }
+
+unsafe impl<T> Send for ResultSet<'static, T> where T: RowValue {}
 
 impl<'stmt, T> Iterator for ResultSet<'stmt, T>
 where

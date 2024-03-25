@@ -13,7 +13,13 @@ New features:
 
 * Add [`Row::column_info()`] to tell column names and types in [`RowValue::get()`]
 * Change the lifetime parameter of [`ResultSet`] to `'static` when it is created by query methods of [`Connection`] or into_result_set methods of [`Statement`].
-* `Send` is implemented for [`Statement`], [`SqlValue`], [`Object`] and [`Collection`].
+* `Send` is implemented for the following types:
+  * [`Statement`]
+  * [`ResultSet<'static, T>`][`ResultSet`]
+  * [`Row`]
+  * [`SqlValue`]
+  * [`Object`]
+  * [`Collection`].
 
 Changes:
 
@@ -459,6 +465,7 @@ Incompatible changes:
 [`OracleType::Xml`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html#variant.Xml
 [`ResultSet`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html
 [`ResultSet::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html#method.column_info
+[`Row`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html
 [`Row::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.column_info
 [`Row::sql_values()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.sql_values
 [`Row::get_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Row.html#method.get_as

@@ -490,6 +490,8 @@ impl Stmt {
     }
 }
 
+impl AssertSend for Stmt {}
+
 impl Drop for Stmt {
     fn drop(&mut self) {
         let _ = self.close();
