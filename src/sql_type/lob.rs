@@ -857,7 +857,10 @@ mod tests {
 
         // error when querying blob as Blob without `StatementBuilder.lob_locator()`.
         let mut stmt = conn.statement(sql).build()?;
-        assert_eq!(stmt.query_row_as::<Blob>(&[]).unwrap_err().to_string(), "invalid operation: Please use StatementBuilder.lob_locator() to fetch LOB data as Blob");
+        assert_eq!(
+            stmt.query_row_as::<Blob>(&[]).unwrap_err().to_string(),
+            "use StatementBuilder.lob_locator() instead to fetch LOB data as Blob"
+        );
         Ok(())
     }
 

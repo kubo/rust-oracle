@@ -267,7 +267,7 @@ impl ToSql for RefCursor {
 
     fn to_sql(&self, _val: &mut SqlValue) -> Result<()> {
         Err(Error::InvalidOperation(
-            "Cannot bind RefCursor as an IN parameter".into(),
+            "cannot bind RefCursor as an IN parameter".into(),
         ))
     }
 }

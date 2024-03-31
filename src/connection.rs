@@ -1234,7 +1234,7 @@ impl Connection {
                 OCI_SERVER_NOT_CONNECTED => Ok(ConnStatus::NotConnected),
                 OCI_SERVER_NORMAL => Ok(ConnStatus::Normal),
                 _ => Err(Error::InternalError(format!(
-                    "Unexpected server status: {}",
+                    "unexpected server status {}",
                     status
                 ))),
             },
@@ -1391,13 +1391,13 @@ impl Connection {
         if let Some(dur) = dur {
             let msecs = duration_to_msecs(dur).ok_or_else(|| {
                 Error::OutOfRange(format!(
-                    "Too large duration {:?}. It must be less than 49.7 days",
+                    "too long duration {:?}. It must be less than 49.7 days",
                     dur
                 ))
             })?;
             if msecs == 0 {
                 return Err(Error::OutOfRange(format!(
-                    "Too short duration {:?}. It must not be submilliseconds",
+                    "too short duration {:?}. It must not be submilliseconds",
                     dur
                 )));
             }

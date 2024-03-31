@@ -178,35 +178,35 @@ impl DbError {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Error::OciError(ref err) => write!(f, "OCI Error: {}", err.message),
-            Error::DpiError(ref err) => write!(f, "DPI Error: {}", err.message),
+        match self {
+            Error::OciError(err) => write!(f, "OCI Error: {}", err.message),
+            Error::DpiError(err) => write!(f, "DPI Error: {}", err.message),
             Error::NullValue => write!(f, "NULL value found"),
-            Error::ParseError(ref err) => write!(f, "{}", err),
-            Error::OutOfRange(ref msg) => write!(f, "out of range: {}", msg),
-            Error::InvalidTypeConversion(ref from, ref to) => {
+            Error::ParseError(err) => write!(f, "{}", err),
+            Error::OutOfRange(msg) => write!(f, "{}", msg),
+            Error::InvalidTypeConversion(from, to) => {
                 write!(f, "invalid type conversion from {} to {}", from, to)
             }
-            Error::InvalidBindIndex(ref idx) => {
-                write!(f, "invalid bind index (one-based): {}", idx)
+            Error::InvalidBindIndex(idx) => {
+                write!(f, "invalid bind index {} (one-based)", idx)
             }
-            Error::InvalidBindName(ref name) => write!(f, "invalid bind name: {}", name),
-            Error::InvalidColumnIndex(ref idx) => {
-                write!(f, "invalid column index (zero-based): {}", idx)
+            Error::InvalidBindName(name) => write!(f, "invalid bind name {}", name),
+            Error::InvalidColumnIndex(idx) => {
+                write!(f, "invalid column index {} (zero-based)", idx)
             }
-            Error::InvalidColumnName(ref name) => write!(f, "invalid column name: {}", name),
-            Error::InvalidAttributeName(ref name) => write!(f, "invalid attribute name: {}", name),
-            Error::InvalidOperation(ref msg) => write!(f, "invalid operation: {}", msg),
-            Error::UninitializedBindValue => write!(f, "Try to access uninitialized bind value"),
-            Error::NoDataFound => write!(f, "No data found"),
-            Error::BatchErrors(ref errs) => {
-                write!(f, "Batch Error (")?;
+            Error::InvalidColumnName(name) => write!(f, "invalid column name {}", name),
+            Error::InvalidAttributeName(name) => write!(f, "invalid attribute name {}", name),
+            Error::InvalidOperation(msg) => write!(f, "{}", msg),
+            Error::UninitializedBindValue => write!(f, "try to access uninitialized bind value"),
+            Error::NoDataFound => write!(f, "no data found"),
+            Error::BatchErrors(errs) => {
+                write!(f, "batch errors (")?;
                 for err in errs {
                     write!(f, "{}, ", err)?;
                 }
                 write!(f, ")")
             }
-            Error::InternalError(ref msg) => write!(f, "Internal Error: {}", msg),
+            Error::InternalError(msg) => write!(f, "{}", msg),
         }
     }
 }

@@ -363,7 +363,7 @@ unsafe impl DataType for MaxStringSize {
         match attr.get::<u8>()? {
             OCI_ATTR_MAXLEN_COMPAT_STANDARD => Ok(MaxStringSize::Standard),
             OCI_ATTR_MAXLEN_COMPAT_EXTENDED => Ok(MaxStringSize::Extended),
-            x => Err(Error::InternalError(format!("Invalid MaxStringSize {}", x))),
+            x => Err(Error::InternalError(format!("invalid MaxStringSize {}", x))),
         }
     }
 }

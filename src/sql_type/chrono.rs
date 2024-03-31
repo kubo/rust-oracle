@@ -288,7 +288,12 @@ impl ToSql for NaiveDate {
 
 impl FromSql for Duration {
     fn from_sql(val: &SqlValue) -> Result<Duration> {
-        let err = |it: IntervalDS| Error::OutOfRange(format!("Duration overflow: {}", it));
+        let err = |it: IntervalDS| {
+            Error::OutOfRange(format!(
+                "unable to convert interval day to second {} to chrono::Duration",
+                it
+            ))
+        };
         let it = val.to_interval_ds()?;
         let d = Duration::milliseconds(0);
         let d = d

@@ -798,7 +798,7 @@ impl Statement {
                 Ok(())
             } else {
                 Err(Error::InvalidOperation(format!(
-                    "Could not use the `{}` method for non-select statements",
+                    "could not use the `{}` method for non-select statements",
                     method_name
                 )))
             }
@@ -806,7 +806,7 @@ impl Statement {
             Ok(())
         } else {
             Err(Error::InvalidOperation(format!(
-                "Could not use the `{}` method for select statements",
+                "could not use the `{}` method for select statements",
                 method_name
             )))
         }

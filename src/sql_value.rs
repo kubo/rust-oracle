@@ -400,7 +400,7 @@ impl SqlValue<'_> {
     fn lob_locator_is_not_set<T>(&self, to_type: &str) -> Result<T> {
         match self.oratype {
             Some(_) => Err(Error::InvalidOperation(format!(
-                "Please use StatementBuilder.lob_locator() to fetch LOB data as {}",
+                "use StatementBuilder.lob_locator() instead to fetch LOB data as {}",
                 to_type
             ))),
             None => Err(Error::UninitializedBindValue),

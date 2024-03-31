@@ -103,7 +103,7 @@ impl GetMode {
                 Ok(Some(msecs))
             } else {
                 Err(Error::OutOfRange(format!(
-                    "Too long timed wait duration {:?}",
+                    "too long timed wait duration {:?}",
                     dur
                 )))
             }
@@ -137,7 +137,7 @@ impl I32Seconds {
         if let Some(dur) = dur {
             match dur.as_secs().try_into() {
                 Ok(secs) => Ok(I32Seconds(secs)),
-                Err(_) => Err(Error::OutOfRange(format!("Too long {} {:?}", msg, dur))),
+                Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
             }
         } else {
             Ok(I32Seconds(-1))
@@ -261,7 +261,7 @@ impl U32Seconds {
     fn try_from(dur: Duration, msg: &str) -> Result<U32Seconds> {
         match dur.as_secs().try_into() {
             Ok(secs) => Ok(U32Seconds(secs)),
-            Err(_) => Err(Error::OutOfRange(format!("Too long {} {:?}", msg, dur))),
+            Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
         }
     }
 }
@@ -273,7 +273,7 @@ impl U32Milliseconds {
     fn try_from(dur: Duration, msg: &str) -> Result<U32Milliseconds> {
         match dur.as_millis().try_into() {
             Ok(secs) => Ok(U32Milliseconds(secs)),
-            Err(_) => Err(Error::OutOfRange(format!("Too long {} {:?}", msg, dur))),
+            Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
         }
     }
 }

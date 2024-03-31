@@ -263,7 +263,7 @@ fn udt_stringlist() -> Result<()> {
 
     // out of index
     let err = obj.next_index(idx).unwrap_err();
-    assert_eq!(err.to_string(), "No data found");
+    assert_eq!(err.to_string(), "no data found");
 
     // previous indexes from last
     let idx = obj.last_index()?;
@@ -275,7 +275,7 @@ fn udt_stringlist() -> Result<()> {
     let idx = obj.prev_index(idx)?;
     assert_eq!(idx, -1048576);
     let err = obj.prev_index(idx).unwrap_err();
-    assert_eq!(err.to_string(), "No data found");
+    assert_eq!(err.to_string(), "no data found");
     Ok(())
 }
 

@@ -153,7 +153,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
 
     pub fn build(&self) -> Result<Batch<'conn>> {
         let batch_size = u32::try_from(self.batch_size)
-            .map_err(|_| Error::OutOfRange(format!("too large batch_size: {}", self.batch_size)))?;
+            .map_err(|_| Error::OutOfRange(format!("too large batch size {}", self.batch_size)))?;
         let conn = self.conn;
         let sql = to_odpi_str(self.sql);
         let mut handle: *mut dpiStmt = ptr::null_mut();
@@ -183,7 +183,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
                 dpiStmt_release(handle);
             }
             let msg = format!(
-                "Could not use {} statement",
+                "could not use {} statement",
                 StatementType::from_enum(info.statementType)
             );
             return Err(Error::InvalidOperation(msg));
@@ -574,7 +574,7 @@ impl<'conn> Batch<'conn> {
             Ok(())
         } else {
             Err(Error::OutOfRange(format!(
-                "Over the max batch size {}",
+                "over the max batch size {}",
                 self.batch_size
             )))
         }
@@ -601,7 +601,7 @@ impl<'conn> Batch<'conn> {
         let pos = bindidx.idx(self)?;
         if self.bind_types[pos].is_some() {
             return Err(Error::InvalidOperation(format!(
-                "The bind parameter type at {} has been specified already.",
+                "type at {} has set already",
                 bindidx
             )));
         }

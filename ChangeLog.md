@@ -23,6 +23,7 @@ New features:
 
 Changes:
 
+* Error messages are changed to follow "Error messages are typically concise lowercase sentences without trailing punctuation"
 * Update ODPI-C to 5.1.0. (see [ODPI-C release notes])
 * Update minimum supported Rust version to 1.60.0
 * Update rust edition to 2021
