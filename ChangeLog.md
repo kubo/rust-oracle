@@ -8,6 +8,8 @@ Breaking changes:
 * Add a new variant [`OracleType::Xml`]
 * Add a lifetime parameter to [`SqlValue`]
 * Remove [`SqlValue::dup`]
+* Add [`#[non_exhaustive]`] to [`Error`]
+* Remove deprecated trait method [`Error::description`] implemented for [`Error`]
 
 New features:
 
@@ -28,6 +30,8 @@ Changes:
 * Update minimum supported Rust version to 1.60.0
 * Update rust edition to 2021
 * Change a undocumented method of the sealed trait [`ColumnIndex`]
+* Add `#[drive(Debug)]` for [`Error`] instead of explicitly implementing `Debug` for `Error`
+* Implement `Error::source` for `Error`
 
 ## 0.5.7 (2023-01-30)
 
@@ -412,6 +416,9 @@ Incompatible changes:
 [GH-54]: https://github.com/kubo/rust-oracle/issues/54
 [GH-62]: https://github.com/kubo/rust-oracle/pull/62
 [chrono]: https://docs.rs/chrono/latest/chrono/index.html
+[`#[non_exhaustive]`]: https://doc.rust-lang.org/reference/attributes/type_system.html#the-non_exhaustive-attribute
+[`Error::description`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.description
+[`Error::source`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
 [`pool`]: https://www.jiubao.org/rust-oracle/oracle/pool/index.html
 [`Batch`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html
 [`Collection`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html
@@ -451,6 +458,7 @@ Incompatible changes:
 [`DbError::message()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.message
 [`DbError::offset()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.offset
 [`Eq`]: https://doc.rust-lang.org/std/cmp/trait.Eq.html
+[`Error`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html
 [`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql

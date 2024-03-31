@@ -32,8 +32,9 @@ use std::str;
 use std::sync;
 
 /// Enum listing possible errors from rust-oracle.
+#[non_exhaustive]
+#[derive(Debug)]
 pub enum Error {
-    // TODO: add #[non_exhaustive] at timing when incompatible changes are introduced.
     /// Error from an underlying Oracle client library.
     OciError(DbError),
 
@@ -211,62 +212,10 @@ impl fmt::Display for Error {
     }
 }
 
-impl fmt::Debug for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Error::OciError(ref err) => write!(f, "OciError({:?})", err),
-            Error::DpiError(ref err) => write!(f, "DpiError({:?})", err),
-            Error::NullValue => write!(f, "NullValue"),
-            Error::ParseError(ref err) => write!(f, "ParseError({:?})", err),
-            Error::OutOfRange(ref msg) => write!(f, "OutOfRange({:?})", msg),
-            Error::InvalidTypeConversion(ref from, ref to) => {
-                write!(f, "InvalidTypeConversion(from: {:?}, to: {:?})", from, to)
-            }
-            Error::InvalidBindIndex(ref idx) => write!(f, "InvalidBindIndex({:?})", idx),
-            Error::InvalidBindName(ref name) => write!(f, "InvalidBindName({:?})", name),
-            Error::InvalidColumnIndex(ref idx) => write!(f, "InvalidColumnIndex({:?})", idx),
-            Error::InvalidColumnName(ref name) => write!(f, "InvalidColumnName({:?})", name),
-            Error::InvalidAttributeName(ref name) => write!(f, "InvalidAttributeName({:?})", name),
-            Error::InvalidOperation(ref msg) => write!(f, "InvalidOperation({:?})", msg),
-            Error::UninitializedBindValue => write!(f, "UninitializedBindValue"),
-            Error::NoDataFound => write!(f, "NoDataFound"),
-            Error::BatchErrors(ref errs) => {
-                write!(f, "BatchErrors(")?;
-                for err in errs {
-                    write!(f, "{:?}, ", err)?;
-                }
-                write!(f, ")")
-            }
-            Error::InternalError(ref msg) => write!(f, "InternalError({:?})", msg),
-        }
-    }
-}
-
 impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::OciError(_) => "Oracle OCI error",
-            Error::DpiError(_) => "ODPI-C error",
-            Error::NullValue => "NULL value",
-            Error::ParseError(_) => "parse error",
-            Error::OutOfRange(_) => "out of range",
-            Error::InvalidTypeConversion(_, _) => "invalid type conversion",
-            Error::InvalidBindIndex(_) => "invalid bind index",
-            Error::InvalidBindName(_) => "invalid bind name",
-            Error::InvalidColumnIndex(_) => "invalid column index",
-            Error::InvalidColumnName(_) => "invalid column name",
-            Error::InvalidAttributeName(_) => "invalid attribute name",
-            Error::InvalidOperation(_) => "invalid operation",
-            Error::UninitializedBindValue => "uninitialided bind value error",
-            Error::NoDataFound => "no data found",
-            Error::BatchErrors(_) => "batch errors",
-            Error::InternalError(_) => "internal error",
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn error::Error> {
-        match *self {
-            Error::ParseError(ref err) => Some(err.as_ref()),
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match self {
+            Error::ParseError(err) => Some(err.as_ref()),
             _ => None,
         }
     }
