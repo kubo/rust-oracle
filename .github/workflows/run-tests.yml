@@ -90,7 +90,7 @@ jobs:
       - name: Downgrade dependent crates to use them with oracle crate's MSRV if the rust toolchain isn't stable
         if: matrix.rust_toolchain != 'stable'
         run: |
-          cargo update -p chrono --precise 0.4.31
+          cargo update -p chrono --precise 0.4.20
           cargo update -p cc --precise 1.0.94
 
       - name: Create Oracle users and schema
