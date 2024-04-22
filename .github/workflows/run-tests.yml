@@ -82,15 +82,16 @@ jobs:
           echo ODPIC_TEST_CONNECT_STRING=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
           echo NLS_LANG=AMERICAN_AMERICA.AL32UTF8 >> $GITHUB_ENV
 
-      - name: install rust
+      - name: Install rust
         run: |
           rustup install ${{ matrix.rust_toolchain }}
           rustup target add x86_64-pc-windows-gnu --toolchain ${{ matrix.rust_toolchain }}
 
-      - name: Downgrade chrono to 0.4.31, whose MSRV is 1.57.0, if the rust toolchain isn't stable
+      - name: Downgrade dependent crates to use them with oracle crate's MSRV if the rust toolchain isn't stable
         if: matrix.rust_toolchain != 'stable'
         run: |
           cargo update -p chrono --precise 0.4.31
+          cargo update -p cc --precise 1.0.94
 
       - name: Create Oracle users and schema
         run: |
