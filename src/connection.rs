@@ -57,7 +57,6 @@ use crate::Row;
 use crate::RowValue;
 use crate::Statement;
 use crate::StatementBuilder;
-use crate::StmtParam;
 use crate::Version;
 
 struct ServerStatus;
@@ -787,73 +786,6 @@ impl Connection {
     /// ```
     pub fn statement<'conn, 'sql>(&'conn self, sql: &'sql str) -> StatementBuilder<'conn, 'sql> {
         StatementBuilder::new(self, sql)
-    }
-
-    /// Creates a [`Statement`][] with parameters
-    ///
-    /// This is marked as [deprecated][]. Use [`statement(sql).build()`](#method.statement)
-    /// instead. The `statement()` method was added to follow [this API guideline](https://rust-lang.github.io/api-guidelines/type-safety.html#c-builder).
-    ///
-    /// [deprecated]: https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html
-    ///
-    /// # Examples
-    ///
-    /// Executes a SQL statement with different parameters.
-    ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// # #[allow(deprecated)]
-    /// # fn main() -> Result<()> {
-    /// # let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &[])?;
-    ///
-    /// let emp_list = [
-    ///     (7369, "Smith"),
-    ///     (7499, "Allen"),
-    ///     (7521, "Ward"),
-    /// ];
-    ///
-    /// // insert rows using positional parameters
-    /// for emp in &emp_list {
-    ///    stmt.execute(&[&emp.0, &emp.1])?;
-    /// }
-    ///
-    /// let emp_list = [
-    ///     (7566, "Jones"),
-    ///     (7654, "Martin"),
-    ///     (7698, "Blake"),
-    /// ];
-    ///
-    /// // insert rows using named parameters
-    /// for emp in &emp_list {
-    ///    stmt.execute_named(&[("id", &emp.0), ("name", &emp.1)])?;
-    /// }
-    /// # Ok(()) }
-    /// ```
-    ///
-    /// Query methods in Connection allocate memory for 100 rows by default
-    /// to reduce the number of network round trips in case that many rows are
-    /// fetched. When 100 isn't preferable, use `StmtParam::FetchArraySize(u32)`
-    /// to customize it.
-    ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// # #[allow(deprecated)]
-    /// # fn main() -> Result<()> {
-    /// # let conn = Connection::connect("scott", "tiger", "")?;
-    /// // fetch top 10 rows.
-    /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum <= 10",
-    ///                             &[StmtParam::FetchArraySize(10)])?;
-    /// for row_result in stmt.query_as::<(i32, String)>(&[])? {
-    ///     let (empno, ename) = row_result?;
-    ///     println!("empno: {}, ename: {}", empno, ename);
-    /// }
-    /// # Ok(()) }
-    /// ```
-    ///
-    #[deprecated(since = "0.5.3", note = "Use Connection::statement instead.")]
-    pub fn prepare(&self, sql: &str, params: &[StmtParam]) -> Result<Statement> {
-        Statement::from_params(self, sql, params)
     }
 
     /// Creates [BatchBuilder][]

@@ -184,12 +184,6 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
         self
     }
 
-    // make the visibility public when scrollable cursors is supported.
-    fn scrollable(&mut self, scrollable: bool) -> &mut StatementBuilder<'conn, 'sql> {
-        self.scrollable = scrollable;
-        self
-    }
-
     /// Specifies the key to be used for searching for the statement in the statement cache.
     /// If the key is not found, the SQL text specified by [`Connection::statement`] is used
     /// to create a statement.
@@ -259,32 +253,6 @@ impl<'conn, 'sql> StatementBuilder<'conn, 'sql> {
     pub fn build(&self) -> Result<Statement> {
         Statement::new(self)
     }
-}
-
-/// Parameters of [`Connection::prepare`]
-///
-/// No new variants are added to this enum in the future. That's because
-/// a new variant causes breaking changes. New configuration parameters
-/// are set via [`StatementBuilder`][] instead.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum StmtParam {
-    /// The array size used for performing fetches.
-    ///
-    /// This specifies the number of rows allocated before performing
-    /// fetches. The default value is 100. Higher value reduces
-    /// the number of network round trips to fetch rows but requires
-    /// more memory. The preferable value depends on the query and
-    /// the environment.
-    ///
-    /// If the query returns only onw row, you should use
-    /// `StmtParam::FetchArraySize(1)`.
-    FetchArraySize(u32),
-
-    /// See [`StatementBuilder::tag`].
-    Tag(String),
-
-    /// Reserved for when scrollable cursors are supported.
-    Scrollable,
 }
 
 /// Statement type returned by [`Statement::statement_type`].
@@ -510,28 +478,6 @@ pub struct Statement {
 }
 
 impl Statement {
-    pub(crate) fn from_params(
-        conn: &Connection,
-        sql: &str,
-        params: &[StmtParam],
-    ) -> Result<Statement> {
-        let mut builder = conn.statement(sql);
-        for param in params {
-            match param {
-                StmtParam::FetchArraySize(size) => {
-                    builder.fetch_array_size(*size);
-                }
-                StmtParam::Scrollable => {
-                    builder.scrollable(true);
-                }
-                StmtParam::Tag(name) => {
-                    builder.tag(name);
-                }
-            }
-        }
-        builder.build()
-    }
-
     fn new(builder: &StatementBuilder<'_, '_>) -> Result<Statement> {
         let conn = builder.conn;
         let sql = to_odpi_str(builder.sql);

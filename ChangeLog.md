@@ -10,6 +10,7 @@ Breaking changes:
 * Remove [`SqlValue::dup`]
 * Add [`#[non_exhaustive]`] to [`Error`]
 * Remove deprecated trait method [`Error::description`] for [`Error`]
+* Remove [`Connection::prepare()`] and [`StmtParam`]
 
 Deprecated:
 * All variants in [`Error`] enum are deprecated. The enum will be changed to struct in the future.
@@ -439,7 +440,7 @@ Incompatible changes:
 [`Connection::is_new_connection()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.is_new_connection
 [`Connection::last_warning()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.last_warning
 [`Connection::object_type()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.object_type
-[`Connection::prepare()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.prepare
+[`Connection::prepare()`]: https://docs.rs/oracle/0.5.*/oracle/struct.Connection.html#method.prepare
 [`Connection::query()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query
 [`Connection::query_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_named
 [`Connection::query_as()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.query_as
@@ -509,5 +510,5 @@ Incompatible changes:
 [`StatementBuilder::exclude_from_cache()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.exclude_from_cache
 [`StatementBuilder::prefetch_rows()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.prefetch_rows
 [`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
-[`StmtParam`]: https://www.jiubao.org/rust-oracle/oracle/enum.StmtParam.html
-[`StmtParam::FetchArraySize`]: https://www.jiubao.org/rust-oracle/oracle/enum.StmtParam.html#variant.FetchArraySize
+[`StmtParam`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html
+[`StmtParam::FetchArraySize`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html#variant.FetchArraySize
