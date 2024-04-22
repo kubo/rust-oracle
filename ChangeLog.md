@@ -9,7 +9,10 @@ Breaking changes:
 * Add a lifetime parameter to [`SqlValue`]
 * Remove [`SqlValue::dup`]
 * Add [`#[non_exhaustive]`] to [`Error`]
-* Remove deprecated trait method [`Error::description`] implemented for [`Error`]
+* Remove deprecated trait method [`Error::description`] for [`Error`]
+
+Deprecated:
+* All variants in [`Error`] enum are deprecated. The enum will be changed to struct in the future.
 
 New features:
 
@@ -21,7 +24,7 @@ New features:
   * [`Row`]
   * [`SqlValue`]
   * [`Object`]
-  * [`Collection`].
+  * [`Collection`]
 
 Changes:
 

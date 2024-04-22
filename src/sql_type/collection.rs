@@ -1,5 +1,6 @@
 use crate::sql_type::{Collection, FromSql};
-use crate::{Error, Result};
+use crate::ErrorKind;
+use crate::Result;
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
 
@@ -19,7 +20,7 @@ impl State {
         };
         match index_result {
             Ok(index) => Ok(State::Current(index)),
-            Err(Error::NoDataFound) => Ok(State::End),
+            Err(err) if err.kind() == ErrorKind::NoDataFound => Ok(State::End),
             Err(err) => Err(err),
         }
     }
@@ -32,7 +33,7 @@ impl State {
         };
         match index_result {
             Ok(index) => Ok(State::Current(index)),
-            Err(Error::NoDataFound) => Ok(State::Begin),
+            Err(err) if err.kind() == ErrorKind::NoDataFound => Ok(State::Begin),
             Err(err) => Err(err),
         }
     }

@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 use oracle::sql_type::{FromSql, OracleType, ToSql};
-use oracle::{Connection, Error, Result, Row, RowValue, Version};
+use oracle::{Connection, Result, Row, RowValue, Version};
 use std::env;
 use std::thread::sleep;
 use std::time;
@@ -306,7 +306,7 @@ pub fn truncate_table(conn: &Connection, table_name: &str) -> Result<()> {
     loop {
         match conn.execute(&sql, &[]) {
             Ok(_) => return Ok(()),
-            Err(Error::OciError(err)) if retry_count < 3 && err.code() == 54 => {
+            Err(err) if retry_count < 3 && err.oci_code() == Some(54) => {
                 // ORA-00054: resource busy and acquire with NOWAIT specified or timeout expired
                 sleep(time::Duration::from_secs(1));
                 retry_count += 1;

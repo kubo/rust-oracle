@@ -250,7 +250,7 @@ impl OracleType {
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
             DPI_ORACLE_TYPE_JSON => Ok(OracleType::Json),
             DPI_ORACLE_TYPE_XMLTYPE => Ok(OracleType::Xml),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown Oracle type number {}",
                 info.oracleTypeNum
             ))),
@@ -313,7 +313,7 @@ impl OracleType {
             OracleType::Xml => Ok((DPI_ORACLE_TYPE_XMLTYPE, NativeType::Char, 0, 0)),
             OracleType::Int64 => Ok((DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64, 0, 0)),
             OracleType::UInt64 => Ok((DPI_ORACLE_TYPE_NATIVE_UINT, NativeType::UInt64, 0, 0)),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unsupported Oracle type {}",
                 self
             ))),

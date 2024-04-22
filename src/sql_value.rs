@@ -52,6 +52,7 @@ use crate::DpiObject;
 use crate::DpiStmt;
 use crate::DpiVar;
 use crate::Error;
+use crate::ErrorKind;
 use crate::Result;
 
 macro_rules! flt_to_int {
@@ -62,7 +63,7 @@ macro_rules! flt_to_int {
         {
             Ok(src_val as $dest_type)
         } else {
-            Err(Error::OutOfRange(format!(
+            Err(Error::out_of_range(format!(
                 "{} overflow: {}",
                 stringify!($dest_type),
                 src_val.to_string(),
@@ -320,9 +321,7 @@ impl SqlValue<'_> {
         if let DpiData::Var(var, _) = &self.data {
             Ok(var.raw)
         } else {
-            Err(Error::InternalError(
-                "dpVar handle isn't initialized".into(),
-            ))
+            Err(Error::internal_error("dpVar handle isn't initialized"))
         }
     }
 
@@ -332,7 +331,7 @@ impl SqlValue<'_> {
                 DpiData::Data(ref data) => *data as *const dpiData as *mut dpiData,
                 DpiData::Var(_, data) => data,
                 DpiData::Null => {
-                    return Err(Error::InternalError("dpData isn't initialized".into()));
+                    return Err(Error::internal_error("dpData isn't initialized"));
                 }
             }
             .offset(self.buffer_row_index() as isize))
@@ -378,38 +377,32 @@ impl SqlValue<'_> {
     }
 
     fn invalid_conversion_to_rust_type<T>(&self, to_type: &str) -> Result<T> {
-        match self.oratype {
-            Some(ref oratype) => Err(Error::InvalidTypeConversion(
-                oratype.to_string(),
-                to_type.to_string(),
-            )),
-            None => Err(Error::UninitializedBindValue),
-        }
+        Err(match self.oratype {
+            Some(ref oratype) => Error::invalid_type_conversion(oratype.to_string(), to_type),
+            None => Error::uninitialized_bind_value(),
+        })
     }
 
     fn invalid_conversion_from_rust_type<T>(&self, from_type: &str) -> Result<T> {
-        match self.oratype {
-            Some(ref oratype) => Err(Error::InvalidTypeConversion(
-                from_type.to_string(),
-                oratype.to_string(),
-            )),
-            None => Err(Error::UninitializedBindValue),
-        }
+        Err(match self.oratype {
+            Some(ref oratype) => Error::invalid_type_conversion(from_type, oratype.to_string()),
+            None => Error::uninitialized_bind_value(),
+        })
     }
 
     fn lob_locator_is_not_set<T>(&self, to_type: &str) -> Result<T> {
         match self.oratype {
-            Some(_) => Err(Error::InvalidOperation(format!(
+            Some(_) => Err(Error::invalid_operation(format!(
                 "use StatementBuilder.lob_locator() instead to fetch LOB data as {}",
                 to_type
             ))),
-            None => Err(Error::UninitializedBindValue),
+            None => Err(Error::uninitialized_bind_value()),
         }
     }
 
     fn check_not_null(&self) -> Result<()> {
         if self.is_null()? {
-            Err(Error::NullValue)
+            Err(Error::null_value())
         } else {
             Ok(())
         }
@@ -430,7 +423,7 @@ impl SqlValue<'_> {
     pub fn oracle_type(&self) -> Result<&OracleType> {
         match self.oratype {
             Some(ref oratype) => Ok(oratype),
-            None => Err(Error::UninitializedBindValue),
+            None => Err(Error::uninitialized_bind_value()),
         }
     }
 
@@ -726,7 +719,7 @@ impl SqlValue<'_> {
                 );
                 Ok(())
             }
-            DpiData::Null => Err(Error::InternalError("dpiData isn't initialized".into())),
+            DpiData::Null => Err(Error::internal_error("dpiData isn't initialized")),
         }
     }
 
@@ -820,7 +813,7 @@ impl SqlValue<'_> {
                 );
                 Ok(())
             }
-            DpiData::Null => Err(Error::InternalError("dpiData isn't initialized".into())),
+            DpiData::Null => Err(Error::internal_error("dpiData isn't initialized")),
         }
     }
 
@@ -1321,7 +1314,7 @@ impl fmt::Display for SqlValue<'_> {
         if self.oratype.is_some() {
             match self.to_string() {
                 Ok(s) => write!(f, "{}", s),
-                Err(Error::NullValue) => write!(f, "NULL"),
+                Err(err) if err.kind() == ErrorKind::NullValue => write!(f, "NULL"),
                 Err(err) => write!(f, "{}", err),
             }
         } else {
@@ -1341,7 +1334,7 @@ impl fmt::Debug for SqlValue<'_> {
                     }
                     _ => write!(f, "{}", s),
                 },
-                Err(Error::NullValue) => write!(f, "NULL"),
+                Err(err) if err.kind() == ErrorKind::NullValue => write!(f, "NULL"),
                 Err(err) => write!(f, "{}", err),
             }?;
             write!(

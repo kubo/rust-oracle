@@ -19,7 +19,7 @@ use std::str;
 use std::time::Duration;
 
 use crate::sql_type::OracleType;
-use crate::Error;
+use crate::ErrorKind;
 use crate::ParseOracleTypeError;
 use crate::Result;
 
@@ -165,8 +165,8 @@ pub fn write_literal(
     s: &Result<String>,
     oratype: &OracleType,
 ) -> fmt::Result {
-    match *s {
-        Ok(ref s) => match *oratype {
+    match s {
+        Ok(s) => match *oratype {
             OracleType::Varchar2(_)
             | OracleType::NVarchar2(_)
             | OracleType::Char(_)
@@ -190,8 +190,8 @@ pub fn write_literal(
             }
             _ => write!(f, "{}", s),
         },
-        Err(Error::NullValue) => write!(f, "NULL"),
-        Err(ref err) => write!(f, "ERR({})", err),
+        Err(err) if err.kind() == ErrorKind::NullValue => write!(f, "NULL"),
+        Err(err) => write!(f, "ERR({})", err),
     }
 }
 

@@ -173,7 +173,10 @@ impl Payload for Object {
     }
 
     fn get(props: &MsgProps<Self>) -> Result<Object> {
-        let objtype = props.payload_type.as_ref().ok_or(Error::NoDataFound)?;
+        let objtype = props
+            .payload_type
+            .as_ref()
+            .ok_or_else(Error::no_data_found)?;
         let mut obj_handle = DpiObject::null();
         chkerr!(
             props.ctxt(),
@@ -390,7 +393,7 @@ impl MessageDeliveryMode {
             DPI_MODE_MSG_PERSISTENT => Ok(MessageDeliveryMode::Persistent),
             DPI_MODE_MSG_BUFFERED => Ok(MessageDeliveryMode::Buffered),
             DPI_MODE_MSG_PERSISTENT_OR_BUFFERED => Ok(MessageDeliveryMode::PersistentOrBuffered),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown dpiMessageDeliveryMode {}",
                 val
             ))),
@@ -430,7 +433,7 @@ impl MessageState {
             DPI_MSG_STATE_WAITING => Ok(MessageState::Waiting),
             DPI_MSG_STATE_PROCESSED => Ok(MessageState::Processed),
             DPI_MSG_STATE_EXPIRED => Ok(MessageState::Expired),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown dpiMessageState {}",
                 val
             ))),
@@ -467,7 +470,7 @@ impl DeqMode {
             DPI_MODE_DEQ_LOCKED => Ok(DeqMode::Locked),
             DPI_MODE_DEQ_REMOVE => Ok(DeqMode::Remove),
             DPI_MODE_DEQ_REMOVE_NO_DATA => Ok(DeqMode::RemoveNoData),
-            _ => Err(Error::InternalError(format!("unknown dpiDeqMode {}", val))),
+            _ => Err(Error::internal_error(format!("unknown dpiDeqMode {}", val))),
         }
     }
 
@@ -507,7 +510,7 @@ impl DeqNavigation {
             DPI_DEQ_NAV_FIRST_MSG => Ok(DeqNavigation::FirstMessage),
             DPI_DEQ_NAV_NEXT_TRANSACTION => Ok(DeqNavigation::NextTransaction),
             DPI_DEQ_NAV_NEXT_MSG => Ok(DeqNavigation::NextMessage),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown dpiDeqNavigation {}",
                 val
             ))),
@@ -541,7 +544,7 @@ impl Visibility {
         match val {
             DPI_VISIBILITY_IMMEDIATE => Ok(Visibility::Immediate),
             DPI_VISIBILITY_ON_COMMIT => Ok(Visibility::OnCommit),
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown dpiVisibility {}",
                 val
             ))),
@@ -1076,7 +1079,7 @@ where
     pub fn set_delay(&mut self, val: &Duration) -> Result<()> {
         let secs = val.as_secs();
         if secs > i32::max_value() as u64 {
-            Err(Error::OutOfRange(format!("too long duration {:?}", val)))
+            Err(Error::out_of_range(format!("too long duration {:?}", val)))
         } else {
             chkerr!(
                 self.ctxt(),
@@ -1116,7 +1119,7 @@ where
     pub fn set_expiration(&mut self, val: &Duration) -> Result<()> {
         let secs = val.as_secs();
         if secs > i32::max_value() as u64 {
-            Err(Error::OutOfRange(format!("too long duration {:?}", val)))
+            Err(Error::out_of_range(format!("too long duration {:?}", val)))
         } else {
             chkerr!(
                 self.ctxt(),

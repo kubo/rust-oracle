@@ -16,7 +16,7 @@
 mod common;
 
 use oracle::sql_type::{IntervalDS, IntervalYM, OracleType, Timestamp};
-use oracle::{Error, Result};
+use oracle::{ErrorKind, Result};
 
 macro_rules! chk_num_from {
     ($conn:ident, $val_from:expr, $val_to:expr, $(($T:ident, $success:tt)),+) => {
@@ -35,9 +35,8 @@ macro_rules! chk_num_from {
     };
     ($row:ident, $val:expr, $T:ident, false) => {
         let err = $row.get_as::<$T>().unwrap_err();
-        match err {
-            Error::ParseError(_) => (),
-            _ => panic!("Unexpected error: {}", err),
+        if err.kind() != ErrorKind::ParseError {
+            panic!("Unexpected error: {}", err);
         }
     };
 }
@@ -828,7 +827,7 @@ mod chrono {
     use chrono::prelude::*;
     use chrono::Duration;
     use oracle::sql_type::OracleType;
-    use oracle::{Error, Result};
+    use oracle::{ErrorKind, Result};
 
     //
     // chrono::DateTime<Utc>
@@ -1260,11 +1259,8 @@ mod chrono {
         // Overflow
         let d = Duration::days(1000000000);
         let mut stmt = conn.statement("begin :out := TO_CHAR(:1); end;").build()?;
-        let bind_result = stmt.bind(2, &d);
-        if let Err(Error::OutOfRange(_)) = bind_result { /* OK */
-        } else {
-            panic!("Duration 1000000000 days should not be converted to interval day to second!");
-        }
+        let err = stmt.bind(2, &d).expect_err("expect out of range error");
+        assert_eq!(err.kind(), ErrorKind::OutOfRange);
         Ok(())
     }
 }

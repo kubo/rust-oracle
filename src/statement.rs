@@ -698,7 +698,7 @@ impl Statement {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row(&mut self, params: &[&dyn ToSql]) -> Result<Row> {
         let mut rows = self.query(params)?;
-        rows.next().unwrap_or(Err(Error::NoDataFound))
+        rows.next().unwrap_or(Err(Error::no_data_found()))
     }
 
     /// Gets one row from the prepared statement using named bind parameters.
@@ -708,7 +708,7 @@ impl Statement {
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     pub fn query_row_named(&mut self, params: &[(&str, &dyn ToSql)]) -> Result<Row> {
         let mut rows = self.query_named(params)?;
-        rows.next().unwrap_or(Err(Error::NoDataFound))
+        rows.next().unwrap_or(Err(Error::no_data_found()))
     }
 
     /// Gets one row from the prepared statement as specified type using positoinal bind parameters.
@@ -721,7 +721,7 @@ impl Statement {
         T: RowValue,
     {
         let mut rows = self.query_as::<T>(params)?;
-        rows.next().unwrap_or(Err(Error::NoDataFound))
+        rows.next().unwrap_or(Err(Error::no_data_found()))
     }
 
     /// Gets one row from the prepared statement as specified type using named bind parameters.
@@ -734,7 +734,7 @@ impl Statement {
         T: RowValue,
     {
         let mut rows = self.query_as_named::<T>(params)?;
-        rows.next().unwrap_or(Err(Error::NoDataFound))
+        rows.next().unwrap_or(Err(Error::no_data_found()))
     }
 
     /// Binds values by position and executes the statement.
@@ -797,7 +797,7 @@ impl Statement {
             if self.statement_type == StatementType::Select {
                 Ok(())
             } else {
-                Err(Error::InvalidOperation(format!(
+                Err(Error::invalid_operation(format!(
                     "could not use the `{}` method for non-select statements",
                     method_name
                 )))
@@ -805,7 +805,7 @@ impl Statement {
         } else if self.statement_type != StatementType::Select {
             Ok(())
         } else {
-            Err(Error::InvalidOperation(format!(
+            Err(Error::invalid_operation(format!(
                 "could not use the `{}` method for select statements",
                 method_name
             )))
@@ -1367,7 +1367,7 @@ impl BindIndex for usize {
         if 0 < num && 1 <= *self && *self <= num {
             Ok(*self - 1)
         } else {
-            Err(Error::InvalidBindIndex(*self))
+            Err(Error::invalid_bind_index(*self))
         }
     }
 
@@ -1382,7 +1382,7 @@ impl BindIndex for &str {
         stmt.bind_names()
             .iter()
             .position(|&name| name == bindname)
-            .ok_or_else(|| Error::InvalidBindName((*self).to_string()))
+            .ok_or_else(|| Error::invalid_bind_name(*self))
     }
 
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
@@ -1406,7 +1406,7 @@ impl ColumnIndex for usize {
         if *self < ncols {
             Ok(*self)
         } else {
-            Err(Error::InvalidColumnIndex(*self))
+            Err(Error::invalid_column_index(*self))
         }
     }
 }
@@ -1418,7 +1418,7 @@ impl ColumnIndex for &str {
                 return Ok(idx);
             }
         }
-        Err(Error::InvalidColumnName((*self).to_string()))
+        Err(Error::invalid_column_name(*self))
     }
 }
 

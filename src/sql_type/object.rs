@@ -267,7 +267,7 @@ impl Collection {
         if exists != 0 {
             Ok(index)
         } else {
-            Err(Error::NoDataFound)
+            Err(Error::no_data_found())
         }
     }
 
@@ -284,7 +284,7 @@ impl Collection {
         if exists != 0 {
             Ok(index)
         } else {
-            Err(Error::NoDataFound)
+            Err(Error::no_data_found())
         }
     }
 
@@ -301,7 +301,7 @@ impl Collection {
         if exists != 0 {
             Ok(next)
         } else {
-            Err(Error::NoDataFound)
+            Err(Error::no_data_found())
         }
     }
 
@@ -318,7 +318,7 @@ impl Collection {
         if exists != 0 {
             Ok(prev)
         } else {
-            Err(Error::NoDataFound)
+            Err(Error::no_data_found())
         }
     }
 
@@ -546,7 +546,7 @@ impl Object {
                 return Ok(attr);
             }
         }
-        Err(Error::InvalidAttributeName(name.to_string()))
+        Err(Error::invalid_attribute_name(name))
     }
 
     pub(crate) fn get_by_attr<T>(&self, attr: &ObjectTypeAttr) -> Result<T>
@@ -778,7 +778,7 @@ impl ObjectType {
     /// Create a new Oracle object.
     pub fn new_object(&self) -> Result<Object> {
         if self.is_collection() {
-            return Err(Error::InvalidOperation(format!(
+            return Err(Error::invalid_operation(format!(
                 "{}.{} isn't object type.",
                 self.schema(),
                 self.name()
@@ -796,7 +796,7 @@ impl ObjectType {
     /// Create a new collection.
     pub fn new_collection(&self) -> Result<Collection> {
         if !self.is_collection() {
-            return Err(Error::InvalidOperation(format!(
+            return Err(Error::invalid_operation(format!(
                 "{}.{} isn't collection type.",
                 self.schema(),
                 self.name()

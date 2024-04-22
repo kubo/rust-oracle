@@ -26,6 +26,7 @@ use std::time::Duration;
 use crate::binding::*;
 use crate::chkerr;
 use crate::conn::{CloseMode, Purity};
+use crate::error::DPI_ERR_NOT_CONNECTED;
 use crate::new_odpi_str;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::handle::ConnHandle;
@@ -1233,14 +1234,12 @@ impl Connection {
             Ok(status) => match status {
                 OCI_SERVER_NOT_CONNECTED => Ok(ConnStatus::NotConnected),
                 OCI_SERVER_NORMAL => Ok(ConnStatus::Normal),
-                _ => Err(Error::InternalError(format!(
+                _ => Err(Error::internal_error(format!(
                     "unexpected server status {}",
                     status
                 ))),
             },
-            Err(Error::DpiError(err)) if err.message() == "DPI-1010: not connected" => {
-                Ok(ConnStatus::Closed)
-            }
+            Err(err) if err.dpi_code() == Some(DPI_ERR_NOT_CONNECTED) => Ok(ConnStatus::Closed),
             Err(err) => Err(err),
         }
     }
@@ -1295,7 +1294,7 @@ impl Connection {
     ///
     /// [Password Change Life Cycle]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-BED74427-BC63-4095-8829-1AF68411FC6B
     pub fn last_warning(&self) -> Option<Error> {
-        self.ctxt().last_warning().map(Error::OciError)
+        self.ctxt().last_warning().map(Error::oci_error)
     }
 
     /// Gets the statement cache size
@@ -1390,13 +1389,13 @@ impl Connection {
     pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
         if let Some(dur) = dur {
             let msecs = duration_to_msecs(dur).ok_or_else(|| {
-                Error::OutOfRange(format!(
+                Error::out_of_range(format!(
                     "too long duration {:?}. It must be less than 49.7 days",
                     dur
                 ))
             })?;
             if msecs == 0 {
-                return Err(Error::OutOfRange(format!(
+                return Err(Error::out_of_range(format!(
                     "too short duration {:?}. It must not be submilliseconds",
                     dur
                 )));

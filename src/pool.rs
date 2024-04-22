@@ -99,13 +99,13 @@ impl GetMode {
 
     fn to_wait_timeout(self) -> Result<Option<u32>> {
         if let GetMode::TimedWait(ref dur) = self {
-            if let Ok(msecs) = dur.as_millis().try_into() {
-                Ok(Some(msecs))
-            } else {
-                Err(Error::OutOfRange(format!(
+            match dur.as_millis().try_into() {
+                Ok(msecs) => Ok(Some(msecs)),
+                Err(err) => Err(Error::out_of_range(format!(
                     "too long timed wait duration {:?}",
                     dur
-                )))
+                ))
+                .add_source(err)),
             }
         } else {
             Ok(None)
@@ -137,7 +137,9 @@ impl I32Seconds {
         if let Some(dur) = dur {
             match dur.as_secs().try_into() {
                 Ok(secs) => Ok(I32Seconds(secs)),
-                Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
+                Err(err) => {
+                    Err(Error::out_of_range(format!("too long {} {:?}", msg, dur)).add_source(err))
+                }
             }
         } else {
             Ok(I32Seconds(-1))
@@ -261,7 +263,9 @@ impl U32Seconds {
     fn try_from(dur: Duration, msg: &str) -> Result<U32Seconds> {
         match dur.as_secs().try_into() {
             Ok(secs) => Ok(U32Seconds(secs)),
-            Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
+            Err(err) => {
+                Err(Error::out_of_range(format!("too long {} {:?}", msg, dur)).add_source(err))
+            }
         }
     }
 }
@@ -273,7 +277,9 @@ impl U32Milliseconds {
     fn try_from(dur: Duration, msg: &str) -> Result<U32Milliseconds> {
         match dur.as_millis().try_into() {
             Ok(secs) => Ok(U32Milliseconds(secs)),
-            Err(_) => Err(Error::OutOfRange(format!("too long {} {:?}", msg, dur))),
+            Err(err) => {
+                Err(Error::out_of_range(format!("too long {} {:?}", msg, dur)).add_source(err))
+            }
         }
     }
 }
@@ -803,7 +809,7 @@ impl Pool {
                 chkerr!(self.ctxt(), dpiPool_getWaitTimeout(self.handle(), &mut val));
                 Ok(GetMode::TimedWait(Duration::from_millis(val.into())))
             }
-            _ => Err(Error::InternalError(format!(
+            _ => Err(Error::internal_error(format!(
                 "unknown dpiPoolGetMode {}",
                 val
             ))),

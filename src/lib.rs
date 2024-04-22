@@ -56,6 +56,7 @@ pub use crate::connection::StartupMode;
 use crate::context::Context;
 pub use crate::error::DbError;
 pub use crate::error::Error;
+pub use crate::error::ErrorKind;
 pub use crate::error::ParseOracleTypeError;
 pub use crate::row::ResultSet;
 pub use crate::row::Row;

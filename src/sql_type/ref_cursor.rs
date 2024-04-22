@@ -222,7 +222,7 @@ impl RefCursor {
     /// # Ok::<(), Error>(())
     /// ```
     pub fn query_row(&mut self) -> Result<Row> {
-        self.query()?.next().unwrap_or(Err(Error::NoDataFound))
+        self.query()?.next().unwrap_or(Err(Error::no_data_found()))
     }
 
     /// Gets one row as the specified type.
@@ -250,7 +250,9 @@ impl RefCursor {
     where
         T: RowValue,
     {
-        self.query_as()?.next().unwrap_or(Err(Error::NoDataFound))
+        self.query_as()?
+            .next()
+            .unwrap_or(Err(Error::no_data_found()))
     }
 }
 
@@ -266,8 +268,8 @@ impl ToSql for RefCursor {
     }
 
     fn to_sql(&self, _val: &mut SqlValue) -> Result<()> {
-        Err(Error::InvalidOperation(
-            "cannot bind RefCursor as an IN parameter".into(),
+        Err(Error::invalid_operation(
+            "cannot bind RefCursor as an IN parameter",
         ))
     }
 }

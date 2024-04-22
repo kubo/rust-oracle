@@ -16,7 +16,7 @@
 //! SQL data types
 
 use crate::Connection;
-use crate::Error;
+use crate::ErrorKind;
 use crate::Result;
 use crate::SqlValue;
 
@@ -333,7 +333,7 @@ impl<T: FromSql> FromSql for Option<T> {
     fn from_sql(val: &SqlValue) -> Result<Option<T>> {
         match <T>::from_sql(val) {
             Ok(v) => Ok(Some(v)),
-            Err(Error::NullValue) => Ok(None),
+            Err(err) if err.kind() == ErrorKind::NullValue => Ok(None),
             Err(err) => Err(err),
         }
     }
