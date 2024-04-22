@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connection.rs`."><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -1781,75 +1781,6 @@
 <a href="#1779" id="1779">1779</a>
 <a href="#1780" id="1780">1780</a>
 <a href="#1781" id="1781">1781</a>
-<a href="#1782" id="1782">1782</a>
-<a href="#1783" id="1783">1783</a>
-<a href="#1784" id="1784">1784</a>
-<a href="#1785" id="1785">1785</a>
-<a href="#1786" id="1786">1786</a>
-<a href="#1787" id="1787">1787</a>
-<a href="#1788" id="1788">1788</a>
-<a href="#1789" id="1789">1789</a>
-<a href="#1790" id="1790">1790</a>
-<a href="#1791" id="1791">1791</a>
-<a href="#1792" id="1792">1792</a>
-<a href="#1793" id="1793">1793</a>
-<a href="#1794" id="1794">1794</a>
-<a href="#1795" id="1795">1795</a>
-<a href="#1796" id="1796">1796</a>
-<a href="#1797" id="1797">1797</a>
-<a href="#1798" id="1798">1798</a>
-<a href="#1799" id="1799">1799</a>
-<a href="#1800" id="1800">1800</a>
-<a href="#1801" id="1801">1801</a>
-<a href="#1802" id="1802">1802</a>
-<a href="#1803" id="1803">1803</a>
-<a href="#1804" id="1804">1804</a>
-<a href="#1805" id="1805">1805</a>
-<a href="#1806" id="1806">1806</a>
-<a href="#1807" id="1807">1807</a>
-<a href="#1808" id="1808">1808</a>
-<a href="#1809" id="1809">1809</a>
-<a href="#1810" id="1810">1810</a>
-<a href="#1811" id="1811">1811</a>
-<a href="#1812" id="1812">1812</a>
-<a href="#1813" id="1813">1813</a>
-<a href="#1814" id="1814">1814</a>
-<a href="#1815" id="1815">1815</a>
-<a href="#1816" id="1816">1816</a>
-<a href="#1817" id="1817">1817</a>
-<a href="#1818" id="1818">1818</a>
-<a href="#1819" id="1819">1819</a>
-<a href="#1820" id="1820">1820</a>
-<a href="#1821" id="1821">1821</a>
-<a href="#1822" id="1822">1822</a>
-<a href="#1823" id="1823">1823</a>
-<a href="#1824" id="1824">1824</a>
-<a href="#1825" id="1825">1825</a>
-<a href="#1826" id="1826">1826</a>
-<a href="#1827" id="1827">1827</a>
-<a href="#1828" id="1828">1828</a>
-<a href="#1829" id="1829">1829</a>
-<a href="#1830" id="1830">1830</a>
-<a href="#1831" id="1831">1831</a>
-<a href="#1832" id="1832">1832</a>
-<a href="#1833" id="1833">1833</a>
-<a href="#1834" id="1834">1834</a>
-<a href="#1835" id="1835">1835</a>
-<a href="#1836" id="1836">1836</a>
-<a href="#1837" id="1837">1837</a>
-<a href="#1838" id="1838">1838</a>
-<a href="#1839" id="1839">1839</a>
-<a href="#1840" id="1840">1840</a>
-<a href="#1841" id="1841">1841</a>
-<a href="#1842" id="1842">1842</a>
-<a href="#1843" id="1843">1843</a>
-<a href="#1844" id="1844">1844</a>
-<a href="#1845" id="1845">1845</a>
-<a href="#1846" id="1846">1846</a>
-<a href="#1847" id="1847">1847</a>
-<a href="#1848" id="1848">1848</a>
-<a href="#1849" id="1849">1849</a>
-<a href="#1850" id="1850">1850</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1878,6 +1809,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::conn::{CloseMode, Purity};
+<span class="kw">use </span><span class="kw">crate</span>::error::DPI_ERR_NOT_CONNECTED;
 <span class="kw">use </span><span class="kw">crate</span>::new_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::data_type::{AttrValue, DataType};
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::handle::ConnHandle;
@@ -1908,7 +1840,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::RowValue;
 <span class="kw">use </span><span class="kw">crate</span>::Statement;
 <span class="kw">use </span><span class="kw">crate</span>::StatementBuilder;
-<span class="kw">use </span><span class="kw">crate</span>::StmtParam;
 <span class="kw">use </span><span class="kw">crate</span>::Version;
 
 <span class="kw">struct </span>ServerStatus;
@@ -2640,73 +2571,6 @@
         StatementBuilder::new(<span class="self">self</span>, sql)
     }
 
-    <span class="doccomment">/// Creates a [`Statement`][] with parameters
-    ///
-    /// This is marked as [deprecated][]. Use [`statement(sql).build()`](#method.statement)
-    /// instead. The `statement()` method was added to follow [this API guideline](https://rust-lang.github.io/api-guidelines/type-safety.html#c-builder).
-    ///
-    /// [deprecated]: https://doc.rust-lang.org/edition-guide/rust-2018/the-compiler/an-attribute-for-deprecation.html
-    ///
-    /// # Examples
-    ///
-    /// Executes a SQL statement with different parameters.
-    ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// # #[allow(deprecated)]
-    /// # fn main() -&gt; Result&lt;()&gt; {
-    /// # let conn = Connection::connect("scott", "tiger", "")?;
-    /// let mut stmt = conn.prepare("insert into emp(empno, ename) values (:id, :name)", &amp;[])?;
-    ///
-    /// let emp_list = [
-    ///     (7369, "Smith"),
-    ///     (7499, "Allen"),
-    ///     (7521, "Ward"),
-    /// ];
-    ///
-    /// // insert rows using positional parameters
-    /// for emp in &amp;emp_list {
-    ///    stmt.execute(&amp;[&amp;emp.0, &amp;emp.1])?;
-    /// }
-    ///
-    /// let emp_list = [
-    ///     (7566, "Jones"),
-    ///     (7654, "Martin"),
-    ///     (7698, "Blake"),
-    /// ];
-    ///
-    /// // insert rows using named parameters
-    /// for emp in &amp;emp_list {
-    ///    stmt.execute_named(&amp;[("id", &amp;emp.0), ("name", &amp;emp.1)])?;
-    /// }
-    /// # Ok(()) }
-    /// ```
-    ///
-    /// Query methods in Connection allocate memory for 100 rows by default
-    /// to reduce the number of network round trips in case that many rows are
-    /// fetched. When 100 isn't preferable, use `StmtParam::FetchArraySize(u32)`
-    /// to customize it.
-    ///
-    /// ```no_run
-    /// # use oracle::*;
-    /// # #[allow(deprecated)]
-    /// # fn main() -&gt; Result&lt;()&gt; {
-    /// # let conn = Connection::connect("scott", "tiger", "")?;
-    /// // fetch top 10 rows.
-    /// let mut stmt = conn.prepare("select * from (select empno, ename from emp order by empno) where rownum &lt;= 10",
-    ///                             &amp;[StmtParam::FetchArraySize(10)])?;
-    /// for row_result in stmt.query_as::&lt;(i32, String)&gt;(&amp;[])? {
-    ///     let (empno, ename) = row_result?;
-    ///     println!("empno: {}, ename: {}", empno, ename);
-    /// }
-    /// # Ok(()) }
-    /// ```
-    ///
-    </span><span class="attr">#[deprecated(since = <span class="string">"0.5.3"</span>, note = <span class="string">"Use Connection::statement instead."</span>)]
-    </span><span class="kw">pub fn </span>prepare(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[StmtParam]) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
-        Statement::from_params(<span class="self">self</span>, sql, params)
-    }
-
     <span class="doccomment">/// Creates [BatchBuilder][]
     ///
     /// See [`Batch`].
@@ -3085,14 +2949,12 @@
             <span class="prelude-val">Ok</span>(status) =&gt; <span class="kw">match </span>status {
                 OCI_SERVER_NOT_CONNECTED =&gt; <span class="prelude-val">Ok</span>(ConnStatus::NotConnected),
                 OCI_SERVER_NORMAL =&gt; <span class="prelude-val">Ok</span>(ConnStatus::Normal),
-                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::InternalError(<span class="macro">format!</span>(
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::internal_error(<span class="macro">format!</span>(
                     <span class="string">"unexpected server status {}"</span>,
                     status
                 ))),
             },
-            <span class="prelude-val">Err</span>(Error::DpiError(err)) <span class="kw">if </span>err.message() == <span class="string">"DPI-1010: not connected" </span>=&gt; {
-                <span class="prelude-val">Ok</span>(ConnStatus::Closed)
-            }
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.dpi_code() == <span class="prelude-val">Some</span>(DPI_ERR_NOT_CONNECTED) =&gt; <span class="prelude-val">Ok</span>(ConnStatus::Closed),
             <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err),
         }
     }
@@ -3147,7 +3009,7 @@
     ///
     /// [Password Change Life Cycle]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-BED74427-BC63-4095-8829-1AF68411FC6B
     </span><span class="kw">pub fn </span>last_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Error&gt; {
-        <span class="self">self</span>.ctxt().last_warning().map(Error::OciError)
+        <span class="self">self</span>.ctxt().last_warning().map(Error::oci_error)
     }
 
     <span class="doccomment">/// Gets the statement cache size
@@ -3242,13 +3104,13 @@
     </span><span class="kw">pub fn </span>set_call_timeout(<span class="kw-2">&amp;</span><span class="self">self</span>, dur: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(dur) = dur {
             <span class="kw">let </span>msecs = duration_to_msecs(dur).ok_or_else(|| {
-                Error::OutOfRange(<span class="macro">format!</span>(
+                Error::out_of_range(<span class="macro">format!</span>(
                     <span class="string">"too long duration {:?}. It must be less than 49.7 days"</span>,
                     dur
                 ))
             })<span class="question-mark">?</span>;
             <span class="kw">if </span>msecs == <span class="number">0 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::out_of_range(<span class="macro">format!</span>(
                     <span class="string">"too short duration {:?}. It must not be submilliseconds"</span>,
                     dur
                 )));

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/batch.rs`."><title>batch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -963,6 +963,10 @@
 <a href="#961" id="961">961</a>
 <a href="#962" id="962">962</a>
 <a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -998,6 +1002,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::error::dberror_from_dpi_error;
+<span class="kw">use </span><span class="kw">crate</span>::error::DPI_ERR_BUFFER_SIZE_TOO_SMALL;
 <span class="kw">use </span><span class="kw">crate</span>::private;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
@@ -1117,8 +1122,9 @@
     </span>}
 
     <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Batch&lt;<span class="lifetime">'conn</span>&gt;&gt; {
-        <span class="kw">let </span>batch_size = u32::try_from(<span class="self">self</span>.batch_size)
-            .map_err(|<span class="kw">_</span>| Error::OutOfRange(<span class="macro">format!</span>(<span class="string">"too large batch size {}"</span>, <span class="self">self</span>.batch_size)))<span class="question-mark">?</span>;
+        <span class="kw">let </span>batch_size = u32::try_from(<span class="self">self</span>.batch_size).map_err(|err| {
+            Error::out_of_range(<span class="macro">format!</span>(<span class="string">"too large batch size {}"</span>, <span class="self">self</span>.batch_size)).add_source(err)
+        })<span class="question-mark">?</span>;
         <span class="kw">let </span>conn = <span class="self">self</span>.conn;
         <span class="kw">let </span>sql = to_odpi_str(<span class="self">self</span>.sql);
         <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>dpiStmt = ptr::null_mut();
@@ -1151,7 +1157,7 @@
                 <span class="string">"could not use {} statement"</span>,
                 StatementType::from_enum(info.statementType)
             );
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(msg));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::invalid_operation(msg));
         };
         <span class="kw">let </span><span class="kw-2">mut </span>num = <span class="number">0</span>;
         <span class="macro">chkerr!</span>(
@@ -1494,7 +1500,7 @@
                     dpiStmt_getBatchErrors(<span class="self">self</span>.handle, errnum, errs.as_mut_ptr())
                 );
                 <span class="kw">unsafe </span>{ errs.set_len(errnum <span class="kw">as </span>usize) };
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::BatchErrors(
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::make_batch_errors(
                     errs.iter().map(dberror_from_dpi_error).collect(),
                 ));
             }
@@ -1538,7 +1544,7 @@
         <span class="kw">if </span><span class="self">self</span>.batch_index &lt; <span class="self">self</span>.batch_size {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::OutOfRange(<span class="macro">format!</span>(
+            <span class="prelude-val">Err</span>(Error::out_of_range(<span class="macro">format!</span>(
                 <span class="string">"over the max batch size {}"</span>,
                 <span class="self">self</span>.batch_size
             )))
@@ -1565,7 +1571,7 @@
     {
         <span class="kw">let </span>pos = bindidx.idx(<span class="self">self</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.bind_types[pos].is_some() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::invalid_operation(<span class="macro">format!</span>(
                 <span class="string">"type at {} has set already"</span>,
                 bindidx
             )));
@@ -1628,13 +1634,13 @@
             <span class="self">self</span>.bind_types[pos] = <span class="prelude-val">Some</span>(bind_type);
         }
         <span class="kw">match </span><span class="self">self</span>.bind_values[pos].set(value) {
-            <span class="prelude-val">Err</span>(Error::DpiError(dberr)) <span class="kw">if </span>dberr.message().starts_with(<span class="string">"DPI-1019:"</span>) =&gt; {
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.dpi_code() == <span class="prelude-val">Some</span>(DPI_ERR_BUFFER_SIZE_TOO_SMALL) =&gt; {
                 <span class="kw">let </span>bind_type = <span class="self">self</span>.bind_types[pos].as_mut().unwrap();
                 <span class="kw">if </span>bind_type.as_oratype().is_none() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DpiError(dberr));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(err);
                 }
                 <span class="kw">let </span>new_oratype = value.oratype(<span class="self">self</span>.conn)<span class="question-mark">?</span>;
-                <span class="kw">let </span>new_size = oratype_size(<span class="kw-2">&amp;</span>new_oratype).ok_or(Error::DpiError(dberr))<span class="question-mark">?</span>;
+                <span class="kw">let </span>new_size = oratype_size(<span class="kw-2">&amp;</span>new_oratype).ok_or(err)<span class="question-mark">?</span>;
                 bind_type.reset_size(new_size);
                 <span class="comment">// allocate new bind handle.
                 </span><span class="kw">let </span><span class="kw-2">mut </span>new_sql_value = SqlValue::for_bind(
@@ -1738,7 +1744,7 @@
         <span class="kw">if </span><span class="number">0 </span>&lt; num &amp;&amp; <span class="kw-2">*</span><span class="self">self </span>&lt;= num {
             <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self </span>- <span class="number">1</span>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::InvalidBindIndex(<span class="kw-2">*</span><span class="self">self</span>))
+            <span class="prelude-val">Err</span>(Error::invalid_bind_index(<span class="kw-2">*</span><span class="self">self</span>))
         }
     }
 
@@ -1756,7 +1762,7 @@
             .bind_names()
             .iter()
             .position(|<span class="kw-2">&amp;</span>name| name == bindname)
-            .ok_or_else(|| Error::InvalidBindName((<span class="kw-2">*</span><span class="self">self</span>).to_string()))
+            .ok_or_else(|| Error::invalid_bind_name(<span class="kw-2">*</span><span class="self">self</span>))
     }
 
     <span class="attr">#[doc(hidden)]
@@ -1770,6 +1776,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::test_util;
+    <span class="kw">use </span><span class="kw">crate</span>::ErrorKind;
 
     <span class="attr">#[derive(Debug)]
     </span><span class="kw">struct </span>TestData {
@@ -1876,14 +1883,13 @@
             .build()
             .unwrap();
         <span class="kw">match </span>append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows) {
-            <span class="prelude-val">Err</span>(Error::OciError(dberr)) =&gt; {
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.kind() == ErrorKind::OciError =&gt; {
                 <span class="kw">let </span>errcode = TEST_DATA
                     .iter()
                     .find(|data| data.error_code.is_some())
                     .unwrap()
-                    .error_code
-                    .unwrap();
-                <span class="macro">assert_eq!</span>(dberr.code(), errcode);
+                    .error_code;
+                <span class="macro">assert_eq!</span>(err.oci_code(), errcode);
             }
             x =&gt; {
                 <span class="macro">panic!</span>(<span class="string">"got {:?}"</span>, x);
@@ -1906,14 +1912,16 @@
             .build()
             .unwrap();
         <span class="kw">match </span>append_rows_then_execute(<span class="kw-2">&amp;mut </span>batch, <span class="kw-2">&amp;</span>rows) {
-            <span class="prelude-val">Err</span>(Error::BatchErrors(errs)) =&gt; {
+            <span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.batch_errors().is_some() =&gt; {
                 <span class="kw">let </span>expected_errors: Vec&lt;(u32, i32)&gt; = TEST_DATA
                     .iter()
                     .enumerate()
                     .filter(|row| row.<span class="number">1</span>.error_code.is_some())
                     .map(|row| (row.<span class="number">0 </span><span class="kw">as </span>u32, row.<span class="number">1</span>.error_code.unwrap()))
                     .collect();
-                <span class="kw">let </span>actual_errors: Vec&lt;(u32, i32)&gt; = errs
+                <span class="kw">let </span>actual_errors: Vec&lt;(u32, i32)&gt; = err
+                    .batch_errors()
+                    .unwrap()
                     .iter()
                     .map(|dberr| (dberr.offset(), dberr.code()))
                     .collect();

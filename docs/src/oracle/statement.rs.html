@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.1 (7cf61ebde 2024-03-27)" data-channel="1.77.1" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.2 (25ef9e3d8 2024-04-09)" data-channel="1.77.2" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -1457,60 +1457,6 @@
 <a href="#1455" id="1455">1455</a>
 <a href="#1456" id="1456">1456</a>
 <a href="#1457" id="1457">1457</a>
-<a href="#1458" id="1458">1458</a>
-<a href="#1459" id="1459">1459</a>
-<a href="#1460" id="1460">1460</a>
-<a href="#1461" id="1461">1461</a>
-<a href="#1462" id="1462">1462</a>
-<a href="#1463" id="1463">1463</a>
-<a href="#1464" id="1464">1464</a>
-<a href="#1465" id="1465">1465</a>
-<a href="#1466" id="1466">1466</a>
-<a href="#1467" id="1467">1467</a>
-<a href="#1468" id="1468">1468</a>
-<a href="#1469" id="1469">1469</a>
-<a href="#1470" id="1470">1470</a>
-<a href="#1471" id="1471">1471</a>
-<a href="#1472" id="1472">1472</a>
-<a href="#1473" id="1473">1473</a>
-<a href="#1474" id="1474">1474</a>
-<a href="#1475" id="1475">1475</a>
-<a href="#1476" id="1476">1476</a>
-<a href="#1477" id="1477">1477</a>
-<a href="#1478" id="1478">1478</a>
-<a href="#1479" id="1479">1479</a>
-<a href="#1480" id="1480">1480</a>
-<a href="#1481" id="1481">1481</a>
-<a href="#1482" id="1482">1482</a>
-<a href="#1483" id="1483">1483</a>
-<a href="#1484" id="1484">1484</a>
-<a href="#1485" id="1485">1485</a>
-<a href="#1486" id="1486">1486</a>
-<a href="#1487" id="1487">1487</a>
-<a href="#1488" id="1488">1488</a>
-<a href="#1489" id="1489">1489</a>
-<a href="#1490" id="1490">1490</a>
-<a href="#1491" id="1491">1491</a>
-<a href="#1492" id="1492">1492</a>
-<a href="#1493" id="1493">1493</a>
-<a href="#1494" id="1494">1494</a>
-<a href="#1495" id="1495">1495</a>
-<a href="#1496" id="1496">1496</a>
-<a href="#1497" id="1497">1497</a>
-<a href="#1498" id="1498">1498</a>
-<a href="#1499" id="1499">1499</a>
-<a href="#1500" id="1500">1500</a>
-<a href="#1501" id="1501">1501</a>
-<a href="#1502" id="1502">1502</a>
-<a href="#1503" id="1503">1503</a>
-<a href="#1504" id="1504">1504</a>
-<a href="#1505" id="1505">1505</a>
-<a href="#1506" id="1506">1506</a>
-<a href="#1507" id="1507">1507</a>
-<a href="#1508" id="1508">1508</a>
-<a href="#1509" id="1509">1509</a>
-<a href="#1510" id="1510">1510</a>
-<a href="#1511" id="1511">1511</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1697,12 +1643,6 @@
         <span class="self">self
     </span>}
 
-    <span class="comment">// make the visibility public when scrollable cursors is supported.
-    </span><span class="kw">fn </span>scrollable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, scrollable: bool) -&gt; <span class="kw-2">&amp;mut </span>StatementBuilder&lt;<span class="lifetime">'conn</span>, <span class="lifetime">'sql</span>&gt; {
-        <span class="self">self</span>.scrollable = scrollable;
-        <span class="self">self
-    </span>}
-
     <span class="doccomment">/// Specifies the key to be used for searching for the statement in the statement cache.
     /// If the key is not found, the SQL text specified by [`Connection::statement`] is used
     /// to create a statement.
@@ -1772,32 +1712,6 @@
     <span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         Statement::new(<span class="self">self</span>)
     }
-}
-
-<span class="doccomment">/// Parameters of [`Connection::prepare`]
-///
-/// No new variants are added to this enum in the future. That's because
-/// a new variant causes breaking changes. New configuration parameters
-/// are set via [`StatementBuilder`][] instead.
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>StmtParam {
-    <span class="doccomment">/// The array size used for performing fetches.
-    ///
-    /// This specifies the number of rows allocated before performing
-    /// fetches. The default value is 100. Higher value reduces
-    /// the number of network round trips to fetch rows but requires
-    /// more memory. The preferable value depends on the query and
-    /// the environment.
-    ///
-    /// If the query returns only onw row, you should use
-    /// `StmtParam::FetchArraySize(1)`.
-    </span>FetchArraySize(u32),
-
-    <span class="doccomment">/// See [`StatementBuilder::tag`].
-    </span>Tag(String),
-
-    <span class="doccomment">/// Reserved for when scrollable cursors are supported.
-    </span>Scrollable,
 }
 
 <span class="doccomment">/// Statement type returned by [`Statement::statement_type`].
@@ -2023,28 +1937,6 @@
 }
 
 <span class="kw">impl </span>Statement {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_params(
-        conn: <span class="kw-2">&amp;</span>Connection,
-        sql: <span class="kw-2">&amp;</span>str,
-        params: <span class="kw-2">&amp;</span>[StmtParam],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>builder = conn.statement(sql);
-        <span class="kw">for </span>param <span class="kw">in </span>params {
-            <span class="kw">match </span>param {
-                StmtParam::FetchArraySize(size) =&gt; {
-                    builder.fetch_array_size(<span class="kw-2">*</span>size);
-                }
-                StmtParam::Scrollable =&gt; {
-                    builder.scrollable(<span class="bool-val">true</span>);
-                }
-                StmtParam::Tag(name) =&gt; {
-                    builder.tag(name);
-                }
-            }
-        }
-        builder.build()
-    }
-
     <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span>conn = builder.conn;
         <span class="kw">let </span>sql = to_odpi_str(builder.sql);
@@ -2211,7 +2103,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="self">self</span>.query(params)<span class="question-mark">?</span>;
-        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
+        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::no_data_found()))
     }
 
     <span class="doccomment">/// Gets one row from the prepared statement using named bind parameters.
@@ -2221,7 +2113,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_row_named(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;Row&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="self">self</span>.query_named(params)<span class="question-mark">?</span>;
-        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
+        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::no_data_found()))
     }
 
     <span class="doccomment">/// Gets one row from the prepared statement as specified type using positoinal bind parameters.
@@ -2234,7 +2126,7 @@
         </span>T: RowValue,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="self">self</span>.query_as::&lt;T&gt;(params)<span class="question-mark">?</span>;
-        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
+        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::no_data_found()))
     }
 
     <span class="doccomment">/// Gets one row from the prepared statement as specified type using named bind parameters.
@@ -2247,7 +2139,7 @@
         </span>T: RowValue,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="self">self</span>.query_as_named::&lt;T&gt;(params)<span class="question-mark">?</span>;
-        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::NoDataFound))
+        rows.next().unwrap_or(<span class="prelude-val">Err</span>(Error::no_data_found()))
     }
 
     <span class="doccomment">/// Binds values by position and executes the statement.
@@ -2310,7 +2202,7 @@
             <span class="kw">if </span><span class="self">self</span>.statement_type == StatementType::Select {
                 <span class="prelude-val">Ok</span>(())
             } <span class="kw">else </span>{
-                <span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
+                <span class="prelude-val">Err</span>(Error::invalid_operation(<span class="macro">format!</span>(
                     <span class="string">"could not use the `{}` method for non-select statements"</span>,
                     method_name
                 )))
@@ -2318,7 +2210,7 @@
         } <span class="kw">else if </span><span class="self">self</span>.statement_type != StatementType::Select {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::InvalidOperation(<span class="macro">format!</span>(
+            <span class="prelude-val">Err</span>(Error::invalid_operation(<span class="macro">format!</span>(
                 <span class="string">"could not use the `{}` method for select statements"</span>,
                 method_name
             )))
@@ -2880,7 +2772,7 @@
         <span class="kw">if </span><span class="number">0 </span>&lt; num &amp;&amp; <span class="number">1 </span>&lt;= <span class="kw-2">*</span><span class="self">self </span>&amp;&amp; <span class="kw-2">*</span><span class="self">self </span>&lt;= num {
             <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self </span>- <span class="number">1</span>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::InvalidBindIndex(<span class="kw-2">*</span><span class="self">self</span>))
+            <span class="prelude-val">Err</span>(Error::invalid_bind_index(<span class="kw-2">*</span><span class="self">self</span>))
         }
     }
 
@@ -2895,7 +2787,7 @@
         stmt.bind_names()
             .iter()
             .position(|<span class="kw-2">&amp;</span>name| name == bindname)
-            .ok_or_else(|| Error::InvalidBindName((<span class="kw-2">*</span><span class="self">self</span>).to_string()))
+            .ok_or_else(|| Error::invalid_bind_name(<span class="kw-2">*</span><span class="self">self</span>))
     }
 
     <span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
@@ -2919,7 +2811,7 @@
         <span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>&lt; ncols {
             <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(Error::InvalidColumnIndex(<span class="kw-2">*</span><span class="self">self</span>))
+            <span class="prelude-val">Err</span>(Error::invalid_column_index(<span class="kw-2">*</span><span class="self">self</span>))
         }
     }
 }
@@ -2931,7 +2823,7 @@
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(idx);
             }
         }
-        <span class="prelude-val">Err</span>(Error::InvalidColumnName((<span class="kw-2">*</span><span class="self">self</span>).to_string()))
+        <span class="prelude-val">Err</span>(Error::invalid_column_name(<span class="kw-2">*</span><span class="self">self</span>))
     }
 }
 

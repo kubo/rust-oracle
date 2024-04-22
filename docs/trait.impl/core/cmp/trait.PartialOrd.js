@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"oracle":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.77.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"oracle/struct.Version.html\" title=\"struct oracle::Version\">Version</a>"]]
+"oracle":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.77.2/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"oracle/struct.Version.html\" title=\"struct oracle::Version\">Version</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.77.2/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"enum\" href=\"oracle/enum.ErrorKind.html\" title=\"enum oracle::ErrorKind\">ErrorKind</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
