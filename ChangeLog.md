@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.6.0 (2024-??-??)
+## 0.6.0 (2024-05-20)
 
 Breaking changes:
 
