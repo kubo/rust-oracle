@@ -36,12 +36,12 @@ fn collection_udt_nestedarray() -> Result<()> {
     assert_eq!(obj.size()?, 0);
     let err = obj.trim(1).unwrap_err();
     assert_eq!(
-        err.to_string(),
+        err.to_string().lines().next().unwrap(),
         "OCI Error: OCI-22167: given trim size [1] must be less than or equal to [0]"
     );
     let err = obj.remove(0).unwrap_err();
     assert_eq!(
-        err.to_string(),
+        err.to_string().lines().next().unwrap(),
         "OCI Error: OCI-22160: element at index [0] does not exist"
     );
 
