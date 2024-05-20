@@ -46,26 +46,15 @@ jobs:
         with:
           submodules: true
 
-      - name: Install Wine
-        run: |
-          sudo apt-get update -q -y
-          sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 wine wine-binfmt
-          sudo update-binfmts --unimport cli || true
-
       - name: Install the latest Oracle instant client
         run: |
           curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
           curl -Lo sqlplus.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linuxx64.zip
-          curl -Lo basic-windows.zip https://download.oracle.com/otn_software/nt/instantclient/instantclient-basic-windows.zip
           mkdir linux
-          unzip basic.zip -d linux
-          unzip sqlplus.zip -d linux
+          unzip basic.zip -d linux -x "META-INF/*"
+          unzip sqlplus.zip -d linux -x "META-INF/*"
           IC_DIR=$PWD/$(ls -d linux/instantclient*)
-          mkdir windows
-          unzip basic-windows.zip -d windows
-          WINEPATH=$PWD/$(ls -d windows/instantclient*)
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
-          echo WINEPATH=$WINEPATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
 
       - name: Get the Oracle container IP address
@@ -85,7 +74,6 @@ jobs:
       - name: Install rust
         run: |
           rustup install ${{ matrix.rust_toolchain }}
-          rustup target add x86_64-pc-windows-gnu --toolchain ${{ matrix.rust_toolchain }}
 
       - name: Downgrade dependent crates to use them with oracle crate's MSRV if the rust toolchain isn't stable
         if: matrix.rust_toolchain != 'stable'
@@ -101,6 +89,17 @@ jobs:
         run: |
           rustup run ${{ matrix.rust_toolchain }} cargo test --features ${{ env.rust_features }} -- --nocapture
 
-      - name: cargo test (x86_64-pc-windows-gnu)
+      - name: cargo test on Wine (x86_64-pc-windows-gnu)
+        # Runs only with MSRV.
+        # The latest stable rust doesn't seem to work on Wine because of lack of bcryptprimitives.dll
+        if: matrix.rust_toolchain != 'stable'
         run: |
+          sudo apt-get update -q -y
+          sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 wine wine-binfmt
+          sudo update-binfmts --unimport cli || true
+          curl -Lo basic-windows.zip https://download.oracle.com/otn_software/nt/instantclient/instantclient-basic-windows.zip
+          mkdir windows
+          unzip basic-windows.zip -d windows -x "META-INF/*"
+          export WINEPATH=$PWD/$(ls -d windows/instantclient*)
+          rustup target add x86_64-pc-windows-gnu --toolchain ${{ matrix.rust_toolchain }}
           rustup run ${{ matrix.rust_toolchain }} cargo test --target x86_64-pc-windows-gnu --features ${{ env.rust_features }} -- --nocapture
