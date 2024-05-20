@@ -684,7 +684,7 @@ fn timestamp_to_sql() -> Result<()> {
 fn interval_ds_from_sql() -> Result<()> {
     let conn = common::connect()?;
 
-    let it = IntervalDS::new(1, 2, 3, 4, 0);
+    let it = IntervalDS::new(1, 2, 3, 4, 0)?;
     test_from_sql!(
         &conn,
         "INTERVAL '1 02:03:04' DAY TO SECOND",
@@ -692,7 +692,7 @@ fn interval_ds_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalDS::new(1, 2, 3, 4, 123456789);
+    let it = IntervalDS::new(1, 2, 3, 4, 123456789)?;
     test_from_sql!(
         &conn,
         "INTERVAL '+1 02:03:04.123456789' DAY TO SECOND(9)",
@@ -700,7 +700,7 @@ fn interval_ds_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalDS::new(123456789, 2, 3, 4, 123456789);
+    let it = IntervalDS::new(123456789, 2, 3, 4, 123456789)?;
     test_from_sql!(
         &conn,
         "INTERVAL '+123456789 02:03:04.123456789' DAY(9) TO SECOND(9)",
@@ -708,7 +708,7 @@ fn interval_ds_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalDS::new(-1, -2, -3, -4, 0);
+    let it = IntervalDS::new(-1, -2, -3, -4, 0)?;
     test_from_sql!(
         &conn,
         "INTERVAL '-1 02:03:04' DAY TO SECOND",
@@ -716,7 +716,7 @@ fn interval_ds_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalDS::new(-1, -2, -3, -4, -123456789);
+    let it = IntervalDS::new(-1, -2, -3, -4, -123456789)?;
     test_from_sql!(
         &conn,
         "INTERVAL '-1 02:03:04.123456789' DAY TO SECOND(9)",
@@ -724,7 +724,7 @@ fn interval_ds_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalDS::new(-123456789, -2, -3, -4, -123456789);
+    let it = IntervalDS::new(-123456789, -2, -3, -4, -123456789)?;
     test_from_sql!(
         &conn,
         "INTERVAL '-123456789 02:03:04.123456789' DAY(9) TO SECOND(9)",
@@ -738,22 +738,22 @@ fn interval_ds_from_sql() -> Result<()> {
 fn interval_ds_to_sql() -> Result<()> {
     let conn = common::connect()?;
 
-    let it = IntervalDS::new(1, 2, 3, 4, 0);
+    let it = IntervalDS::new(1, 2, 3, 4, 0)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+000000001 02:03:04.000000000");
 
-    let it = IntervalDS::new(1, 2, 3, 4, 123456789);
+    let it = IntervalDS::new(1, 2, 3, 4, 123456789)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+000000001 02:03:04.123456789");
 
-    let it = IntervalDS::new(123456789, 2, 3, 4, 123456789);
+    let it = IntervalDS::new(123456789, 2, 3, 4, 123456789)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+123456789 02:03:04.123456789");
 
-    let it = IntervalDS::new(-1, -2, -3, -4, 0);
+    let it = IntervalDS::new(-1, -2, -3, -4, 0)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-000000001 02:03:04.000000000");
 
-    let it = IntervalDS::new(-1, -2, -3, -4, -123456789);
+    let it = IntervalDS::new(-1, -2, -3, -4, -123456789)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-000000001 02:03:04.123456789");
 
-    let it = IntervalDS::new(-123456789, -2, -3, -4, -123456789);
+    let it = IntervalDS::new(-123456789, -2, -3, -4, -123456789)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-123456789 02:03:04.123456789");
     Ok(())
 }

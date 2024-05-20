@@ -518,7 +518,7 @@ impl SqlValue<'_> {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalDS(self.data()?);
-            Ok(IntervalDS::from_dpi_interval_ds(&*it, self.oracle_type()?))
+            IntervalDS::from_dpi_interval_ds(&*it, self.oracle_type()?)
         }
     }
 

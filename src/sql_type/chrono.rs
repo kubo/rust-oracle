@@ -344,7 +344,7 @@ impl ToSql for Duration {
             minutes as i32,
             secs as i32,
             nsecs as i32,
-        );
+        )?;
         val.set_interval_ds(&it)
     }
 }

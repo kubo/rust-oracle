@@ -13,14 +13,16 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp::{self, Ordering};
-use std::fmt;
-use std::str;
-
 use crate::binding::dpiIntervalDS;
 use crate::sql_type::OracleType;
 use crate::util::Scanner;
+use crate::Error;
 use crate::ParseOracleTypeError;
+use crate::Result;
+use std::cmp::{self, Ordering};
+use std::fmt;
+use std::result;
+use std::str;
 
 /// Oracle-specific [Interval Day to Second][INTVL_DS] data type.
 ///
@@ -38,17 +40,17 @@ use crate::ParseOracleTypeError;
 /// # use oracle::*; use oracle::sql_type::*;
 ///
 /// // Create an interval by new().
-/// let intvl1 = IntervalDS::new(1, 2, 3, 4, 500000000);
+/// let intvl1 = IntervalDS::new(1, 2, 3, 4, 500000000)?;
 ///
 /// // All arguments must be zero or negative to create a negative interval.
-/// let intvl2 = IntervalDS::new(-1, -2, -3, -4, -500000000);
+/// let intvl2 = IntervalDS::new(-1, -2, -3, -4, -500000000)?;
 ///
 /// // Convert to string.
 /// assert_eq!(intvl1.to_string(), "+000000001 02:03:04.500000000");
 /// assert_eq!(intvl2.to_string(), "-000000001 02:03:04.500000000");
 ///
 /// // Create an interval with leading field and fractional second precisions.
-/// let intvl3 = IntervalDS::new(1, 2, 3, 4, 500000000).and_prec(2, 3);
+/// let intvl3 = IntervalDS::new(1, 2, 3, 4, 500000000)?.and_prec(2, 3)?;
 ///
 /// // The string representation depends on the precisions.
 /// assert_eq!(intvl3.to_string(), "+01 02:03:04.500");
@@ -101,20 +103,63 @@ pub struct IntervalDS {
 }
 
 impl IntervalDS {
-    pub(crate) fn from_dpi_interval_ds(it: &dpiIntervalDS, oratype: &OracleType) -> IntervalDS {
+    fn check_validity(self) -> Result<Self> {
+        if !(-999999999..=999999999).contains(&self.days) {
+            Err(Error::out_of_range(format!(
+                "days must be between -999999999 and 999999999 but {:?}",
+                self
+            )))
+        } else if !(-23..=23).contains(&self.hours) {
+            Err(Error::out_of_range(format!(
+                "hours must be between -23 and 23 but {:?}",
+                self
+            )))
+        } else if !(-59..=59).contains(&self.minutes) {
+            Err(Error::out_of_range(format!(
+                "minutes must be between -59 and 59 but {:?}",
+                self
+            )))
+        } else if !(-59..=59).contains(&self.seconds) {
+            Err(Error::out_of_range(format!(
+                "seconds must be between -59 and 59 but {:?}",
+                self
+            )))
+        } else if !(-999999999..=999999999).contains(&self.nanoseconds) {
+            Err(Error::out_of_range(format!(
+                "nanoseconds must be between -999999999 and 999999999 but {:?}",
+                self
+            )))
+        } else if self.days >= 0
+            && self.hours >= 0
+            && self.minutes >= 0
+            && self.seconds >= 0
+            && self.nanoseconds >= 0
+        {
+            // all members are zero or positive.
+            Ok(self)
+        } else if self.days <= 0
+            && self.hours <= 0
+            && self.minutes <= 0
+            && self.seconds <= 0
+            && self.nanoseconds <= 0
+        {
+            // all members are zero or negative.
+            Ok(self)
+        } else {
+            Err(Error::out_of_range(format!("days, hours, minutes, seconds and nanoseconds must be zeor or positive; or zero or negative but {:?}", self)))
+        }
+    }
+
+    pub(crate) fn from_dpi_interval_ds(
+        it: &dpiIntervalDS,
+        oratype: &OracleType,
+    ) -> Result<IntervalDS> {
         let (lfprec, fsprec) = match *oratype {
             OracleType::IntervalDS(lfprec, fsprec) => (lfprec, fsprec),
             _ => (0, 0),
         };
-        IntervalDS {
-            days: it.days,
-            hours: it.hours,
-            minutes: it.minutes,
-            seconds: it.seconds,
-            nanoseconds: it.fseconds,
-            lfprec,
-            fsprec,
-        }
+        IntervalDS::new(it.days, it.hours, it.minutes, it.seconds, it.fseconds)?
+            .and_prec(lfprec, fsprec)
     }
 
     /// Creates a new IntervalDS.
@@ -131,7 +176,13 @@ impl IntervalDS {
     ///
     /// All arguments must be zero or positive to create a positive interval.
     /// All arguments must be zero or negative to create a negative interval.
-    pub fn new(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> IntervalDS {
+    pub fn new(
+        days: i32,
+        hours: i32,
+        minutes: i32,
+        seconds: i32,
+        nanoseconds: i32,
+    ) -> Result<IntervalDS> {
         IntervalDS {
             days,
             hours,
@@ -141,6 +192,7 @@ impl IntervalDS {
             lfprec: 9,
             fsprec: 9,
         }
+        .check_validity()
     }
 
     /// Creates a new IntervalDS with precisions.
@@ -149,11 +201,23 @@ impl IntervalDS {
     /// precision respectively.
     /// The precisions affect text representation of IntervalDS.
     /// They don't affect comparison.
-    pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> IntervalDS {
-        IntervalDS {
-            lfprec,
-            fsprec,
-            ..*self
+    pub fn and_prec(&self, lfprec: u8, fsprec: u8) -> Result<IntervalDS> {
+        if lfprec > 9 {
+            Err(Error::out_of_range(format!(
+                "lfprec must be 0 to 9 but {}",
+                lfprec
+            )))
+        } else if fsprec > 9 {
+            Err(Error::out_of_range(format!(
+                "fsprec must be 0 to 9 but {}",
+                fsprec
+            )))
+        } else {
+            Ok(IntervalDS {
+                lfprec,
+                fsprec,
+                ..*self
+            })
         }
     }
 
@@ -253,7 +317,7 @@ impl fmt::Display for IntervalDS {
 impl str::FromStr for IntervalDS {
     type Err = ParseOracleTypeError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> result::Result<Self, Self::Err> {
         let err = || ParseOracleTypeError::new("IntervalDS");
         let mut s = Scanner::new(s);
         let minus = match s.char() {
@@ -323,8 +387,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn to_string() {
-        let mut it = IntervalDS::new(1, 2, 3, 4, 123456789);
+    fn to_string() -> Result<()> {
+        let mut it = IntervalDS::new(1, 2, 3, 4, 123456789)?;
         it.lfprec = 0;
         it.fsprec = 0;
         assert_eq!(it.to_string(), "+1 02:03:04");
@@ -347,7 +411,7 @@ mod tests {
         it.fsprec = 9;
         assert_eq!(it.to_string(), "+1 02:03:04.123456789");
 
-        let mut it = IntervalDS::new(-1, -2, -3, -4, -123456789);
+        let mut it = IntervalDS::new(-1, -2, -3, -4, -123456789)?;
         it.lfprec = 0;
         it.fsprec = 0;
         assert_eq!(it.to_string(), "-1 02:03:04");
@@ -388,11 +452,12 @@ mod tests {
         assert_eq!(it.to_string(), "-00000001 02:03:04.123456789");
         it.lfprec = 9;
         assert_eq!(it.to_string(), "-000000001 02:03:04.123456789");
+        Ok(())
     }
 
     #[test]
-    fn parse() {
-        let mut it = IntervalDS::new(1, 2, 3, 4, 0);
+    fn parse() -> Result<()> {
+        let mut it = IntervalDS::new(1, 2, 3, 4, 0)?;
         it.lfprec = 1;
         it.fsprec = 0;
         assert_eq!("1 02:03:04".parse(), Ok(it));
@@ -418,7 +483,7 @@ mod tests {
         it.nanoseconds = 100000000;
         assert_eq!("000000001 02:03:04.1".parse(), Ok(it));
 
-        let mut it = IntervalDS::new(-1, -2, -3, -4, 0);
+        let mut it = IntervalDS::new(-1, -2, -3, -4, 0)?;
         it.lfprec = 1;
         it.fsprec = 0;
         assert_eq!("-1 02:03:04".parse(), Ok(it));
@@ -450,5 +515,6 @@ mod tests {
         it.fsprec = 9;
         it.nanoseconds = -123456789;
         assert_eq!("-1 02:03:04.123456789".parse(), Ok(it));
+        Ok(())
     }
 }

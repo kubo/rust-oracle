@@ -7,6 +7,7 @@ Breaking changes:
 * Remove the lifetype parameter `'conn` from [`Statement`] and remove `stmt_without_lifetime` feature added at 0.5.7
 * Add a new variant [`OracleType::Xml`]
 * Add a lifetime parameter to [`SqlValue`]
+* Change the return type of [`IntervalDS::new()`] and [`IntervalDS::and_prec()`] to check the arguments
 * Remove [`SqlValue::dup`]
 * Add [`#[non_exhaustive]`] to [`Error`]
 * Remove deprecated trait method [`Error::description`] for [`Error`]
@@ -466,6 +467,8 @@ Incompatible changes:
 [`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
+[`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec
+[`IntervalDS::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.new
 [`Object`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Object.html
 [`ObjectType::attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
 [`ObjectType::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name
