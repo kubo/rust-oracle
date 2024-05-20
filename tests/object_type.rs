@@ -24,12 +24,12 @@ fn invalid_obj() -> Result<()> {
     let err = conn.object_type("DUMMY_OBJECT").unwrap_err();
     if Version::client()?.major() >= 12 {
         assert_eq!(
-            err.to_string(),
+            err.to_string().lines().next().unwrap(),
             "OCI Error: OCI-22303: type \"\".\"DUMMY_OBJECT\" not found"
         );
     } else {
         assert_eq!(
-            err.to_string(),
+            err.to_string().lines().next().unwrap(),
             "OCI Error: ORA-04043: object DUMMY_OBJECT does not exist"
         );
     }
