@@ -173,10 +173,10 @@ fn udt_object() -> Result<()> {
     obj.set("NUMBERVALUE", &1)?;
     obj.set("STRINGVALUE", &"STRVAL:1")?;
     obj.set("FIXEDCHARVALUE", &"CHARVAL:1")?;
-    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0))?;
+    obj.set("DATEVALUE", &Timestamp::new(2012, 3, 4, 5, 6, 7, 0)?)?;
     obj.set(
         "TIMESTAMPVALUE",
-        &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789),
+        &Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)?,
     )?;
     obj.set("SUBOBJECTVALUE", &subobj)?;
     obj.set("SUBOBJECTARRAY", &objary)?;
@@ -186,11 +186,11 @@ fn udt_object() -> Result<()> {
     assert_eq!(obj.get::<String>("FIXEDCHARVALUE")?, "CHARVAL:1");
     assert_eq!(
         obj.get::<Timestamp>("DATEVALUE")?,
-        Timestamp::new(2012, 3, 4, 5, 6, 7, 0)
+        Timestamp::new(2012, 3, 4, 5, 6, 7, 0)?
     );
     assert_eq!(
         obj.get::<Timestamp>("TIMESTAMPVALUE")?,
-        Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)
+        Timestamp::new(2017, 2, 3, 4, 5, 6, 123456789)?
     );
     assert_eq!(
         obj.get::<Object>("SUBOBJECTVALUE")?
@@ -448,8 +448,8 @@ fn select_objects() -> Result<()> {
                         1,
                         "First row".to_string(),
                         "First     ".to_string(),
-                        Timestamp::new(2007, 3, 6, 0, 0, 0, 0),
-                        Timestamp::new(2008, 9, 12, 16, 40, 0, 0),
+                        Timestamp::new(2007, 3, 6, 0, 0, 0, 0)?,
+                        Timestamp::new(2008, 9, 12, 16, 40, 0, 0)?,
                         UdtSubObject::new(11, "Sub object 1".to_string()),
                         vec![
                             UdtSubObject::new(5, "first element".to_string()),
@@ -476,8 +476,8 @@ fn select_objects() -> Result<()> {
                         3,
                         "Third row".to_string(),
                         "Third     ".to_string(),
-                        Timestamp::new(2007, 6, 21, 0, 0, 0, 0),
-                        Timestamp::new(2007, 12, 13, 7, 30, 45, 0),
+                        Timestamp::new(2007, 6, 21, 0, 0, 0, 0)?,
+                        Timestamp::new(2007, 12, 13, 7, 30, 45, 0)?,
                         UdtSubObject::new(13, "Sub object 3".to_string()),
                         vec![
                             UdtSubObject::new(10, "element #1".to_string()),

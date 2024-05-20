@@ -13,14 +13,16 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp::{self, Ordering};
-use std::fmt;
-use std::str;
-
 use crate::binding::dpiTimestamp;
 use crate::sql_type::OracleType;
 use crate::util::Scanner;
+use crate::Error;
 use crate::ParseOracleTypeError;
+use crate::Result;
+use std::cmp::{self, Ordering};
+use std::fmt;
+use std::result;
+use std::str;
 
 /// Oracle-specific [Datetime][] data type
 ///
@@ -41,19 +43,19 @@ use crate::ParseOracleTypeError;
 /// ```
 /// # use oracle::*; use oracle::sql_type::*;
 /// // Create a timestamp.
-/// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000);
+/// let ts1 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000)?;
 ///
 /// // Convert to string.
 /// assert_eq!(ts1.to_string(), "2017-08-09 11:22:33.500000000");
 ///
 /// // Create a timestamp with time zone (-8:00).
-/// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_tz_hm_offset(-8, 0);
+/// let ts2 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000)?.and_tz_hm_offset(-8, 0)?;
 ///
 /// // Convert to string.
 /// assert_eq!(ts2.to_string(), "2017-08-09 11:22:33.500000000 -08:00");
 ///
 /// // Create a timestamp with precision
-/// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000).and_prec(3);
+/// let ts3 = Timestamp::new(2017, 8, 9, 11, 22, 33, 500000000)?.and_prec(3)?;
 ///
 /// // The string representation depends on the precision.
 /// assert_eq!(ts3.to_string(), "2017-08-09 11:22:33.500");
@@ -109,6 +111,66 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
+    fn check_validity(self) -> Result<Self> {
+        if !(-4713..=9999).contains(&self.year) {
+            Err(Error::out_of_range(format!(
+                "year must be between -4713 and 9999 but {:?}",
+                self
+            )))
+        } else if !(1..=12).contains(&self.month) {
+            Err(Error::out_of_range(format!(
+                "month must be between 1 and 12 but {:?}",
+                self
+            )))
+        } else if !(1..=31).contains(&self.day) {
+            Err(Error::out_of_range(format!(
+                "day must be between 1 and 31 but {:?}",
+                self
+            )))
+        } else if !(0..=23).contains(&self.hour) {
+            Err(Error::out_of_range(format!(
+                "hour must be between 0 and 23 but {:?}",
+                self
+            )))
+        } else if !(0..=59).contains(&self.minute) {
+            Err(Error::out_of_range(format!(
+                "minute must be between 0 and 59 but {:?}",
+                self
+            )))
+        } else if !(0..=59).contains(&self.second) {
+            Err(Error::out_of_range(format!(
+                "second must be between 0 and 59 but {:?}",
+                self
+            )))
+        } else if !(0..=999999999).contains(&self.nanosecond) {
+            Err(Error::out_of_range(format!(
+                "nanosecond must be between 0 and 999,999,999 but {:?}",
+                self
+            )))
+        } else {
+            Ok(self)
+        }
+    }
+
+    fn check_tz_hm_offset(hour_offset: i32, minute_offset: i32) -> Result<()> {
+        if !(-59..=59).contains(&minute_offset) {
+            Err(Error::out_of_range(format!(
+                "minute_offset must be between -59 and 59 but {}",
+                minute_offset
+            )))
+        } else if hour_offset < 0 && minute_offset > 0 {
+            Err(Error::out_of_range(
+                "hour_offset is negative but minimum is positive",
+            ))
+        } else if hour_offset > 0 && minute_offset < 0 {
+            Err(Error::out_of_range(
+                "hour_offset is positive but minimum is negative",
+            ))
+        } else {
+            Ok(())
+        }
+    }
+
     pub(crate) fn from_dpi_timestamp(ts: &dpiTimestamp, oratype: &OracleType) -> Timestamp {
         let (precision, with_tz) = match *oratype {
             OracleType::Timestamp(prec) => (prec, false),
@@ -153,7 +215,7 @@ impl Timestamp {
         minute: u32,
         second: u32,
         nanosecond: u32,
-    ) -> Timestamp {
+    ) -> Result<Timestamp> {
         Timestamp {
             year,
             month,
@@ -167,19 +229,15 @@ impl Timestamp {
             precision: 9,
             with_tz: false,
         }
+        .check_validity()
     }
 
     /// Creates a timestamp with time zone.
     ///
     /// `offset` is time zone offset seconds from UTC.
     #[inline]
-    pub fn and_tz_offset(&self, offset: i32) -> Timestamp {
-        Timestamp {
-            tz_hour_offset: offset / 3600,
-            tz_minute_offset: offset % 3600 / 60,
-            with_tz: true,
-            ..*self
-        }
+    pub fn and_tz_offset(&self, offset: i32) -> Result<Timestamp> {
+        self.and_tz_hm_offset(offset / 3600, offset % 3600 / 60)
     }
 
     /// Creates a timestamp with time zone.
@@ -188,13 +246,14 @@ impl Timestamp {
     /// All arguments must be zero or positive in the eastern hemisphere. They must be
     /// zero or negative in the western hemisphere.
     #[inline]
-    pub fn and_tz_hm_offset(&self, hour_offset: i32, minute_offset: i32) -> Timestamp {
-        Timestamp {
+    pub fn and_tz_hm_offset(&self, hour_offset: i32, minute_offset: i32) -> Result<Timestamp> {
+        Self::check_tz_hm_offset(hour_offset, minute_offset)?;
+        Ok(Timestamp {
             tz_hour_offset: hour_offset,
             tz_minute_offset: minute_offset,
             with_tz: true,
             ..*self
-        }
+        })
     }
 
     /// Creates a timestamp with precision.
@@ -202,8 +261,15 @@ impl Timestamp {
     /// The precision affects text representation of Timestamp.
     /// It doesn't affect comparison.
     #[inline]
-    pub fn and_prec(&self, precision: u8) -> Timestamp {
-        Timestamp { precision, ..*self }
+    pub fn and_prec(&self, precision: u8) -> Result<Timestamp> {
+        if precision > 9 {
+            Err(Error::out_of_range(format!(
+                "precision must be 0 to 9 but {}",
+                precision
+            )))
+        } else {
+            Ok(Timestamp { precision, ..*self })
+        }
     }
 
     /// Returns the year number from -4713 to 9999.
@@ -322,7 +388,7 @@ impl fmt::Display for Timestamp {
 impl str::FromStr for Timestamp {
     type Err = ParseOracleTypeError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> result::Result<Self, Self::Err> {
         let err = || ParseOracleTypeError::new("Timestamp");
         let mut s = Scanner::new(s);
         let minus = if let Some('-') = s.char() {
@@ -445,10 +511,11 @@ impl str::FromStr for Timestamp {
             min as u32,
             sec as u32,
             nsec as u32,
-        );
+        )
+        .map_err(|_| err())?;
         ts.precision = precision as u8;
         if with_tz {
-            ts = ts.and_tz_hm_offset(tz_hour, tz_min);
+            ts = ts.and_tz_hm_offset(tz_hour, tz_min).map_err(|_| err())?;
         }
         Ok(ts)
     }
@@ -459,8 +526,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn to_string() {
-        let mut ts = Timestamp::new(2012, 3, 4, 5, 6, 7, 890123456).and_tz_hm_offset(8, 45);
+    fn to_string() -> Result<()> {
+        let mut ts = Timestamp::new(2012, 3, 4, 5, 6, 7, 890123456)?.and_tz_hm_offset(8, 45)?;
         ts.with_tz = false;
         ts.precision = 0;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07");
@@ -491,7 +558,7 @@ mod tests {
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07 -08:45");
         ts.year = -123;
         assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -08:45");
-        let mut ts = ts.and_tz_offset(-3600 - 1800);
+        let mut ts = ts.and_tz_offset(-3600 - 1800)?;
         assert_eq!(ts.tz_hour_offset, -1);
         assert_eq!(ts.tz_minute_offset, -30);
         assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -01:30");
@@ -501,14 +568,15 @@ mod tests {
         assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:30");
         ts.tz_minute_offset = 0;
         assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:00");
+        Ok(())
     }
 
     #[test]
-    fn parse() {
+    fn parse() -> Result<()> {
         let mut ts = Timestamp::new(
             2012, 1, 1, // year, month, day,
             0, 0, 0, 0,
-        ); // hour, minute, second, nanosecond,
+        )?; // hour, minute, second, nanosecond,
         ts.precision = 0;
         assert_eq!("2012".parse(), Ok(ts));
         ts.month = 3;
@@ -580,5 +648,6 @@ mod tests {
         assert_eq!("-123-03-04 05:06:07.123 -00:45".parse(), Ok(ts));
         ts.tz_minute_offset = 45;
         assert_eq!("-123-03-04 05:06:07.123 +00:45".parse(), Ok(ts));
+        Ok(())
     }
 }

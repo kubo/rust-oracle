@@ -108,8 +108,8 @@ where
             self.minute(),
             self.second(),
             self.nanosecond(),
-        );
-        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
+        )?;
+        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc())?;
         val.set_timestamp(&ts)
     }
 }
@@ -184,8 +184,8 @@ where
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0);
-        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc());
+        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0)?;
+        let ts = ts.and_tz_offset(self.offset().fix().local_minus_utc())?;
         val.set_timestamp(&ts)
     }
 }
@@ -238,7 +238,7 @@ impl ToSql for NaiveDateTime {
             self.minute(),
             self.second(),
             self.nanosecond(),
-        );
+        )?;
         val.set_timestamp(&ts)
     }
 }
@@ -277,7 +277,7 @@ impl ToSql for NaiveDate {
     }
 
     fn to_sql(&self, val: &mut SqlValue) -> Result<()> {
-        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0);
+        let ts = Timestamp::new(self.year(), self.month(), self.day(), 0, 0, 0, 0)?;
         val.set_timestamp(&ts)
     }
 }

@@ -7,6 +7,7 @@ Breaking changes:
 * Remove the lifetype parameter `'conn` from [`Statement`] and remove `stmt_without_lifetime` feature added at 0.5.7
 * Add a new variant [`OracleType::Xml`]
 * Add a lifetime parameter to [`SqlValue`]
+* Change the return type of [`Timestamp::new()`], [`Timestamp::and_tz_offset()`], [`Timestamp::and_tz_hm_offset()`], and [`Timestamp::and_prec()`] to check the arguments
 * Change the return type of [`IntervalDS::new()`] and [`IntervalDS::and_prec()`] to check the arguments
 * Change the return type of [`IntervalYM::new()`] and [`IntervalYM::and_prec()`] to check the arguments
 * Remove [`SqlValue::dup`]
@@ -518,3 +519,7 @@ Incompatible changes:
 [`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
 [`StmtParam`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html#variant.FetchArraySize
+[`Timestamp::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_prec
+[`Timestamp::and_tz_hm_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_hm_offset
+[`Timestamp::and_tz_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_offset
+[`Timestamp::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.new
