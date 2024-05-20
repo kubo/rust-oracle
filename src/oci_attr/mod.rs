@@ -37,7 +37,6 @@ pub mod data_type;
 pub mod handle;
 pub mod mode;
 
-///
 pub unsafe trait OciAttr {
     /// [`SvcCtx`], [`Session`], [`Server`] or [`Stmt`].
     /// Other handle and descriptor types are unsupported.

@@ -173,7 +173,9 @@ define_dpi_data_with_refcount!(Stmt, nosync);
 // define DpiVar wrapping *mut dpiVar.
 define_dpi_data_with_refcount!(Var, nosync);
 
+#[allow(dead_code)]
 trait AssertSend: Send {}
+#[allow(dead_code)]
 trait AssertSync: Sync {}
 
 //
