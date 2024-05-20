@@ -528,7 +528,7 @@ impl SqlValue<'_> {
         self.check_not_null()?;
         unsafe {
             let it = dpiData_getIntervalYM(self.data()?);
-            Ok(IntervalYM::from_dpi_interval_ym(&*it, self.oracle_type()?))
+            IntervalYM::from_dpi_interval_ym(&*it, self.oracle_type()?)
         }
     }
 

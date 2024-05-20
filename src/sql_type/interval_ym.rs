@@ -13,14 +13,16 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
-use std::fmt;
-use std::str;
-
 use crate::binding::dpiIntervalYM;
 use crate::sql_type::OracleType;
 use crate::util::Scanner;
+use crate::Error;
 use crate::ParseOracleTypeError;
+use crate::Result;
+use std::cmp;
+use std::fmt;
+use std::result;
+use std::str;
 
 /// Oracle-specific [Interval Year to Month][INTVL_YM] data type.
 ///
@@ -31,17 +33,17 @@ use crate::ParseOracleTypeError;
 /// ```
 /// # use oracle::*; use oracle::sql_type::*;
 /// // Create an interval by new().
-/// let intvl1 = IntervalYM::new(2, 3);
+/// let intvl1 = IntervalYM::new(2, 3)?;
 ///
 /// // All arguments must be zero or negative to create a negative interval.
-/// let intvl2 = IntervalYM::new(-2, -3);
+/// let intvl2 = IntervalYM::new(-2, -3)?;
 ///
 /// // Convert to string.
 /// assert_eq!(intvl1.to_string(), "+000000002-03");
 /// assert_eq!(intvl2.to_string(), "-000000002-03");
 ///
 /// // Create an interval with precision.
-/// let intvl3 = IntervalYM::new(2, 3).and_prec(3);
+/// let intvl3 = IntervalYM::new(2, 3)?.and_prec(3)?;
 ///
 /// // The string representation depends on the precisions.
 /// assert_eq!(intvl3.to_string(), "+002-03");
@@ -89,16 +91,36 @@ pub struct IntervalYM {
 }
 
 impl IntervalYM {
-    pub(crate) fn from_dpi_interval_ym(it: &dpiIntervalYM, oratype: &OracleType) -> IntervalYM {
+    fn check_validity(self) -> Result<Self> {
+        if !(-999999999..=999999999).contains(&self.years) {
+            Err(Error::out_of_range(format!(
+                "years must be between -999999999 and 999999999 but {:?}",
+                self
+            )))
+        } else if !(-11..=11).contains(&self.months) {
+            Err(Error::out_of_range(format!(
+                "months must be between -11 and 11 but {:?}",
+                self
+            )))
+        } else if (self.years >= 0 && self.months >= 0) || (self.years <= 0 && self.months <= 0) {
+            Ok(self)
+        } else {
+            Err(Error::out_of_range(format!(
+                "years and months must be zeor or positive; or zero or negative but {:?}",
+                self
+            )))
+        }
+    }
+
+    pub(crate) fn from_dpi_interval_ym(
+        it: &dpiIntervalYM,
+        oratype: &OracleType,
+    ) -> Result<IntervalYM> {
         let prec = match *oratype {
             OracleType::IntervalYM(prec) => prec,
             _ => 2,
         };
-        IntervalYM {
-            years: it.years,
-            months: it.months,
-            precision: prec,
-        }
+        IntervalYM::new(it.years, it.months)?.and_prec(prec)
     }
 
     /// Creates a new IntervalYM.
@@ -112,20 +134,28 @@ impl IntervalYM {
     ///
     /// All arguments must be zero or positive to create a positive interval.
     /// All arguments must be zero or negative to create a negative interval.
-    pub fn new(years: i32, months: i32) -> IntervalYM {
+    pub fn new(years: i32, months: i32) -> Result<IntervalYM> {
         IntervalYM {
             years,
             months,
             precision: 9,
         }
+        .check_validity()
     }
 
     /// Creates a new IntervalYM with precision.
     ///
     /// The precision affects text representation of IntervalYM.
     /// It doesn't affect comparison.
-    pub fn and_prec(&self, precision: u8) -> IntervalYM {
-        IntervalYM { precision, ..*self }
+    pub fn and_prec(&self, precision: u8) -> Result<IntervalYM> {
+        if precision > 9 {
+            Err(Error::out_of_range(format!(
+                "precision must be 0 to 9 but {}",
+                precision
+            )))
+        } else {
+            Ok(IntervalYM { precision, ..*self })
+        }
     }
 
     /// Returns years component.
@@ -176,7 +206,7 @@ impl fmt::Display for IntervalYM {
 impl str::FromStr for IntervalYM {
     type Err = ParseOracleTypeError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> result::Result<Self, Self::Err> {
         let err = || ParseOracleTypeError::new("IntervalYM");
         let mut s = Scanner::new(s);
         let minus = match s.char() {
@@ -214,8 +244,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn to_string() {
-        let mut it = IntervalYM::new(1, 2);
+    fn to_string() -> Result<()> {
+        let mut it = IntervalYM::new(1, 2)?;
         it.precision = 0;
         assert_eq!(it.to_string(), "+1-02");
         it.precision = 1;
@@ -237,7 +267,7 @@ mod tests {
         it.precision = 9;
         assert_eq!(it.to_string(), "+000000001-02");
 
-        let mut it = IntervalYM::new(-1, -2);
+        let mut it = IntervalYM::new(-1, -2)?;
         it.precision = 0;
         assert_eq!(it.to_string(), "-1-02");
         it.precision = 1;
@@ -258,11 +288,12 @@ mod tests {
         assert_eq!(it.to_string(), "-00000001-02");
         it.precision = 9;
         assert_eq!(it.to_string(), "-000000001-02");
+        Ok(())
     }
 
     #[test]
-    fn parse() {
-        let mut it = IntervalYM::new(1, 2);
+    fn parse() -> Result<()> {
+        let mut it = IntervalYM::new(1, 2)?;
         it.precision = 1;
         assert_eq!("1-2".parse(), Ok(it));
         assert_eq!("+1-02".parse(), Ok(it));
@@ -283,7 +314,8 @@ mod tests {
         it.precision = 9;
         assert_eq!("+000000001-02".parse(), Ok(it));
 
-        let it = IntervalYM::new(-1, -2);
+        let it = IntervalYM::new(-1, -2)?;
         assert_eq!("-000000001-02".parse(), Ok(it));
+        Ok(())
     }
 }

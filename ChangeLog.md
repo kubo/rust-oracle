@@ -8,6 +8,7 @@ Breaking changes:
 * Add a new variant [`OracleType::Xml`]
 * Add a lifetime parameter to [`SqlValue`]
 * Change the return type of [`IntervalDS::new()`] and [`IntervalDS::and_prec()`] to check the arguments
+* Change the return type of [`IntervalYM::new()`] and [`IntervalYM::and_prec()`] to check the arguments
 * Remove [`SqlValue::dup`]
 * Add [`#[non_exhaustive]`] to [`Error`]
 * Remove deprecated trait method [`Error::description`] for [`Error`]
@@ -469,6 +470,8 @@ Incompatible changes:
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
 [`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec
 [`IntervalDS::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.new
+[`IntervalYM::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalYM.html#method.and_prec
+[`IntervalYM::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalYM.html#method.new
 [`Object`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Object.html
 [`ObjectType::attributes()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.attributes
 [`ObjectType::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectType.html#method.name

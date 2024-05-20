@@ -50,7 +50,7 @@ fn in_out_same_values() -> Result<()> {
         Timestamp::new(2012, 3, 4, 5, 6, 7, 123456789)
     );
     test_in_out!(stmt, IntervalDS, IntervalDS::new(1, 2, 3, 4, 123456789)?);
-    test_in_out!(stmt, IntervalYM, IntervalYM::new(10, 2));
+    test_in_out!(stmt, IntervalYM, IntervalYM::new(10, 2)?);
     Ok(())
 }
 
@@ -109,7 +109,7 @@ fn to_string_in_rust_oracle() -> Result<()> {
     test_to_string!(stmt, &raw_data);
     test_to_string!(stmt, &Timestamp::new(2012, 3, 4, 5, 6, 7, 123456789));
     test_to_string!(stmt, &IntervalDS::new(1, 2, 3, 4, 123456789)?);
-    test_to_string!(stmt, &IntervalYM::new(10, 2));
+    test_to_string!(stmt, &IntervalYM::new(10, 2)?);
 
     test_to_string!(stmt, &(&"123456", &OracleType::Long));
     test_to_string!(stmt, &(&raw_data, &OracleType::LongRaw), out: raw);
@@ -181,7 +181,7 @@ fn from_string_in_rust_oracle() -> Result<()> {
         Timestamp::new(2012, 3, 4, 5, 6, 7, 123456789)
     );
     test_from_string!(stmt, IntervalDS, IntervalDS::new(1, 2, 3, 4, 123456789)?);
-    test_from_string!(stmt, IntervalYM, IntervalYM::new(10, 2));
+    test_from_string!(stmt, IntervalYM, IntervalYM::new(10, 2)?);
 
     test_from_string!(
         stmt,

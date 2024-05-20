@@ -766,7 +766,7 @@ fn interval_ds_to_sql() -> Result<()> {
 fn interval_ym_from_sql() -> Result<()> {
     let conn = common::connect()?;
 
-    let it = IntervalYM::new(1, 2);
+    let it = IntervalYM::new(1, 2)?;
     test_from_sql!(
         &conn,
         "INTERVAL '1-2' YEAR TO MONTH",
@@ -774,7 +774,7 @@ fn interval_ym_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalYM::new(123456789, 2);
+    let it = IntervalYM::new(123456789, 2)?;
     test_from_sql!(
         &conn,
         "INTERVAL '123456789-2' YEAR(9) TO MONTH",
@@ -782,7 +782,7 @@ fn interval_ym_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalYM::new(-1, -2);
+    let it = IntervalYM::new(-1, -2)?;
     test_from_sql!(
         &conn,
         "INTERVAL '-1-2' YEAR TO MONTH",
@@ -790,7 +790,7 @@ fn interval_ym_from_sql() -> Result<()> {
         &it
     );
 
-    let it = IntervalYM::new(-123456789, -2);
+    let it = IntervalYM::new(-123456789, -2)?;
     test_from_sql!(
         &conn,
         "INTERVAL '-123456789-2' YEAR(9) TO MONTH",
@@ -804,15 +804,15 @@ fn interval_ym_from_sql() -> Result<()> {
 fn interval_ym_to_sql() -> Result<()> {
     let conn = common::connect()?;
 
-    let it = IntervalYM::new(1, 2);
+    let it = IntervalYM::new(1, 2)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+000000001-02");
-    let it = IntervalYM::new(123456789, 2);
+    let it = IntervalYM::new(123456789, 2)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "+123456789-02");
 
-    let it = IntervalYM::new(-1, -2);
+    let it = IntervalYM::new(-1, -2)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-000000001-02");
 
-    let it = IntervalYM::new(-123456789, -2);
+    let it = IntervalYM::new(-123456789, -2)?;
     test_to_sql!(&conn, &it, "TO_CHAR(:1)", "-123456789-02");
     Ok(())
 }
