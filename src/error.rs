@@ -21,6 +21,7 @@ use crate::AssertSync;
 use crate::Context;
 #[cfg(doc)]
 use crate::{Batch, BatchBuilder, Connection, Statement};
+use std::borrow::Cow;
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
@@ -383,50 +384,66 @@ pub struct DbError {
     code: i32,
     offset: u32,
     message: String,
-    fn_name: String,
-    action: String,
+    fn_name: Cow<'static, str>,
+    action: Cow<'static, str>,
+    is_recoverable: bool,
+    is_warning: bool,
 }
 
 impl DbError {
-    pub fn new(
-        code: i32,
-        offset: u32,
-        message: String,
-        fn_name: String,
-        action: String,
-    ) -> DbError {
+    /// Creates a new DbError. Note that its `is_recoverable` and `is_warning` values are always `false`.
+    pub fn new<M, F, A>(code: i32, offset: u32, message: M, fn_name: F, action: A) -> DbError
+    where
+        M: Into<String>,
+        F: Into<Cow<'static, str>>,
+        A: Into<Cow<'static, str>>,
+    {
         DbError {
             code,
             offset,
-            message,
-            fn_name,
-            action,
+            message: message.into(),
+            fn_name: fn_name.into(),
+            action: action.into(),
+            is_recoverable: false,
+            is_warning: false,
         }
     }
 
-    /// Oracle error code if OciError. always zero if DpiError
+    /// The OCI error code if an OCI error has taken place. If no OCI error has taken place the value is 0.
     pub fn code(&self) -> i32 {
         self.code
     }
 
-    /// ? (used for Batch Errors?)
+    /// The parse error offset (in bytes) when executing a statement or the row offset when performing bulk operations or fetching batch error information. If neither of these cases are true, the value is 0.
     pub fn offset(&self) -> u32 {
         self.offset
     }
 
-    /// error message
+    /// The error message
     pub fn message(&self) -> &str {
         &self.message
     }
 
-    /// function name in ODPI-C used by rust-oracle
+    /// The public ODPI-C, used by rust-oracle, function name which was called in which the error took place.
     pub fn fn_name(&self) -> &str {
         &self.fn_name
     }
 
-    /// action name in ODPI-C used by rust-oracle
+    /// The internal action that was being performed when the error took place.
     pub fn action(&self) -> &str {
         &self.action
+    }
+
+    /// A boolean value indicating if the error is recoverable. This always retruns `false` unless both client and server are at release 12.1 or higher.
+    pub fn is_recoverable(&self) -> bool {
+        self.is_recoverable
+    }
+
+    /// A boolean value indicating if the error information is for a warning returned by Oracle that does not prevent the requested operation from proceeding. Examples include connecting to the database with a password that is about to expire (within the grace period) and creating a stored procedure with compilation errors.
+    ///
+    /// See also [`Connection::last_warning`].
+    pub fn is_warning(&self) -> bool {
+        self.is_warning
     }
 }
 
@@ -523,17 +540,15 @@ impl<T> From<sync::PoisonError<T>> for Error {
 //
 
 pub fn dberror_from_dpi_error(err: &dpiErrorInfo) -> DbError {
-    DbError::new(
-        err.code,
-        err.offset,
-        to_rust_str(err.message, err.messageLength),
-        unsafe { CStr::from_ptr(err.fnName) }
-            .to_string_lossy()
-            .into_owned(),
-        unsafe { CStr::from_ptr(err.action) }
-            .to_string_lossy()
-            .into_owned(),
-    )
+    DbError {
+        code: err.code,
+        offset: err.offset,
+        message: to_rust_str(err.message, err.messageLength),
+        fn_name: unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy(),
+        action: unsafe { CStr::from_ptr(err.action) }.to_string_lossy(),
+        is_recoverable: err.isRecoverable != 0,
+        is_warning: err.isWarning != 0,
+    }
 }
 
 #[allow(deprecated)]

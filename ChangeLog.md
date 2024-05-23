@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.6.1 (2024-??-??)
+
+New features:
+
+* Add [`DbError::is_recoverable()`] and [`DbError::is_warning()`]
+
+Non-breaking Changes:
+
+* `DbError::new()` uses generics, which supports old types.
+
 ## 0.6.0 (2024-05-20)
 
 Breaking changes:
@@ -462,6 +472,8 @@ Incompatible changes:
 [`ConnStatus`]: https://www.jiubao.org/rust-oracle/oracle/enum.ConnStatus.html
 [`DbError::action()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.action
 [`DbError::fn_name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.fn_name
+[`DbError::is_recoverable()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.is_recoverable
+[`DbError::is_warning()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.is_warning
 [`DbError::message()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.message
 [`DbError::offset()`]: https://www.jiubao.org/rust-oracle/oracle/struct.DbError.html#method.offset
 [`Eq`]: https://doc.rust-lang.org/std/cmp/trait.Eq.html
