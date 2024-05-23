@@ -182,7 +182,14 @@ mod tests {
     fn client_version() {
         let ver = Version::client().unwrap();
         let conn = test_util::connect().unwrap();
-        let ver_from_query = conn.query_row_as::<String>("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')", &[]).unwrap();
+        let mut ver_from_query = conn.query_row_as::<String>("SELECT client_version FROM v$session_connect_info WHERE sid = SYS_CONTEXT('USERENV', 'SID')", &[]).unwrap();
+        // The fifth numeral of client_version may be "01" through "12" such as "23.4.0.24.05".
+        // Replace it with "23.4.0.24.5" to pass this test.
+        if let Some(pos) = ver_from_query.len().checked_sub(2) {
+            if ver_from_query.as_bytes()[pos] == b'0' {
+                ver_from_query.remove(pos);
+            }
+        }
         assert_eq!(ver.to_string(), ver_from_query);
     }
 }
