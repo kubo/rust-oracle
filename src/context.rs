@@ -27,6 +27,10 @@ use std::sync::{Arc, Mutex};
 // Context
 //
 
+// Context is created for each connection.
+// On the other hand, the context member (*mut dpiContext) is created only once in the process.
+//
+// It is used to share information between Connection and structs created from the Connection.
 #[derive(Clone)]
 pub(crate) struct Context {
     pub context: *mut dpiContext,
@@ -84,12 +88,15 @@ impl Context {
         })
     }
 
+    // called by Connection::last_warning
     pub fn last_warning(&self) -> Option<DbError> {
         self.last_warning
             .as_ref()
             .and_then(|mutex| mutex.lock().unwrap().as_ref().cloned())
     }
 
+    // called by Connection, Statement, Batch and Pool to set a warning
+    // referred by `Connection::last_warning` later.
     pub fn set_warning(&self) {
         if let Some(ref mutex) = self.last_warning {
             *mutex.lock().unwrap() = error::warning(self);
