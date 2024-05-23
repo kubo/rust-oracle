@@ -32,7 +32,6 @@
 
 use crate::binding::*;
 use crate::chkerr;
-use crate::error::dberror_from_dpi_error;
 use crate::error::DPI_ERR_BUFFER_SIZE_TOO_SMALL;
 use crate::private;
 use crate::sql_type::OracleType;
@@ -42,6 +41,7 @@ use crate::statement::QueryParams;
 use crate::to_odpi_str;
 use crate::to_rust_str;
 use crate::Connection;
+use crate::DbError;
 use crate::Error;
 use crate::Result;
 use crate::SqlValue;
@@ -532,7 +532,7 @@ impl<'conn> Batch<'conn> {
                 );
                 unsafe { errs.set_len(errnum as usize) };
                 return Err(Error::make_batch_errors(
-                    errs.iter().map(dberror_from_dpi_error).collect(),
+                    errs.iter().map(DbError::from_dpi_error).collect(),
                 ));
             }
         }

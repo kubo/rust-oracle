@@ -183,6 +183,27 @@ pub enum Error {
 
 #[allow(deprecated)]
 impl Error {
+    pub(crate) fn from_context(ctxt: &Context) -> Error {
+        let err = unsafe {
+            let mut err = MaybeUninit::uninit();
+            dpiContext_getError(ctxt.context, err.as_mut_ptr());
+            err.assume_init()
+        };
+        Error::from_dpi_error(&err)
+    }
+
+    pub(crate) fn from_dpi_error(err: &dpiErrorInfo) -> Error {
+        Error::from_db_error(DbError::from_dpi_error(err))
+    }
+
+    pub(crate) fn from_db_error(dberr: DbError) -> Error {
+        if dberr.message().starts_with("DPI") {
+            Error::DpiError(dberr)
+        } else {
+            Error::OciError(dberr)
+        }
+    }
+
     /// Returns the corresponding [`ErrorKind`] for this error.
     pub fn kind(&self) -> ErrorKind {
         match self {
@@ -391,6 +412,31 @@ pub struct DbError {
 }
 
 impl DbError {
+    pub(crate) fn from_dpi_error(err: &dpiErrorInfo) -> DbError {
+        DbError {
+            code: err.code,
+            offset: err.offset,
+            message: to_rust_str(err.message, err.messageLength),
+            fn_name: unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy(),
+            action: unsafe { CStr::from_ptr(err.action) }.to_string_lossy(),
+            is_recoverable: err.isRecoverable != 0,
+            is_warning: err.isWarning != 0,
+        }
+    }
+
+    pub(crate) fn to_warning(ctxt: &Context) -> Option<DbError> {
+        let err = unsafe {
+            let mut err = MaybeUninit::uninit();
+            dpiContext_getError(ctxt.context, err.as_mut_ptr());
+            err.assume_init()
+        };
+        if err.isWarning != 0 {
+            Some(DbError::from_dpi_error(&err))
+        } else {
+            None
+        }
+    }
+
     /// Creates a new DbError. Note that its `is_recoverable` and `is_warning` values are always `false`.
     pub fn new<M, F, A>(code: i32, offset: u32, message: M, fn_name: F, action: A) -> DbError
     where
@@ -535,54 +581,6 @@ impl<T> From<sync::PoisonError<T>> for Error {
     }
 }
 
-//
-// functions to check errors
-//
-
-pub fn dberror_from_dpi_error(err: &dpiErrorInfo) -> DbError {
-    DbError {
-        code: err.code,
-        offset: err.offset,
-        message: to_rust_str(err.message, err.messageLength),
-        fn_name: unsafe { CStr::from_ptr(err.fnName) }.to_string_lossy(),
-        action: unsafe { CStr::from_ptr(err.action) }.to_string_lossy(),
-        is_recoverable: err.isRecoverable != 0,
-        is_warning: err.isWarning != 0,
-    }
-}
-
-#[allow(deprecated)]
-pub fn error_from_dpi_error(err: &dpiErrorInfo) -> Error {
-    let err = dberror_from_dpi_error(err);
-    if err.message().starts_with("DPI") {
-        Error::DpiError(err)
-    } else {
-        Error::OciError(err)
-    }
-}
-
-pub(crate) fn warning(ctxt: &Context) -> Option<DbError> {
-    let err = unsafe {
-        let mut err = MaybeUninit::uninit();
-        dpiContext_getError(ctxt.context, err.as_mut_ptr());
-        err.assume_init()
-    };
-    if err.isWarning != 0 {
-        Some(dberror_from_dpi_error(&err))
-    } else {
-        None
-    }
-}
-
-pub(crate) fn error_from_context(ctxt: &Context) -> Error {
-    let err = unsafe {
-        let mut err = MaybeUninit::uninit();
-        dpiContext_getError(ctxt.context, err.as_mut_ptr());
-        err.assume_init()
-    };
-    crate::error::error_from_dpi_error(&err)
-}
-
 fn dpi_error_in_message(message: &str) -> Option<i32> {
     let bytes = message.as_bytes();
     if !bytes.starts_with(b"DPI-") {
@@ -608,13 +606,13 @@ macro_rules! chkerr {
     ($ctxt:expr, $code:expr) => {{
         #[allow(unused_unsafe)]
         if unsafe { $code } != DPI_SUCCESS as i32 {
-            return Err($crate::error::error_from_context($ctxt));
+            return Err($crate::Error::from_context($ctxt));
         }
     }};
     ($ctxt:expr, $code:expr, $cleanup:stmt) => {{
         #[allow(unused_unsafe)]
         if unsafe { $code } != DPI_SUCCESS as i32 {
-            let err = $crate::error::error_from_context($ctxt);
+            let err = $crate::Error::from_context($ctxt);
             $cleanup
             return Err(err);
         }
