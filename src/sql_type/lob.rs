@@ -751,7 +751,7 @@ impl_traits!(FromSql, ToSqlNull, ToSql, Read, Write, SeekInChars, Lob for Nclob 
 mod tests {
     use super::*;
     use crate::test_util;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
     use std::io::Read;
     use std::io::Seek;
     use std::io::Write;
@@ -795,15 +795,13 @@ mod tests {
         }
     }
 
-    lazy_static! {
-        static ref TEST_DATA: String = {
-            Rand::new()
-                .take(100)
-                .map(|n| CRAB_CHARS[(n as usize) % CRAB_CHARS.len()])
-                .collect::<Vec<_>>()
-                .join("")
-        };
-    }
+    static TEST_DATA: Lazy<String> = Lazy::new(|| {
+        Rand::new()
+            .take(100)
+            .map(|n| CRAB_CHARS[(n as usize) % CRAB_CHARS.len()])
+            .collect::<Vec<_>>()
+            .join("")
+    });
 
     #[test]
     fn read_write_blob() -> std::result::Result<(), std::boxed::Box<dyn std::error::Error>> {

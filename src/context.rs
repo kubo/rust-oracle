@@ -17,11 +17,10 @@ use crate::binding::*;
 use crate::DbError;
 use crate::Error;
 use crate::Result;
-use lazy_static::lazy_static;
-use std::mem::MaybeUninit;
+use once_cell::sync::OnceCell;
+use std::mem::{self, MaybeUninit};
 use std::os::raw::c_char;
 use std::ptr;
-use std::result;
 use std::sync::{Arc, Mutex};
 
 //
@@ -41,15 +40,23 @@ pub(crate) struct Context {
 unsafe impl Sync for Context {}
 unsafe impl Send for Context {}
 
-lazy_static! {
-    static ref DPI_CONTEXT: result::Result<Context, DbError> = {
+static GLOBAL_CONTEXT: OnceCell<Context> = OnceCell::new();
+
+impl Context {
+    // Use this only inside of GLOBAL_CONTEXT.get_or_try_init().
+    fn from_params(params: &mut dpiContextCreateParams) -> Result<Context> {
+        if params.defaultDriverName.is_null() {
+            let driver_name: &'static str =
+                concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"), "\0");
+            params.defaultDriverName = driver_name.as_ptr() as *const c_char;
+        }
         let mut ctxt = ptr::null_mut();
         let mut err = MaybeUninit::uninit();
         if unsafe {
             dpiContext_createWithParams(
                 DPI_MAJOR_VERSION,
                 DPI_MINOR_VERSION,
-                ptr::null_mut(),
+                params,
                 &mut ctxt,
                 err.as_mut_ptr(),
             )
@@ -60,17 +67,17 @@ lazy_static! {
                 last_warning: None,
             })
         } else {
-            Err(DbError::from_dpi_error(&unsafe { err.assume_init() }))
+            Err(Error::from_dpi_error(&unsafe { err.assume_init() }))
         }
-    };
-}
+    }
 
-impl Context {
     pub fn new0() -> Result<Context> {
-        match *DPI_CONTEXT {
-            Ok(ref ctxt) => Ok(ctxt.clone()),
-            Err(ref err) => Err(Error::from_db_error(err.clone())),
-        }
+        Ok(GLOBAL_CONTEXT
+            .get_or_try_init(|| {
+                let mut params = unsafe { mem::zeroed() };
+                Context::from_params(&mut params)
+            })?
+            .clone())
     }
 
     pub fn new() -> Result<Context> {
@@ -101,10 +108,7 @@ impl Context {
         unsafe {
             dpiContext_initCommonCreateParams(self.context, params.as_mut_ptr());
             let mut params = params.assume_init();
-            let driver_name: &'static str = concat!("rust-oracle : ", env!("CARGO_PKG_VERSION"));
             params.createMode |= DPI_MODE_CREATE_THREADED;
-            params.driverName = driver_name.as_ptr() as *const c_char;
-            params.driverNameLength = driver_name.len() as u32;
             params
         }
     }
