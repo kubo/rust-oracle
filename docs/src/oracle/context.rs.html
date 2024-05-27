@@ -127,6 +127,10 @@
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -143,11 +147,11 @@
 //-----------------------------------------------------------------------------
 
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::error;
 <span class="kw">use </span><span class="kw">crate</span>::DbError;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
-<span class="kw">use </span>lazy_static::lazy_static;
-<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>once_cell::sync::OnceCell;
+<span class="kw">use </span>std::mem::{<span class="self">self</span>, MaybeUninit};
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::sync::{Arc, Mutex};
@@ -156,6 +160,10 @@
 // Context
 //
 
+// Context is created for each connection.
+// On the other hand, the context member (*mut dpiContext) is created only once in the process.
+//
+// It is used to share information between Connection and structs created from the Connection.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Context {
     <span class="kw">pub </span>context: <span class="kw-2">*mut </span>dpiContext,
@@ -165,44 +173,44 @@
 <span class="kw">unsafe impl </span>Sync <span class="kw">for </span>Context {}
 <span class="kw">unsafe impl </span>Send <span class="kw">for </span>Context {}
 
-<span class="kw">enum </span>ContextResult {
-    <span class="prelude-val">Ok</span>(Context),
-    <span class="prelude-val">Err</span>(dpiErrorInfo),
-}
+<span class="kw">static </span>GLOBAL_CONTEXT: OnceCell&lt;Context&gt; = OnceCell::new();
 
-<span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ContextResult {}
-<span class="kw">unsafe impl </span>Send <span class="kw">for </span>ContextResult {}
-
-<span class="macro">lazy_static!</span> {
-    <span class="kw">static </span><span class="kw-2">ref </span>DPI_CONTEXT: ContextResult = {
+<span class="kw">impl </span>Context {
+    <span class="comment">// Use this only inside of GLOBAL_CONTEXT.get_or_try_init().
+    </span><span class="kw">fn </span>from_params(params: <span class="kw-2">&amp;mut </span>dpiContextCreateParams) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
+        <span class="kw">if </span>params.defaultDriverName.is_null() {
+            <span class="kw">let </span>driver_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str =
+                <span class="macro">concat!</span>(<span class="string">"rust-oracle : "</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>), <span class="string">"\0"</span>);
+            params.defaultDriverName = driver_name.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
+        }
         <span class="kw">let </span><span class="kw-2">mut </span>ctxt = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
         <span class="kw">if unsafe </span>{
             dpiContext_createWithParams(
                 DPI_MAJOR_VERSION,
                 DPI_MINOR_VERSION,
-                ptr::null_mut(),
+                params,
                 <span class="kw-2">&amp;mut </span>ctxt,
                 err.as_mut_ptr(),
             )
         } == DPI_SUCCESS <span class="kw">as </span>i32
         {
-            ContextResult::Ok(Context {
+            <span class="prelude-val">Ok</span>(Context {
                 context: ctxt,
                 last_warning: <span class="prelude-val">None</span>,
             })
         } <span class="kw">else </span>{
-            ContextResult::Err(<span class="kw">unsafe </span>{ err.assume_init() })
+            <span class="prelude-val">Err</span>(Error::from_dpi_error(<span class="kw-2">&amp;</span><span class="kw">unsafe </span>{ err.assume_init() }))
         }
-    };
-}
+    }
 
-<span class="kw">impl </span>Context {
     <span class="kw">pub fn </span>new0() -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
-        <span class="kw">match </span><span class="kw-2">*</span>DPI_CONTEXT {
-            ContextResult::Ok(<span class="kw-2">ref </span>ctxt) =&gt; <span class="prelude-val">Ok</span>(ctxt.clone()),
-            ContextResult::Err(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Err</span>(error::error_from_dpi_error(err)),
-        }
+        <span class="prelude-val">Ok</span>(GLOBAL_CONTEXT
+            .get_or_try_init(|| {
+                <span class="kw">let </span><span class="kw-2">mut </span>params = <span class="kw">unsafe </span>{ mem::zeroed() };
+                Context::from_params(<span class="kw-2">&amp;mut </span>params)
+            })<span class="question-mark">?
+            </span>.clone())
     }
 
     <span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
@@ -213,15 +221,18 @@
         })
     }
 
-    <span class="kw">pub fn </span>last_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DbError&gt; {
+    <span class="comment">// called by Connection::last_warning
+    </span><span class="kw">pub fn </span>last_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DbError&gt; {
         <span class="self">self</span>.last_warning
             .as_ref()
             .and_then(|mutex| mutex.lock().unwrap().as_ref().cloned())
     }
 
-    <span class="kw">pub fn </span>set_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+    <span class="comment">// called by Connection, Statement, Batch and Pool to set a warning
+    // referred by `Connection::last_warning` later.
+    </span><span class="kw">pub fn </span>set_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mutex) = <span class="self">self</span>.last_warning {
-            <span class="kw-2">*</span>mutex.lock().unwrap() = error::warning(<span class="self">self</span>);
+            <span class="kw-2">*</span>mutex.lock().unwrap() = DbError::to_warning(<span class="self">self</span>);
         }
     }
 
@@ -230,10 +241,7 @@
         <span class="kw">unsafe </span>{
             dpiContext_initCommonCreateParams(<span class="self">self</span>.context, params.as_mut_ptr());
             <span class="kw">let </span><span class="kw-2">mut </span>params = params.assume_init();
-            <span class="kw">let </span>driver_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="macro">concat!</span>(<span class="string">"rust-oracle : "</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>));
             params.createMode |= DPI_MODE_CREATE_THREADED;
-            params.driverName = driver_name.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char;
-            params.driverNameLength = driver_name.len() <span class="kw">as </span>u32;
             params
         }
     }

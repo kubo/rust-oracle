@@ -619,6 +619,19 @@
 <a href="#617" id="617">617</a>
 <a href="#618" id="618">618</a>
 <a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -642,6 +655,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use crate</span>::{Batch, BatchBuilder, Connection, Statement};
+<span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::error;
 <span class="kw">use </span>std::ffi::CStr;
 <span class="kw">use </span>std::fmt;
@@ -803,6 +817,27 @@
 
 <span class="attr">#[allow(deprecated)]
 </span><span class="kw">impl </span>Error {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_context(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; Error {
+        <span class="kw">let </span>err = <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
+            dpiContext_getError(ctxt.context, err.as_mut_ptr());
+            err.assume_init()
+        };
+        Error::from_dpi_error(<span class="kw-2">&amp;</span>err)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_dpi_error(err: <span class="kw-2">&amp;</span>dpiErrorInfo) -&gt; Error {
+        Error::from_db_error(DbError::from_dpi_error(err))
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_db_error(dberr: DbError) -&gt; Error {
+        <span class="kw">if </span>dberr.message().starts_with(<span class="string">"DPI"</span>) {
+            Error::DpiError(dberr)
+        } <span class="kw">else </span>{
+            Error::OciError(dberr)
+        }
+    }
+
     <span class="doccomment">/// Returns the corresponding [`ErrorKind`] for this error.
     </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ErrorKind {
         <span class="kw">match </span><span class="self">self </span>{
@@ -1004,50 +1039,91 @@
     code: i32,
     offset: u32,
     message: String,
-    fn_name: String,
-    action: String,
+    fn_name: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
+    action: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
+    is_recoverable: bool,
+    is_warning: bool,
 }
 
 <span class="kw">impl </span>DbError {
-    <span class="kw">pub fn </span>new(
-        code: i32,
-        offset: u32,
-        message: String,
-        fn_name: String,
-        action: String,
-    ) -&gt; DbError {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_dpi_error(err: <span class="kw-2">&amp;</span>dpiErrorInfo) -&gt; DbError {
         DbError {
-            code,
-            offset,
-            message,
-            fn_name,
-            action,
+            code: err.code,
+            offset: err.offset,
+            message: to_rust_str(err.message, err.messageLength),
+            fn_name: <span class="kw">unsafe </span>{ CStr::from_ptr(err.fnName) }.to_string_lossy(),
+            action: <span class="kw">unsafe </span>{ CStr::from_ptr(err.action) }.to_string_lossy(),
+            is_recoverable: err.isRecoverable != <span class="number">0</span>,
+            is_warning: err.isWarning != <span class="number">0</span>,
         }
     }
 
-    <span class="doccomment">/// Oracle error code if OciError. always zero if DpiError
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_warning(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Option</span>&lt;DbError&gt; {
+        <span class="kw">let </span>err = <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
+            dpiContext_getError(ctxt.context, err.as_mut_ptr());
+            err.assume_init()
+        };
+        <span class="kw">if </span>err.isWarning != <span class="number">0 </span>{
+            <span class="prelude-val">Some</span>(DbError::from_dpi_error(<span class="kw-2">&amp;</span>err))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+
+    <span class="doccomment">/// Creates a new DbError. Note that its `is_recoverable` and `is_warning` values are always `false`.
+    </span><span class="kw">pub fn </span>new&lt;M, F, A&gt;(code: i32, offset: u32, message: M, fn_name: F, action: A) -&gt; DbError
+    <span class="kw">where
+        </span>M: Into&lt;String&gt;,
+        F: Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
+        A: Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
+    {
+        DbError {
+            code,
+            offset,
+            message: message.into(),
+            fn_name: fn_name.into(),
+            action: action.into(),
+            is_recoverable: <span class="bool-val">false</span>,
+            is_warning: <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="doccomment">/// The OCI error code if an OCI error has taken place. If no OCI error has taken place the value is 0.
     </span><span class="kw">pub fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
         <span class="self">self</span>.code
     }
 
-    <span class="doccomment">/// ? (used for Batch Errors?)
+    <span class="doccomment">/// The parse error offset (in bytes) when executing a statement or the row offset when performing bulk operations or fetching batch error information. If neither of these cases are true, the value is 0.
     </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.offset
     }
 
-    <span class="doccomment">/// error message
+    <span class="doccomment">/// The error message
     </span><span class="kw">pub fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.message
     }
 
-    <span class="doccomment">/// function name in ODPI-C used by rust-oracle
+    <span class="doccomment">/// The public ODPI-C, used by rust-oracle, function name which was called in which the error took place.
     </span><span class="kw">pub fn </span>fn_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.fn_name
     }
 
-    <span class="doccomment">/// action name in ODPI-C used by rust-oracle
+    <span class="doccomment">/// The internal action that was being performed when the error took place.
     </span><span class="kw">pub fn </span>action(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
         <span class="kw-2">&amp;</span><span class="self">self</span>.action
+    }
+
+    <span class="doccomment">/// A boolean value indicating if the error is recoverable. This always retruns `false` unless both client and server are at release 12.1 or higher.
+    </span><span class="kw">pub fn </span>is_recoverable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_recoverable
+    }
+
+    <span class="doccomment">/// A boolean value indicating if the error information is for a warning returned by Oracle that does not prevent the requested operation from proceeding. Examples include connecting to the database with a password that is about to expire (within the grace period) and creating a stored procedure with compilation errors.
+    ///
+    /// See also [`Connection::last_warning`].
+    </span><span class="kw">pub fn </span>is_warning(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_warning
     }
 }
 
@@ -1139,56 +1215,6 @@
     }
 }
 
-<span class="comment">//
-// functions to check errors
-//
-
-</span><span class="kw">pub fn </span>dberror_from_dpi_error(err: <span class="kw-2">&amp;</span>dpiErrorInfo) -&gt; DbError {
-    DbError::new(
-        err.code,
-        err.offset,
-        to_rust_str(err.message, err.messageLength),
-        <span class="kw">unsafe </span>{ CStr::from_ptr(err.fnName) }
-            .to_string_lossy()
-            .into_owned(),
-        <span class="kw">unsafe </span>{ CStr::from_ptr(err.action) }
-            .to_string_lossy()
-            .into_owned(),
-    )
-}
-
-<span class="attr">#[allow(deprecated)]
-</span><span class="kw">pub fn </span>error_from_dpi_error(err: <span class="kw-2">&amp;</span>dpiErrorInfo) -&gt; Error {
-    <span class="kw">let </span>err = dberror_from_dpi_error(err);
-    <span class="kw">if </span>err.message().starts_with(<span class="string">"DPI"</span>) {
-        Error::DpiError(err)
-    } <span class="kw">else </span>{
-        Error::OciError(err)
-    }
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>warning(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Option</span>&lt;DbError&gt; {
-    <span class="kw">let </span>err = <span class="kw">unsafe </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
-        dpiContext_getError(ctxt.context, err.as_mut_ptr());
-        err.assume_init()
-    };
-    <span class="kw">if </span>err.isWarning != <span class="number">0 </span>{
-        <span class="prelude-val">Some</span>(dberror_from_dpi_error(<span class="kw-2">&amp;</span>err))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>}
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>error_from_context(ctxt: <span class="kw-2">&amp;</span>Context) -&gt; Error {
-    <span class="kw">let </span>err = <span class="kw">unsafe </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>err = MaybeUninit::uninit();
-        dpiContext_getError(ctxt.context, err.as_mut_ptr());
-        err.assume_init()
-    };
-    <span class="kw">crate</span>::error::error_from_dpi_error(<span class="kw-2">&amp;</span>err)
-}
-
 <span class="kw">fn </span>dpi_error_in_message(message: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
     <span class="kw">let </span>bytes = message.as_bytes();
     <span class="kw">if </span>!bytes.starts_with(<span class="string">b"DPI-"</span>) {
@@ -1214,13 +1240,13 @@
     (<span class="macro-nonterminal">$ctxt</span>:expr, <span class="macro-nonterminal">$code</span>:expr) =&gt; {{
         <span class="attr">#[allow(unused_unsafe)]
         </span><span class="kw">if unsafe </span>{ <span class="macro-nonterminal">$code </span>} != DPI_SUCCESS <span class="kw">as </span>i32 {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::error::error_from_context</span>(<span class="macro-nonterminal">$ctxt</span>));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro-nonterminal">$crate::Error::from_context</span>(<span class="macro-nonterminal">$ctxt</span>));
         }
     }};
     (<span class="macro-nonterminal">$ctxt</span>:expr, <span class="macro-nonterminal">$code</span>:expr, <span class="macro-nonterminal">$cleanup</span>:stmt) =&gt; {{
         <span class="attr">#[allow(unused_unsafe)]
         </span><span class="kw">if unsafe </span>{ <span class="macro-nonterminal">$code </span>} != DPI_SUCCESS <span class="kw">as </span>i32 {
-            <span class="kw">let </span>err = <span class="macro-nonterminal">$crate::error::error_from_context</span>(<span class="macro-nonterminal">$ctxt</span>);
+            <span class="kw">let </span>err = <span class="macro-nonterminal">$crate::Error::from_context</span>(<span class="macro-nonterminal">$ctxt</span>);
             <span class="macro-nonterminal">$cleanup
             </span><span class="kw">return </span><span class="prelude-val">Err</span>(err);
         }

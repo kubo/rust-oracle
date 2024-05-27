@@ -1001,7 +1001,6 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
-<span class="kw">use </span><span class="kw">crate</span>::error::dberror_from_dpi_error;
 <span class="kw">use </span><span class="kw">crate</span>::error::DPI_ERR_BUFFER_SIZE_TOO_SMALL;
 <span class="kw">use </span><span class="kw">crate</span>::private;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
@@ -1011,6 +1010,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::DbError;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::SqlValue;
@@ -1501,7 +1501,7 @@
                 );
                 <span class="kw">unsafe </span>{ errs.set_len(errnum <span class="kw">as </span>usize) };
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::make_batch_errors(
-                    errs.iter().map(dberror_from_dpi_error).collect(),
+                    errs.iter().map(DbError::from_dpi_error).collect(),
                 ));
             }
         }

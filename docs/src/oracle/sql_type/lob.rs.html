@@ -939,8 +939,6 @@
 <a href="#937" id="937">937</a>
 <a href="#938" id="938">938</a>
 <a href="#939" id="939">939</a>
-<a href="#940" id="940">940</a>
-<a href="#941" id="941">941</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1694,7 +1692,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::test_util;
-    <span class="kw">use </span>lazy_static::lazy_static;
+    <span class="kw">use </span>once_cell::sync::Lazy;
     <span class="kw">use </span>std::io::Read;
     <span class="kw">use </span>std::io::Seek;
     <span class="kw">use </span>std::io::Write;
@@ -1738,15 +1736,13 @@
         }
     }
 
-    <span class="macro">lazy_static!</span> {
-        <span class="kw">static </span><span class="kw-2">ref </span>TEST_DATA: String = {
-            Rand::new()
-                .take(<span class="number">100</span>)
-                .map(|n| CRAB_CHARS[(n <span class="kw">as </span>usize) % CRAB_CHARS.len()])
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                .join(<span class="string">""</span>)
-        };
-    }
+    <span class="kw">static </span>TEST_DATA: Lazy&lt;String&gt; = Lazy::new(|| {
+        Rand::new()
+            .take(<span class="number">100</span>)
+            .map(|n| CRAB_CHARS[(n <span class="kw">as </span>usize) % CRAB_CHARS.len()])
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+            .join(<span class="string">""</span>)
+    });
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>read_write_blob() -&gt; std::result::Result&lt;(), std::boxed::Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
