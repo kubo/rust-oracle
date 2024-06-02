@@ -62,6 +62,9 @@ pub enum ErrorKind {
     /// Error when conversion from a type to another fails due to out-of-range
     OutOfRange,
 
+    /// Error when an unacceptable argument is passed
+    InvalidArgument,
+
     /// Error when conversion from a type to another is not allowed.
     InvalidTypeConversion,
 
@@ -106,7 +109,9 @@ pub enum ErrorKind {
 pub struct Error {
     kind: ErrorKind,
     message: Cow<'static, str>,
-    dberr: Option<DbError>,
+    // DbError is in Box to reduce the size of this struct.
+    // See: https://rust-lang.github.io/rust-clippy/master/index.html#result_large_err
+    dberr: Option<Box<DbError>>,
     batch_errors: Option<Vec<DbError>>,
     source: Option<Box<dyn error::Error + Send + Sync>>,
 }
@@ -146,6 +151,13 @@ pub enum Error {
     /// Error when conversion from a type to another is not allowed.
     #[deprecated(note = "Use kind() to check the error category.")]
     InvalidTypeConversion(String, String),
+
+    /// Error when an unacceptable argument is passed
+    #[deprecated]
+    InvalidArgument {
+        message: Cow<'static, str>,
+        source: Option<Box<dyn error::Error + Send + Sync>>,
+    },
 
     /// Error when the bind parameter index is out of range. (one based)
     #[deprecated(note = "Use kind() to check the error category.")]
@@ -227,7 +239,7 @@ impl Error {
 
     pub(crate) fn add_dberr(self, dberr: DbError) -> Error {
         Error {
-            dberr: Some(dberr),
+            dberr: Some(Box::new(dberr)),
             ..self
         }
     }
@@ -264,7 +276,7 @@ impl Error {
 
     /// Returns [`DbError`].
     pub fn db_error(&self) -> Option<&DbError> {
-        self.dberr.as_ref()
+        self.dberr.as_ref().map(|b| b.as_ref())
     }
 
     /// Returns batch errors.
@@ -406,6 +418,13 @@ impl Error {
     {
         Error::new(ErrorKind::InternalError, message.into())
     }
+
+    pub(crate) fn invalid_argument<M>(message: M) -> Error
+    where
+        M: Into<Cow<'static, str>>,
+    {
+        Error::new(ErrorKind::InvalidArgument, message.into())
+    }
 }
 
 #[allow(deprecated)]
@@ -427,6 +446,7 @@ impl Error {
             Error::NullValue => ErrorKind::NullValue,
             Error::ParseError(_) => ErrorKind::ParseError,
             Error::OutOfRange(_) => ErrorKind::OutOfRange,
+            Error::InvalidArgument { .. } => ErrorKind::InvalidArgument,
             Error::InvalidTypeConversion(_, _) => ErrorKind::InvalidTypeConversion,
             Error::InvalidBindIndex(_) => ErrorKind::InvalidBindIndex,
             Error::InvalidBindName(_) => ErrorKind::InvalidBindName,
@@ -441,13 +461,18 @@ impl Error {
         }
     }
 
-    pub(crate) fn add_source<E>(self, _source: E) -> Error
+    pub(crate) fn add_source<E>(self, source: E) -> Error
     where
         E: Into<Box<dyn error::Error + Send + Sync>>,
     {
-        // Do nothing now.
-        // This is for the planned change.
-        self
+        if let Error::InvalidArgument { message, .. } = self {
+            Error::InvalidArgument {
+                message,
+                source: Some(source.into()),
+            }
+        } else {
+            self
+        }
     }
 
     /// Returns [`DbError`].
@@ -573,6 +598,16 @@ impl Error {
         T: Into<String>,
     {
         Error::InternalError(message.into())
+    }
+
+    pub(crate) fn invalid_argument<M>(message: M) -> Error
+    where
+        M: Into<Cow<'static, str>>,
+    {
+        Error::InvalidArgument {
+            message: message.into(),
+            source: None,
+        }
     }
 }
 
@@ -748,6 +783,7 @@ impl fmt::Display for Error {
                 write!(f, ")")
             }
             Error::InternalError(msg) => write!(f, "{}", msg),
+            Error::InvalidArgument { .. } => todo!(),
         }
     }
 }
@@ -769,6 +805,10 @@ impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
             Error::ParseError(err) => Some(err.as_ref()),
+            Error::InvalidArgument {
+                source: Some(source),
+                ..
+            } => Some(source.as_ref()),
             _ => None,
         }
     }

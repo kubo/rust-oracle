@@ -4,6 +4,7 @@
 
 New features:
 
+* Add [`InitParams`] to initialize the Oracle client library explicitly
 * Add [`DbError::is_recoverable()`] and [`DbError::is_warning()`]
 
 Non-breaking Changes:
@@ -481,6 +482,7 @@ Incompatible changes:
 [`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
+[`InitParams`]: https://www.jiubao.org/rust-oracle/oracle/struct.InitParams.html
 [`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec
 [`IntervalDS::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.new
 [`IntervalYM::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalYM.html#method.and_prec

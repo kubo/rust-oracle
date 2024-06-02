@@ -54,6 +54,7 @@ pub use crate::connection::Privilege;
 pub use crate::connection::ShutdownMode;
 pub use crate::connection::StartupMode;
 use crate::context::Context;
+pub use crate::context::InitParams;
 pub use crate::error::DbError;
 pub use crate::error::Error;
 pub use crate::error::ErrorKind;

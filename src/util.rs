@@ -13,15 +13,21 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+use crate::sql_type::OracleType;
+use crate::Error;
+use crate::ErrorKind;
+use crate::ParseOracleTypeError;
+use crate::Result;
+use std::ffi::CString;
 use std::fmt;
 use std::result;
 use std::str;
 use std::time::Duration;
 
-use crate::sql_type::OracleType;
-use crate::ErrorKind;
-use crate::ParseOracleTypeError;
-use crate::Result;
+#[cfg_attr(unix, path = "util/unix.rs")]
+#[cfg_attr(windows, path = "util/windows.rs")]
+pub mod os;
+pub use os::*; // import all os-depend functions.
 
 pub struct Scanner<'a> {
     chars: str::Chars<'a>,
@@ -205,6 +211,12 @@ pub fn duration_to_msecs(dur: Duration) -> Option<u32> {
     } else {
         None
     }
+}
+
+pub fn string_into_c_string(s: String, name: &str) -> Result<CString> {
+    CString::new(s).map_err(|err| {
+        Error::invalid_argument(format!("{} cannot contain nul characters", name)).add_source(err)
+    })
 }
 
 #[cfg(test)]
