@@ -25,6 +25,8 @@ use std::borrow::Cow;
 use std::error;
 use std::ffi::CStr;
 use std::fmt;
+#[cfg(feature = "struct_error")]
+use std::fmt::Display;
 use std::mem::MaybeUninit;
 use std::num;
 use std::str;
@@ -99,10 +101,22 @@ pub enum ErrorKind {
 }
 
 /// The error type for oracle
+#[derive(Debug)]
+#[cfg(feature = "struct_error")]
+pub struct Error {
+    kind: ErrorKind,
+    message: Cow<'static, str>,
+    dberr: Option<DbError>,
+    batch_errors: Option<Vec<DbError>>,
+    source: Option<Box<dyn error::Error + Send + Sync>>,
+}
+
+/// The error type for oracle
 ///
 /// **Note:** This enum will be changed to struct in the future.
 #[non_exhaustive]
 #[derive(Debug)]
+#[cfg(not(feature = "struct_error"))]
 pub enum Error {
     /// Error from an underlying Oracle client library.
     #[deprecated(note = "Use kind() to check the error category. Use db_error() to get DbError.")]
@@ -181,7 +195,6 @@ pub enum Error {
     InternalError(String),
 }
 
-#[allow(deprecated)]
 impl Error {
     pub(crate) fn from_context(ctxt: &Context) -> Error {
         let err = unsafe {
@@ -195,7 +208,209 @@ impl Error {
     pub(crate) fn from_dpi_error(err: &dpiErrorInfo) -> Error {
         Error::from_db_error(DbError::from_dpi_error(err))
     }
+}
 
+#[cfg(feature = "struct_error")]
+impl Error {
+    pub(crate) fn new<M>(kind: ErrorKind, message: M) -> Error
+    where
+        M: Into<Cow<'static, str>>,
+    {
+        Error {
+            kind,
+            message: message.into(),
+            dberr: None,
+            batch_errors: None,
+            source: None,
+        }
+    }
+
+    pub(crate) fn add_dberr(self, dberr: DbError) -> Error {
+        Error {
+            dberr: Some(dberr),
+            ..self
+        }
+    }
+
+    pub(crate) fn add_batch_errors(self, batch_errors: Vec<DbError>) -> Error {
+        Error {
+            batch_errors: Some(batch_errors),
+            ..self
+        }
+    }
+
+    pub(crate) fn add_source<E>(self, source: E) -> Error
+    where
+        E: Into<Box<dyn error::Error + Send + Sync>>,
+    {
+        Error {
+            source: Some(source.into()),
+            ..self
+        }
+    }
+
+    pub(crate) fn from_db_error(dberr: DbError) -> Error {
+        let (kind, message_prefix) = if dberr.message().starts_with("DPI") {
+            (ErrorKind::DpiError, "DPI")
+        } else {
+            (ErrorKind::OciError, "OCI")
+        };
+        Error::new(kind, format!("{} Error: {}", message_prefix, dberr.message)).add_dberr(dberr)
+    }
+
+    pub fn kind(&self) -> ErrorKind {
+        self.kind
+    }
+
+    /// Returns [`DbError`].
+    pub fn db_error(&self) -> Option<&DbError> {
+        self.dberr.as_ref()
+    }
+
+    /// Returns batch errors.
+    /// See ["Error Handling with batch errors"](Batch#error-handling-with-batch-errors)
+    pub fn batch_errors(&self) -> Option<&Vec<DbError>> {
+        self.batch_errors.as_ref()
+    }
+
+    /// Returns Oracle error code.
+    /// For example 1 for "ORA-0001: unique constraint violated"
+    pub fn oci_code(&self) -> Option<i32> {
+        match (self.kind, &self.dberr) {
+            (ErrorKind::OciError, Some(dberr)) if dberr.code != 0 => Some(dberr.code),
+            _ => None,
+        }
+    }
+
+    /// Returns [ODPI-C](https://oracle.github.io/odpi/) error code.
+    pub fn dpi_code(&self) -> Option<i32> {
+        match (self.kind, &self.dberr) {
+            (ErrorKind::DpiError, Some(dberr)) => dpi_error_in_message(&dberr.message),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn oci_error(dberr: DbError) -> Error {
+        Error::new(ErrorKind::OciError, format!("OCI Error: {}", dberr.message)).add_dberr(dberr)
+    }
+
+    pub(crate) fn null_value() -> Error {
+        Error::new(ErrorKind::NullValue, "NULL value found")
+    }
+
+    pub(crate) fn parse_error<T>(source: T) -> Error
+    where
+        T: Into<Box<dyn error::Error + Send + Sync>>,
+    {
+        let source = source.into();
+        Error::new(ErrorKind::ParseError, format!("{}", source)).add_source(source)
+    }
+
+    pub(crate) fn out_of_range<T>(message: T) -> Error
+    where
+        T: Into<Cow<'static, str>>,
+    {
+        Error::new(ErrorKind::OutOfRange, message.into())
+    }
+
+    pub(crate) fn invalid_type_conversion<T1, T2>(from: T1, to: T2) -> Error
+    where
+        T1: Display,
+        T2: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidTypeConversion,
+            format!("invalid type conversion from {} to {}", from, to),
+        )
+    }
+
+    pub(crate) fn invalid_bind_index<T>(index: T) -> Error
+    where
+        T: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidBindIndex,
+            format!("invalid bind index {} (one-based)", index),
+        )
+    }
+
+    pub(crate) fn invalid_bind_name<T>(name: T) -> Error
+    where
+        T: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidBindName,
+            format!("invalid bind name {}", name),
+        )
+    }
+
+    pub(crate) fn invalid_column_index<T>(index: T) -> Error
+    where
+        T: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidColumnIndex,
+            format!("invalid column index {} (zero-based)", index),
+        )
+    }
+
+    pub(crate) fn invalid_column_name<T>(name: T) -> Error
+    where
+        T: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidColumnName,
+            format!("invalid column name {}", name),
+        )
+    }
+
+    pub(crate) fn invalid_attribute_name<T>(name: T) -> Error
+    where
+        T: Display,
+    {
+        Error::new(
+            ErrorKind::InvalidAttributeName,
+            format!("invalid attribute name {}", name),
+        )
+    }
+
+    pub(crate) fn invalid_operation<T>(message: T) -> Error
+    where
+        T: Into<Cow<'static, str>>,
+    {
+        Error::new(ErrorKind::InvalidOperation, message.into())
+    }
+
+    pub(crate) fn uninitialized_bind_value() -> Error {
+        Error::new(
+            ErrorKind::UninitializedBindValue,
+            "try to access uninitialized bind value",
+        )
+    }
+
+    pub(crate) fn no_data_found() -> Error {
+        Error::new(ErrorKind::NoDataFound, "no data found")
+    }
+
+    pub(crate) fn make_batch_errors(batch_errors: Vec<DbError>) -> Error {
+        Error::new(
+            ErrorKind::BatchErrors,
+            format!("batch error containing {} error(s)", batch_errors.len()),
+        )
+        .add_batch_errors(batch_errors)
+    }
+
+    pub(crate) fn internal_error<T>(message: T) -> Error
+    where
+        T: Into<Cow<'static, str>>,
+    {
+        Error::new(ErrorKind::InternalError, message.into())
+    }
+}
+
+#[allow(deprecated)]
+#[cfg(not(feature = "struct_error"))]
+impl Error {
     pub(crate) fn from_db_error(dberr: DbError) -> Error {
         if dberr.message().starts_with("DPI") {
             Error::DpiError(dberr)
@@ -493,6 +708,14 @@ impl DbError {
     }
 }
 
+#[cfg(feature = "struct_error")]
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+#[cfg(not(feature = "struct_error"))]
 impl fmt::Display for Error {
     #[allow(deprecated)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -529,6 +752,18 @@ impl fmt::Display for Error {
     }
 }
 
+#[cfg(feature = "struct_error")]
+impl error::Error for Error {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        if let Some(ref err) = self.source {
+            Some(err.as_ref())
+        } else {
+            None
+        }
+    }
+}
+
+#[cfg(not(feature = "struct_error"))]
 impl error::Error for Error {
     #[allow(deprecated)]
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
