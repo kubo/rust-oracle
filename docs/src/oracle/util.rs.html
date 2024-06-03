@@ -288,6 +288,18 @@
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -303,17 +315,23 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span>std::fmt;
+</span><span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::ErrorKind;
+<span class="kw">use </span><span class="kw">crate</span>::ParseOracleTypeError;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>std::ffi::CString;
+<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::result;
 <span class="kw">use </span>std::str;
 <span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
-<span class="kw">use </span><span class="kw">crate</span>::ErrorKind;
-<span class="kw">use </span><span class="kw">crate</span>::ParseOracleTypeError;
-<span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="attr">#[cfg_attr(unix, path = <span class="string">"util/unix.rs"</span>)]
+#[cfg_attr(windows, path = <span class="string">"util/windows.rs"</span>)]
+</span><span class="kw">pub mod </span>os;
+<span class="kw">pub use </span>os::<span class="kw-2">*</span>; <span class="comment">// import all os-depend functions.
 
-<span class="kw">pub struct </span>Scanner&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">pub struct </span>Scanner&lt;<span class="lifetime">'a</span>&gt; {
     chars: str::Chars&lt;<span class="lifetime">'a</span>&gt;,
     char: <span class="prelude-ty">Option</span>&lt;char&gt;,
     ndigits: u32,
@@ -495,6 +513,12 @@
     } <span class="kw">else </span>{
         <span class="prelude-val">None
     </span>}
+}
+
+<span class="kw">pub fn </span>string_into_c_string(s: String, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CString&gt; {
+    CString::new(s).map_err(|err| {
+        Error::invalid_argument(<span class="macro">format!</span>(<span class="string">"{} cannot contain nul characters"</span>, name)).add_source(err)
+    })
 }
 
 <span class="attr">#[cfg(test)]
