@@ -409,31 +409,16 @@ impl Stmt {
         let mut column_values = Vec::with_capacity(num_cols);
 
         for i in 0..num_cols {
-            // set column info
-            let ci = ColumnInfo::new(self, i)?;
-            column_info.push(ci);
-            // setup column value
-            let mut val = SqlValue::for_column(
+            let info = ColumnInfo::new(self, i)?;
+            let val = SqlValue::for_column(
                 self.conn.clone(),
                 self.query_params.clone(),
-                self.query_params.fetch_array_size,
-            );
-            val.buffer_row_index = BufferRowIndex::Shared(self.shared_buffer_row_index.clone());
-            let oratype = column_info[i].oracle_type();
-            let oratype_i64 = OracleType::Int64;
-            let oratype = match *oratype {
-                // When the column type is number whose prec is less than 18
-                // and the scale is zero, define it as int64.
-                OracleType::Number(prec, 0) if 0 < prec && prec < DPI_MAX_INT64_PRECISION as u8 => {
-                    &oratype_i64
-                }
-                _ => oratype,
-            };
-            val.init_handle(oratype)?;
-            chkerr!(
-                self.ctxt(),
-                dpiStmt_define(self.handle(), (i + 1) as u32, val.handle()?)
-            );
+                self.shared_buffer_row_index.clone(),
+                info.oracle_type(),
+                self.handle(),
+                (i + 1) as u32,
+            )?;
+            column_info.push(info);
             column_values.push(val);
         }
         self.row = Some(Row::new(column_info, column_values)?);

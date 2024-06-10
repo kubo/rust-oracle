@@ -186,9 +186,26 @@ impl SqlValue<'_> {
     pub(crate) fn for_column(
         conn: Conn,
         query_params: QueryParams,
-        array_size: u32,
-    ) -> SqlValue<'static> {
-        SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size)
+        shared_buffer_row_index: Arc<AtomicU32>,
+        oratype: &OracleType,
+        stmt_handle: *mut dpiStmt,
+        pos: u32,
+    ) -> Result<SqlValue<'static>> {
+        let array_size = query_params.fetch_array_size;
+        let mut val = SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size);
+        let oratype_i64 = OracleType::Int64;
+        let oratype = match oratype {
+            // When the column type is number whose prec is less than 18
+            // and the scale is zero, define it as int64.
+            OracleType::Number(prec, 0) if 0 < *prec && *prec < DPI_MAX_INT64_PRECISION as u8 => {
+                &oratype_i64
+            }
+            _ => oratype,
+        };
+        val.buffer_row_index = BufferRowIndex::Shared(shared_buffer_row_index);
+        val.init_handle(oratype)?;
+        chkerr!(val.ctxt(), dpiStmt_define(stmt_handle, pos, val.handle()?));
+        Ok(val)
     }
 
     // for object type
