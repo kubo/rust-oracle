@@ -17,6 +17,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::os::raw::c_char;
 use std::ptr;
+use std::rc::Rc;
 use std::str;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
@@ -128,7 +129,7 @@ pub enum BufferRowIndex {
 
 enum DpiData<'a> {
     Data(&'a mut dpiData),
-    Var(DpiVar),
+    Var(Rc<DpiVar>), // Rc is incremented only when <Row as RowValue>::get() is called.
     Null,
 }
 
@@ -298,7 +299,7 @@ impl SqlValue<'_> {
                 &mut data,
             )
         );
-        self.data = DpiData::Var(DpiVar::new(handle, data));
+        self.data = DpiData::Var(Rc::new(DpiVar::new(handle, data)));
         self.native_type = native_type;
         self.oratype = Some(oratype.clone());
         if native_type_num == DPI_NATIVE_TYPE_STMT {
@@ -322,7 +323,7 @@ impl SqlValue<'_> {
         );
         if num != 0 {
             self.array_size = num;
-            self.data = DpiData::Var(DpiVar::with_add_ref(handle, data));
+            self.data = DpiData::Var(Rc::new(DpiVar::with_add_ref(handle, data)));
         }
         Ok(())
     }
@@ -849,21 +850,31 @@ impl SqlValue<'_> {
         Ok(())
     }
 
-    pub(crate) fn dup_by_handle(&self) -> Result<SqlValue<'static>> {
-        let mut val = SqlValue::new(
-            self.conn.clone(),
-            self.lob_bind_type,
-            self.query_params.clone(),
-            1,
-        );
-        if let Some(ref oratype) = self.oratype {
-            val.init_handle(oratype)?;
-            chkerr!(
-                self.ctxt(),
-                dpiVar_copyData(val.handle()?, 0, self.handle()?, self.buffer_row_index())
-            );
+    pub(crate) fn clone_except_fetch_array_buffer(&self) -> Result<SqlValue<'static>> {
+        if let DpiData::Var(ref var) = self.data {
+            Ok(SqlValue {
+                conn: self.conn.clone(),
+                data: DpiData::Var(var.clone()),
+                native_type: self.native_type.clone(),
+                oratype: self.oratype.clone(),
+                array_size: self.array_size,
+                buffer_row_index: BufferRowIndex::Owned(self.buffer_row_index()),
+                keep_bytes: Vec::new(),
+                keep_dpiobj: DpiObject::null(),
+                lob_bind_type: self.lob_bind_type,
+                query_params: self.query_params.clone(),
+            })
+        } else {
+            Err(Error::internal_error("dpVar handle isn't initialized"))
         }
-        Ok(val)
+    }
+
+    pub(crate) fn fetch_array_buffer_shared_count(&self) -> Result<usize> {
+        if let DpiData::Var(ref var) = self.data {
+            Ok(Rc::strong_count(var))
+        } else {
+            Err(Error::internal_error("dpData isn't initialized"))
+        }
     }
 
     //

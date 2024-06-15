@@ -261,7 +261,7 @@ impl RowValue for Row {
         let num_cols = row.column_values.len();
         let mut column_values = Vec::with_capacity(num_cols);
         for val in &row.column_values {
-            column_values.push(val.dup_by_handle()?);
+            column_values.push(val.clone_except_fetch_array_buffer()?);
         }
         Ok(Row {
             column_info: row.column_info.clone(),

@@ -444,13 +444,31 @@ impl Stmt {
     }
 
     pub fn fetch_rows(&mut self) -> Result<bool> {
+        let handle = self.handle();
+        let row = self.row.as_mut().unwrap();
+        for i in 0..(row.column_info.len()) {
+            // If fetch array buffer is referenced only by self, it is reusable.
+            // Otherwise, a new SqlValue must be created to allocate a new buffer
+            // because dpiStmt_fetchRows() overwrites the buffer.
+            if row.column_values[i].fetch_array_buffer_shared_count()? > 1 {
+                let oratype = row.column_info[i].oracle_type();
+                row.column_values[i] = SqlValue::for_column(
+                    self.conn.clone(),
+                    self.query_params.clone(),
+                    self.shared_buffer_row_index.clone(),
+                    oratype,
+                    handle,
+                    (i + 1) as u32,
+                )?;
+            }
+        }
         let mut new_index = 0;
         let mut num_rows = 0;
         let mut more_rows = 0;
         chkerr!(
             self.ctxt(),
             dpiStmt_fetchRows(
-                self.handle(),
+                handle,
                 self.query_params.fetch_array_size,
                 &mut new_index,
                 &mut num_rows,
