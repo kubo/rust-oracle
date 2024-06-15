@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_value.rs`."><title>sql_value.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0 (9b00956e5 2024-04-29)" data-channel="1.78.0" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
-            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/sql_value.rs`."><title>sql_value.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-081576b923113409.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.79.0 (129f3b996 2024-06-10)" data-channel="1.79.0" data-search-js="search-bf21c90c8c1d92b1.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-e32f0c247825364d.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-09095024cf37855e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Type ‘S’ or ‘/’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings">Settings</a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1351,6 +1349,34 @@
 <a href="#1349" id="1349">1349</a>
 <a href="#1350" id="1350">1350</a>
 <a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1370,6 +1396,7 @@
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::os::raw::c_char;
 <span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>std::str;
 <span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
 <span class="kw">use </span>std::sync::Arc;
@@ -1481,8 +1508,8 @@
 
 <span class="kw">enum </span>DpiData&lt;<span class="lifetime">'a</span>&gt; {
     Data(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>dpiData),
-    Var(DpiVar, <span class="kw-2">*mut </span>dpiData),
-    Null,
+    Var(Rc&lt;DpiVar&gt;), <span class="comment">// Rc is incremented only when &lt;Row as RowValue&gt;::get() is called.
+    </span>Null,
 }
 
 <span class="kw">unsafe impl </span>Send <span class="kw">for </span>DpiData&lt;<span class="lifetime">'_</span>&gt; {}
@@ -1539,9 +1566,26 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_column(
         conn: Conn,
         query_params: QueryParams,
-        array_size: u32,
-    ) -&gt; SqlValue&lt;<span class="lifetime">'static</span>&gt; {
-        SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size)
+        shared_buffer_row_index: Arc&lt;AtomicU32&gt;,
+        oratype: <span class="kw-2">&amp;</span>OracleType,
+        stmt_handle: <span class="kw-2">*mut </span>dpiStmt,
+        pos: u32,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="kw">let </span>array_size = query_params.fetch_array_size;
+        <span class="kw">let </span><span class="kw-2">mut </span>val = SqlValue::new(conn, query_params.lob_bind_type, query_params, array_size);
+        <span class="kw">let </span>oratype_i64 = OracleType::Int64;
+        <span class="kw">let </span>oratype = <span class="kw">match </span>oratype {
+            <span class="comment">// When the column type is number whose prec is less than 18
+            // and the scale is zero, define it as int64.
+            </span>OracleType::Number(prec, <span class="number">0</span>) <span class="kw">if </span><span class="number">0 </span>&lt; <span class="kw-2">*</span>prec &amp;&amp; <span class="kw-2">*</span>prec &lt; DPI_MAX_INT64_PRECISION <span class="kw">as </span>u8 =&gt; {
+                <span class="kw-2">&amp;</span>oratype_i64
+            }
+            <span class="kw">_ </span>=&gt; oratype,
+        };
+        val.buffer_row_index = BufferRowIndex::Shared(shared_buffer_row_index);
+        val.init_handle(oratype)<span class="question-mark">?</span>;
+        <span class="macro">chkerr!</span>(val.ctxt(), dpiStmt_define(stmt_handle, pos, val.handle()<span class="question-mark">?</span>));
+        <span class="prelude-val">Ok</span>(val)
     }
 
     <span class="comment">// for object type
@@ -1571,7 +1615,7 @@
 
     <span class="kw">fn </span>handle_is_reusable(<span class="kw-2">&amp;</span><span class="self">self</span>, oratype: <span class="kw-2">&amp;</span>OracleType) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">match </span><span class="self">self</span>.data {
-            DpiData::Var(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
+            DpiData::Var(<span class="kw">_</span>) =&gt; (),
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
         };
         <span class="kw">let </span>current_oratype = <span class="kw">match </span><span class="self">self</span>.oratype {
@@ -1615,7 +1659,7 @@
             LobBindType::Locator =&gt; oratype,
         }
         .var_create_param()<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiVar::null();
+        <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>data = ptr::null_mut();
         <span class="kw">let </span>native_type_num = native_type.to_native_type_num();
         <span class="kw">let </span>object_type_handle = native_type.to_object_type_handle();
@@ -1630,11 +1674,11 @@
                 size_is_byte,
                 <span class="number">0</span>,
                 object_type_handle,
-                <span class="kw-2">&amp;mut </span>handle.raw,
-                <span class="kw-2">&amp;mut </span>data
+                <span class="kw-2">&amp;mut </span>handle,
+                <span class="kw-2">&amp;mut </span>data,
             )
         );
-        <span class="self">self</span>.data = DpiData::Var(handle, data);
+        <span class="self">self</span>.data = DpiData::Var(Rc::new(DpiVar::new(handle, data)));
         <span class="self">self</span>.native_type = native_type;
         <span class="self">self</span>.oratype = <span class="prelude-val">Some</span>(oratype.clone());
         <span class="kw">if </span>native_type_num == DPI_NATIVE_TYPE_STMT {
@@ -1658,7 +1702,7 @@
         );
         <span class="kw">if </span>num != <span class="number">0 </span>{
             <span class="self">self</span>.array_size = num;
-            <span class="self">self</span>.data = DpiData::Var(DpiVar::with_add_ref(handle), data);
+            <span class="self">self</span>.data = DpiData::Var(Rc::new(DpiVar::with_add_ref(handle, data)));
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1671,7 +1715,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>dpiVar&gt; {
-        <span class="kw">if let </span>DpiData::Var(var, <span class="kw">_</span>) = <span class="kw-2">&amp;</span><span class="self">self</span>.data {
+        <span class="kw">if let </span>DpiData::Var(var) = <span class="kw-2">&amp;</span><span class="self">self</span>.data {
             <span class="prelude-val">Ok</span>(var.raw)
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::internal_error(<span class="string">"dpVar handle isn't initialized"</span>))
@@ -1682,7 +1726,7 @@
         <span class="kw">unsafe </span>{
             <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut *</span><span class="kw">match </span><span class="self">self</span>.data {
                 DpiData::Data(<span class="kw-2">ref </span>data) =&gt; <span class="kw-2">*</span>data <span class="kw">as </span><span class="kw-2">*const </span>dpiData <span class="kw">as </span><span class="kw-2">*mut </span>dpiData,
-                DpiData::Var(<span class="kw">_</span>, data) =&gt; data,
+                DpiData::Var(<span class="kw-2">ref </span>var) =&gt; var.data,
                 DpiData::Null =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::internal_error(<span class="string">"dpData isn't initialized"</span>));
                 }
@@ -2060,11 +2104,11 @@
                 }
                 <span class="prelude-val">Ok</span>(())
             }
-            DpiData::Var(handle, <span class="kw">_</span>) =&gt; {
+            DpiData::Var(var) =&gt; {
                 <span class="macro">chkerr!</span>(
                     <span class="self">self</span>.ctxt(),
                     dpiVar_setFromBytes(
-                        handle.raw,
+                        var.raw,
                         <span class="self">self</span>.buffer_row_index(),
                         val.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
                         val.len() <span class="kw">as </span>u32
@@ -2159,7 +2203,7 @@
                 <span class="self">self</span>.keep_dpiobj = obj.clone();
                 <span class="prelude-val">Ok</span>(())
             }
-            DpiData::Var(<span class="kw-2">ref </span>var, <span class="kw">_</span>) =&gt; {
+            DpiData::Var(<span class="kw-2">ref </span>var) =&gt; {
                 <span class="macro">chkerr!</span>(
                     <span class="self">self</span>.ctxt(),
                     dpiVar_setFromObject(var.raw, <span class="self">self</span>.buffer_row_index(), obj.raw)
@@ -2185,21 +2229,31 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dup_by_handle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>val = SqlValue::new(
-            <span class="self">self</span>.conn.clone(),
-            <span class="self">self</span>.lob_bind_type,
-            <span class="self">self</span>.query_params.clone(),
-            <span class="number">1</span>,
-        );
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>oratype) = <span class="self">self</span>.oratype {
-            val.init_handle(oratype)<span class="question-mark">?</span>;
-            <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.ctxt(),
-                dpiVar_copyData(val.handle()<span class="question-mark">?</span>, <span class="number">0</span>, <span class="self">self</span>.handle()<span class="question-mark">?</span>, <span class="self">self</span>.buffer_row_index())
-            );
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clone_except_fetch_array_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SqlValue&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="kw">if let </span>DpiData::Var(<span class="kw-2">ref </span>var) = <span class="self">self</span>.data {
+            <span class="prelude-val">Ok</span>(SqlValue {
+                conn: <span class="self">self</span>.conn.clone(),
+                data: DpiData::Var(var.clone()),
+                native_type: <span class="self">self</span>.native_type.clone(),
+                oratype: <span class="self">self</span>.oratype.clone(),
+                array_size: <span class="self">self</span>.array_size,
+                buffer_row_index: BufferRowIndex::Owned(<span class="self">self</span>.buffer_row_index()),
+                keep_bytes: Vec::new(),
+                keep_dpiobj: DpiObject::null(),
+                lob_bind_type: <span class="self">self</span>.lob_bind_type,
+                query_params: <span class="self">self</span>.query_params.clone(),
+            })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::internal_error(<span class="string">"dpVar handle isn't initialized"</span>))
         }
-        <span class="prelude-val">Ok</span>(val)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fetch_array_buffer_shared_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+        <span class="kw">if let </span>DpiData::Var(<span class="kw-2">ref </span>var) = <span class="self">self</span>.data {
+            <span class="prelude-val">Ok</span>(Rc::strong_count(var))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::internal_error(<span class="string">"dpData isn't initialized"</span>))
+        }
     }
 
     <span class="comment">//

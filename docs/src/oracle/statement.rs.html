@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0 (9b00956e5 2024-04-29)" data-channel="1.78.0" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
-            <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/statement.rs`."><title>statement.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-081576b923113409.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.79.0 (129f3b996 2024-06-10)" data-channel="1.79.0" data-search-js="search-bf21c90c8c1d92b1.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-e32f0c247825364d.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-09095024cf37855e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../oracle/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Type ‘S’ or ‘/’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings">Settings</a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1457,6 +1455,37 @@
 <a href="#1455" id="1455">1455</a>
 <a href="#1456" id="1456">1456</a>
 <a href="#1457" id="1457">1457</a>
+<a href="#1458" id="1458">1458</a>
+<a href="#1459" id="1459">1459</a>
+<a href="#1460" id="1460">1460</a>
+<a href="#1461" id="1461">1461</a>
+<a href="#1462" id="1462">1462</a>
+<a href="#1463" id="1463">1463</a>
+<a href="#1464" id="1464">1464</a>
+<a href="#1465" id="1465">1465</a>
+<a href="#1466" id="1466">1466</a>
+<a href="#1467" id="1467">1467</a>
+<a href="#1468" id="1468">1468</a>
+<a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1819,6 +1848,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) handle: DpiStmt,
     <span class="kw">pub</span>(<span class="kw">crate</span>) row: <span class="prelude-ty">Option</span>&lt;Row&gt;,
     shared_buffer_row_index: Arc&lt;AtomicU32&gt;,
+    last_buffer_row_index: u32,
+    more_rows: bool,
     <span class="kw">pub</span>(<span class="kw">crate</span>) query_params: QueryParams,
     tag: String,
 }
@@ -1830,6 +1861,8 @@
             handle,
             row: <span class="prelude-val">None</span>,
             shared_buffer_row_index: Arc::new(AtomicU32::new(<span class="number">0</span>)),
+            last_buffer_row_index: <span class="number">0</span>,
+            more_rows: <span class="bool-val">false</span>,
             query_params,
             tag,
         }
@@ -1854,60 +1887,87 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>init_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>, num_cols: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.shared_buffer_row_index.store(<span class="number">0</span>, Ordering::Relaxed);
+        <span class="self">self</span>.last_buffer_row_index = <span class="number">0</span>;
+        <span class="self">self</span>.more_rows = <span class="bool-val">true</span>;
+        <span class="kw">if </span><span class="self">self</span>.row.is_some() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        }
         <span class="kw">let </span><span class="kw-2">mut </span>column_info = Vec::with_capacity(num_cols);
         <span class="kw">let </span><span class="kw-2">mut </span>column_values = Vec::with_capacity(num_cols);
 
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_cols {
-            <span class="comment">// set column info
-            </span><span class="kw">let </span>ci = ColumnInfo::new(<span class="self">self</span>, i)<span class="question-mark">?</span>;
-            column_info.push(ci);
-            <span class="comment">// setup column value
-            </span><span class="kw">let </span><span class="kw-2">mut </span>val = SqlValue::for_column(
+            <span class="kw">let </span>info = ColumnInfo::new(<span class="self">self</span>, i)<span class="question-mark">?</span>;
+            <span class="kw">let </span>val = SqlValue::for_column(
                 <span class="self">self</span>.conn.clone(),
                 <span class="self">self</span>.query_params.clone(),
-                <span class="self">self</span>.query_params.fetch_array_size,
-            );
-            val.buffer_row_index = BufferRowIndex::Shared(<span class="self">self</span>.shared_buffer_row_index.clone());
-            <span class="kw">let </span>oratype = column_info[i].oracle_type();
-            <span class="kw">let </span>oratype_i64 = OracleType::Int64;
-            <span class="kw">let </span>oratype = <span class="kw">match </span><span class="kw-2">*</span>oratype {
-                <span class="comment">// When the column type is number whose prec is less than 18
-                // and the scale is zero, define it as int64.
-                </span>OracleType::Number(prec, <span class="number">0</span>) <span class="kw">if </span><span class="number">0 </span>&lt; prec &amp;&amp; prec &lt; DPI_MAX_INT64_PRECISION <span class="kw">as </span>u8 =&gt; {
-                    <span class="kw-2">&amp;</span>oratype_i64
-                }
-                <span class="kw">_ </span>=&gt; oratype,
-            };
-            val.init_handle(oratype)<span class="question-mark">?</span>;
-            <span class="macro">chkerr!</span>(
-                <span class="self">self</span>.ctxt(),
-                dpiStmt_define(<span class="self">self</span>.handle(), (i + <span class="number">1</span>) <span class="kw">as </span>u32, val.handle()<span class="question-mark">?</span>)
-            );
+                <span class="self">self</span>.shared_buffer_row_index.clone(),
+                info.oracle_type(),
+                <span class="self">self</span>.handle(),
+                (i + <span class="number">1</span>) <span class="kw">as </span>u32,
+            )<span class="question-mark">?</span>;
+            column_info.push(info);
             column_values.push(val);
         }
         <span class="self">self</span>.row = <span class="prelude-val">Some</span>(Row::new(column_info, column_values)<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>try_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>found = <span class="number">0</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer_row_index = <span class="number">0</span>;
-        <span class="macro">chkerr!</span>(
-            <span class="self">self</span>.ctxt(),
-            dpiStmt_fetch(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>found, <span class="kw-2">&amp;mut </span>buffer_row_index)
-        );
-        <span class="prelude-val">Ok</span>(<span class="kw">if </span>found != <span class="number">0 </span>{
+    <span class="kw">fn </span>try_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
+        <span class="kw">let </span>index = <span class="self">self</span>.shared_buffer_row_index.load(Ordering::Relaxed);
+        <span class="kw">let </span>last_index = <span class="self">self</span>.last_buffer_row_index;
+        <span class="kw">if </span>index + <span class="number">1 </span>&lt; last_index {
             <span class="self">self</span>.shared_buffer_row_index
-                .store(buffer_row_index, Ordering::Relaxed);
-            <span class="comment">// if self.row.is_none(), dpiStmt_fetch() returns non-zero.
-            </span><span class="prelude-val">Some</span>(<span class="self">self</span>.row.as_ref().unwrap())
+                .store(index + <span class="number">1</span>, Ordering::Relaxed);
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.row.as_ref().unwrap()))
+        } <span class="kw">else if </span><span class="self">self</span>.more_rows &amp;&amp; <span class="self">self</span>.fetch_rows()<span class="question-mark">? </span>{
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.row.as_ref().unwrap()))
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>})
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        }
     }
 
-    <span class="kw">pub fn </span>next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
+    <span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Row&gt;&gt; {
         <span class="self">self</span>.try_next().transpose()
+    }
+
+    <span class="kw">pub fn </span>fetch_rows(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="kw">let </span>handle = <span class="self">self</span>.handle();
+        <span class="kw">let </span>row = <span class="self">self</span>.row.as_mut().unwrap();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..(row.column_info.len()) {
+            <span class="comment">// If fetch array buffer is referenced only by self, it is reusable.
+            // Otherwise, a new SqlValue must be created to allocate a new buffer
+            // because dpiStmt_fetchRows() overwrites the buffer.
+            </span><span class="kw">if </span>row.column_values[i].fetch_array_buffer_shared_count()<span class="question-mark">? </span>&gt; <span class="number">1 </span>{
+                <span class="kw">let </span>oratype = row.column_info[i].oracle_type();
+                row.column_values[i] = SqlValue::for_column(
+                    <span class="self">self</span>.conn.clone(),
+                    <span class="self">self</span>.query_params.clone(),
+                    <span class="self">self</span>.shared_buffer_row_index.clone(),
+                    oratype,
+                    handle,
+                    (i + <span class="number">1</span>) <span class="kw">as </span>u32,
+                )<span class="question-mark">?</span>;
+            }
+        }
+        <span class="kw">let </span><span class="kw-2">mut </span>new_index = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_rows = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>more_rows = <span class="number">0</span>;
+        <span class="macro">chkerr!</span>(
+            <span class="self">self</span>.ctxt(),
+            dpiStmt_fetchRows(
+                handle,
+                <span class="self">self</span>.query_params.fetch_array_size,
+                <span class="kw-2">&amp;mut </span>new_index,
+                <span class="kw-2">&amp;mut </span>num_rows,
+                <span class="kw-2">&amp;mut </span>more_rows
+            )
+        );
+        <span class="self">self</span>.shared_buffer_row_index
+            .store(new_index, Ordering::Relaxed);
+        <span class="self">self</span>.last_buffer_row_index = new_index + num_rows;
+        <span class="self">self</span>.more_rows = more_rows != <span class="number">0</span>;
+        <span class="prelude-val">Ok</span>(num_rows != <span class="number">0</span>)
     }
 
     <span class="kw">pub fn </span>row_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
@@ -2024,7 +2084,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
         <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">"query"</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
+        <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stmt))
     }
 
     <span class="doccomment">/// Executes the prepared statement using named parameters and returns a result set containing [`Row`]s.
@@ -2034,7 +2094,7 @@
     /// [Query Methods]: https://github.com/kubo/rust-oracle/blob/master/docs/query-methods.md
     </span><span class="kw">pub fn </span>query_named(<span class="kw-2">&amp;mut </span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span><span class="kw">dyn </span>ToSql)]) -&gt; <span class="prelude-ty">Result</span>&lt;ResultSet&lt;Row&gt;&gt; {
         <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_named"</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
+        <span class="prelude-val">Ok</span>(ResultSet::&lt;Row&gt;::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stmt))
     }
 
     <span class="doccomment">/// Executes the prepared statement and returns a result set containing [`RowValue`]s.
@@ -2047,7 +2107,7 @@
         </span>T: RowValue,
     {
         <span class="self">self</span>.exec(params, <span class="bool-val">true</span>, <span class="string">"query_as"</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
+        <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stmt))
     }
 
     <span class="doccomment">/// Executes the prepared statement and returns a result set containing [`RowValue`]s.
@@ -2075,7 +2135,7 @@
         </span>T: RowValue,
     {
         <span class="self">self</span>.exec_named(params, <span class="bool-val">true</span>, <span class="string">"query_as_named"</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;</span><span class="self">self</span>.stmt))
+        <span class="prelude-val">Ok</span>(ResultSet::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stmt))
     }
 
     <span class="doccomment">/// Executes the prepared statement using named parameters and returns a result set containing [`RowValue`]s.
@@ -2273,7 +2333,7 @@
                 <span class="kw">_ </span>=&gt; (),
             }
         }
-        <span class="kw">if </span><span class="self">self</span>.statement_type == StatementType::Select &amp;&amp; <span class="self">self</span>.stmt.row.is_none() {
+        <span class="kw">if </span><span class="self">self</span>.statement_type == StatementType::Select {
             <span class="self">self</span>.stmt.init_row(num_query_columns <span class="kw">as </span>usize)<span class="question-mark">?</span>;
         }
         <span class="kw">if </span><span class="self">self</span>.is_returning {
