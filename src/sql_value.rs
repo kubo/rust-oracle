@@ -128,7 +128,7 @@ pub enum BufferRowIndex {
 
 enum DpiData<'a> {
     Data(&'a mut dpiData),
-    Var(DpiVar, *mut dpiData),
+    Var(DpiVar),
     Null,
 }
 
@@ -218,7 +218,7 @@ impl SqlValue<'_> {
 
     fn handle_is_reusable(&self, oratype: &OracleType) -> Result<bool> {
         match self.data {
-            DpiData::Var(_, _) => (),
+            DpiData::Var(_) => (),
             _ => return Ok(false),
         };
         let current_oratype = match self.oratype {
@@ -262,7 +262,7 @@ impl SqlValue<'_> {
             LobBindType::Locator => oratype,
         }
         .var_create_param()?;
-        let mut handle = DpiVar::null();
+        let mut handle = ptr::null_mut();
         let mut data = ptr::null_mut();
         let native_type_num = native_type.to_native_type_num();
         let object_type_handle = native_type.to_object_type_handle();
@@ -277,11 +277,11 @@ impl SqlValue<'_> {
                 size_is_byte,
                 0,
                 object_type_handle,
-                &mut handle.raw,
-                &mut data
+                &mut handle,
+                &mut data,
             )
         );
-        self.data = DpiData::Var(handle, data);
+        self.data = DpiData::Var(DpiVar::new(handle, data));
         self.native_type = native_type;
         self.oratype = Some(oratype.clone());
         if native_type_num == DPI_NATIVE_TYPE_STMT {
@@ -305,7 +305,7 @@ impl SqlValue<'_> {
         );
         if num != 0 {
             self.array_size = num;
-            self.data = DpiData::Var(DpiVar::with_add_ref(handle), data);
+            self.data = DpiData::Var(DpiVar::with_add_ref(handle, data));
         }
         Ok(())
     }
@@ -318,7 +318,7 @@ impl SqlValue<'_> {
     }
 
     pub(crate) fn handle(&self) -> Result<*mut dpiVar> {
-        if let DpiData::Var(var, _) = &self.data {
+        if let DpiData::Var(var) = &self.data {
             Ok(var.raw)
         } else {
             Err(Error::internal_error("dpVar handle isn't initialized"))
@@ -329,7 +329,7 @@ impl SqlValue<'_> {
         unsafe {
             Ok(&mut *match self.data {
                 DpiData::Data(ref data) => *data as *const dpiData as *mut dpiData,
-                DpiData::Var(_, data) => data,
+                DpiData::Var(ref var) => var.data,
                 DpiData::Null => {
                     return Err(Error::internal_error("dpData isn't initialized"));
                 }
@@ -707,11 +707,11 @@ impl SqlValue<'_> {
                 }
                 Ok(())
             }
-            DpiData::Var(handle, _) => {
+            DpiData::Var(var) => {
                 chkerr!(
                     self.ctxt(),
                     dpiVar_setFromBytes(
-                        handle.raw,
+                        var.raw,
                         self.buffer_row_index(),
                         val.as_ptr() as *const c_char,
                         val.len() as u32
@@ -806,7 +806,7 @@ impl SqlValue<'_> {
                 self.keep_dpiobj = obj.clone();
                 Ok(())
             }
-            DpiData::Var(ref var, _) => {
+            DpiData::Var(ref var) => {
                 chkerr!(
                     self.ctxt(),
                     dpiVar_setFromObject(var.raw, self.buffer_row_index(), obj.raw)

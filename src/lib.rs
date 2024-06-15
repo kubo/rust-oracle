@@ -172,7 +172,35 @@ define_dpi_data_with_refcount!(Object, nosync);
 define_dpi_data_with_refcount!(Stmt, nosync);
 
 // define DpiVar wrapping *mut dpiVar.
-define_dpi_data_with_refcount!(Var, nosync);
+struct DpiVar {
+    raw: *mut dpiVar,
+    data: *mut dpiData,
+}
+
+impl DpiVar {
+    fn new(raw: *mut dpiVar, data: *mut dpiData) -> DpiVar {
+        DpiVar { raw, data }
+    }
+
+    fn with_add_ref(raw: *mut dpiVar, data: *mut dpiData) -> DpiVar {
+        unsafe { dpiVar_addRef(raw) };
+        DpiVar::new(raw, data)
+    }
+
+    fn is_null(&self) -> bool {
+        self.raw.is_null()
+    }
+}
+
+impl Drop for DpiVar {
+    fn drop(&mut self) {
+        if !self.is_null() {
+            unsafe { dpiVar_release(self.raw) };
+        }
+    }
+}
+
+unsafe impl Send for DpiVar {}
 
 #[allow(dead_code)]
 trait AssertSend: Send {}
