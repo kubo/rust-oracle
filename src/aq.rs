@@ -779,12 +779,7 @@ impl DeqOptions {
     /// Set the time to wait for a message matching the search
     /// criteria.
     pub fn set_wait(&mut self, val: &Duration) -> Result<()> {
-        let secs = val.as_secs();
-        let secs = if secs > u32::max_value().into() {
-            u32::max_value()
-        } else {
-            secs as u32
-        };
+        let secs = val.as_secs().try_into().unwrap_or(u32::MAX);
         chkerr!(self.ctxt(), dpiDeqOptions_setWait(self.handle, secs));
         Ok(())
     }
@@ -1077,16 +1072,12 @@ where
     /// [`MessageState::Waiting`]: MessageState#variant.Waiting
     /// [`MessageState::Ready`]: MessageState#variant.Ready
     pub fn set_delay(&mut self, val: &Duration) -> Result<()> {
-        let secs = val.as_secs();
-        if secs > i32::max_value() as u64 {
-            Err(Error::out_of_range(format!("too long duration {:?}", val)))
-        } else {
-            chkerr!(
-                self.ctxt(),
-                dpiMsgProps_setDelay(self.handle(), secs as i32)
-            );
-            Ok(())
-        }
+        let secs = val
+            .as_secs()
+            .try_into()
+            .map_err(|_| Error::out_of_range(format!("too long duration {:?}", val)))?;
+        chkerr!(self.ctxt(), dpiMsgProps_setDelay(self.handle(), secs));
+        Ok(())
     }
 
     /// Sets the name of the queue to which the message is moved if it cannot be
@@ -1117,16 +1108,12 @@ where
     /// [`MessageState::Ready`]: MessageState#variant.Ready
     /// [`MessageState::Expired`]: MessageState#variant.Expired
     pub fn set_expiration(&mut self, val: &Duration) -> Result<()> {
-        let secs = val.as_secs();
-        if secs > i32::max_value() as u64 {
-            Err(Error::out_of_range(format!("too long duration {:?}", val)))
-        } else {
-            chkerr!(
-                self.ctxt(),
-                dpiMsgProps_setExpiration(self.handle(), secs as i32)
-            );
-            Ok(())
-        }
+        let secs = val
+            .as_secs()
+            .try_into()
+            .map_err(|_| Error::out_of_range(format!("too long duration {:?}", val)))?;
+        chkerr!(self.ctxt(), dpiMsgProps_setExpiration(self.handle(), secs));
+        Ok(())
     }
 
     /// Sets the id of the message in the last queue that generated this

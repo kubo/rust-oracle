@@ -59,9 +59,7 @@ use crate::Result;
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {{
         let src_val = $expr;
-        if $dest_type::min_value() as $src_type <= src_val
-            && src_val <= $dest_type::max_value() as $src_type
-        {
+        if $dest_type::MIN as $src_type <= src_val && src_val <= $dest_type::MAX as $src_type {
             Ok(src_val as $dest_type)
         } else {
             Err(Error::out_of_range(format!(

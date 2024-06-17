@@ -41,7 +41,6 @@ use crate::sql_type::ObjectTypeInternal;
 use crate::sql_type::ToSql;
 use crate::to_odpi_str;
 use crate::to_rust_str;
-use crate::util::duration_to_msecs;
 use crate::AssertSend;
 use crate::AssertSync;
 #[cfg(doc)]
@@ -1320,7 +1319,7 @@ impl Connection {
     /// ```
     pub fn set_call_timeout(&self, dur: Option<Duration>) -> Result<()> {
         if let Some(dur) = dur {
-            let msecs = duration_to_msecs(dur).ok_or_else(|| {
+            let msecs = dur.as_millis().try_into().map_err(|_| {
                 Error::out_of_range(format!(
                     "too long duration {:?}. It must be less than 49.7 days",
                     dur
