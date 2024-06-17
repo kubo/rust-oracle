@@ -1375,8 +1375,6 @@
 <a href="#1375" id="1375">1375</a>
 <a href="#1376" id="1376">1376</a>
 <a href="#1377" id="1377">1377</a>
-<a href="#1378" id="1378">1378</a>
-<a href="#1379" id="1379">1379</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1438,9 +1436,7 @@
 <span class="macro">macro_rules!</span> flt_to_int {
     (<span class="macro-nonterminal">$expr</span>:expr, <span class="macro-nonterminal">$src_type</span>:ident, <span class="macro-nonterminal">$dest_type</span>:ident) =&gt; {{
         <span class="kw">let </span>src_val = <span class="macro-nonterminal">$expr</span>;
-        <span class="kw">if </span><span class="macro-nonterminal">$dest_type::min_value</span>() <span class="kw">as </span><span class="macro-nonterminal">$src_type </span>&lt;= src_val
-            &amp;&amp; src_val &lt;= <span class="macro-nonterminal">$dest_type::max_value</span>() <span class="kw">as </span><span class="macro-nonterminal">$src_type
-        </span>{
+        <span class="kw">if </span><span class="macro-nonterminal">$dest_type::MIN </span><span class="kw">as </span><span class="macro-nonterminal">$src_type </span>&lt;= src_val &amp;&amp; src_val &lt;= <span class="macro-nonterminal">$dest_type::MAX </span><span class="kw">as </span><span class="macro-nonterminal">$src_type </span>{
             <span class="prelude-val">Ok</span>(src_val <span class="kw">as </span><span class="macro-nonterminal">$dest_type</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(Error::out_of_range(<span class="macro">format!</span>(
