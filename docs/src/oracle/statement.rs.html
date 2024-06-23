@@ -1486,6 +1486,27 @@
 <a href="#1486" id="1486">1486</a>
 <a href="#1487" id="1487">1487</a>
 <a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -2971,6 +2992,27 @@
         <span class="macro">assert_eq!</span>(colinfo[<span class="number">1</span>].oracle_type(), <span class="kw-2">&amp;</span>OracleType::Xml);
         <span class="macro">assert_eq!</span>(colinfo.len(), <span class="number">2</span>);
 
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>fetch_rows_to_vec() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>conn = test_util::connect()<span class="question-mark">?</span>;
+        <span class="comment">// The fetch array size must be less than the number of rows in TestStrings
+        // in order to make situation that a new fetch array buffer must allocated
+        // in Stmt::fetch_rows().
+        </span><span class="kw">let </span><span class="kw-2">mut </span>stmt = conn
+            .statement(<span class="string">"select IntCol from TestStrings order by IntCol"</span>)
+            .fetch_array_size(<span class="number">3</span>)
+            .build()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>rows = Vec::new();
+        <span class="kw">for </span>row_result <span class="kw">in </span>stmt.query(<span class="kw-2">&amp;</span>[])<span class="question-mark">? </span>{
+            rows.push(row_result<span class="question-mark">?</span>);
+        }
+        <span class="kw">for </span>(index, row) <span class="kw">in </span>rows.iter().enumerate() {
+            <span class="kw">let </span>int_col: usize = row.get(<span class="number">0</span>)<span class="question-mark">?</span>;
+            <span class="macro">assert_eq!</span>(int_col, index + <span class="number">1</span>);
+        }
         <span class="prelude-val">Ok</span>(())
     }
 }
