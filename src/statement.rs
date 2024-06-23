@@ -1485,4 +1485,25 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn fetch_rows_to_vec() -> Result<()> {
+        let conn = test_util::connect()?;
+        // The fetch array size must be less than the number of rows in TestStrings
+        // in order to make situation that a new fetch array buffer must allocated
+        // in Stmt::fetch_rows().
+        let mut stmt = conn
+            .statement("select IntCol from TestStrings order by IntCol")
+            .fetch_array_size(3)
+            .build()?;
+        let mut rows = Vec::new();
+        for row_result in stmt.query(&[])? {
+            rows.push(row_result?);
+        }
+        for (index, row) in rows.iter().enumerate() {
+            let int_col: usize = row.get(0)?;
+            assert_eq!(int_col, index + 1);
+        }
+        Ok(())
+    }
 }

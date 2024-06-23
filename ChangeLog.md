@@ -11,6 +11,13 @@ Non-breaking Changes:
 
 * `DbError::new()` uses generics, which supports old types.
 
+Internal Changes:
+
+* Improve performance of iterator for [`ResultSet<T>`][`ResultSet`] where T is [`Row`]
+  by sharing an internal fetch array buffer. Before this change, one row in the buffer
+  is copied to `Row` for each iteration. After this, new fetch array buffer is allocated
+  when more rows must be fetched into a buffer but the buffer is referenced by `Row`s.
+
 ## 0.6.0 (2024-05-20)
 
 Breaking changes:
