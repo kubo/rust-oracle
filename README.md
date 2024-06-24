@@ -31,7 +31,7 @@ Put this in your `Cargo.toml`:
 
 ```text
 [dependencies]
-oracle = "0.5"
+oracle = "0.6.1"
 ```
 ## Optional Features
 
