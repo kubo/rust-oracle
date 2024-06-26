@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.8 (2024-XX-XX)
+
+Fixed Issues:
+
+* Fix memory leaks when [`Batch`] is explicitly closed by [`close()`][`Batch::close()`].
+
 ## 0.5.7 (2023-01-30)
 
 New features:
@@ -385,6 +391,7 @@ Incompatible changes:
 [chrono]: https://docs.rs/chrono/latest/chrono/index.html
 [`pool`]: https://www.jiubao.org/rust-oracle/oracle/pool/index.html
 [`Batch`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html
+[`Batch::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html#method.close
 [`Collection`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html
 [`Collection::indices()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.indices
 [`Collection::iter()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.iter
