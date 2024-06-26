@@ -38,11 +38,11 @@ use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
 use crate::sql_value::BufferRowIndex;
 use crate::statement::QueryParams;
-use crate::to_odpi_str;
 use crate::to_rust_str;
 use crate::Connection;
 use crate::DbError;
 use crate::Error;
+use crate::OdpiStr;
 use crate::Result;
 use crate::SqlValue;
 #[cfg(doc)]
@@ -157,7 +157,7 @@ impl<'conn, 'sql> BatchBuilder<'conn, 'sql> {
             Error::out_of_range(format!("too large batch size {}", self.batch_size)).add_source(err)
         })?;
         let conn = self.conn;
-        let sql = to_odpi_str(self.sql);
+        let sql = OdpiStr::new(self.sql);
         let mut handle: *mut dpiStmt = ptr::null_mut();
         chkerr!(
             conn.ctxt(),
@@ -798,7 +798,7 @@ impl BatchBindIndex for &str {
 
     #[doc(hidden)]
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
-        let s = to_odpi_str(self);
+        let s = OdpiStr::new(self);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }

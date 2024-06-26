@@ -35,13 +35,13 @@ use crate::sql_type::ToSql;
 #[cfg(doc)]
 use crate::sql_type::{Blob, Clob, Nclob};
 use crate::sql_value::BufferRowIndex;
-use crate::to_odpi_str;
 use crate::to_rust_str;
 use crate::AssertSend;
 use crate::Connection;
 use crate::Context;
 use crate::DpiStmt;
 use crate::Error;
+use crate::OdpiStr;
 use crate::Result;
 use crate::ResultSet;
 use crate::Row;
@@ -393,7 +393,7 @@ impl Stmt {
     }
 
     fn close(&mut self) -> Result<()> {
-        let tag = to_odpi_str(&self.tag);
+        let tag = OdpiStr::new(&self.tag);
         chkerr!(self.ctxt(), dpiStmt_close(self.handle(), tag.ptr, tag.len));
         Ok(())
     }
@@ -511,8 +511,8 @@ pub struct Statement {
 impl Statement {
     fn new(builder: &StatementBuilder<'_, '_>) -> Result<Statement> {
         let conn = builder.conn;
-        let sql = to_odpi_str(builder.sql);
-        let tag = to_odpi_str(&builder.tag);
+        let sql = OdpiStr::new(builder.sql);
+        let tag = OdpiStr::new(&builder.tag);
         let mut handle = DpiStmt::null();
         chkerr!(
             conn.ctxt(),
@@ -1363,7 +1363,7 @@ impl BindIndex for &str {
     }
 
     unsafe fn bind(&self, stmt_handle: *mut dpiStmt, var_handle: *mut dpiVar) -> i32 {
-        let s = to_odpi_str(self);
+        let s = OdpiStr::new(self);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }

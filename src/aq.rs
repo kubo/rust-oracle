@@ -103,12 +103,10 @@
 use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
-use crate::new_odpi_str;
 use crate::sql_type::Object;
 use crate::sql_type::ObjectType;
 use crate::sql_type::OracleType;
 use crate::sql_type::Timestamp;
-use crate::to_odpi_str;
 use crate::to_rust_slice;
 use crate::Connection;
 use crate::Context;
@@ -116,6 +114,7 @@ use crate::DpiMsgProps;
 use crate::DpiObject;
 use crate::DpiQueue;
 use crate::Error;
+use crate::OdpiStr;
 use crate::Result;
 use std::borrow::ToOwned;
 use std::fmt;
@@ -235,7 +234,7 @@ where
         payload_type: &T::TypeInfo,
     ) -> Result<Queue<T>> {
         let mut handle = ptr::null_mut();
-        let name = to_odpi_str(queue_name);
+        let name = OdpiStr::new(queue_name);
         let payload_type = T::payload_type(payload_type)?;
         let objtype = payload_type
             .as_ref()
@@ -581,7 +580,7 @@ impl DeqOptions {
     ///
     /// See [`set_condition`](#method.set_condition) method for more information
     pub fn condition(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_getCondition(self.handle, &mut s.ptr, &mut s.len)
@@ -593,7 +592,7 @@ impl DeqOptions {
     ///
     /// see [`set_consumer_name`](#method.set_consumer_name) method for more information.
     pub fn consumer_name(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_getConsumerName(self.handle, &mut s.ptr, &mut s.len)
@@ -605,7 +604,7 @@ impl DeqOptions {
     ///
     ///  See [`set_correlation`](#method.set_correlation) method for more information.
     pub fn correlation(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_getCorrelation(self.handle, &mut s.ptr, &mut s.len)
@@ -622,7 +621,7 @@ impl DeqOptions {
 
     /// Returns the identifier of the specific message that is to be dequeued.
     pub fn message_id(&self) -> Result<Vec<u8>> {
-        let mut msg = new_odpi_str();
+        let mut msg = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_getMsgId(self.handle, &mut msg.ptr, &mut msg.len)
@@ -644,7 +643,7 @@ impl DeqOptions {
     ///
     /// See [`set_transformation`](#method.set_transformation) method for more information.
     pub fn transformation(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_getTransformation(self.handle, &mut s.ptr, &mut s.len)
@@ -679,7 +678,7 @@ impl DeqOptions {
     /// properties must be prefixed with tab.user_data as a qualifier to indicate
     /// the specific column of the queue table that stores the message payload.
     pub fn set_condition(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_setCondition(self.handle, val.ptr, val.len)
@@ -690,7 +689,7 @@ impl DeqOptions {
     /// Sets the name of the consumer which will be dequeuing messages. This value
     /// should only be set if the queue is set up for multiple consumers.
     pub fn set_consumer_name(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_setConsumerName(self.handle, val.ptr, val.len)
@@ -705,7 +704,7 @@ impl DeqOptions {
     /// can be used. If multiple messages satisfy the pattern, the order of
     /// dequeuing is undetermined.
     pub fn set_correlation(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_setCorrelation(self.handle, val.ptr, val.len)
@@ -758,7 +757,7 @@ impl DeqOptions {
     /// is applied after the message is dequeued but before it is returned to the
     /// application. It must be created using DBMS_TRANSFORM.
     pub fn set_transformation(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiDeqOptions_setTransformation(self.handle, val.ptr, val.len)
@@ -812,7 +811,7 @@ impl EnqOptions {
     ///
     /// See [`set_transformation`](#method.set_transformation) method for more information.
     pub fn transformation(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiEnqOptions_getTransformation(self.handle, &mut s.ptr, &mut s.len)
@@ -846,7 +845,7 @@ impl EnqOptions {
     /// is applied after the message is enqueued but before it is returned to the
     /// application. It must be created using DBMS_TRANSFORM.
     pub fn set_transformation(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiEnqOptions_setTransformation(self.handle, val.ptr, val.len)
@@ -935,7 +934,7 @@ where
     /// Returns the correlation supplied by the producer when the message was
     /// enqueued.
     pub fn correlation(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiMsgProps_getCorrelation(self.handle(), &mut s.ptr, &mut s.len)
@@ -972,7 +971,7 @@ where
     ///
     /// See [`set_exception_queue`](#method.set_exception_queue) method for more information.
     pub fn exception_queue(&self) -> Result<String> {
-        let mut s = new_odpi_str();
+        let mut s = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiMsgProps_getExceptionQ(self.handle(), &mut s.ptr, &mut s.len)
@@ -995,7 +994,7 @@ where
     /// Returns the id of the message in the queue that generated this message. No
     /// value is available until the message has been enqueued or dequeued.
     pub fn message_id(&self) -> Result<Vec<u8>> {
-        let mut msg = new_odpi_str();
+        let mut msg = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiMsgProps_getMsgId(self.handle(), &mut msg.ptr, &mut msg.len)
@@ -1008,7 +1007,7 @@ where
     ///
     /// See [`set_original_message_id`](#method.set_original_message_id) for more information.
     pub fn original_message_id(&self) -> Result<Vec<u8>> {
-        let mut msg = new_odpi_str();
+        let mut msg = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiMsgProps_getOriginalMsgId(self.handle(), &mut msg.ptr, &mut msg.len)
@@ -1053,7 +1052,7 @@ where
     /// messages satisfy the pattern, the order of dequeuing is
     /// undetermined.
     pub fn set_correlation(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiMsgProps_setCorrelation(self.handle(), val.ptr, val.len)
@@ -1090,7 +1089,7 @@ where
     ///
     /// [`MessageState::Expired`]: MessageState#variant.Expired
     pub fn set_exception_queue(&mut self, val: &str) -> Result<()> {
-        let val = to_odpi_str(val);
+        let val = OdpiStr::new(val);
         chkerr!(
             self.ctxt(),
             dpiMsgProps_setExceptionQ(self.handle(), val.ptr, val.len)

@@ -22,13 +22,13 @@ use crate::binding::*;
 use crate::chkerr;
 use crate::conn::Purity;
 use crate::connection::CommonCreateParamsBuilder;
-use crate::to_odpi_str;
 use crate::AssertSend;
 use crate::AssertSync;
 use crate::Connection;
 use crate::Context;
 use crate::DpiPool;
 use crate::Error;
+use crate::OdpiStr;
 use crate::Privilege;
 use crate::Result;
 use std::convert::TryInto;
@@ -242,14 +242,14 @@ impl PoolOptions {
             conn_params.authMode |= privilege.to_dpi();
         }
         conn_params.externalAuth = i32::from(self.external_auth);
-        let s = to_odpi_str(&self.tag);
+        let s = OdpiStr::new(&self.tag);
         conn_params.tag = s.ptr;
         conn_params.tagLength = s.len;
         conn_params.matchAnyTag = i32::from(self.match_any_tag);
         if let Some(purity) = self.purity {
             conn_params.purity = purity.to_dpi();
         }
-        let s = to_odpi_str(&self.connection_class);
+        let s = OdpiStr::new(&self.connection_class);
         conn_params.connectionClass = s.ptr;
         conn_params.connectionClassLength = s.len;
         conn_params
@@ -504,7 +504,7 @@ impl PoolBuilder {
             pool_params.maxLifetimeSession = val.0;
         }
         if let Some(ref val) = self.plsql_fixup_callback {
-            let s = to_odpi_str(val);
+            let s = OdpiStr::new(val);
             pool_params.plsqlFixupCallback = s.ptr;
             pool_params.plsqlFixupCallbackLength = s.len;
         }
@@ -560,9 +560,9 @@ impl PoolBuilder {
     /// Make a connection pool
     pub fn build(&self) -> Result<Pool> {
         let ctxt = Context::new0()?;
-        let username = to_odpi_str(&self.username);
-        let password = to_odpi_str(&self.password);
-        let connect_string = to_odpi_str(&self.connect_string);
+        let username = OdpiStr::new(&self.username);
+        let password = OdpiStr::new(&self.password);
+        let connect_string = OdpiStr::new(&self.connect_string);
         let common_params = self.common_params.build(&ctxt);
         let mut pool_params = self.to_dpi_pool_create_params(&ctxt)?;
         let mut handle = ptr::null_mut();
@@ -736,8 +736,8 @@ impl Pool {
     /// See also [`Pool::get`].
     pub fn get_with_options(&self, options: &PoolOptions) -> Result<Connection> {
         let ctxt = Context::new()?;
-        let username = to_odpi_str(&options.username);
-        let password = to_odpi_str(&options.password);
+        let username = OdpiStr::new(&options.username);
+        let password = OdpiStr::new(&options.password);
         let mut conn_params = options.to_dpi_conn_create_params(&ctxt);
         let mut handle = ptr::null_mut();
         chkerr!(

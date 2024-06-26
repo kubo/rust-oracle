@@ -216,28 +216,25 @@ struct OdpiStr {
     pub len: u32,
 }
 
-fn new_odpi_str() -> OdpiStr {
-    OdpiStr {
-        ptr: ptr::null(),
-        len: 0,
-    }
-}
-
-fn to_odpi_str(s: &str) -> OdpiStr {
-    if s.is_empty() {
-        OdpiStr {
-            ptr: ptr::null(),
-            len: 0,
-        }
-    } else {
-        OdpiStr {
-            ptr: s.as_ptr() as *const c_char,
-            len: s.len() as u32,
-        }
-    }
-}
-
 impl OdpiStr {
+    fn new<T>(s: T) -> OdpiStr
+    where
+        T: AsRef<[u8]>,
+    {
+        let s = s.as_ref();
+        if s.is_empty() {
+            OdpiStr {
+                ptr: ptr::null(),
+                len: 0,
+            }
+        } else {
+            OdpiStr {
+                ptr: s.as_ptr() as *const c_char,
+                len: s.len() as u32,
+            }
+        }
+    }
+
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         to_rust_str(self.ptr, self.len)

@@ -15,14 +15,13 @@
 use crate::binding::*;
 use crate::chkerr;
 use crate::io::SeekInChars;
-use crate::new_odpi_str;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::ToSql;
 use crate::sql_type::ToSqlNull;
-use crate::to_odpi_str;
 use crate::Connection;
 use crate::Context;
+use crate::OdpiStr;
 use crate::Result;
 use crate::SqlValue;
 use std::cmp;
@@ -283,8 +282,8 @@ impl LobLocator {
     }
 
     fn directory_and_file_name(&self) -> Result<(String, String)> {
-        let mut dir_alias = new_odpi_str();
-        let mut file_name = new_odpi_str();
+        let mut dir_alias = OdpiStr::new("");
+        let mut file_name = OdpiStr::new("");
         chkerr!(
             self.ctxt(),
             dpiLob_getDirectoryAndFileName(
@@ -299,8 +298,8 @@ impl LobLocator {
     }
 
     fn set_directory_and_file_name(&self, directory_alias: &str, file_name: &str) -> Result<()> {
-        let dir_alias = to_odpi_str(directory_alias);
-        let file_name = to_odpi_str(file_name);
+        let dir_alias = OdpiStr::new(directory_alias);
+        let file_name = OdpiStr::new(file_name);
         chkerr!(
             self.ctxt(),
             dpiLob_setDirectoryAndFileName(
