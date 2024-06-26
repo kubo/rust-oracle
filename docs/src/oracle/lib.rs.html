@@ -336,9 +336,6 @@
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
 <a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -557,28 +554,25 @@
     <span class="kw">pub </span>len: u32,
 }
 
-<span class="kw">fn </span>new_odpi_str() -&gt; OdpiStr {
-    OdpiStr {
-        ptr: ptr::null(),
-        len: <span class="number">0</span>,
-    }
-}
-
-<span class="kw">fn </span>to_odpi_str(s: <span class="kw-2">&amp;</span>str) -&gt; OdpiStr {
-    <span class="kw">if </span>s.is_empty() {
-        OdpiStr {
-            ptr: ptr::null(),
-            len: <span class="number">0</span>,
-        }
-    } <span class="kw">else </span>{
-        OdpiStr {
-            ptr: s.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
-            len: s.len() <span class="kw">as </span>u32,
-        }
-    }
-}
-
 <span class="kw">impl </span>OdpiStr {
+    <span class="kw">fn </span>new&lt;T&gt;(s: T) -&gt; OdpiStr
+    <span class="kw">where
+        </span>T: AsRef&lt;[u8]&gt;,
+    {
+        <span class="kw">let </span>s = s.as_ref();
+        <span class="kw">if </span>s.is_empty() {
+            OdpiStr {
+                ptr: ptr::null(),
+                len: <span class="number">0</span>,
+            }
+        } <span class="kw">else </span>{
+            OdpiStr {
+                ptr: s.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_char,
+                len: s.len() <span class="kw">as </span>u32,
+            }
+        }
+    }
+
     <span class="attr">#[allow(clippy::inherent_to_string)]
     </span><span class="kw">pub fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         to_rust_str(<span class="self">self</span>.ptr, <span class="self">self</span>.len)

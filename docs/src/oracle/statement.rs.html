@@ -1544,13 +1544,13 @@
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::sql_type::{Blob, Clob, Nclob};
 <span class="kw">use </span><span class="kw">crate</span>::sql_value::BufferRowIndex;
-<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="kw">use </span><span class="kw">crate</span>::DpiStmt;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::ResultSet;
 <span class="kw">use </span><span class="kw">crate</span>::Row;
@@ -1902,7 +1902,7 @@
     }
 
     <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
+        <span class="kw">let </span>tag = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiStmt_close(<span class="self">self</span>.handle(), tag.ptr, tag.len));
         <span class="prelude-val">Ok</span>(())
     }
@@ -2020,8 +2020,8 @@
 <span class="kw">impl </span>Statement {
     <span class="kw">fn </span>new(builder: <span class="kw-2">&amp;</span>StatementBuilder&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span>conn = builder.conn;
-        <span class="kw">let </span>sql = to_odpi_str(builder.sql);
-        <span class="kw">let </span>tag = to_odpi_str(<span class="kw-2">&amp;</span>builder.tag);
+        <span class="kw">let </span>sql = OdpiStr::new(builder.sql);
+        <span class="kw">let </span>tag = OdpiStr::new(<span class="kw-2">&amp;</span>builder.tag);
         <span class="kw">let </span><span class="kw-2">mut </span>handle = DpiStmt::null();
         <span class="macro">chkerr!</span>(
             conn.ctxt(),
@@ -2872,7 +2872,7 @@
     }
 
     <span class="kw">unsafe fn </span>bind(<span class="kw-2">&amp;</span><span class="self">self</span>, stmt_handle: <span class="kw-2">*mut </span>dpiStmt, var_handle: <span class="kw-2">*mut </span>dpiVar) -&gt; i32 {
-        <span class="kw">let </span>s = to_odpi_str(<span class="self">self</span>);
+        <span class="kw">let </span>s = OdpiStr::new(<span class="self">self</span>);
         dpiStmt_bindByName(stmt_handle, s.ptr, s.len, var_handle)
     }
 }

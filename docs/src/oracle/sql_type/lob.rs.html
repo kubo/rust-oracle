@@ -936,7 +936,6 @@
 <a href="#936" id="936">936</a>
 <a href="#937" id="937">937</a>
 <a href="#938" id="938">938</a>
-<a href="#939" id="939">939</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -954,14 +953,13 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::io::SeekInChars;
-<span class="kw">use </span><span class="kw">crate</span>::new_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::FromSql;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSqlNull;
-<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
+<span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::SqlValue;
 <span class="kw">use </span>std::cmp;
@@ -1222,8 +1220,8 @@
     }
 
     <span class="kw">fn </span>directory_and_file_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(String, String)&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>dir_alias = new_odpi_str();
-        <span class="kw">let </span><span class="kw-2">mut </span>file_name = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>dir_alias = OdpiStr::new(<span class="string">""</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>file_name = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiLob_getDirectoryAndFileName(
@@ -1238,8 +1236,8 @@
     }
 
     <span class="kw">fn </span>set_directory_and_file_name(<span class="kw-2">&amp;</span><span class="self">self</span>, directory_alias: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>dir_alias = to_odpi_str(directory_alias);
-        <span class="kw">let </span>file_name = to_odpi_str(file_name);
+        <span class="kw">let </span>dir_alias = OdpiStr::new(directory_alias);
+        <span class="kw">let </span>file_name = OdpiStr::new(file_name);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiLob_setDirectoryAndFileName(

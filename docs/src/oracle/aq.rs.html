@@ -1160,7 +1160,6 @@
 <a href="#1160" id="1160">1160</a>
 <a href="#1161" id="1161">1161</a>
 <a href="#1162" id="1162">1162</a>
-<a href="#1163" id="1163">1163</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Oracle Advanced Queuing (available when `aq_unstable` feature is enabled.)
 //!
 //! **Warning:** Any type in this module is unstable. It may be changed incompatibly by minor version upgrades.
@@ -1266,12 +1265,10 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
-<span class="kw">use </span><span class="kw">crate</span>::new_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::Object;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::Timestamp;
-<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_slice;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
@@ -1279,6 +1276,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::DpiObject;
 <span class="kw">use </span><span class="kw">crate</span>::DpiQueue;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::fmt;
@@ -1398,7 +1396,7 @@
         payload_type: <span class="kw-2">&amp;</span>T::TypeInfo,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Queue&lt;T&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
-        <span class="kw">let </span>name = to_odpi_str(queue_name);
+        <span class="kw">let </span>name = OdpiStr::new(queue_name);
         <span class="kw">let </span>payload_type = T::payload_type(payload_type)<span class="question-mark">?</span>;
         <span class="kw">let </span>objtype = payload_type
             .as_ref()
@@ -1744,7 +1742,7 @@
     ///
     /// See [`set_condition`](#method.set_condition) method for more information
     </span><span class="kw">pub fn </span>condition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getCondition(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -1756,7 +1754,7 @@
     ///
     /// see [`set_consumer_name`](#method.set_consumer_name) method for more information.
     </span><span class="kw">pub fn </span>consumer_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getConsumerName(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -1768,7 +1766,7 @@
     ///
     ///  See [`set_correlation`](#method.set_correlation) method for more information.
     </span><span class="kw">pub fn </span>correlation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getCorrelation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -1785,7 +1783,7 @@
 
     <span class="doccomment">/// Returns the identifier of the specific message that is to be dequeued.
     </span><span class="kw">pub fn </span>message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getMsgId(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
@@ -1807,7 +1805,7 @@
     ///
     /// See [`set_transformation`](#method.set_transformation) method for more information.
     </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -1842,7 +1840,7 @@
     /// properties must be prefixed with tab.user_data as a qualifier to indicate
     /// the specific column of the queue table that stores the message payload.
     </span><span class="kw">pub fn </span>set_condition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setCondition(<span class="self">self</span>.handle, val.ptr, val.len)
@@ -1853,7 +1851,7 @@
     <span class="doccomment">/// Sets the name of the consumer which will be dequeuing messages. This value
     /// should only be set if the queue is set up for multiple consumers.
     </span><span class="kw">pub fn </span>set_consumer_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setConsumerName(<span class="self">self</span>.handle, val.ptr, val.len)
@@ -1868,7 +1866,7 @@
     /// can be used. If multiple messages satisfy the pattern, the order of
     /// dequeuing is undetermined.
     </span><span class="kw">pub fn </span>set_correlation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setCorrelation(<span class="self">self</span>.handle, val.ptr, val.len)
@@ -1921,7 +1919,7 @@
     /// is applied after the message is dequeued but before it is returned to the
     /// application. It must be created using DBMS_TRANSFORM.
     </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiDeqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
@@ -1975,7 +1973,7 @@
     ///
     /// See [`set_transformation`](#method.set_transformation) method for more information.
     </span><span class="kw">pub fn </span>transformation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiEnqOptions_getTransformation(<span class="self">self</span>.handle, <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -2009,7 +2007,7 @@
     /// is applied after the message is enqueued but before it is returned to the
     /// application. It must be created using DBMS_TRANSFORM.
     </span><span class="kw">pub fn </span>set_transformation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiEnqOptions_setTransformation(<span class="self">self</span>.handle, val.ptr, val.len)
@@ -2098,7 +2096,7 @@
     <span class="doccomment">/// Returns the correlation supplied by the producer when the message was
     /// enqueued.
     </span><span class="kw">pub fn </span>correlation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_getCorrelation(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -2135,7 +2133,7 @@
     ///
     /// See [`set_exception_queue`](#method.set_exception_queue) method for more information.
     </span><span class="kw">pub fn </span>exception_queue(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_getExceptionQ(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -2158,7 +2156,7 @@
     <span class="doccomment">/// Returns the id of the message in the queue that generated this message. No
     /// value is available until the message has been enqueued or dequeued.
     </span><span class="kw">pub fn </span>message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_getMsgId(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
@@ -2171,7 +2169,7 @@
     ///
     /// See [`set_original_message_id`](#method.set_original_message_id) for more information.
     </span><span class="kw">pub fn </span>original_message_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>msg = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>msg = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_getOriginalMsgId(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>msg.ptr, <span class="kw-2">&amp;mut </span>msg.len)
@@ -2216,7 +2214,7 @@
     /// messages satisfy the pattern, the order of dequeuing is
     /// undetermined.
     </span><span class="kw">pub fn </span>set_correlation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_setCorrelation(<span class="self">self</span>.handle(), val.ptr, val.len)
@@ -2253,7 +2251,7 @@
     ///
     /// [`MessageState::Expired`]: MessageState#variant.Expired
     </span><span class="kw">pub fn </span>set_exception_queue(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>val = to_odpi_str(val);
+        <span class="kw">let </span>val = OdpiStr::new(val);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiMsgProps_setExceptionQ(<span class="self">self</span>.handle(), val.ptr, val.len)

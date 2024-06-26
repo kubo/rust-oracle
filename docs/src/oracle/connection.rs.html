@@ -1777,7 +1777,6 @@
 <a href="#1777" id="1777">1777</a>
 <a href="#1778" id="1778">1778</a>
 <a href="#1779" id="1779">1779</a>
-<a href="#1780" id="1780">1780</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1807,7 +1806,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::conn::{CloseMode, Purity};
 <span class="kw">use </span><span class="kw">crate</span>::error::DPI_ERR_NOT_CONNECTED;
-<span class="kw">use </span><span class="kw">crate</span>::new_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::data_type::{AttrValue, DataType};
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::handle::ConnHandle;
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::handle::Server;
@@ -1819,7 +1817,6 @@
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectType;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectTypeInternal;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ToSql;
-<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSync;
@@ -1830,6 +1827,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::DpiConn;
 <span class="kw">use </span><span class="kw">crate</span>::DpiObjectType;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::ResultSet;
 <span class="kw">use </span><span class="kw">crate</span>::Row;
@@ -1988,12 +1986,12 @@
             common_params.createMode |= DPI_MODE_CREATE_EVENTS;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.edition {
-            <span class="kw">let </span>s = to_odpi_str(s);
+            <span class="kw">let </span>s = OdpiStr::new(s);
             common_params.edition = s.ptr;
             common_params.editionLength = s.len;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>s) = <span class="self">self</span>.driver_name {
-            <span class="kw">let </span>s = to_odpi_str(s);
+            <span class="kw">let </span>s = OdpiStr::new(s);
             common_params.driverName = s.ptr;
             common_params.driverNameLength = s.len;
         }
@@ -2270,20 +2268,20 @@
         <span class="kw">if </span><span class="self">self</span>.prelim_auth {
             conn_params.authMode |= DPI_MODE_AUTH_PRELIM;
         }
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.new_password);
+        <span class="kw">let </span>s = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.new_password);
         conn_params.newPassword = s.ptr;
         conn_params.newPasswordLength = s.len;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(purity) = <span class="self">self</span>.purity {
             conn_params.purity = purity.to_dpi();
         }
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connection_class);
+        <span class="kw">let </span>s = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.connection_class);
         conn_params.connectionClass = s.ptr;
         conn_params.connectionClassLength = s.len;
         <span class="kw">let </span><span class="kw-2">mut </span>app_context = Vec::with_capacity(<span class="self">self</span>.app_context.len());
         <span class="kw">for </span>ac <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.app_context {
-            <span class="kw">let </span>namespace = to_odpi_str(<span class="kw-2">&amp;</span>ac.<span class="number">0</span>);
-            <span class="kw">let </span>name = to_odpi_str(<span class="kw-2">&amp;</span>ac.<span class="number">1</span>);
-            <span class="kw">let </span>value = to_odpi_str(<span class="kw-2">&amp;</span>ac.<span class="number">2</span>);
+            <span class="kw">let </span>namespace = OdpiStr::new(<span class="kw-2">&amp;</span>ac.<span class="number">0</span>);
+            <span class="kw">let </span>name = OdpiStr::new(<span class="kw-2">&amp;</span>ac.<span class="number">1</span>);
+            <span class="kw">let </span>value = OdpiStr::new(<span class="kw-2">&amp;</span>ac.<span class="number">2</span>);
             app_context.push(dpiAppContext {
                 namespaceName: namespace.ptr,
                 namespaceNameLength: namespace.len,
@@ -2421,9 +2419,9 @@
         common_params: dpiCommonCreateParams,
         <span class="kw-2">mut </span>conn_params: dpiConnCreateParams,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
-        <span class="kw">let </span>username = to_odpi_str(username);
-        <span class="kw">let </span>password = to_odpi_str(password);
-        <span class="kw">let </span>connect_string = to_odpi_str(connect_string);
+        <span class="kw">let </span>username = OdpiStr::new(username);
+        <span class="kw">let </span>password = OdpiStr::new(password);
+        <span class="kw">let </span>connect_string = OdpiStr::new(connect_string);
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
             <span class="kw-2">&amp;</span>ctxt,
@@ -2480,7 +2478,7 @@
             CloseMode::Drop =&gt; (DPI_MODE_CONN_CLOSE_DROP, <span class="string">""</span>),
             CloseMode::Retag(tag) =&gt; (DPI_MODE_CONN_CLOSE_RETAG, tag),
         };
-        <span class="kw">let </span>tag = to_odpi_str(tag);
+        <span class="kw">let </span>tag = OdpiStr::new(tag);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_close(<span class="self">self</span>.handle(), mode, tag.ptr, tag.len)
@@ -2817,7 +2815,7 @@
                 });
             }
         }
-        <span class="kw">let </span>s = to_odpi_str(name);
+        <span class="kw">let </span>s = OdpiStr::new(name);
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
@@ -2866,7 +2864,7 @@
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>server_version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Version, String)&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>ver = MaybeUninit::uninit();
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
@@ -2885,9 +2883,9 @@
         old_password: <span class="kw-2">&amp;</span>str,
         new_password: <span class="kw-2">&amp;</span>str,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>username = to_odpi_str(username);
-        <span class="kw">let </span>old_password = to_odpi_str(old_password);
-        <span class="kw">let </span>new_password = to_odpi_str(new_password);
+        <span class="kw">let </span>username = OdpiStr::new(username);
+        <span class="kw">let </span>old_password = OdpiStr::new(old_password);
+        <span class="kw">let </span>new_password = OdpiStr::new(new_password);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_changePassword(
@@ -3120,7 +3118,7 @@
 
     <span class="doccomment">/// Gets current schema associated with the connection
     </span><span class="kw">pub fn </span>current_schema(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_getCurrentSchema(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -3171,7 +3169,7 @@
     /// # Ok::&lt;(), Error&gt;(())
     /// ```
     </span><span class="kw">pub fn </span>set_current_schema(<span class="kw-2">&amp;</span><span class="self">self</span>, current_schema: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(current_schema);
+        <span class="kw">let </span>s = OdpiStr::new(current_schema);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_setCurrentSchema(<span class="self">self</span>.handle(), s.ptr, s.len)
@@ -3181,7 +3179,7 @@
 
     <span class="doccomment">/// Gets edition associated with the connection
     </span><span class="kw">pub fn </span>edition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_getEdition(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -3191,7 +3189,7 @@
 
     <span class="doccomment">/// Gets external name associated with the connection
     </span><span class="kw">pub fn </span>external_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_getExternalName(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -3201,7 +3199,7 @@
 
     <span class="doccomment">/// Sets external name associated with the connection
     </span><span class="kw">pub fn </span>set_external_name(<span class="kw-2">&amp;</span><span class="self">self</span>, external_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(external_name);
+        <span class="kw">let </span>s = OdpiStr::new(external_name);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_setExternalName(<span class="self">self</span>.handle(), s.ptr, s.len)
@@ -3211,7 +3209,7 @@
 
     <span class="doccomment">/// Gets internal name associated with the connection
     </span><span class="kw">pub fn </span>internal_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>s = new_odpi_str();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = OdpiStr::new(<span class="string">""</span>);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_getInternalName(<span class="self">self</span>.handle(), <span class="kw-2">&amp;mut </span>s.ptr, <span class="kw-2">&amp;mut </span>s.len)
@@ -3221,7 +3219,7 @@
 
     <span class="doccomment">/// Sets internal name associated with the connection
     </span><span class="kw">pub fn </span>set_internal_name(<span class="kw-2">&amp;</span><span class="self">self</span>, internal_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(internal_name);
+        <span class="kw">let </span>s = OdpiStr::new(internal_name);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_setInternalName(<span class="self">self</span>.handle(), s.ptr, s.len)
@@ -3237,7 +3235,7 @@
     ///
     /// [DBMS_APPLICATION_INFO.SET_MODULE]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-B2E2BD20-D91D-40DB-A3F6-37A853384F30
     </span><span class="kw">pub fn </span>set_module(<span class="kw-2">&amp;</span><span class="self">self</span>, module: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(module);
+        <span class="kw">let </span>s = OdpiStr::new(module);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiConn_setModule(<span class="self">self</span>.handle(), s.ptr, s.len));
         <span class="prelude-val">Ok</span>(())
     }
@@ -3250,7 +3248,7 @@
     ///
     /// [DBMS_APPLICATION_INFO.SET_ACTION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-90DA860F-BFBE-4539-BA00-2279B02B8F26
     </span><span class="kw">pub fn </span>set_action(<span class="kw-2">&amp;</span><span class="self">self</span>, action: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(action);
+        <span class="kw">let </span>s = OdpiStr::new(action);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiConn_setAction(<span class="self">self</span>.handle(), s.ptr, s.len));
         <span class="prelude-val">Ok</span>(())
     }
@@ -3263,7 +3261,7 @@
     ///
     /// [DBMS_APPLICATION_INFO.SET_CLIENT_INFO]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-68A3DF04-BE91-46CC-8D2B-97BA0E89956F
     </span><span class="kw">pub fn </span>set_client_info(<span class="kw-2">&amp;</span><span class="self">self</span>, client_info: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(client_info);
+        <span class="kw">let </span>s = OdpiStr::new(client_info);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_setClientInfo(<span class="self">self</span>.handle(), s.ptr, s.len)
@@ -3279,7 +3277,7 @@
     ///
     /// [DBMS_SESSION.SET_IDENTIFIER]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-988EA930-BDFE-4205-A806-E54F05333562
     </span><span class="kw">pub fn </span>set_client_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>, client_identifier: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(client_identifier);
+        <span class="kw">let </span>s = OdpiStr::new(client_identifier);
         <span class="macro">chkerr!</span>(
             <span class="self">self</span>.ctxt(),
             dpiConn_setClientIdentifier(<span class="self">self</span>.handle(), s.ptr, s.len)
@@ -3300,7 +3298,7 @@
     /// [DBMS_SQL_MONITOR.BEGIN_OPERATION]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-25BE0E79-3A19-4303-9F66-2CFDB87C7F82
     /// [Monitoring Database Operations]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-C941CE9D-97E1-42F8-91ED-4949B2B710BF
     </span><span class="kw">pub fn </span>set_db_op(<span class="kw-2">&amp;</span><span class="self">self</span>, db_op: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>s = to_odpi_str(db_op);
+        <span class="kw">let </span>s = OdpiStr::new(db_op);
         <span class="macro">chkerr!</span>(<span class="self">self</span>.ctxt(), dpiConn_setDbOp(<span class="self">self</span>.handle(), s.ptr, s.len));
         <span class="prelude-val">Ok</span>(())
     }

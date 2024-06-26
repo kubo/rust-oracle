@@ -1053,13 +1053,13 @@
 <span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::conn::Purity;
 <span class="kw">use </span><span class="kw">crate</span>::connection::CommonCreateParamsBuilder;
-<span class="kw">use </span><span class="kw">crate</span>::to_odpi_str;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSync;
 <span class="kw">use </span><span class="kw">crate</span>::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="kw">use </span><span class="kw">crate</span>::DpiPool;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Privilege;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span>std::convert::TryInto;
@@ -1273,14 +1273,14 @@
             conn_params.authMode |= privilege.to_dpi();
         }
         conn_params.externalAuth = i32::from(<span class="self">self</span>.external_auth);
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
+        <span class="kw">let </span>s = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.tag);
         conn_params.tag = s.ptr;
         conn_params.tagLength = s.len;
         conn_params.matchAnyTag = i32::from(<span class="self">self</span>.match_any_tag);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(purity) = <span class="self">self</span>.purity {
             conn_params.purity = purity.to_dpi();
         }
-        <span class="kw">let </span>s = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connection_class);
+        <span class="kw">let </span>s = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.connection_class);
         conn_params.connectionClass = s.ptr;
         conn_params.connectionClassLength = s.len;
         conn_params
@@ -1535,7 +1535,7 @@
             pool_params.maxLifetimeSession = val.<span class="number">0</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>val) = <span class="self">self</span>.plsql_fixup_callback {
-            <span class="kw">let </span>s = to_odpi_str(val);
+            <span class="kw">let </span>s = OdpiStr::new(val);
             pool_params.plsqlFixupCallback = s.ptr;
             pool_params.plsqlFixupCallbackLength = s.len;
         }
@@ -1591,9 +1591,9 @@
     <span class="doccomment">/// Make a connection pool
     </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Pool&gt; {
         <span class="kw">let </span>ctxt = Context::new0()<span class="question-mark">?</span>;
-        <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.username);
-        <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.password);
-        <span class="kw">let </span>connect_string = to_odpi_str(<span class="kw-2">&amp;</span><span class="self">self</span>.connect_string);
+        <span class="kw">let </span>username = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.username);
+        <span class="kw">let </span>password = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.password);
+        <span class="kw">let </span>connect_string = OdpiStr::new(<span class="kw-2">&amp;</span><span class="self">self</span>.connect_string);
         <span class="kw">let </span>common_params = <span class="self">self</span>.common_params.build(<span class="kw-2">&amp;</span>ctxt);
         <span class="kw">let </span><span class="kw-2">mut </span>pool_params = <span class="self">self</span>.to_dpi_pool_create_params(<span class="kw-2">&amp;</span>ctxt)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
@@ -1767,8 +1767,8 @@
     /// See also [`Pool::get`].
     </span><span class="kw">pub fn </span>get_with_options(<span class="kw-2">&amp;</span><span class="self">self</span>, options: <span class="kw-2">&amp;</span>PoolOptions) -&gt; <span class="prelude-ty">Result</span>&lt;Connection&gt; {
         <span class="kw">let </span>ctxt = Context::new()<span class="question-mark">?</span>;
-        <span class="kw">let </span>username = to_odpi_str(<span class="kw-2">&amp;</span>options.username);
-        <span class="kw">let </span>password = to_odpi_str(<span class="kw-2">&amp;</span>options.password);
+        <span class="kw">let </span>username = OdpiStr::new(<span class="kw-2">&amp;</span>options.username);
+        <span class="kw">let </span>password = OdpiStr::new(<span class="kw-2">&amp;</span>options.password);
         <span class="kw">let </span><span class="kw-2">mut </span>conn_params = options.to_dpi_conn_create_params(<span class="kw-2">&amp;</span>ctxt);
         <span class="kw">let </span><span class="kw-2">mut </span>handle = ptr::null_mut();
         <span class="macro">chkerr!</span>(
