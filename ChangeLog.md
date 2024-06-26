@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.5.8 (2024-XX-XX)
+## 0.5.8 (2024-06-26)
 
 Fixed Issues:
 
