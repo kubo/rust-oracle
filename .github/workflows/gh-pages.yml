@@ -6,23 +6,23 @@ jobs:
   gh-pages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - name: update rust
+        run: |
+          rustup install stable
       - name: get metadata.docs.rs.features in Cargo.toml
         run: |
           docs_features=$(cargo read-manifest  | jq -r '.metadata.docs.rs.features | join(",")')
           echo DOCS_FEATURES=$docs_features
           echo DOCS_FEATURES=$docs_features >> $GITHUB_ENV
-      - uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --no-deps --features "${{ env.DOCS_FEATURES }}"
+      - name: cargo doc
+        run: |
+          cargo doc --no-deps --features "${{ env.DOCS_FEATURES }}"
       - name: push docs
         run: |
+          git submodule deinit --all
           git fetch --depth=1 origin gh-pages
           git checkout gh-pages
           rm -rf docs
@@ -34,7 +34,5 @@ jobs:
           sed -i -E 's/(Version [0-9]+\.[0-9]+\.[0-9]+)/\1<br\/>(in development)/g' docs/oracle/index.html docs/oracle/all.html
           git config --local user.email "docs-action@github.com"
           git config --local user.name "GitHub Action (docs)"
-          git add docs
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git commit -m 'Add docs'
-          git push origin gh-pages
+          git diff --quiet || (git add docs && git commit -m 'Add docs' && git push origin gh-pages && echo Add docs)

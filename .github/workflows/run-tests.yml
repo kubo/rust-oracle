@@ -8,13 +8,12 @@ jobs:
       msrv: ${{ steps.msrv.outputs.msrv }}
       rust_toolchains: ${{ steps.msrv.outputs.rust_toolchains }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: msrv
         name: Get minimum supported rust version in Cargo.toml
         run: |
           MSRV=$(sed -n -e 's/rust-version *= *"\(.*\)"/\1/p' Cargo.toml)
-          echo "::set-output name=msrv::$MSRV]"
-          echo "::set-output name=rust_toolchains::[\"stable\", \"$MSRV\"]"
+          echo "rust_toolchains=[\"stable\", \"$MSRV\"]" >> $GITHUB_OUTPUT
 
   tests:
     needs: msrv
@@ -43,29 +42,19 @@ jobs:
           --health-retries 10
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Install Wine
-        run: |
-          sudo apt install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 wine wine-binfmt
-          sudo update-binfmts --unimport cli || true
 
       - name: Install the latest Oracle instant client
         run: |
           curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
           curl -Lo sqlplus.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linuxx64.zip
-          curl -Lo basic-windows.zip https://download.oracle.com/otn_software/nt/instantclient/instantclient-basic-windows.zip
           mkdir linux
-          unzip basic.zip -d linux
-          unzip sqlplus.zip -d linux
+          unzip basic.zip -d linux -x "META-INF/*"
+          unzip sqlplus.zip -d linux -x "META-INF/*"
           IC_DIR=$PWD/$(ls -d linux/instantclient*)
-          mkdir windows
-          unzip basic-windows.zip -d windows
-          WINEPATH=$PWD/$(ls -d windows/instantclient*)
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
-          echo WINEPATH=$WINEPATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
 
       - name: Get the Oracle container IP address
@@ -82,30 +71,35 @@ jobs:
           echo ODPIC_TEST_CONNECT_STRING=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
           echo NLS_LANG=AMERICAN_AMERICA.AL32UTF8 >> $GITHUB_ENV
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust_toolchain }}
-          target: x86_64-pc-windows-gnu
-          override: true
+      - name: Install rust
+        run: |
+          rustup install ${{ matrix.rust_toolchain }}
+
+      - name: Downgrade dependent crates to use them with oracle crate's MSRV if the rust toolchain isn't stable
+        if: matrix.rust_toolchain != 'stable'
+        run: |
+          cargo update -p chrono --precise 0.4.20
+          cargo update -p cc --precise 1.0.94
 
       - name: Create Oracle users and schema
         run: |
           sqlplus sys/sys_passwd as sysdba @tests/SetupTest.sql < /dev/null
 
       - name: cargo test (x86_64-unknown-linux-gnu)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features ${{ env.rust_features }} -- --nocapture
+        run: |
+          rustup run ${{ matrix.rust_toolchain }} cargo test --features ${{ env.rust_features }} -- --nocapture
 
-      - name: cargo test (x86_64-unknown-linux-gnu) with stmt_without_lifetime
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features ${{ env.rust_features }},stmt_without_lifetime -- --nocapture
-
-      - name: cargo test (x86_64-pc-windows-gnu)
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --target x86_64-pc-windows-gnu --features ${{ env.rust_features }} -- --nocapture
+      - name: cargo test on Wine (x86_64-pc-windows-gnu)
+        # Runs only with MSRV.
+        # The latest stable rust doesn't seem to work on Wine because of lack of bcryptprimitives.dll
+        if: matrix.rust_toolchain != 'stable'
+        run: |
+          sudo apt-get update -q -y
+          sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 wine wine-binfmt
+          sudo update-binfmts --unimport cli || true
+          curl -Lo basic-windows.zip https://download.oracle.com/otn_software/nt/instantclient/instantclient-basic-windows.zip
+          mkdir windows
+          unzip basic-windows.zip -d windows -x "META-INF/*"
+          export WINEPATH=$PWD/$(ls -d windows/instantclient*)
+          rustup target add x86_64-pc-windows-gnu --toolchain ${{ matrix.rust_toolchain }}
+          rustup run ${{ matrix.rust_toolchain }} cargo test --target x86_64-pc-windows-gnu --features ${{ env.rust_features }} -- --nocapture
