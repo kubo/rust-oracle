@@ -452,7 +452,6 @@ impl<'conn> Batch<'conn> {
     /// Closes the batch before the end of its lifetime.
     pub fn close(&mut self) -> Result<()> {
         chkerr!(self.conn.ctxt(), dpiStmt_close(self.handle, ptr::null(), 0));
-        self.handle = ptr::null_mut();
         Ok(())
     }
 

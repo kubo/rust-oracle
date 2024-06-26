@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.6.2 (2024-XX-XX)
+
+Fixed Issues:
+
+* Fix memory leaks when [`Batch`] is explicitly closed by [`close()`][`Batch::close()`].
+
 ## 0.6.1 (2024-06-24)
 
 New features:
@@ -446,6 +452,7 @@ Incompatible changes:
 [`Error::source`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
 [`pool`]: https://www.jiubao.org/rust-oracle/oracle/pool/index.html
 [`Batch`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html
+[`Batch::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Batch.html#method.close
 [`Collection`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html
 [`Collection::indices()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.indices
 [`Collection::iter()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.iter
