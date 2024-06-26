@@ -78,8 +78,17 @@ jobs:
       - name: Downgrade dependent crates to use them with oracle crate's MSRV if the rust toolchain isn't stable
         if: matrix.rust_toolchain != 'stable'
         run: |
+          cargo build
           cargo update -p chrono --precise 0.4.20
           cargo update -p cc --precise 1.0.94
+          cargo update -p js-sys --precise 0.3.61
+          cargo update -p bumpalo --precise 3.15.4
+          cargo update -p wasm-bindgen --precise 0.2.84
+          cargo update -p num-traits --precise 0.2.18
+          cargo update -p quote --precise 1.0.30
+          cargo update -p proc-macro2 --precise 1.0.65
+          cargo update -p syn --precise 1.0.109
+          cargo update -p once_cell --precise 1.17.2
 
       - name: Create Oracle users and schema
         run: |
