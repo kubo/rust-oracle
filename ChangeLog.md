@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.6.2 (2024-XX-XX)
+## 0.6.2 (2024-06-26)
 
 Fixed Issues:
 
