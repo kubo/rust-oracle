@@ -2,6 +2,10 @@
 
 ## 0.6.3 (2024-XX-XX)
 
+Fixed Issues:
+
+* Fix panic when invalid argument Error is displayed
+
 Internal Changes:
 
 * Update ODPI-C to 5.3.0. (see [ODPI-C release notes])

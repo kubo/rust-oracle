@@ -783,7 +783,7 @@ impl fmt::Display for Error {
                 write!(f, ")")
             }
             Error::InternalError(msg) => write!(f, "{}", msg),
-            Error::InvalidArgument { .. } => todo!(),
+            Error::InvalidArgument { message, .. } => write!(f, "{}", message),
         }
     }
 }
