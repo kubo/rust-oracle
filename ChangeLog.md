@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.6.3 (2024-XX-XX)
+
+Internal Changes:
+
+* Update ODPI-C to 5.3.0. (see [ODPI-C release notes])
+* Improve performance of fetching numeric types when number column definition is out of range of i64.
+  See https://github.com/kubo/rust-oracle/issues/89#issuecomment-2435662861
+
 ## 0.6.2 (2024-06-26)
 
 Fixed Issues:
