@@ -86,10 +86,9 @@ macro_rules! define_fn_to_int {
                     flt_to_int!(self.get_f32_unchecked()?, f32, $type),
                 NativeType::Double =>
                     flt_to_int!(self.get_f64_unchecked()?, f64, $type),
-                NativeType::Char |
-                NativeType::Clob |
-                NativeType::Number =>
-                    Ok(self.get_cow_str()?.parse()?),
+                NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+                NativeType::Number => Ok(self.get_str_unchecked()?.parse()?),
+                NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
                 _ =>
                     self.invalid_conversion_to_rust_type(stringify!($type))
             }
@@ -445,14 +444,6 @@ impl SqlValue<'_> {
         }
     }
 
-    fn get_cow_str(&self) -> Result<Cow<str>> {
-        match self.native_type {
-            NativeType::Char | NativeType::Number => self.get_cow_str_unchecked(),
-            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.into()),
-            _ => self.invalid_conversion_to_rust_type("String"),
-        }
-    }
-
     //
     // get_TYPE_unchecked methods
     //
@@ -494,6 +485,20 @@ impl SqlValue<'_> {
             let bytes = dpiData_getBytes(self.data()?);
             let s = slice::from_raw_parts((*bytes).ptr as *mut u8, (*bytes).length as usize);
             Ok(String::from_utf8_lossy(s))
+        }
+    }
+
+    /// Gets the SQL value as utf8 string. The native_type must be
+    /// NativeType::Char or NativeType::Number. Otherwise, this may cause access
+    /// violation.
+    /// Unlike get_cow_str_unchecked() this doesn't check whether the byte sequence
+    /// is a valid UTF-8.
+    fn get_str_unchecked(&self) -> Result<&str> {
+        self.check_not_null()?;
+        unsafe {
+            let bytes = dpiData_getBytes(self.data()?);
+            let s = slice::from_raw_parts((*bytes).ptr as *mut u8, (*bytes).length as usize);
+            Ok(str::from_utf8_unchecked(s))
         }
     }
 
@@ -907,9 +912,9 @@ impl SqlValue<'_> {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()?.try_into()?),
             NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, i64),
             NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, i64),
-            NativeType::Char | NativeType::Clob | NativeType::Number => {
-                Ok(self.get_cow_str()?.parse()?)
-            }
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Number => Ok(self.get_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("i64"),
         }
     }
@@ -939,9 +944,9 @@ impl SqlValue<'_> {
             NativeType::UInt64 => self.get_u64_unchecked(),
             NativeType::Float => flt_to_int!(self.get_f32_unchecked()?, f32, u64),
             NativeType::Double => flt_to_int!(self.get_f64_unchecked()?, f64, u64),
-            NativeType::Char | NativeType::Clob | NativeType::Number => {
-                Ok(self.get_cow_str()?.parse()?)
-            }
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Number => Ok(self.get_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("u64"),
         }
     }
@@ -954,9 +959,9 @@ impl SqlValue<'_> {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f32),
             NativeType::Float => self.get_f32_unchecked(),
             NativeType::Double => Ok(self.get_f64_unchecked()? as f32),
-            NativeType::Char | NativeType::Clob | NativeType::Number => {
-                Ok(self.get_cow_str()?.parse()?)
-            }
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Number => Ok(self.get_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("f32"),
         }
     }
@@ -969,9 +974,9 @@ impl SqlValue<'_> {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()? as f64),
             NativeType::Float => Ok(self.get_f32_unchecked()? as f64),
             NativeType::Double => self.get_f64_unchecked(),
-            NativeType::Char | NativeType::Clob | NativeType::Number => {
-                Ok(self.get_cow_str()?.parse()?)
-            }
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Number => Ok(self.get_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("f64"),
         }
     }
@@ -983,7 +988,8 @@ impl SqlValue<'_> {
             NativeType::UInt64 => Ok(self.get_u64_unchecked()?.to_string()),
             NativeType::Float => Ok(self.get_f32_unchecked()?.to_string()),
             NativeType::Double => Ok(self.get_f64_unchecked()?.to_string()),
-            NativeType::Char | NativeType::Number => Ok(self.get_cow_str_unchecked()?.into()),
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.into()),
+            NativeType::Number => Ok(self.get_str_unchecked()?.into()),
             NativeType::Raw => self.get_raw_as_hex_string_unchecked(),
             NativeType::Timestamp => Ok(self.get_timestamp_unchecked()?.to_string()),
             NativeType::IntervalDS => Ok(self.get_interval_ds_unchecked()?.to_string()),
@@ -1012,7 +1018,8 @@ impl SqlValue<'_> {
         match self.native_type {
             NativeType::Raw => self.get_raw_unchecked(),
             NativeType::Blob => self.get_blob_unchecked(),
-            NativeType::Char | NativeType::Clob => Ok(parse_str_into_raw(&self.get_cow_str()?)?),
+            NativeType::Char => Ok(parse_str_into_raw(&self.get_cow_str_unchecked()?)?),
+            NativeType::Clob => Ok(parse_str_into_raw(&self.get_clob_as_string_unchecked()?)?),
             _ => self.invalid_conversion_to_rust_type("raw"),
         }
     }
@@ -1022,7 +1029,8 @@ impl SqlValue<'_> {
     pub(crate) fn to_timestamp(&self) -> Result<Timestamp> {
         match self.native_type {
             NativeType::Timestamp => self.get_timestamp_unchecked(),
-            NativeType::Char | NativeType::Clob => Ok(self.get_cow_str()?.parse()?),
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("Timestamp"),
         }
     }
@@ -1032,7 +1040,8 @@ impl SqlValue<'_> {
     pub(crate) fn to_interval_ds(&self) -> Result<IntervalDS> {
         match self.native_type {
             NativeType::IntervalDS => self.get_interval_ds_unchecked(),
-            NativeType::Char | NativeType::Clob => Ok(self.get_cow_str()?.parse()?),
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("IntervalDS"),
         }
     }
@@ -1042,7 +1051,8 @@ impl SqlValue<'_> {
     pub(crate) fn to_interval_ym(&self) -> Result<IntervalYM> {
         match self.native_type {
             NativeType::IntervalYM => self.get_interval_ym_unchecked(),
-            NativeType::Char | NativeType::Clob => Ok(self.get_cow_str()?.parse()?),
+            NativeType::Char => Ok(self.get_cow_str_unchecked()?.parse()?),
+            NativeType::Clob => Ok(self.get_clob_as_string_unchecked()?.parse()?),
             _ => self.invalid_conversion_to_rust_type("IntervalYM"),
         }
     }
