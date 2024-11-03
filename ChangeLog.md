@@ -1,10 +1,11 @@
 # Change Log
 
-## 0.6.3 (2024-XX-XX)
+## 0.6.3 (2025-XX-XX)
 
 New features:
 
 * Add [`Connection::info()`], [`conn::Info`] and [`conn::ServerType`] to get connection information
+* Add [`Error::new()`], [`Error::add_source()`], [`Error::with_source()`] and [`Error::into_source()`]
 
 Fixed Issues:
 
@@ -515,6 +516,10 @@ Incompatible changes:
 [`Error`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html
 [`Error::NoDataFound`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.NoDataFound
 [`Error::OutOfRange`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#variant.OutOfRange
+[`Error::add_source()`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#method.add_source
+[`Error::into_source()`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#method.into_source
+[`Error::new()`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#method.new
+[`Error::with_source()`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#method.with_source
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
 [`InitParams`]: https://www.jiubao.org/rust-oracle/oracle/struct.InitParams.html
 [`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec

@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -100,6 +100,11 @@ pub enum ErrorKind {
 
     /// Internal error. When you get this error, please report it with a test case to reproduce it.
     InternalError,
+
+    /// A custom error that does not match any other error kind.
+    ///
+    /// This is intended to be used outside of this crate.
+    Other,
 }
 
 /// The error type for oracle
@@ -204,6 +209,16 @@ pub enum Error {
         note = "Use kind() to check the error category. Use to_string() to get the message."
     )]
     InternalError(String),
+
+    /// Other or newly added error
+    ///
+    /// Don't use this variant directly.
+    #[non_exhaustive]
+    Other {
+        kind: ErrorKind,
+        message: Cow<'static, str>,
+        source: Option<Box<dyn error::Error + Send + Sync>>,
+    },
 }
 
 impl Error {
@@ -223,7 +238,8 @@ impl Error {
 
 #[cfg(feature = "struct_error")]
 impl Error {
-    pub(crate) fn new<M>(kind: ErrorKind, message: M) -> Error
+    /// Create a new error.
+    pub fn new<M>(kind: ErrorKind, message: M) -> Error
     where
         M: Into<Cow<'static, str>>,
     {
@@ -250,7 +266,13 @@ impl Error {
         }
     }
 
-    pub(crate) fn add_source<E>(self, source: E) -> Error
+    /// Add the lower-level error used as the return value of [`Error::source()`].
+    ///
+    /// **Note:** This is intended to be applied to the Error created by [`Error::new()`].
+    /// Otherwise, `source` may be ignored.
+    ///
+    /// [`Error::source()`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
+    pub fn add_source<E>(self, source: E) -> Error
     where
         E: Into<Box<dyn error::Error + Send + Sync>>,
     {
@@ -258,6 +280,18 @@ impl Error {
             source: Some(source.into()),
             ..self
         }
+    }
+
+    /// Create a new error from an arbitrary error
+    ///
+    /// The error message of this error is same with that of the source specified.
+    ///
+    /// This is a shortcut for `Error::new(kind, "").add_source(source)`.
+    pub fn with_source<E>(kind: ErrorKind, source: E) -> Error
+    where
+        E: Into<Box<dyn error::Error + Send + Sync>>,
+    {
+        Error::new(kind, "").add_source(source)
     }
 
     pub(crate) fn from_db_error(dberr: DbError) -> Error {
@@ -301,6 +335,11 @@ impl Error {
         }
     }
 
+    /// Consumes the Error, returning its inner error (if any).
+    pub fn into_source(self) -> Option<Box<dyn error::Error + Send + Sync>> {
+        self.source
+    }
+
     pub(crate) fn oci_error(dberr: DbError) -> Error {
         Error::new(ErrorKind::OciError, format!("OCI Error: {}", dberr.message)).add_dberr(dberr)
     }
@@ -314,7 +353,7 @@ impl Error {
         T: Into<Box<dyn error::Error + Send + Sync>>,
     {
         let source = source.into();
-        Error::new(ErrorKind::ParseError, format!("{}", source)).add_source(source)
+        Error::new(ErrorKind::ParseError, "").add_source(source)
     }
 
     pub(crate) fn out_of_range<T>(message: T) -> Error
@@ -429,12 +468,60 @@ impl Error {
 #[allow(deprecated)]
 #[cfg(not(feature = "struct_error"))]
 impl Error {
+    /// Create a new error.
+    pub fn new<M>(kind: ErrorKind, message: M) -> Error
+    where
+        M: Into<Cow<'static, str>>,
+    {
+        Error::Other {
+            kind,
+            message: message.into(),
+            source: None,
+        }
+    }
+
     pub(crate) fn from_db_error(dberr: DbError) -> Error {
         if dberr.message().starts_with("DPI") {
             Error::DpiError(dberr)
         } else {
             Error::OciError(dberr)
         }
+    }
+
+    /// Add the lower-level error used as the return value of [`Error::source()`].
+    ///
+    /// **Note:** This is intended to be applied to the Error created by [`Error::new()`].
+    /// Otherwise, `source` may be ignored.
+    ///
+    /// [`Error::source()`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
+    pub fn add_source<E>(self, source: E) -> Error
+    where
+        E: Into<Box<dyn error::Error + Send + Sync>>,
+    {
+        match self {
+            Error::InvalidArgument { message, .. } => Error::InvalidArgument {
+                message,
+                source: Some(source.into()),
+            },
+            Error::Other { kind, message, .. } => Error::Other {
+                kind,
+                message,
+                source: Some(source.into()),
+            },
+            _ => self,
+        }
+    }
+
+    /// Create a new error from an arbitrary error
+    ///
+    /// The error message of this error is same with that of the source specified.
+    ///
+    /// This is a shortcut for `Error::new(kind, "").add_source(source)`.
+    pub fn with_source<E>(kind: ErrorKind, source: E) -> Error
+    where
+        E: Into<Box<dyn error::Error + Send + Sync>>,
+    {
+        Error::new(kind, "").add_source(source)
     }
 
     /// Returns the corresponding [`ErrorKind`] for this error.
@@ -457,20 +544,7 @@ impl Error {
             Error::NoDataFound => ErrorKind::NoDataFound,
             Error::BatchErrors(_) => ErrorKind::BatchErrors,
             Error::InternalError(_) => ErrorKind::InternalError,
-        }
-    }
-
-    pub(crate) fn add_source<E>(self, source: E) -> Error
-    where
-        E: Into<Box<dyn error::Error + Send + Sync>>,
-    {
-        if let Error::InvalidArgument { message, .. } = self {
-            Error::InvalidArgument {
-                message,
-                source: Some(source.into()),
-            }
-        } else {
-            self
+            Error::Other { kind, .. } => *kind,
         }
     }
 
@@ -511,6 +585,16 @@ impl Error {
             dpi_error_in_message(&dberr.message)
         } else {
             None
+        }
+    }
+
+    /// Consumes the Error, returning its inner error (if any).
+    pub fn into_source(self) -> Option<Box<dyn error::Error + Send + Sync>> {
+        match self {
+            Error::ParseError(err) => Some(err),
+            Error::InvalidArgument { source, .. } => source,
+            Error::Other { source, .. } => source,
+            _ => None,
         }
     }
 
@@ -745,7 +829,13 @@ impl DbError {
 #[cfg(feature = "struct_error")]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
+        if !self.message.is_empty() {
+            write!(f, "{}", self.message)
+        } else if let Some(source) = &self.source {
+            write!(f, "{}", source)
+        } else {
+            write!(f, "blank error message")
+        }
     }
 }
 
@@ -783,6 +873,17 @@ impl fmt::Display for Error {
             }
             Error::InternalError(msg) => write!(f, "{}", msg),
             Error::InvalidArgument { message, .. } => write!(f, "{}", message),
+            Error::Other {
+                message, source, ..
+            } => {
+                if !message.is_empty() {
+                    write!(f, "{}", message)
+                } else if let Some(source) = source {
+                    write!(f, "{}", source)
+                } else {
+                    write!(f, "blank error message")
+                }
+            }
         }
     }
 }
@@ -805,6 +906,10 @@ impl error::Error for Error {
         match self {
             Error::ParseError(err) => Some(err.as_ref()),
             Error::InvalidArgument {
+                source: Some(source),
+                ..
+            } => Some(source.as_ref()),
+            Error::Other {
                 source: Some(source),
                 ..
             } => Some(source.as_ref()),
@@ -896,11 +1001,37 @@ macro_rules! chkerr {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::error::Error as StdError;
+    use std::io;
 
     #[test]
     fn test_dpi_error_in_message() {
         assert_eq!(None, dpi_error_in_message("ORA-1234"));
         assert_eq!(None, dpi_error_in_message("DPI-1234"));
         assert_eq!(Some(1234), dpi_error_in_message("DPI-1234: xxx"));
+    }
+
+    #[test]
+    fn new_and_add_source() {
+        let err = Error::new(ErrorKind::Other, "custom error");
+        assert_eq!(err.kind(), ErrorKind::Other);
+        assert_eq!(err.to_string(), "custom error");
+        assert!(err.source().is_none());
+
+        let err = err.add_source(io::Error::new(io::ErrorKind::Other, "io error"));
+        assert_eq!(err.kind(), ErrorKind::Other);
+        assert_eq!(err.to_string(), "custom error");
+        assert!(err.source().is_some());
+    }
+
+    #[test]
+    fn with_source() {
+        let err = Error::with_source(
+            ErrorKind::InvalidTypeConversion,
+            io::Error::new(io::ErrorKind::Other, "io error"),
+        );
+        assert_eq!(err.kind(), ErrorKind::InvalidTypeConversion);
+        assert_eq!(err.to_string(), "io error");
+        assert!(err.source().is_some());
     }
 }
