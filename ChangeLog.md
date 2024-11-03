@@ -1,5 +1,18 @@
 # Change Log
 
+## 0.7.0 (2025-XX-XX)
+
+New features:
+
+* Support [VECTOR] data type
+  * Add [`OracleType::Vector`] variant
+  * Add [`InnerValue::Vector`] variant
+  * Add [`VecFmt`] enum type
+
+Incompatible changes:
+
+* Add [`#[non_exhaustive]`] attribute to [`OracleType`]
+
 ## 0.6.3 (2025-01-02)
 
 New features:
@@ -467,6 +480,7 @@ Incompatible changes:
 [GH-54]: https://github.com/kubo/rust-oracle/issues/54
 [GH-62]: https://github.com/kubo/rust-oracle/pull/62
 [chrono]: https://docs.rs/chrono/latest/chrono/index.html
+[VECTOR]: https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/overview-ai-vector-search.html
 [`#[non_exhaustive]`]: https://doc.rust-lang.org/reference/attributes/type_system.html#the-non_exhaustive-attribute
 [`Error::description`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.description
 [`Error::source`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
@@ -525,6 +539,7 @@ Incompatible changes:
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
 [`InitParams`]: https://www.jiubao.org/rust-oracle/oracle/struct.InitParams.html
 [`InnerValue`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.InnerValue.html
+[`InnerValue::Vector`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.InnerValue.html#variant.Vector
 [`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec
 [`IntervalDS::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.new
 [`IntervalYM::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalYM.html#method.and_prec
@@ -538,6 +553,8 @@ Incompatible changes:
 [`ObjectType::package_name()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.ObjectType.html#method.package_name
 [`ObjectTypeAttr::name()`]: https://docs.rs/oracle/0.2.*/oracle/struct.ObjectTypeAttr.html#method.name
 [ODPI-C release notes]: https://oracle.github.io/odpi/doc/releasenotes.html
+[`OracleType`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html
+[`OracleType::Vector`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html#variant.Vector
 [`OracleType::Xml`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.OracleType.html#variant.Xml
 [`ResultSet`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html
 [`ResultSet::column_info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ResultSet.html#method.column_info
@@ -576,6 +593,7 @@ Incompatible changes:
 [`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
 [`StmtParam`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html#variant.FetchArraySize
+[`VecFmt`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecFmt.html
 [`Timestamp::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_prec
 [`Timestamp::and_tz_hm_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_hm_offset
 [`Timestamp::and_tz_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_offset

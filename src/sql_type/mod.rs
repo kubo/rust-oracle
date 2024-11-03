@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -30,6 +30,7 @@ mod object;
 mod oracle_type;
 mod ref_cursor;
 mod timestamp;
+pub mod vector;
 
 pub use self::interval_ds::IntervalDS;
 pub use self::interval_ym::IntervalYM;

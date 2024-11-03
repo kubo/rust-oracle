@@ -13,15 +13,17 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::fmt;
-use std::ptr;
-
 use crate::connection::Conn;
+use crate::sql_type::vector::VecFmt;
 use crate::sql_type::ObjectType;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
+#[cfg(doc)]
+use crate::SqlValue;
 use odpic_sys::*;
+use std::fmt;
+use std::ptr;
 
 // NativeType corresponds to dpiNativeTypeNum in ODPI
 // except Char, Number, Raw, CLOB and BLOB.
@@ -43,6 +45,7 @@ pub enum NativeType {
     Stmt,
     Boolean, // bool in rust
     Rowid,
+    Vector,
 }
 
 impl NativeType {
@@ -64,6 +67,7 @@ impl NativeType {
             NativeType::Stmt => DPI_NATIVE_TYPE_STMT,
             NativeType::Boolean => DPI_NATIVE_TYPE_BOOLEAN,
             NativeType::Rowid => DPI_NATIVE_TYPE_ROWID,
+            NativeType::Vector => DPI_NATIVE_TYPE_VECTOR,
         }
     }
 
@@ -170,6 +174,7 @@ pub enum InnerValue<'a> {
     Stmt(*mut dpiStmt),
     Boolean(bool),
     Rowid(*mut dpiRowid),
+    Vector(*mut dpiVector),
 }
 
 pub(crate) struct VarParam {
@@ -202,6 +207,7 @@ impl VarParam {
 
 /// Oracle data type
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum OracleType {
     /// VARCHAR2(size)
     Varchar2(u32),
@@ -326,6 +332,25 @@ pub enum OracleType {
     /// XML
     Xml,
 
+    /// [VECTOR] data type
+    ///
+    /// The first tuple element is number of dimensions. `0` corresponds to `*` in data type definition.
+    ///
+    /// The second is dimension element format. `VecFmt::Flexible` corresponds to `*`.
+    ///
+    /// **Examples:**
+    ///
+    /// Definition in SQL | value in the oracle crate
+    /// ---|---
+    /// `VECTOR`<br/>`VECTOR(*, *)` | `OracleType::Vector(0, VecFmt::Flexible)`
+    /// `VECTOR(*, FLOAT32)` | `OracleType::Vector(0, VecFmt::Float32)`
+    /// `VECTOR(4096)`<br/>`VECTOR(4096, *)` | `OracleType::Vector(4096, VecFmt::Flexible)`
+    /// `VECTOR(8192, FLOAT64)` | `OracleType::Vector(8192, VecFmt::Float64)`
+    ///
+    /// [VECTOR]: https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/overview-ai-vector-search.html
+    #[non_exhaustive]
+    Vector(u32, VecFmt),
+
     /// Integer type in Oracle object type attributes. This will be renamed to Integer in future.
     Int64,
 
@@ -375,6 +400,10 @@ impl OracleType {
             DPI_ORACLE_TYPE_LONG_RAW => Ok(OracleType::LongRaw),
             DPI_ORACLE_TYPE_JSON => Ok(OracleType::Json),
             DPI_ORACLE_TYPE_XMLTYPE => Ok(OracleType::Xml),
+            DPI_ORACLE_TYPE_VECTOR => Ok(OracleType::Vector(
+                info.vectorDimensions,
+                VecFmt::from_dpi(info.vectorFormat)?,
+            )),
             _ => Err(Error::internal_error(format!(
                 "unknown Oracle type number {}",
                 info.oracleTypeNum
@@ -454,6 +483,9 @@ impl OracleType {
             )),
             OracleType::LongRaw => Ok(VarParam::new(DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw)),
             OracleType::Xml => Ok(VarParam::new(DPI_ORACLE_TYPE_XMLTYPE, NativeType::Char)),
+            OracleType::Vector(_, _) => {
+                Ok(VarParam::new(DPI_ORACLE_TYPE_VECTOR, NativeType::Vector))
+            }
             OracleType::Int64 => Ok(VarParam::new(DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64)),
             OracleType::UInt64 => Ok(VarParam::new(
                 DPI_ORACLE_TYPE_NATIVE_UINT,
@@ -541,6 +573,13 @@ impl fmt::Display for OracleType {
             OracleType::LongRaw => write!(f, "LONG RAW"),
             OracleType::Json => write!(f, "JSON"),
             OracleType::Xml => write!(f, "XML"),
+            OracleType::Vector(ndim, format) => {
+                if ndim == 0 {
+                    write!(f, "VECTOR(*, {:#})", format)
+                } else {
+                    write!(f, "VECTOR({}, {:#})", ndim, format)
+                }
+            }
             OracleType::Int64 => write!(f, "INT64 used internally"),
             OracleType::UInt64 => write!(f, "UINT64 used internally"),
         }

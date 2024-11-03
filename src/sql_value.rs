@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -481,6 +481,7 @@ impl SqlValue<'_> {
                 NativeType::Boolean => InnerValue::Boolean(data.value.asBoolean != 0),
                 NativeType::Rowid => InnerValue::Rowid(data.value.asRowid),
                 NativeType::Stmt => InnerValue::Stmt(data.value.asStmt),
+                NativeType::Vector => InnerValue::Vector(data.value.asVector),
             }
         })
     }
@@ -1051,6 +1052,7 @@ impl SqlValue<'_> {
             }),
             NativeType::Rowid => self.get_rowid_as_string_unchecked(),
             NativeType::Stmt => self.invalid_conversion_to_rust_type("string"),
+            NativeType::Vector => todo!(),
         }
     }
 

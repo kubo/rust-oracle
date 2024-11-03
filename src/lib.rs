@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2023 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -294,6 +294,8 @@ pub mod test_util {
     pub const VER11_2: Version = Version::new(11, 2, 0, 0, 0);
     pub const VER12_1: Version = Version::new(12, 1, 0, 0, 0);
     pub const VER18: Version = Version::new(18, 0, 0, 0, 0);
+    pub const VER23: Version = Version::new(23, 0, 0, 0, 0);
+    pub const VER23_5: Version = Version::new(23, 5, 0, 0, 0);
 
     fn env_var_or(env_name: &str, default: &str) -> String {
         match env::var_os(env_name) {
