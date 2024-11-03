@@ -1378,6 +1378,16 @@
 <a href="#1378" id="1378">1378</a>
 <a href="#1379" id="1379">1379</a>
 <a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1466,10 +1476,9 @@
                     <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f32_unchecked()<span class="question-mark">?</span>, f32, <span class="macro-nonterminal">$</span><span class="kw">type</span>),
                 <span class="macro-nonterminal">NativeType::Double </span>=&gt;
                     <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f64_unchecked()<span class="question-mark">?</span>, f64, <span class="macro-nonterminal">$</span><span class="kw">type</span>),
-                <span class="macro-nonterminal">NativeType::Char </span>|
-                NativeType::Clob |
-                NativeType::Number =&gt;
-                    <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+                <span class="macro-nonterminal">NativeType::Char </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+                NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+                NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
                 <span class="kw">_ </span>=&gt;
                     <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>))
             }
@@ -1825,14 +1834,6 @@
         }
     }
 
-    <span class="kw">fn </span>get_cow_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Cow&lt;str&gt;&gt; {
-        <span class="kw">match </span><span class="self">self</span>.native_type {
-            NativeType::Char | NativeType::Number =&gt; <span class="self">self</span>.get_cow_str_unchecked(),
-            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.into()),
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"String"</span>),
-        }
-    }
-
     <span class="comment">//
     // get_TYPE_unchecked methods
     //
@@ -1874,6 +1875,20 @@
             <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data()<span class="question-mark">?</span>);
             <span class="kw">let </span>s = slice::from_raw_parts((<span class="kw-2">*</span>bytes).ptr <span class="kw">as </span><span class="kw-2">*mut </span>u8, (<span class="kw-2">*</span>bytes).length <span class="kw">as </span>usize);
             <span class="prelude-val">Ok</span>(String::from_utf8_lossy(s))
+        }
+    }
+
+    <span class="doccomment">/// Gets the SQL value as utf8 string. The native_type must be
+    /// NativeType::Char or NativeType::Number. Otherwise, this may cause access
+    /// violation.
+    /// Unlike get_cow_str_unchecked() this doesn't check whether the byte sequence
+    /// is a valid UTF-8.
+    </span><span class="kw">fn </span>get_str_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.check_not_null()<span class="question-mark">?</span>;
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>bytes = dpiData_getBytes(<span class="self">self</span>.data()<span class="question-mark">?</span>);
+            <span class="kw">let </span>s = slice::from_raw_parts((<span class="kw-2">*</span>bytes).ptr <span class="kw">as </span><span class="kw-2">*mut </span>u8, (<span class="kw-2">*</span>bytes).length <span class="kw">as </span>usize);
+            <span class="prelude-val">Ok</span>(str::from_utf8_unchecked(s))
         }
     }
 
@@ -2287,9 +2302,9 @@
             NativeType::UInt64 =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_u64_unchecked()<span class="question-mark">?</span>.try_into()<span class="question-mark">?</span>),
             NativeType::Float =&gt; <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f32_unchecked()<span class="question-mark">?</span>, f32, i64),
             NativeType::Double =&gt; <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f64_unchecked()<span class="question-mark">?</span>, f64, i64),
-            NativeType::Char | NativeType::Clob | NativeType::Number =&gt; {
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>)
-            }
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"i64"</span>),
         }
     }
@@ -2319,9 +2334,9 @@
             NativeType::UInt64 =&gt; <span class="self">self</span>.get_u64_unchecked(),
             NativeType::Float =&gt; <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f32_unchecked()<span class="question-mark">?</span>, f32, u64),
             NativeType::Double =&gt; <span class="macro">flt_to_int!</span>(<span class="self">self</span>.get_f64_unchecked()<span class="question-mark">?</span>, f64, u64),
-            NativeType::Char | NativeType::Clob | NativeType::Number =&gt; {
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>)
-            }
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"u64"</span>),
         }
     }
@@ -2334,9 +2349,9 @@
             NativeType::UInt64 =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_u64_unchecked()<span class="question-mark">? </span><span class="kw">as </span>f32),
             NativeType::Float =&gt; <span class="self">self</span>.get_f32_unchecked(),
             NativeType::Double =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_f64_unchecked()<span class="question-mark">? </span><span class="kw">as </span>f32),
-            NativeType::Char | NativeType::Clob | NativeType::Number =&gt; {
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>)
-            }
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"f32"</span>),
         }
     }
@@ -2349,9 +2364,9 @@
             NativeType::UInt64 =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_u64_unchecked()<span class="question-mark">? </span><span class="kw">as </span>f64),
             NativeType::Float =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_f32_unchecked()<span class="question-mark">? </span><span class="kw">as </span>f64),
             NativeType::Double =&gt; <span class="self">self</span>.get_f64_unchecked(),
-            NativeType::Char | NativeType::Clob | NativeType::Number =&gt; {
-                <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>)
-            }
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"f64"</span>),
         }
     }
@@ -2363,7 +2378,8 @@
             NativeType::UInt64 =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_u64_unchecked()<span class="question-mark">?</span>.to_string()),
             NativeType::Float =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_f32_unchecked()<span class="question-mark">?</span>.to_string()),
             NativeType::Double =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_f64_unchecked()<span class="question-mark">?</span>.to_string()),
-            NativeType::Char | NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.into()),
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.into()),
+            NativeType::Number =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_str_unchecked()<span class="question-mark">?</span>.into()),
             NativeType::Raw =&gt; <span class="self">self</span>.get_raw_as_hex_string_unchecked(),
             NativeType::Timestamp =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_timestamp_unchecked()<span class="question-mark">?</span>.to_string()),
             NativeType::IntervalDS =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_interval_ds_unchecked()<span class="question-mark">?</span>.to_string()),
@@ -2392,7 +2408,8 @@
         <span class="kw">match </span><span class="self">self</span>.native_type {
             NativeType::Raw =&gt; <span class="self">self</span>.get_raw_unchecked(),
             NativeType::Blob =&gt; <span class="self">self</span>.get_blob_unchecked(),
-            NativeType::Char | NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(parse_str_into_raw(<span class="kw-2">&amp;</span><span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>)<span class="question-mark">?</span>),
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(parse_str_into_raw(<span class="kw-2">&amp;</span><span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>)<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(parse_str_into_raw(<span class="kw-2">&amp;</span><span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>)<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"raw"</span>),
         }
     }
@@ -2402,7 +2419,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_timestamp(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Timestamp&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
             NativeType::Timestamp =&gt; <span class="self">self</span>.get_timestamp_unchecked(),
-            NativeType::Char | NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"Timestamp"</span>),
         }
     }
@@ -2412,7 +2430,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_interval_ds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IntervalDS&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
             NativeType::IntervalDS =&gt; <span class="self">self</span>.get_interval_ds_unchecked(),
-            NativeType::Char | NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"IntervalDS"</span>),
         }
     }
@@ -2422,7 +2441,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_interval_ym(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IntervalYM&gt; {
         <span class="kw">match </span><span class="self">self</span>.native_type {
             NativeType::IntervalYM =&gt; <span class="self">self</span>.get_interval_ym_unchecked(),
-            NativeType::Char | NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Char =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_cow_str_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
+            NativeType::Clob =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.get_clob_as_string_unchecked()<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.invalid_conversion_to_rust_type(<span class="string">"IntervalYM"</span>),
         }
     }

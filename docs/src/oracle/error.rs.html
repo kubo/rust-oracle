@@ -1690,7 +1690,7 @@
                 <span class="macro">write!</span>(f, <span class="string">")"</span>)
             }
             Error::InternalError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, msg),
-            Error::InvalidArgument { .. } =&gt; <span class="macro">todo!</span>(),
+            Error::InvalidArgument { message, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, message),
         }
     }
 }
