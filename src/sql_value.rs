@@ -214,11 +214,11 @@ impl SqlValue<'_> {
         oratype: &OracleType,
         data: &'a mut dpiData,
     ) -> Result<SqlValue<'a>> {
-        let (_, native_type, _, _) = oratype.var_create_param()?;
+        let param = oratype.var_create_param()?;
         Ok(SqlValue {
             conn,
             data: DpiData::Data(data),
-            native_type,
+            native_type: param.native_type,
             oratype: Some(oratype.clone()),
             array_size: 0,
             buffer_row_index: BufferRowIndex::Owned(0),
@@ -242,19 +242,18 @@ impl SqlValue<'_> {
             Some(ref oratype) => oratype,
             None => return Ok(false),
         };
-        let (current_oratype_num, current_native_type, current_size, _) =
-            current_oratype.var_create_param()?;
-        let (new_oratype_num, new_native_type, new_size, _) = oratype.var_create_param()?;
-        if current_oratype_num != new_oratype_num {
+        let current = current_oratype.var_create_param()?;
+        let new = oratype.var_create_param()?;
+        if current.oracle_type_num != new.oracle_type_num {
             return Ok(false);
         }
-        match current_oratype_num {
+        match current.oracle_type_num {
             DPI_ORACLE_TYPE_VARCHAR
             | DPI_ORACLE_TYPE_NVARCHAR
             | DPI_ORACLE_TYPE_CHAR
             | DPI_ORACLE_TYPE_NCHAR
-            | DPI_ORACLE_TYPE_RAW => Ok(current_size >= new_size),
-            DPI_ORACLE_TYPE_OBJECT => Ok(current_native_type == new_native_type),
+            | DPI_ORACLE_TYPE_RAW => Ok(current.size >= new.size),
+            DPI_ORACLE_TYPE_OBJECT => Ok(current.native_type == new.native_type),
             _ => Ok(true),
         }
     }
@@ -264,7 +263,7 @@ impl SqlValue<'_> {
             return Ok(false);
         }
         self.data = DpiData::Null;
-        let (oratype_num, native_type, size, size_is_byte) = match self.lob_bind_type {
+        let param = match self.lob_bind_type {
             LobBindType::Bytes => match oratype {
                 OracleType::CLOB => &OracleType::Long,
                 OracleType::NCLOB => {
@@ -281,17 +280,17 @@ impl SqlValue<'_> {
         .var_create_param()?;
         let mut handle = ptr::null_mut();
         let mut data = ptr::null_mut();
-        let native_type_num = native_type.to_native_type_num();
-        let object_type_handle = native_type.to_object_type_handle();
+        let native_type_num = param.native_type.to_native_type_num();
+        let object_type_handle = param.native_type.to_object_type_handle();
         chkerr!(
             self.ctxt(),
             dpiConn_newVar(
                 self.conn.handle.raw(),
-                oratype_num,
+                param.oracle_type_num,
                 native_type_num,
                 self.array_size,
-                size,
-                size_is_byte,
+                param.size,
+                param.size_is_byte,
                 0,
                 object_type_handle,
                 &mut handle,
@@ -299,7 +298,7 @@ impl SqlValue<'_> {
             )
         );
         self.data = DpiData::Var(Rc::new(DpiVar::new(handle, data)));
-        self.native_type = native_type;
+        self.native_type = param.native_type;
         self.oratype = Some(oratype.clone());
         if native_type_num == DPI_NATIVE_TYPE_STMT {
             for i in 0..self.array_size {
