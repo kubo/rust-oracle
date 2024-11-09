@@ -2,6 +2,10 @@
 
 ## 0.6.3 (2024-XX-XX)
 
+New features:
+
+* Add [`Connection::info()`], [`conn::Info`] and [`conn::ServerType`] to get connection information
+
 Fixed Issues:
 
 * Fix panic when invalid argument Error is displayed
@@ -472,12 +476,15 @@ Incompatible changes:
 [`Collection::values()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Collection.html#method.values
 [`ColumnIndex`]: https://www.jiubao.org/rust-oracle/oracle/trait.ColumnIndex.html
 [`ColumnInfo::name()`]: https://www.jiubao.org/rust-oracle/oracle/struct.ColumnInfo.html#method.name
+[`conn::Info`]: https://www.jiubao.org/rust-oracle/oracle/conn/struct.Info.html
+[`conn::ServerType`]: https://www.jiubao.org/rust-oracle/oracle/conn/enum.ServerType.html
 [`Connection`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html
 [`Connection::connect()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.connect
 [`Connection::call_timeout()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.call_timeout
 [`Connection::close_with_mode()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.close_with_mode
 [`Connection::execute()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.execute
 [`Connection::execute_named()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.execute_named
+[`Connection::info()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.info
 [`Connection::is_new_connection()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.is_new_connection
 [`Connection::last_warning()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.last_warning
 [`Connection::object_type()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Connection.html#method.object_type

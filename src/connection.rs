@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2021 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2024 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -25,7 +25,7 @@ use std::time::Duration;
 
 use crate::binding::*;
 use crate::chkerr;
-use crate::conn::{CloseMode, Purity};
+use crate::conn::{CloseMode, Info, Purity};
 use crate::error::DPI_ERR_NOT_CONNECTED;
 use crate::oci_attr::data_type::{AttrValue, DataType};
 use crate::oci_attr::handle::ConnHandle;
@@ -1738,6 +1738,28 @@ impl Connection {
     /// ```
     pub fn is_new_connection(&self) -> bool {
         self.conn.is_new_connection
+    }
+
+    /// Returns information about the connection
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::Error;
+    /// # use oracle::test_util;
+    /// # let conn = test_util::connect()?;
+    /// let info = conn.info()?;
+    /// let service_name = conn.query_row_as::<String>("SELECT SYS_CONTEXT('USERENV', 'SERVICE_NAME') FROM DUAL", &[])?;
+    /// assert_eq!(info.service_name, service_name);
+    /// # Ok::<(), Error>(())
+    /// ```
+    pub fn info(&self) -> Result<Info> {
+        let mut info = MaybeUninit::uninit();
+        chkerr!(
+            self.ctxt(),
+            dpiConn_getInfo(self.handle(), info.as_mut_ptr())
+        );
+        Info::from_dpi(unsafe { &info.assume_init() })
     }
 
     /// Gets an OCI handle attribute corresponding to the specified type parameter
