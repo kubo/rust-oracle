@@ -8,7 +8,7 @@ Fixed Issues:
 
 Internal Changes:
 
-* Update ODPI-C to 5.3.0. (see [ODPI-C release notes])
+* Update ODPI-C from 5.2.0 to 5.4.0. (see [ODPI-C release notes])
 * Improve performance of fetching numeric types when number column definition is out of range of i64.
   See https://github.com/kubo/rust-oracle/issues/89#issuecomment-2435662861
 * Improve performance of fetching number columns by skipping UTF-8 validation
@@ -70,7 +70,7 @@ New features:
 Changes:
 
 * Error messages are changed to follow "Error messages are typically concise lowercase sentences without trailing punctuation"
-* Update ODPI-C to 5.1.0. (see [ODPI-C release notes])
+* Update ODPI-C to 5.2.0. (see [ODPI-C release notes])
 * Update minimum supported Rust version to 1.60.0
 * Update rust edition to 2021
 * Change a undocumented method of the sealed trait [`ColumnIndex`]
