@@ -17,6 +17,7 @@ use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::vector::VecFmt;
 use crate::sql_type::vector::VecRef;
+use crate::sql_type::vector::Vector;
 use crate::sql_type::Bfile;
 use crate::sql_type::Blob;
 use crate::sql_type::Clob;
@@ -1293,6 +1294,21 @@ impl SqlValue<'_> {
                 self.query_params.clone(),
             )?),
             _ => self.invalid_conversion_to_rust_type("RefCursor"),
+        }
+    }
+
+    pub(crate) fn to_vector(&self) -> Result<Vector> {
+        let var = if let DpiData::Var(var) = &self.data {
+            var.clone()
+        } else {
+            return Err(Error::internal_error("dpVar handle isn't initialized"));
+        };
+        match self.native_type {
+            NativeType::Vector => unsafe {
+                let vec_ref = self.get_vec_ref_unchecked()?;
+                Vector::new(vec_ref, var)
+            },
+            _ => self.invalid_conversion_to_rust_type("Vector"),
         }
     }
 

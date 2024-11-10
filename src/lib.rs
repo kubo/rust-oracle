@@ -170,6 +170,7 @@ define_dpi_data_with_refcount!(Object, nosync);
 define_dpi_data_with_refcount!(Stmt, nosync);
 
 // define DpiVar wrapping *mut dpiVar.
+#[derive(Debug)]
 struct DpiVar {
     raw: *mut dpiVar,
     data: *mut dpiData,

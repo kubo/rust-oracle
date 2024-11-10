@@ -9,6 +9,7 @@ New features:
   * Add [`InnerValue::Vector`] variant
   * Add [`VecFmt`] enum type
   * Add [`VecRef`] enum type to set rust values to Oracle VECTOR data type
+  * Add [`Vector`] struct to get rust values from Oracle VECTOR data type
   * Add [`VectorFormat`] trait type
   * impl `FromSql` for `Vec<f32>`, `Vec<f64>`, `Vec<i8>` and `Vec<u8>` to get values from Oracle VECTOR data type
 
@@ -602,4 +603,5 @@ Incompatible changes:
 [`Timestamp::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.new
 [`VecFmt`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecFmt.html
 [`VecRef`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecRef.html
+[`Vector`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/struct.Vector.html
 [`VectorFormat`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/trait.VectorFormat.html

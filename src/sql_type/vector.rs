@@ -14,17 +14,22 @@
 //-----------------------------------------------------------------------------
 
 use crate::private;
+use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
 use crate::sql_type::SqlValue;
 use crate::sql_type::ToSql;
 use crate::sql_type::ToSqlNull;
 use crate::Connection;
+use crate::DpiVar;
 use crate::Error;
 use crate::ErrorKind;
 use crate::Result;
+#[cfg(doc)]
+use crate::ResultSet;
 use odpic_sys::*;
 use std::fmt;
 use std::os::raw::c_void;
+use std::rc::Rc;
 use std::slice;
 
 /// Vector dimension element format
@@ -257,6 +262,84 @@ impl ToSql for VecRef<'_> {
     }
 }
 
+/// Vector data retrieved from the Oracle database
+///
+/// See the [module-level documentation](index.html) for more.
+///
+/// # Note
+///
+/// Fetched [`Vector`] data should be dropped before the next fetch. That's because [`Vector`] and [`ResultSet`]
+/// share an internal fetch buffer. When the next row is fetched from the result set and the vector
+/// is alive and has a reference to the buffer, a new fetch buffer may be allocated. When the vector is dropped,
+/// and only the result set has the reference, it is reused.
+#[derive(Debug)]
+pub struct Vector {
+    // The 'static lifetime is incorrect. Its actual lifetime is same with DpiVar.
+    vec_ref: VecRef<'static>,
+    // _var must be held until the end of lifetime.
+    // Otherwise vec_ref may points to freed memory region.
+    _var: Rc<DpiVar>,
+}
+
+impl Vector {
+    pub(crate) fn new(vec_ref: VecRef<'static>, var: Rc<DpiVar>) -> Result<Vector> {
+        Ok(Vector { vec_ref, _var: var })
+    }
+
+    /// Returns vector dimension element format.
+    ///
+    /// **Note:** It doesn't return `VecFmt::Flexible`.
+    pub fn format(&self) -> VecFmt {
+        self.vec_ref.format()
+    }
+
+    /// Returns the internal [`VecRef`] data.
+    pub fn as_vec_ref(&self) -> &VecRef {
+        &self.vec_ref
+    }
+
+    /// Gets the containing vector data as slice
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use oracle::test_util;
+    /// # use oracle::sql_type::vector::VecRef;
+    /// # use oracle::sql_type::vector::Vector;
+    /// # let conn = test_util::connect()?;
+    /// # if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+    /// #     return Ok(());
+    /// # }
+    /// # let mut stmt = conn
+    /// #     .statement("insert into test_vector_type(id, vec) values (:1, :2)")
+    /// #     .build()?;
+    /// # stmt.execute(&[&1, &VecRef::Float32(&[0.0001, 100.0, 3.4])])?;
+    /// // Fetch VECTOR(FLOAT32) data from Oracle.
+    /// let vec = conn.query_row_as::<Vector>("select vec from test_vector_type where id = 1", &[])?;
+    ///
+    /// // Gets as a slice of [f32]
+    /// assert_eq!(vec.as_slice::<f32>()?, &[0.0001, 100.0, 3.4]);
+    ///
+    /// // Fails for other types.
+    /// assert!(vec.as_slice::<f64>().is_err());
+    /// assert!(vec.as_slice::<i8>().is_err());
+    /// assert!(vec.as_slice::<u8>().is_err());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn as_slice<T>(&self) -> Result<&[T]>
+    where
+        T: VectorFormat,
+    {
+        T::vec_ref_to_slice(&self.vec_ref)
+    }
+}
+
+impl FromSql for Vector {
+    fn from_sql(val: &SqlValue) -> Result<Vector> {
+        val.to_vector()
+    }
+}
+
 /// Trait for vector dimension element type
 ///
 /// This trait is sealed and cannot be implemented for types outside of the `oracle` crate.
@@ -335,6 +418,7 @@ impl VectorFormat for u8 {
 mod tests {
     use crate::sql_type::vector::VecFmt;
     use crate::sql_type::vector::VecRef;
+    use crate::sql_type::vector::Vector;
     use crate::sql_type::OracleType;
     use crate::test_util;
     use crate::Result;
@@ -483,6 +567,50 @@ mod tests {
                 VecRef::Int8(slice) => assert_eq!(row.get::<_, Vec<i8>>(2)?, slice),
                 VecRef::Binary(slice) => assert_eq!(row.get::<_, Vec<u8>>(2)?, slice),
             }
+            index += 1;
+        }
+        assert_eq!(index, expected_data.len());
+        Ok(())
+    }
+
+    #[test]
+    fn vector_from_sql() -> Result<()> {
+        let conn = test_util::connect()?;
+
+        if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+            return Ok(());
+        }
+        let binary_vec = test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)?;
+        conn.execute("delete from test_vector_type", &[])?;
+        let mut expected_data = vec![];
+        conn.execute("insert into test_vector_type(id, vec) values(1, TO_VECTOR('[1.0, 2.25, 3.5]', 3, FLOAT32))", &[])?;
+        expected_data.push((1, "FLOAT32", VecRef::Float32(&[1.0, 2.25, 3.5])));
+        conn.execute("insert into test_vector_type(id, vec) values(2, TO_VECTOR('[4.0, 5.25, 6.5]', 3, FLOAT64))", &[])?;
+        expected_data.push((2, "FLOAT64", VecRef::Float64(&[4.0, 5.25, 6.5])));
+        conn.execute(
+            "insert into test_vector_type(id, vec) values(3, TO_VECTOR('[7, 8, 9]', 3, INT8))",
+            &[],
+        )?;
+        expected_data.push((3, "INT8", VecRef::Int8(&[7, 8, 9])));
+        if binary_vec {
+            conn.execute("insert into test_vector_type(id, vec) values(4, TO_VECTOR('[10, 11, 12]', 24, BINARY))", &[])?;
+            expected_data.push((4, "BINARY", VecRef::Binary(&[10, 11, 12])));
+        }
+        let rows = conn
+            .statement(
+                "select id, vector_dimension_format(vec), vec from test_vector_type order by id",
+            )
+            .fetch_array_size(2) // This must be lower than number of total rows in order to check Vector holds `_var`.
+            .build()?
+            .query_as::<(i32, String, Vector)>(&[])?
+            .collect::<Result<Vec<_>>>()?;
+        let mut index = 0;
+        for row in rows {
+            assert!(index < expected_data.len());
+            let data = &expected_data[index];
+            assert_eq!(row.0, data.0);
+            assert_eq!(row.1, data.1);
+            assert_eq!(row.2.as_vec_ref(), &data.2);
             index += 1;
         }
         assert_eq!(index, expected_data.len());
