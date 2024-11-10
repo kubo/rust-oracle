@@ -55,12 +55,102 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2021 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// Copyright (c) 2017-2024 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -74,8 +164,11 @@
 //!
 //! Some types at the top-level module will move here in future.
 </span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
+<span class="kw">use </span><span class="kw">crate</span>::Result;
 
 <span class="doccomment">/// The mode to use when closing connections to the database
 ///
@@ -110,6 +203,93 @@
             Purity::New =&gt; DPI_PURITY_NEW,
             Purity::Self_ =&gt; DPI_PURITY_SELF,
         }
+    }
+}
+
+<span class="doccomment">/// The type of server process associated with a connection
+///
+/// It is only available with Oracle Client libraries 23.4 or higher.
+</span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ServerType {
+    <span class="doccomment">/// A dedicated server process is being used with the connection.
+    </span>Dedicated,
+    <span class="doccomment">/// A pooled server process (DRCP) is being used with the connection.
+    </span>Pooled,
+    <span class="doccomment">/// A shared server process is being used with the connection.
+    </span>Shared,
+    <span class="doccomment">/// The type of server process is unknown.
+    </span>Unknown,
+}
+
+<span class="kw">impl </span>ServerType {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_dpi(server_type: u8) -&gt; <span class="prelude-ty">Result</span>&lt;ServerType&gt; {
+        <span class="kw">match </span>server_type <span class="kw">as </span>u32 {
+            DPI_SERVER_TYPE_DEDICATED =&gt; <span class="prelude-val">Ok</span>(ServerType::Dedicated),
+            DPI_SERVER_TYPE_POOLED =&gt; <span class="prelude-val">Ok</span>(ServerType::Pooled),
+            DPI_SERVER_TYPE_SHARED =&gt; <span class="prelude-val">Ok</span>(ServerType::Shared),
+            DPI_SERVER_TYPE_UNKNOWN =&gt; <span class="prelude-val">Ok</span>(ServerType::Unknown),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::internal_error(<span class="macro">format!</span>(
+                <span class="string">"Unknown dpiServerType {}"</span>,
+                server_type
+            ))),
+        }
+    }
+}
+
+<span class="doccomment">/// Information about a connection
+///
+/// This is a return value of [`Connection::info()`].
+</span><span class="attr">#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Info {
+    <span class="doccomment">/// The name of the Oracle Database Domain name associated with the connection
+    ///
+    /// This is the same value returned by the SQL expression
+    /// `SELECT VALUE FROM V$PARAMETER WHERE NAME = 'db_domain'`.
+    </span><span class="kw">pub </span>db_domain: String,
+
+    <span class="doccomment">/// The Oracle Database name associated with the connection
+    </span><span class="kw">pub </span>db_name: String,
+
+    <span class="doccomment">/// The Oracle Database instance name associated with the connection
+    </span><span class="kw">pub </span>instance_name: String,
+
+    <span class="doccomment">/// The Oracle Database service name associated with the connection
+    ///
+    /// This is the same value returned by the SQL expression
+    /// `SELECT SYS_CONTEXT('USERENV', 'SERVICE_NAME') FROM DUAL`.
+    </span><span class="kw">pub </span>service_name: String,
+
+    <span class="doccomment">/// The maximum length of identifiers (in bytes) supported by the
+    /// database to which the connection has been established
+    ///
+    /// See [Database Object Naming Rules](https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-75337742-67FD-4EC0-985F-741C93D918DA).
+    </span><span class="kw">pub </span>max_identifier_length: u32,
+
+    <span class="doccomment">/// The maximum number of cursors that can be opened
+    ///
+    /// This is the same value returned by the SQL expression
+    /// `SELECT VALUE FROM V$PARAMETER WHERE NAME = 'open_cursors'`.
+    </span><span class="kw">pub </span>max_open_cursors: u32,
+
+    <span class="doccomment">/// The type of server process used by the connection
+    ///
+    /// This is only available with Oracle Client libraries 23.4 or higher.
+    /// Otherwise, it is always `ServerType::Unknown`.
+    </span><span class="kw">pub </span>server_type: ServerType,
+}
+
+<span class="kw">impl </span>Info {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_dpi(info: <span class="kw-2">&amp;</span>dpiConnInfo) -&gt; <span class="prelude-ty">Result</span>&lt;Info&gt; {
+        <span class="prelude-val">Ok</span>(Info {
+            db_domain: to_rust_str(info.dbDomain, info.dbDomainLength),
+            db_name: to_rust_str(info.dbName, info.dbNameLength),
+            instance_name: to_rust_str(info.instanceName, info.instanceNameLength),
+            service_name: to_rust_str(info.serviceName, info.serviceNameLength),
+            max_identifier_length: info.maxIdentifierLength,
+            max_open_cursors: info.maxOpenCursors,
+            server_type: ServerType::from_dpi(info.serverType)<span class="question-mark">?</span>,
+        })
     }
 }
 </code></pre></div></section></main></body></html>
