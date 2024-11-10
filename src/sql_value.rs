@@ -15,6 +15,7 @@
 
 use crate::chkerr;
 use crate::connection::Conn;
+use crate::sql_type::vector::VecFmt;
 use crate::sql_type::vector::VecRef;
 use crate::sql_type::Bfile;
 use crate::sql_type::Blob;
@@ -52,6 +53,7 @@ use odpic_sys::*;
 use std::borrow::Cow;
 use std::convert::TryInto;
 use std::fmt;
+use std::mem::MaybeUninit;
 use std::os::raw::c_char;
 use std::ptr;
 use std::rc::Rc;
@@ -154,6 +156,7 @@ pub struct SqlValue<'a> {
     keep_dpiobj: DpiObject,
     pub(crate) lob_bind_type: LobBindType,
     pub(crate) query_params: QueryParams,
+    vector_format: VecFmt,
 }
 
 impl SqlValue<'_> {
@@ -174,6 +177,7 @@ impl SqlValue<'_> {
             keep_dpiobj: DpiObject::null(),
             lob_bind_type,
             query_params,
+            vector_format: VecFmt::Flexible,
         }
     }
 
@@ -228,6 +232,7 @@ impl SqlValue<'_> {
             keep_dpiobj: DpiObject::null(),
             lob_bind_type: LobBindType::Locator,
             query_params: QueryParams::new(),
+            vector_format: param.vector_format,
         })
     }
 
@@ -728,6 +733,20 @@ impl SqlValue<'_> {
         unsafe { Ok(dpiData_getStmt(self.data()?)) }
     }
 
+    /// # Safety
+    ///
+    /// The actual lifetime of VecRef isn't 'static.
+    /// It is same with that of DpiVar.
+    unsafe fn get_vec_ref_unchecked(&self) -> Result<VecRef<'static>> {
+        self.check_not_null()?;
+        let mut info = MaybeUninit::uninit();
+        chkerr!(
+            self.ctxt(),
+            dpiVector_getValue(self.data()?.value.asVector, info.as_mut_ptr())
+        );
+        VecRef::from_dpi(info.assume_init())
+    }
+
     //
     // set_TYPE_unchecked methods
     //
@@ -923,6 +942,7 @@ impl SqlValue<'_> {
                 keep_dpiobj: DpiObject::null(),
                 lob_bind_type: self.lob_bind_type,
                 query_params: self.query_params.clone(),
+                vector_format: self.vector_format,
             })
         } else {
             Err(Error::internal_error("dpVar handle isn't initialized"))
@@ -1064,7 +1084,12 @@ impl SqlValue<'_> {
             }),
             NativeType::Rowid => self.get_rowid_as_string_unchecked(),
             NativeType::Stmt => self.invalid_conversion_to_rust_type("string"),
-            NativeType::Vector => todo!(),
+            NativeType::Vector => Ok(match unsafe { self.get_vec_ref_unchecked()? } {
+                VecRef::Float32(slice) => format!("{:?}", slice),
+                VecRef::Float64(slice) => format!("{:?}", slice),
+                VecRef::Int8(slice) => format!("{:?}", slice),
+                VecRef::Binary(slice) => format!("{:?}", slice),
+            }),
         }
     }
 
@@ -1075,7 +1100,76 @@ impl SqlValue<'_> {
             NativeType::Blob => self.get_blob_unchecked(),
             NativeType::Char => Ok(parse_str_into_raw(&self.get_cow_str_unchecked()?)?),
             NativeType::Clob => Ok(parse_str_into_raw(&self.get_clob_as_string_unchecked()?)?),
+            NativeType::Vector
+                if self.vector_format == VecFmt::Binary
+                    || self.vector_format == VecFmt::Flexible =>
+            unsafe {
+                let vec_ref = self.get_vec_ref_unchecked()?;
+                match vec_ref {
+                    VecRef::Binary(slice) => Ok(slice.to_vec()),
+                    _ => Err(Error::invalid_type_conversion(
+                        vec_ref.oracle_type().to_string(),
+                        "Vec<u8>",
+                    )),
+                }
+            },
             _ => self.invalid_conversion_to_rust_type("raw"),
+        }
+    }
+
+    pub(crate) fn to_f32_vec(&self) -> Result<Vec<f32>> {
+        match self.native_type {
+            NativeType::Vector
+                if self.vector_format == VecFmt::Float32
+                    || self.vector_format == VecFmt::Flexible =>
+            unsafe {
+                let vec_ref = self.get_vec_ref_unchecked()?;
+                match vec_ref {
+                    VecRef::Float32(slice) => Ok(slice.to_vec()),
+                    _ => Err(Error::invalid_type_conversion(
+                        vec_ref.oracle_type().to_string(),
+                        "Vec<f32>",
+                    )),
+                }
+            },
+            _ => self.invalid_conversion_to_rust_type("Vec<f32>"),
+        }
+    }
+
+    pub(crate) fn to_f64_vec(&self) -> Result<Vec<f64>> {
+        match self.native_type {
+            NativeType::Vector
+                if self.vector_format == VecFmt::Float64
+                    || self.vector_format == VecFmt::Flexible =>
+            unsafe {
+                let vec_ref = self.get_vec_ref_unchecked()?;
+                match vec_ref {
+                    VecRef::Float64(slice) => Ok(slice.to_vec()),
+                    _ => Err(Error::invalid_type_conversion(
+                        vec_ref.oracle_type().to_string(),
+                        "Vec<f64>",
+                    )),
+                }
+            },
+            _ => self.invalid_conversion_to_rust_type("Vec<f64>"),
+        }
+    }
+
+    pub(crate) fn to_i8_vec(&self) -> Result<Vec<i8>> {
+        match self.native_type {
+            NativeType::Vector
+                if self.vector_format == VecFmt::Int8 || self.vector_format == VecFmt::Flexible =>
+            unsafe {
+                let vec_ref = self.get_vec_ref_unchecked()?;
+                match vec_ref {
+                    VecRef::Int8(slice) => Ok(slice.to_vec()),
+                    _ => Err(Error::invalid_type_conversion(
+                        vec_ref.oracle_type().to_string(),
+                        "Vec<i8>",
+                    )),
+                }
+            },
+            _ => self.invalid_conversion_to_rust_type("Vec<i8>"),
         }
     }
 
@@ -1401,6 +1495,7 @@ impl SqlValue<'_> {
             keep_dpiobj: DpiObject::null(),
             lob_bind_type: self.lob_bind_type,
             query_params: self.query_params.clone(),
+            vector_format: self.vector_format,
         })
     }
 }

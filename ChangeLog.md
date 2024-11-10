@@ -10,6 +10,7 @@ New features:
   * Add [`VecFmt`] enum type
   * Add [`VecRef`] enum type to set rust values to Oracle VECTOR data type
   * Add [`VectorFormat`] trait type
+  * impl `FromSql` for `Vec<f32>`, `Vec<f64>`, `Vec<i8>` and `Vec<u8>` to get values from Oracle VECTOR data type
 
 Incompatible changes:
 

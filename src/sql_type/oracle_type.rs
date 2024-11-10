@@ -182,6 +182,7 @@ pub(crate) struct VarParam {
     pub native_type: NativeType,
     pub size: u32,
     pub size_is_byte: i32,
+    pub vector_format: VecFmt,
 }
 
 impl VarParam {
@@ -191,6 +192,7 @@ impl VarParam {
             native_type,
             size: 0,
             size_is_byte: 0,
+            vector_format: VecFmt::Flexible,
         }
     }
 
@@ -201,6 +203,11 @@ impl VarParam {
 
     fn size_is_byte(mut self) -> VarParam {
         self.size_is_byte = 1;
+        self
+    }
+
+    fn vector_format(mut self, format: VecFmt) -> VarParam {
+        self.vector_format = format;
         self
     }
 }
@@ -483,8 +490,8 @@ impl OracleType {
             )),
             OracleType::LongRaw => Ok(VarParam::new(DPI_ORACLE_TYPE_LONG_RAW, NativeType::Raw)),
             OracleType::Xml => Ok(VarParam::new(DPI_ORACLE_TYPE_XMLTYPE, NativeType::Char)),
-            OracleType::Vector(_, _) => {
-                Ok(VarParam::new(DPI_ORACLE_TYPE_VECTOR, NativeType::Vector))
+            OracleType::Vector(_, format) => {
+                Ok(VarParam::new(DPI_ORACLE_TYPE_VECTOR, NativeType::Vector).vector_format(format))
             }
             OracleType::Int64 => Ok(VarParam::new(DPI_ORACLE_TYPE_NATIVE_INT, NativeType::Int64)),
             OracleType::UInt64 => Ok(VarParam::new(

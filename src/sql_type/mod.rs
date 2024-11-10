@@ -243,6 +243,9 @@ impl_from_and_to_sql!(f32, to_f32, set_f32, OracleType::Number(0, 0));
 impl_from_and_to_sql!(bool, to_bool, set_bool, OracleType::Boolean);
 impl_from_sql!(String, to_string);
 impl_from_sql!(Vec<u8>, to_bytes);
+impl_from_sql!(Vec<f32>, to_f32_vec);
+impl_from_sql!(Vec<f64>, to_f64_vec);
+impl_from_sql!(Vec<i8>, to_i8_vec);
 impl_from_and_to_sql!(
     Timestamp,
     to_timestamp,

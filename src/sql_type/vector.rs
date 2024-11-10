@@ -25,6 +25,7 @@ use crate::Result;
 use odpic_sys::*;
 use std::fmt;
 use std::os::raw::c_void;
+use std::slice;
 
 /// Vector dimension element format
 ///
@@ -100,6 +101,33 @@ pub enum VecRef<'a> {
 }
 
 impl VecRef<'_> {
+    // The 'static lifetime in the returned value is incorrect.
+    // Its actual lifetime is that of data referred by info.
+    pub(crate) unsafe fn from_dpi(info: dpiVectorInfo) -> Result<VecRef<'static>> {
+        match info.format as u32 {
+            DPI_VECTOR_FORMAT_FLOAT32 => Ok(VecRef::Float32(slice::from_raw_parts(
+                info.dimensions.asFloat,
+                info.numDimensions as usize,
+            ))),
+            DPI_VECTOR_FORMAT_FLOAT64 => Ok(VecRef::Float64(slice::from_raw_parts(
+                info.dimensions.asDouble,
+                info.numDimensions as usize,
+            ))),
+            DPI_VECTOR_FORMAT_INT8 => Ok(VecRef::Int8(slice::from_raw_parts(
+                info.dimensions.asInt8,
+                info.numDimensions as usize,
+            ))),
+            DPI_VECTOR_FORMAT_BINARY => Ok(VecRef::Binary(slice::from_raw_parts(
+                info.dimensions.asPtr as *const u8,
+                (info.numDimensions / 8) as usize,
+            ))),
+            _ => Err(Error::internal_error(format!(
+                "unknown vector format {}",
+                info.format
+            ))),
+        }
+    }
+
     pub(crate) fn to_dpi(&self) -> Result<dpiVectorInfo> {
         match self {
             VecRef::Float32(slice) => Ok(dpiVectorInfo {
@@ -184,7 +212,7 @@ impl VecRef<'_> {
         T::vec_ref_to_slice(self)
     }
 
-    fn oracle_type(&self) -> OracleType {
+    pub(crate) fn oracle_type(&self) -> OracleType {
         match self {
             VecRef::Float32(slice) => OracleType::Vector(slice.len() as u32, VecFmt::Float32),
             VecRef::Float64(slice) => OracleType::Vector(slice.len() as u32, VecFmt::Float64),
@@ -410,6 +438,51 @@ mod tests {
             assert_eq!(row.0, data.0);
             assert_eq!(row.1, data.1);
             assert_eq!(row.2, data.2);
+            index += 1;
+        }
+        assert_eq!(index, expected_data.len());
+        Ok(())
+    }
+
+    #[test]
+    fn vec_from_sql() -> Result<()> {
+        let conn = test_util::connect()?;
+
+        if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+            return Ok(());
+        }
+        let binary_vec = test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)?;
+        conn.execute("delete from test_vector_type", &[])?;
+        let mut expected_data = vec![];
+        conn.execute("insert into test_vector_type(id, vec) values(1, TO_VECTOR('[1.0, 2.25, 3.5]', 3, FLOAT32))", &[])?;
+        expected_data.push((1, "FLOAT32", VecRef::Float32(&[1.0, 2.25, 3.5])));
+        conn.execute("insert into test_vector_type(id, vec) values(2, TO_VECTOR('[4.0, 5.25, 6.5]', 3, FLOAT64))", &[])?;
+        expected_data.push((2, "FLOAT64", VecRef::Float64(&[4.0, 5.25, 6.5])));
+        conn.execute(
+            "insert into test_vector_type(id, vec) values(3, TO_VECTOR('[7, 8, 9]', 3, INT8))",
+            &[],
+        )?;
+        expected_data.push((3, "INT8", VecRef::Int8(&[7, 8, 9])));
+        if binary_vec {
+            conn.execute("insert into test_vector_type(id, vec) values(4, TO_VECTOR('[10, 11, 12]', 24, BINARY))", &[])?;
+            expected_data.push((4, "BINARY", VecRef::Binary(&[10, 11, 12])));
+        }
+        let mut index = 0;
+        for row_result in conn.query(
+            "select id, vector_dimension_format(vec), vec from test_vector_type order by id",
+            &[],
+        )? {
+            let row = row_result?;
+            assert!(index < expected_data.len());
+            let data = &expected_data[index];
+            assert_eq!(row.get::<_, i32>(0)?, data.0);
+            assert_eq!(row.get::<_, String>(1)?, data.1);
+            match data.2 {
+                VecRef::Float32(slice) => assert_eq!(row.get::<_, Vec<f32>>(2)?, slice),
+                VecRef::Float64(slice) => assert_eq!(row.get::<_, Vec<f64>>(2)?, slice),
+                VecRef::Int8(slice) => assert_eq!(row.get::<_, Vec<i8>>(2)?, slice),
+                VecRef::Binary(slice) => assert_eq!(row.get::<_, Vec<u8>>(2)?, slice),
+            }
             index += 1;
         }
         assert_eq!(index, expected_data.len());
