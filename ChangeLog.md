@@ -8,6 +8,8 @@ New features:
   * Add [`OracleType::Vector`] variant
   * Add [`InnerValue::Vector`] variant
   * Add [`VecFmt`] enum type
+  * Add [`VecRef`] enum type to set rust values to Oracle VECTOR data type
+  * Add [`VectorFormat`] trait type
 
 Incompatible changes:
 
@@ -593,8 +595,10 @@ Incompatible changes:
 [`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
 [`StmtParam`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html#variant.FetchArraySize
-[`VecFmt`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecFmt.html
 [`Timestamp::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_prec
 [`Timestamp::and_tz_hm_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_hm_offset
 [`Timestamp::and_tz_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_offset
 [`Timestamp::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.new
+[`VecFmt`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecFmt.html
+[`VecRef`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecRef.html
+[`VectorFormat`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/trait.VectorFormat.html

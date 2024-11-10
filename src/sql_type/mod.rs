@@ -15,6 +15,8 @@
 
 //! SQL data types
 
+#[cfg(doc)]
+use crate::sql_type::vector::VecRef;
 use crate::Connection;
 use crate::ErrorKind;
 use crate::Result;
@@ -122,6 +124,7 @@ pub trait FromSql {
 /// | [`IntervalDS`] | `interval day(9) to second(9)` |
 /// | [`IntervalYM`] | `interval year(9) to month` |
 /// | [`RefCursor`] | `ref cursor` |
+/// | [`VecRef`] | `vector` |
 ///
 /// When `chrono` feature is enabled, the followings are added.
 ///
@@ -157,6 +160,7 @@ pub trait ToSqlNull {
 /// | [`IntervalYM`] | `interval year(9) to month` | The specified value |
 /// | [`Collection`] | type returned by [`Collection::object_type`] | The specified value |
 /// | [`Object`] | type returned by [`Object::object_type`] | The specified value |
+/// | [`VecRef`] | `vector` |
 /// | `Option\<T>` where T: `ToSql` + [`ToSqlNull`] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
 /// | [`OracleType`] | type represented by the OracleType. | a null value |
 /// | `(&ToSql, &OracleType)` | type represented by the second element. | The value of the first element |

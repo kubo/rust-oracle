@@ -272,11 +272,14 @@ mod private {
 
     pub trait Sealed {}
 
+    impl Sealed for i8 {}
     impl Sealed for u8 {}
     impl Sealed for u16 {}
     impl Sealed for u32 {}
     impl Sealed for u64 {}
     impl Sealed for usize {}
+    impl Sealed for f32 {}
+    impl Sealed for f64 {}
     impl Sealed for bool {}
     impl Sealed for str {}
     impl Sealed for [u8] {}

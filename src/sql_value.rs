@@ -15,6 +15,7 @@
 
 use crate::chkerr;
 use crate::connection::Conn;
+use crate::sql_type::vector::VecRef;
 use crate::sql_type::Bfile;
 use crate::sql_type::Blob;
 use crate::sql_type::Clob;
@@ -898,6 +899,17 @@ impl SqlValue<'_> {
         Ok(())
     }
 
+    fn set_vec_ref_unchecked(&mut self, vec: &VecRef) -> Result<()> {
+        let data = self.data()?;
+        let mut vec = vec.to_dpi()?;
+        chkerr!(
+            self.ctxt(),
+            dpiVector_setValue(data.value.asVector, &mut vec)
+        );
+        data.isNull = 0;
+        Ok(())
+    }
+
     pub(crate) fn clone_except_fetch_array_buffer(&self) -> Result<SqlValue<'static>> {
         if let DpiData::Var(ref var) = self.data {
             Ok(SqlValue {
@@ -1368,6 +1380,13 @@ impl SqlValue<'_> {
             }
         }
         self.invalid_conversion_from_rust_type("Nclob")
+    }
+
+    pub(crate) fn set_vec_ref(&mut self, val: &VecRef, typename: &str) -> Result<()> {
+        match self.native_type {
+            NativeType::Vector => self.set_vec_ref_unchecked(val),
+            _ => self.invalid_conversion_from_rust_type(typename),
+        }
     }
 
     pub(crate) fn clone_with_narrow_lifetime(&self) -> Result<SqlValue> {
