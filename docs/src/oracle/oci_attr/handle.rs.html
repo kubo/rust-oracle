@@ -102,12 +102,12 @@
 //-----------------------------------------------------------------------------
 
 </span><span class="doccomment">//! The module defines types to be set to the associate type [`OciAttr::HandleType`]
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="attr">#[cfg(doc)]
+</span><span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::OciAttr;
 <span class="kw">use </span><span class="kw">crate</span>::private;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::Connection;
+<span class="kw">use </span>odpic_sys::dpi_impl::{DPI_OCI_HTYPE_SERVER, DPI_OCI_HTYPE_SESSION, DPI_OCI_HTYPE_SVCCTX};
 
 <span class="doccomment">/// OCI handle type to restrict the associate type [`OciAttr::HandleType`]
 ///

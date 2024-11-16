@@ -904,7 +904,6 @@
 <a href="#904" id="904">904</a>
 <a href="#905" id="905">905</a>
 <a href="#906" id="906">906</a>
-<a href="#907" id="907">907</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -920,14 +919,13 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::dpiContext_getError;
-<span class="kw">use </span><span class="kw">crate</span>::binding::dpiErrorInfo;
-<span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
+</span><span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSend;
 <span class="kw">use </span><span class="kw">crate</span>::AssertSync;
 <span class="kw">use </span><span class="kw">crate</span>::Context;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use crate</span>::{Batch, BatchBuilder, Connection, Statement};
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::error;
 <span class="kw">use </span>std::ffi::CStr;

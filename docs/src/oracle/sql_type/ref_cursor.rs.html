@@ -349,8 +349,7 @@
 //
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+</span><span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::FromSql;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
@@ -370,6 +369,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::Statement;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::StatementBuilder;
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Result set output by or returned by a PL/SQL block or a stored procedure
 ///

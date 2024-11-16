@@ -666,12 +666,12 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::dpiTimestamp;
-<span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
+</span><span class="kw">use </span><span class="kw">crate</span>::sql_type::OracleType;
 <span class="kw">use </span><span class="kw">crate</span>::util::Scanner;
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::ParseOracleTypeError;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>odpic_sys::dpiTimestamp;
 <span class="kw">use </span>std::cmp::{<span class="self">self</span>, Ordering};
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::result;

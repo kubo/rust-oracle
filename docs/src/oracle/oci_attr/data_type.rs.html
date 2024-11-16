@@ -386,8 +386,7 @@
 //-----------------------------------------------------------------------------
 
 </span><span class="doccomment">//! The module defines types related to the associate type [`OciAttr::DataType`].
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+</span><span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::oci_attr::OciAttr;
 <span class="kw">use </span><span class="kw">crate</span>::to_rust_str;
@@ -396,6 +395,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
 <span class="kw">use </span><span class="kw">crate</span>::Statement;
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::convert::TryInto;
 <span class="kw">use </span>std::mem;

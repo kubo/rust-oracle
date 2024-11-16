@@ -1506,7 +1506,6 @@
 <a href="#1506" id="1506">1506</a>
 <a href="#1507" id="1507">1507</a>
 <a href="#1508" id="1508">1508</a>
-<a href="#1509" id="1509">1509</a>
 </pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
@@ -1522,16 +1521,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span>std::borrow::ToOwned;
-<span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::mem::MaybeUninit;
-<span class="kw">use </span>std::os::raw::c_char;
-<span class="kw">use </span>std::ptr;
-<span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
-<span class="kw">use </span>std::sync::Arc;
-
-<span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+</span><span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::data_type::{AttrValue, DataType};
 <span class="kw">use </span><span class="kw">crate</span>::oci_attr::mode::{ReadMode, WriteMode};
@@ -1556,8 +1546,16 @@
 <span class="kw">use </span><span class="kw">crate</span>::Row;
 <span class="kw">use </span><span class="kw">crate</span>::RowValue;
 <span class="kw">use </span><span class="kw">crate</span>::SqlValue;
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::borrow::ToOwned;
+<span class="kw">use </span>std::fmt;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span>std::io::Read;
+<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
+<span class="kw">use </span>std::sync::Arc;
 
 <span class="comment">// https://www.oracle.com/pls/topic/lookup?ctx=dblatest&amp;id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 </span><span class="kw">const </span>SQLFNCODE_CREATE_TYPE: u16 = <span class="number">77</span>;

@@ -1262,8 +1262,7 @@
 //! # Ok::&lt;(), Error&gt;(())
 //! ```
 
-</span><span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+</span><span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::Object;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::ObjectType;
@@ -1278,6 +1277,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::OdpiStr;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::borrow::ToOwned;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::marker::PhantomData;

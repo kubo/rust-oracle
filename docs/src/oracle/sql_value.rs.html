@@ -1402,19 +1402,7 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-</span><span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::convert::TryInto;
-<span class="kw">use </span>std::fmt;
-<span class="kw">use </span>std::os::raw::c_char;
-<span class="kw">use </span>std::ptr;
-<span class="kw">use </span>std::rc::Rc;
-<span class="kw">use </span>std::slice;
-<span class="kw">use </span>std::str;
-<span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
-<span class="kw">use </span>std::sync::Arc;
-
-<span class="kw">use </span><span class="kw">crate</span>::binding::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::chkerr;
+</span><span class="kw">use </span><span class="kw">crate</span>::chkerr;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Conn;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::Bfile;
 <span class="kw">use </span><span class="kw">crate</span>::sql_type::Blob;
@@ -1446,6 +1434,18 @@
 <span class="kw">use </span><span class="kw">crate</span>::Error;
 <span class="kw">use </span><span class="kw">crate</span>::ErrorKind;
 <span class="kw">use </span><span class="kw">crate</span>::Result;
+<span class="kw">use </span>odpic_sys::dpi_impl::DPI_MAX_BASIC_BUFFER_SIZE;
+<span class="kw">use </span>odpic_sys::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::convert::TryInto;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::os::raw::c_char;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>std::slice;
+<span class="kw">use </span>std::str;
+<span class="kw">use </span>std::sync::atomic::{AtomicU32, Ordering};
+<span class="kw">use </span>std::sync::Arc;
 
 <span class="macro">macro_rules!</span> flt_to_int {
     (<span class="macro-nonterminal">$expr</span>:expr, <span class="macro-nonterminal">$src_type</span>:ident, <span class="macro-nonterminal">$dest_type</span>:ident) =&gt; {{
