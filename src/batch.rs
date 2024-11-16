@@ -30,7 +30,6 @@
 // authors and should not be interpreted as representing official policies, either expressed
 // or implied, of the authors.
 
-use crate::binding::*;
 use crate::chkerr;
 use crate::error::DPI_ERR_BUFFER_SIZE_TOO_SMALL;
 use crate::private;
@@ -48,6 +47,7 @@ use crate::SqlValue;
 #[cfg(doc)]
 use crate::Statement;
 use crate::StatementType;
+use odpic_sys::*;
 use std::convert::TryFrom;
 use std::fmt;
 use std::mem::MaybeUninit;

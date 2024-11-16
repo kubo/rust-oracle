@@ -13,17 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::borrow::ToOwned;
-use std::collections::HashMap;
-use std::fmt;
-use std::mem::MaybeUninit;
-use std::ptr;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::time::Duration;
-
-use crate::binding::*;
 use crate::chkerr;
 use crate::conn::{CloseMode, Info, Purity};
 use crate::error::DPI_ERR_NOT_CONNECTED;
@@ -56,6 +45,16 @@ use crate::RowValue;
 use crate::Statement;
 use crate::StatementBuilder;
 use crate::Version;
+use odpic_sys::*;
+use std::borrow::ToOwned;
+use std::collections::HashMap;
+use std::fmt;
+use std::mem::MaybeUninit;
+use std::ptr;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::time::Duration;
 
 struct ServerStatus;
 const OCI_ATTR_SERVER_STATUS: u32 = 143;

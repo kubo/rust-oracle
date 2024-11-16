@@ -100,7 +100,6 @@
 //! # Ok::<(), Error>(())
 //! ```
 
-use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::Object;
@@ -116,6 +115,7 @@ use crate::DpiQueue;
 use crate::Error;
 use crate::OdpiStr;
 use crate::Result;
+use odpic_sys::*;
 use std::borrow::ToOwned;
 use std::fmt;
 use std::marker::PhantomData;

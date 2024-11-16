@@ -13,15 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::borrow::ToOwned;
-use std::fmt;
-use std::mem::MaybeUninit;
-use std::os::raw::c_char;
-use std::ptr;
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::Arc;
-
-use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::oci_attr::data_type::{AttrValue, DataType};
@@ -47,8 +38,16 @@ use crate::ResultSet;
 use crate::Row;
 use crate::RowValue;
 use crate::SqlValue;
+use odpic_sys::*;
+use std::borrow::ToOwned;
+use std::fmt;
 #[cfg(doc)]
 use std::io::Read;
+use std::mem::MaybeUninit;
+use std::os::raw::c_char;
+use std::ptr;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
 
 // https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-A251CF91-EB9F-4DBC-8BB8-FB5EA92C20DE
 const SQLFNCODE_CREATE_TYPE: u16 = 77;

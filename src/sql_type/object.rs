@@ -13,13 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::cmp;
-use std::fmt;
-use std::mem::{self, MaybeUninit};
-use std::os::raw::c_char;
-use std::sync::Arc;
-
-use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::collection::{Indices, Iter, Values};
@@ -37,6 +30,13 @@ use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
 use crate::SqlValue;
+use odpic_sys::dpi_impl::DPI_NUMBER_AS_TEXT_CHARS;
+use odpic_sys::*;
+use std::cmp;
+use std::fmt;
+use std::mem::{self, MaybeUninit};
+use std::os::raw::c_char;
+use std::sync::Arc;
 
 unsafe fn release_dpi_data(data: &dpiData, native_type_num: u32) {
     if data.isNull == 0 {

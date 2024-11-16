@@ -15,6 +15,7 @@
 
 #![doc = include_str!("../README.md")]
 
+use odpic_sys::*;
 use std::os::raw::c_char;
 use std::ptr;
 use std::result;
@@ -27,7 +28,6 @@ mod batch;
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[allow(improper_ctypes)]
-mod binding;
 pub mod conn;
 mod connection;
 mod context;
@@ -71,8 +71,6 @@ pub use crate::statement::StatementBuilder;
 pub use crate::statement::StatementType;
 pub use crate::version::Version;
 pub use oracle_procmacro::RowValue;
-
-use crate::binding::*;
 
 pub type Result<T> = result::Result<T, Error>;
 

@@ -18,7 +18,6 @@
 //! This module defines types for connection pooling using [Session Pooling in OCI].
 //!
 //! [Session Pooling in OCI]: https://www.oracle.com/pls/topic/lookup?ctx=dblatest&id=GUID-F9662FFB-EAEF-495C-96FC-49C6D1D9625C
-use crate::binding::*;
 use crate::chkerr;
 use crate::conn::Purity;
 use crate::connection::CommonCreateParamsBuilder;
@@ -31,6 +30,7 @@ use crate::Error;
 use crate::OdpiStr;
 use crate::Privilege;
 use crate::Result;
+use odpic_sys::*;
 use std::convert::TryInto;
 use std::fmt;
 use std::ptr;

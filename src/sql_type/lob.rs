@@ -12,7 +12,6 @@
 //
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
-use crate::binding::*;
 use crate::chkerr;
 use crate::io::SeekInChars;
 use crate::sql_type::FromSql;
@@ -24,6 +23,7 @@ use crate::Context;
 use crate::OdpiStr;
 use crate::Result;
 use crate::SqlValue;
+use odpic_sys::*;
 use std::cmp;
 use std::convert::TryInto;
 use std::fmt;

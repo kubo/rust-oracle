@@ -10,9 +10,9 @@ This is an [Oracle database][] driver for [Rust][] based on [ODPI-C][].
 
 See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md).
 
-## Build-time Requirements
+## Compile-time Requirements
 
-* C compiler. See `Compile-time Requirements` in [this document](https://github.com/alexcrichton/cc-rs#compile-time-requirements).
+* C compiler. See [`Compile-time Requirements`](https://docs.rs/cc/latest/cc/#compile-time-requirements).
 
 ## Run-time Requirements
 
@@ -259,7 +259,7 @@ Oracle-related crates:
 
 ## License
 
-Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
+Rust-oracle is under the terms of:
 
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0).

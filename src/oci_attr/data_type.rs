@@ -14,7 +14,6 @@
 //-----------------------------------------------------------------------------
 
 //! The module defines types related to the associate type [`OciAttr::DataType`].
-use crate::binding::*;
 use crate::chkerr;
 #[cfg(doc)]
 use crate::oci_attr::OciAttr;
@@ -24,6 +23,7 @@ use crate::Context;
 use crate::Error;
 use crate::Result;
 use crate::Statement;
+use odpic_sys::*;
 use std::borrow::ToOwned;
 use std::convert::TryInto;
 use std::mem;

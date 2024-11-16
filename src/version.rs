@@ -13,10 +13,10 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use crate::binding::*;
 use crate::chkerr;
 use crate::Context;
 use crate::Result;
+use odpic_sys::*;
 use std::fmt;
 use std::mem::MaybeUninit;
 use std::num::ParseIntError;

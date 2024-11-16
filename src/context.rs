@@ -13,7 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use crate::binding::*;
 #[cfg(doc)]
 use crate::pool::PoolBuilder;
 use crate::util::{os_string_into_ansi_c_string, string_into_c_string};
@@ -22,6 +21,7 @@ use crate::Connector;
 use crate::DbError;
 use crate::Error;
 use crate::Result;
+use odpic_sys::*;
 use once_cell::sync::OnceCell;
 use std::ffi::{CString, OsString};
 use std::mem::{self, MaybeUninit};

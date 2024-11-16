@@ -16,12 +16,12 @@
 use std::fmt;
 use std::ptr;
 
-use crate::binding::*;
 use crate::connection::Conn;
 use crate::sql_type::ObjectType;
 use crate::DpiObjectType;
 use crate::Error;
 use crate::Result;
+use odpic_sys::*;
 
 // NativeType corresponds to dpiNativeTypeNum in ODPI
 // except Char, Number, Raw, CLOB and BLOB.

@@ -13,18 +13,6 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use std::borrow::Cow;
-use std::convert::TryInto;
-use std::fmt;
-use std::os::raw::c_char;
-use std::ptr;
-use std::rc::Rc;
-use std::slice;
-use std::str;
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::Arc;
-
-use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::Bfile;
@@ -57,6 +45,18 @@ use crate::DpiVar;
 use crate::Error;
 use crate::ErrorKind;
 use crate::Result;
+use odpic_sys::dpi_impl::DPI_MAX_BASIC_BUFFER_SIZE;
+use odpic_sys::*;
+use std::borrow::Cow;
+use std::convert::TryInto;
+use std::fmt;
+use std::os::raw::c_char;
+use std::ptr;
+use std::rc::Rc;
+use std::slice;
+use std::str;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
 
 macro_rules! flt_to_int {
     ($expr:expr, $src_type:ident, $dest_type:ident) => {{

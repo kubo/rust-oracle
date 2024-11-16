@@ -13,12 +13,12 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
-use crate::binding::dpiIntervalYM;
 use crate::sql_type::OracleType;
 use crate::util::Scanner;
 use crate::Error;
 use crate::ParseOracleTypeError;
 use crate::Result;
+use odpic_sys::dpiIntervalYM;
 use std::cmp;
 use std::fmt;
 use std::result;

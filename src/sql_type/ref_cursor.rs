@@ -12,7 +12,6 @@
 //
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
-use crate::binding::*;
 use crate::chkerr;
 use crate::connection::Conn;
 use crate::sql_type::FromSql;
@@ -33,6 +32,7 @@ use crate::SqlValue;
 use crate::Statement;
 #[cfg(doc)]
 use crate::StatementBuilder;
+use odpic_sys::*;
 
 /// Result set output by or returned by a PL/SQL block or a stored procedure
 ///

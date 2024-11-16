@@ -16,12 +16,12 @@
 //! Type definitions for connection
 //!
 //! Some types at the top-level module will move here in future.
-use crate::binding::*;
 use crate::to_rust_str;
 #[cfg(doc)]
 use crate::Connection;
 use crate::Error;
 use crate::Result;
+use odpic_sys::*;
 
 /// The mode to use when closing connections to the database
 ///

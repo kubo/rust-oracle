@@ -14,12 +14,12 @@
 //-----------------------------------------------------------------------------
 
 //! The module defines types to be set to the associate type [`OciAttr::HandleType`]
-use crate::binding::*;
 #[cfg(doc)]
 use crate::oci_attr::OciAttr;
 use crate::private;
 #[cfg(doc)]
 use crate::Connection;
+use odpic_sys::dpi_impl::{DPI_OCI_HTYPE_SERVER, DPI_OCI_HTYPE_SESSION, DPI_OCI_HTYPE_SVCCTX};
 
 /// OCI handle type to restrict the associate type [`OciAttr::HandleType`]
 ///
