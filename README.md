@@ -264,6 +264,9 @@ Rust-oracle and ODPI-C bundled in rust-oracle are under the terms of:
 1. [the Universal Permissive License v 1.0 or at your option, any later version](http://oss.oracle.com/licenses/upl); and/or
 2. [the Apache License v 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
+Some of doc comments were copied from ODPI-C documentation verbatim.
+Oracle and/or its affiliates hold the copyright of the parts.
+
 [Rust]: https://www.rust-lang.org/
 [ODPI-C]: https://oracle.github.io/odpi/
 [ODPI-C installation document]: https://oracle.github.io/odpi/doc/installation.html

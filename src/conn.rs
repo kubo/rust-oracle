@@ -102,9 +102,17 @@ pub struct Info {
     pub db_domain: String,
 
     /// The Oracle Database name associated with the connection
+    ///
+    /// This is the same value returned by the SQL expression
+    /// `SELECT NAME FROM V$DATABASE`.
+    /// Note the values may have different cases.
     pub db_name: String,
 
     /// The Oracle Database instance name associated with the connection
+    ///
+    /// This is the same value returned by the SQL expression
+    /// `SELECT SYS_CONTEXT('USERENV', 'INSTANCE_NAME') FROM DUAL`.
+    /// Note the values may have different cases.
     pub instance_name: String,
 
     /// The Oracle Database service name associated with the connection

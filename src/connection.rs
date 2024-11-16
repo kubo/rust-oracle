@@ -1749,6 +1749,8 @@ impl Connection {
     /// # use oracle::test_util;
     /// # let conn = test_util::connect()?;
     /// let info = conn.info()?;
+    /// let instance_name = conn.query_row_as::<String>("SELECT SYS_CONTEXT('USERENV', 'INSTANCE_NAME') FROM DUAL", &[])?;
+    /// assert!(info.instance_name.eq_ignore_ascii_case(&instance_name));
     /// let service_name = conn.query_row_as::<String>("SELECT SYS_CONTEXT('USERENV', 'SERVICE_NAME') FROM DUAL", &[])?;
     /// assert_eq!(info.service_name, service_name);
     /// # Ok::<(), Error>(())
