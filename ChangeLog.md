@@ -12,7 +12,7 @@ Fixed Issues:
 
 Internal Changes:
 
-* Update ODPI-C from 5.2.0 to 5.4.0. (see [ODPI-C release notes])
+* Update ODPI-C from 5.2.0 to 5.4.1. (see [ODPI-C release notes])
 * Improve performance of fetching numeric types when number column definition is out of range of i64.
   See https://github.com/kubo/rust-oracle/issues/89#issuecomment-2435662861
 * Improve performance of fetching number columns by skipping UTF-8 validation
