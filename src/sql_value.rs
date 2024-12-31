@@ -20,6 +20,7 @@ use crate::sql_type::Blob;
 use crate::sql_type::Clob;
 use crate::sql_type::Collection;
 use crate::sql_type::FromSql;
+use crate::sql_type::InnerValue;
 use crate::sql_type::IntervalDS;
 use crate::sql_type::IntervalYM;
 use crate::sql_type::NativeType;
@@ -441,6 +442,47 @@ impl SqlValue<'_> {
             Some(ref oratype) => Ok(oratype),
             None => Err(Error::uninitialized_bind_value()),
         }
+    }
+
+    /// Returns the raw SQL data inside of internal array fetch buffer
+    ///
+    /// This is intended to be used inside of [`FromSql::from_sql()`]
+    ///
+    /// See [`InnerValue`] documentation.
+    pub fn as_inner_value(&self) -> Result<InnerValue> {
+        let data = self.data()?;
+        if data.isNull != 0 {
+            return Err(Error::null_value());
+        }
+        Ok(unsafe {
+            match self.native_type {
+                NativeType::Int64 => InnerValue::Int64(data.value.asInt64),
+                NativeType::UInt64 => InnerValue::UInt64(data.value.asUint64),
+                NativeType::Float => InnerValue::Float(data.value.asFloat),
+                NativeType::Double => InnerValue::Double(data.value.asDouble),
+                NativeType::Char => InnerValue::Char(to_rust_slice(
+                    data.value.asBytes.ptr,
+                    data.value.asBytes.length,
+                )),
+                NativeType::Number => InnerValue::Number(str::from_utf8_unchecked(to_rust_slice(
+                    data.value.asBytes.ptr,
+                    data.value.asBytes.length,
+                ))),
+                NativeType::Raw => InnerValue::Raw(to_rust_slice(
+                    data.value.asBytes.ptr,
+                    data.value.asBytes.length,
+                )),
+                NativeType::Timestamp => InnerValue::Timestamp(&data.value.asTimestamp),
+                NativeType::IntervalDS => InnerValue::IntervalDS(&data.value.asIntervalDS),
+                NativeType::IntervalYM => InnerValue::IntervalYM(&data.value.asIntervalYM),
+                NativeType::Clob => InnerValue::Clob(data.value.asLOB),
+                NativeType::Blob => InnerValue::Blob(data.value.asLOB),
+                NativeType::Object(_) => InnerValue::Object(data.value.asObject),
+                NativeType::Boolean => InnerValue::Boolean(data.value.asBoolean != 0),
+                NativeType::Rowid => InnerValue::Rowid(data.value.asRowid),
+                NativeType::Stmt => InnerValue::Stmt(data.value.asStmt),
+            }
+        })
     }
 
     //

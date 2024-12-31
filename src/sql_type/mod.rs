@@ -43,6 +43,7 @@ pub use self::object::Object;
 pub use self::object::ObjectType;
 pub use self::object::ObjectTypeAttr;
 pub(crate) use self::object::ObjectTypeInternal;
+pub use self::oracle_type::InnerValue;
 pub(crate) use self::oracle_type::NativeType;
 pub use self::oracle_type::OracleType;
 pub use self::ref_cursor::RefCursor;

@@ -6,6 +6,7 @@ New features:
 
 * Add [`Connection::info()`], [`conn::Info`] and [`conn::ServerType`] to get connection information
 * Add [`Error::new()`], [`Error::add_source()`], [`Error::with_source()`] and [`Error::into_source()`]
+* Add [`InnerValue`] and [`SqlValue::as_inner_value()`]
 
 Fixed Issues:
 
@@ -522,6 +523,7 @@ Incompatible changes:
 [`Error::with_source()`]: https://www.jiubao.org/rust-oracle/oracle/enum.Error.html#method.with_source
 [`FromSql::from_sql`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/trait.FromSql.html#method.from_sql
 [`InitParams`]: https://www.jiubao.org/rust-oracle/oracle/struct.InitParams.html
+[`InnerValue`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/enum.InnerValue.html
 [`IntervalDS::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.and_prec
 [`IntervalDS::new()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalDS.html#method.new
 [`IntervalYM::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.IntervalYM.html#method.and_prec
@@ -547,6 +549,7 @@ Incompatible changes:
 [`RowValue` derive macro]: https://www.jiubao.org/rust-oracle/oracle/derive.RowValue.html
 [`SqlValue`]: https://www.jiubao.org/rust-oracle/oracle/struct.SqlValue.html
 [`SqlValue::dup`]: https://docs.rs/oracle/0.5.7/oracle/struct.SqlValue.html#method.dup
+[`SqlValue::as_inner_value()`]: https://docs.rs/oracle/0.5.7/oracle/struct.SqlValue.html#method.as_inner_value
 [`Statement`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html
 [`Statement::close()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.close
 [`Statement::last_row_id()`]: https://www.jiubao.org/rust-oracle/oracle/struct.Statement.html#method.last_row_id

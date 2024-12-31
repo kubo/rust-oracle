@@ -3,7 +3,7 @@
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro <kubo@jiubao.org>. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -73,6 +73,103 @@ impl NativeType {
             _ => ptr::null_mut(),
         }
     }
+}
+
+/// Raw data inside of [`SqlValue`]
+///
+/// When the data type of an enum variant field is a reference,
+/// the field refers to the internal buffer provided by ODPI-C.
+///
+/// It is intended to be used in the following case.
+///
+/// Assuming that you have a decimal class `Decimal` which has `from_str`
+/// and `from_i64` methods and try to get Oralce numbers as the class
+/// without precision loss, you need to get the SQL value as `String`
+/// and convert it by `from_str` without using this type.
+///
+/// For example
+/// ```no_run
+/// # use oracle::{Error, Result};
+/// # use oracle::test_util;
+/// # struct Decimal();
+/// # impl Decimal { fn from_str(_: &str) { unimplemented!() } }
+/// # let conn = test_util::connect()?;
+/// for number_col_result in conn.query_as::<String>("select number_column from table_name", &[])? {
+///    let number_col = number_col_result?;
+///    let decimal_value = Decimal::from_str(&number_col);
+/// }
+/// # Ok::<(), Error>(())
+/// ```
+/// Another example
+/// ```no_run
+/// # use oracle::{Error, Result, SqlValue};
+/// # use oracle::sql_type::FromSql;
+/// # use oracle::test_util;
+/// # struct Decimal();
+/// # impl Decimal { fn from_str(_: &str) -> Decimal { unimplemented!() } }
+/// impl FromSql for Decimal {
+///     fn from_sql(val: &SqlValue) -> Result<Decimal> {
+///         Ok(Decimal::from_str(&val.get::<String>()?))
+///     }
+/// }
+/// # let conn = test_util::connect()?;
+/// for decimal_value_result in conn.query_as::<Decimal>("select number_column from table_name", &[])? {
+///    let decimal_value = decimal_value_result?;
+/// }
+/// # Ok::<(), Error>(())
+/// ```
+/// These codes are inefficient because `String` values are created just to be passed to `from_str()`.
+///
+/// By using the `InnerValue` type, you can refer to the internal `str` value directly and avoid
+/// temporary memory allocation.
+/// ```no_run
+/// # use oracle::{Error, ErrorKind, Result, SqlValue};
+/// # use oracle::sql_type::{FromSql, InnerValue};
+/// # use oracle::test_util;
+/// # struct Decimal();
+/// # impl Decimal {
+/// #     fn from_str(_: &str) -> Result<Decimal> { unimplemented!() }
+/// #     fn from_i64(_: i64) -> Decimal { unimplemented!() }
+/// # }
+/// impl FromSql for Decimal {
+///     fn from_sql(val: &SqlValue) -> Result<Decimal> {
+///         match val.as_inner_value()? {
+///             InnerValue::Int64(val) => Ok(Decimal::from_i64(val)),
+///             InnerValue::Number(val) => Decimal::from_str(val).map_err(|err|
+///                Error::with_source(ErrorKind::InvalidTypeConversion, err)
+///             ),
+///             _ => Err(Error::new(
+///                 ErrorKind::InvalidTypeConversion,
+///                 format!("Cannot convert {} to Decimal", val.oracle_type()?)
+///             )),
+///         }
+///     }
+/// }
+/// # let conn = test_util::connect()?;
+/// for decimal_value_result in conn.query_as::<Decimal>("select number_column from table_name", &[])? {
+///    let decimal_value = decimal_value_result?;
+/// }
+/// # Ok::<(), Error>(())
+/// ```
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub enum InnerValue<'a> {
+    Int64(i64),
+    UInt64(u64),
+    Float(f32),
+    Double(f64),
+    Char(&'a [u8]),
+    Number(&'a str),
+    Raw(&'a [u8]),
+    Timestamp(&'a dpiTimestamp),
+    IntervalDS(&'a dpiIntervalDS),
+    IntervalYM(&'a dpiIntervalYM),
+    Clob(*mut dpiLob),
+    Blob(*mut dpiLob),
+    Object(*mut dpiObject),
+    Stmt(*mut dpiStmt),
+    Boolean(bool),
+    Rowid(*mut dpiRowid),
 }
 
 pub(crate) struct VarParam {
