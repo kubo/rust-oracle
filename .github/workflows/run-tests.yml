@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   msrv:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       msrv: ${{ steps.msrv.outputs.msrv }}
       rust_toolchains: ${{ steps.msrv.outputs.rust_toolchains }}
@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         rust_toolchain: ${{ fromJSON(needs.msrv.outputs.rust_toolchains) }}
 
     runs-on: ${{ matrix.os }}
@@ -54,6 +54,7 @@ jobs:
           unzip basic.zip -d linux -x "META-INF/*"
           unzip sqlplus.zip -d linux -x "META-INF/*"
           IC_DIR=$PWD/$(ls -d linux/instantclient*)
+          ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 $IC_DIR/libaio.so.1
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
 
@@ -90,13 +91,10 @@ jobs:
           rustup run ${{ matrix.rust_toolchain }} cargo test --features ${{ env.rust_features }} -- --nocapture
 
       - name: cargo test on Wine (x86_64-pc-windows-gnu)
-        # Runs only with MSRV.
-        # The latest stable rust doesn't seem to work on Wine because of lack of bcryptprimitives.dll
-        if: matrix.rust_toolchain != 'stable'
         run: |
           sudo apt-get update -q -y
-          sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 wine wine-binfmt
-          sudo update-binfmts --unimport cli || true
+          sudo apt-get install -y g++-mingw-w64-x86-64 wine binfmt-support wine-binfmt
+          sudo update-binfmts --import wine
           curl -Lo basic-windows.zip https://download.oracle.com/otn_software/nt/instantclient/instantclient-basic-windows.zip
           mkdir windows
           unzip basic-windows.zip -d windows -x "META-INF/*"
