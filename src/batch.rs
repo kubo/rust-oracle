@@ -448,7 +448,7 @@ pub struct Batch<'conn> {
     query_params: QueryParams,
 }
 
-impl<'conn> Batch<'conn> {
+impl Batch<'_> {
     /// Closes the batch before the end of its lifetime.
     pub fn close(&mut self) -> Result<()> {
         chkerr!(self.conn.ctxt(), dpiStmt_close(self.handle, ptr::null(), 0));
@@ -749,7 +749,7 @@ impl<'conn> Batch<'conn> {
     }
 }
 
-impl<'conn> Drop for Batch<'conn> {
+impl Drop for Batch<'_> {
     fn drop(&mut self) {
         unsafe { dpiStmt_release(self.handle) };
     }

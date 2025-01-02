@@ -256,6 +256,12 @@ impl PoolOptions {
     }
 }
 
+impl Default for PoolOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct U32Seconds(u32);
 

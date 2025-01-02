@@ -7,6 +7,7 @@ New features:
 * Add [`Connection::info()`], [`conn::Info`] and [`conn::ServerType`] to get connection information
 * Add [`Error::new()`], [`Error::add_source()`], [`Error::with_source()`] and [`Error::into_source()`]
 * Add [`InnerValue`] and [`SqlValue::as_inner_value()`]
+* impl `Default` for `InitParams` and `PoolOptions`
 
 Fixed Issues:
 

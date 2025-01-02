@@ -84,7 +84,9 @@ impl AttrValue {
 
     /// Sets a value to the attribute.
     ///
-    /// Note that if incorrect type parameter `T` is specified,
+    /// # Safety
+    ///
+    /// If incorrect type parameter `T` is specified,
     /// its behavior is undefined. It may cause an access violation.
     pub unsafe fn set<T>(&mut self, val: &T::Type) -> Result<()>
     where
@@ -154,7 +156,9 @@ impl AttrValue {
 
     /// Gets a value from the attribute.
     ///
-    /// Note that if incorrect type parameter `T` is specified,
+    /// # Safety
+    ///
+    /// If incorrect type parameter `T` is specified,
     /// its behavior is undefined. It may cause an access violation.
     pub unsafe fn get<T>(self) -> Result<<T::Type as ToOwned>::Owned>
     where
@@ -200,6 +204,7 @@ impl AttrValue {
 }
 
 /// A trait to get and set OCI attributes as rust types. You have no need to use this except implementing [`OciAttr`] for your type.
+#[allow(clippy::missing_safety_doc)]
 pub unsafe trait DataType {
     type Type: ToOwned + ?Sized;
 

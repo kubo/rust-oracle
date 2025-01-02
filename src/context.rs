@@ -267,6 +267,12 @@ impl InitParams {
     }
 }
 
+impl Default for InitParams {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 //
 // Context
 //

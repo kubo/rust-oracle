@@ -179,7 +179,7 @@ where
 
 unsafe impl<T> Send for ResultSet<'static, T> where T: RowValue {}
 
-impl<'stmt, T> Iterator for ResultSet<'stmt, T>
+impl<T> Iterator for ResultSet<'_, T>
 where
     T: RowValue,
 {
@@ -192,7 +192,7 @@ where
     }
 }
 
-impl<'stmt, T> FusedIterator for ResultSet<'stmt, T> where T: RowValue {}
+impl<T> FusedIterator for ResultSet<'_, T> where T: RowValue {}
 
 /// A trait to get a row as specified type
 ///
