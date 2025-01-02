@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">oracle/</div>error.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -904,12 +905,142 @@
 <a href="#904" id="904">904</a>
 <a href="#905" id="905">905</a>
 <a href="#906" id="906">906</a>
-</pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a></pre></div><pre class="rust"><code><span class="comment">// Rust-oracle - Rust binding for Oracle database
 //
 // URL: https://github.com/kubo/rust-oracle
 //
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017-2018 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
+// Copyright (c) 2017-2025 Kubo Takehiro &lt;kubo@jiubao.org&gt;. All rights reserved.
 // This program is free software: you can modify it and/or redistribute it
 // under the terms of:
 //
@@ -1006,6 +1137,11 @@
 
     <span class="doccomment">/// Internal error. When you get this error, please report it with a test case to reproduce it.
     </span>InternalError,
+
+    <span class="doccomment">/// A custom error that does not match any other error kind.
+    ///
+    /// This is intended to be used outside of this crate.
+    </span>Other,
 }
 
 <span class="doccomment">/// The error type for oracle
@@ -1110,6 +1246,16 @@
         note = <span class="string">"Use kind() to check the error category. Use to_string() to get the message."
     </span>)]
     </span>InternalError(String),
+
+    <span class="doccomment">/// Other or newly added error
+    ///
+    /// Don't use this variant directly.
+    </span><span class="attr">#[non_exhaustive]
+    </span>Other {
+        kind: ErrorKind,
+        message: Cow&lt;<span class="lifetime">'static</span>, str&gt;,
+        source: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
+    },
 }
 
 <span class="kw">impl </span>Error {
@@ -1129,7 +1275,8 @@
 
 <span class="attr">#[cfg(feature = <span class="string">"struct_error"</span>)]
 </span><span class="kw">impl </span>Error {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;M&gt;(kind: ErrorKind, message: M) -&gt; Error
+    <span class="doccomment">/// Create a new error.
+    </span><span class="kw">pub fn </span>new&lt;M&gt;(kind: ErrorKind, message: M) -&gt; Error
     <span class="kw">where
         </span>M: Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
     {
@@ -1156,7 +1303,13 @@
         </span>}
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_source&lt;E&gt;(<span class="self">self</span>, source: E) -&gt; Error
+    <span class="doccomment">/// Add the lower-level error used as the return value of [`Error::source()`].
+    ///
+    /// **Note:** This is intended to be applied to the Error created by [`Error::new()`].
+    /// Otherwise, `source` may be ignored.
+    ///
+    /// [`Error::source()`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
+    </span><span class="kw">pub fn </span>add_source&lt;E&gt;(<span class="self">self</span>, source: E) -&gt; Error
     <span class="kw">where
         </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
     {
@@ -1164,6 +1317,18 @@
             source: <span class="prelude-val">Some</span>(source.into()),
             ..<span class="self">self
         </span>}
+    }
+
+    <span class="doccomment">/// Create a new error from an arbitrary error
+    ///
+    /// The error message of this error is same with that of the source specified.
+    ///
+    /// This is a shortcut for `Error::new(kind, "").add_source(source)`.
+    </span><span class="kw">pub fn </span>with_source&lt;E&gt;(kind: ErrorKind, source: E) -&gt; Error
+    <span class="kw">where
+        </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
+    {
+        Error::new(kind, <span class="string">""</span>).add_source(source)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_db_error(dberr: DbError) -&gt; Error {
@@ -1207,6 +1372,11 @@
         }
     }
 
+    <span class="doccomment">/// Consumes the Error, returning its inner error (if any).
+    </span><span class="kw">pub fn </span>into_source(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt; {
+        <span class="self">self</span>.source
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>oci_error(dberr: DbError) -&gt; Error {
         Error::new(ErrorKind::OciError, <span class="macro">format!</span>(<span class="string">"OCI Error: {}"</span>, dberr.message)).add_dberr(dberr)
     }
@@ -1220,7 +1390,7 @@
         </span>T: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
     {
         <span class="kw">let </span>source = source.into();
-        Error::new(ErrorKind::ParseError, <span class="macro">format!</span>(<span class="string">"{}"</span>, source)).add_source(source)
+        Error::new(ErrorKind::ParseError, <span class="string">""</span>).add_source(source)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>out_of_range&lt;T&gt;(message: T) -&gt; Error
@@ -1335,12 +1505,60 @@
 <span class="attr">#[allow(deprecated)]
 #[cfg(not(feature = <span class="string">"struct_error"</span>))]
 </span><span class="kw">impl </span>Error {
+    <span class="doccomment">/// Create a new error.
+    </span><span class="kw">pub fn </span>new&lt;M&gt;(kind: ErrorKind, message: M) -&gt; Error
+    <span class="kw">where
+        </span>M: Into&lt;Cow&lt;<span class="lifetime">'static</span>, str&gt;&gt;,
+    {
+        Error::Other {
+            kind,
+            message: message.into(),
+            source: <span class="prelude-val">None</span>,
+        }
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_db_error(dberr: DbError) -&gt; Error {
         <span class="kw">if </span>dberr.message().starts_with(<span class="string">"DPI"</span>) {
             Error::DpiError(dberr)
         } <span class="kw">else </span>{
             Error::OciError(dberr)
         }
+    }
+
+    <span class="doccomment">/// Add the lower-level error used as the return value of [`Error::source()`].
+    ///
+    /// **Note:** This is intended to be applied to the Error created by [`Error::new()`].
+    /// Otherwise, `source` may be ignored.
+    ///
+    /// [`Error::source()`]: https://doc.rust-lang.org/std/error/trait.Error.html#method.source
+    </span><span class="kw">pub fn </span>add_source&lt;E&gt;(<span class="self">self</span>, source: E) -&gt; Error
+    <span class="kw">where
+        </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
+    {
+        <span class="kw">match </span><span class="self">self </span>{
+            Error::InvalidArgument { message, .. } =&gt; Error::InvalidArgument {
+                message,
+                source: <span class="prelude-val">Some</span>(source.into()),
+            },
+            Error::Other { kind, message, .. } =&gt; Error::Other {
+                kind,
+                message,
+                source: <span class="prelude-val">Some</span>(source.into()),
+            },
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>,
+        }
+    }
+
+    <span class="doccomment">/// Create a new error from an arbitrary error
+    ///
+    /// The error message of this error is same with that of the source specified.
+    ///
+    /// This is a shortcut for `Error::new(kind, "").add_source(source)`.
+    </span><span class="kw">pub fn </span>with_source&lt;E&gt;(kind: ErrorKind, source: E) -&gt; Error
+    <span class="kw">where
+        </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
+    {
+        Error::new(kind, <span class="string">""</span>).add_source(source)
     }
 
     <span class="doccomment">/// Returns the corresponding [`ErrorKind`] for this error.
@@ -1363,21 +1581,8 @@
             Error::NoDataFound =&gt; ErrorKind::NoDataFound,
             Error::BatchErrors(<span class="kw">_</span>) =&gt; ErrorKind::BatchErrors,
             Error::InternalError(<span class="kw">_</span>) =&gt; ErrorKind::InternalError,
+            Error::Other { kind, .. } =&gt; <span class="kw-2">*</span>kind,
         }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_source&lt;E&gt;(<span class="self">self</span>, source: E) -&gt; Error
-    <span class="kw">where
-        </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
-    {
-        <span class="kw">if let </span>Error::InvalidArgument { message, .. } = <span class="self">self </span>{
-            Error::InvalidArgument {
-                message,
-                source: <span class="prelude-val">Some</span>(source.into()),
-            }
-        } <span class="kw">else </span>{
-            <span class="self">self
-        </span>}
     }
 
     <span class="doccomment">/// Returns [`DbError`].
@@ -1418,6 +1623,16 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
+    }
+
+    <span class="doccomment">/// Consumes the Error, returning its inner error (if any).
+    </span><span class="kw">pub fn </span>into_source(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Error::ParseError(err) =&gt; <span class="prelude-val">Some</span>(err),
+            Error::InvalidArgument { source, .. } =&gt; source,
+            Error::Other { source, .. } =&gt; source,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>oci_error(dberr: DbError) -&gt; Error {
@@ -1651,7 +1866,13 @@
 <span class="attr">#[cfg(feature = <span class="string">"struct_error"</span>)]
 </span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.message)
+        <span class="kw">if </span>!<span class="self">self</span>.message.is_empty() {
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.message)
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(source) = <span class="kw-2">&amp;</span><span class="self">self</span>.source {
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, source)
+        } <span class="kw">else </span>{
+            <span class="macro">write!</span>(f, <span class="string">"blank error message"</span>)
+        }
     }
 }
 
@@ -1689,6 +1910,17 @@
             }
             Error::InternalError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, msg),
             Error::InvalidArgument { message, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, message),
+            Error::Other {
+                message, source, ..
+            } =&gt; {
+                <span class="kw">if </span>!message.is_empty() {
+                    <span class="macro">write!</span>(f, <span class="string">"{}"</span>, message)
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(source) = source {
+                    <span class="macro">write!</span>(f, <span class="string">"{}"</span>, source)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">"blank error message"</span>)
+                }
+            }
         }
     }
 }
@@ -1711,6 +1943,10 @@
         <span class="kw">match </span><span class="self">self </span>{
             Error::ParseError(err) =&gt; <span class="prelude-val">Some</span>(err.as_ref()),
             Error::InvalidArgument {
+                source: <span class="prelude-val">Some</span>(source),
+                ..
+            } =&gt; <span class="prelude-val">Some</span>(source.as_ref()),
+            Error::Other {
                 source: <span class="prelude-val">Some</span>(source),
                 ..
             } =&gt; <span class="prelude-val">Some</span>(source.as_ref()),
@@ -1802,12 +2038,38 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+    <span class="kw">use </span>std::io;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_dpi_error_in_message() {
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, dpi_error_in_message(<span class="string">"ORA-1234"</span>));
         <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, dpi_error_in_message(<span class="string">"DPI-1234"</span>));
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">1234</span>), dpi_error_in_message(<span class="string">"DPI-1234: xxx"</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>new_and_add_source() {
+        <span class="kw">let </span>err = Error::new(ErrorKind::Other, <span class="string">"custom error"</span>);
+        <span class="macro">assert_eq!</span>(err.kind(), ErrorKind::Other);
+        <span class="macro">assert_eq!</span>(err.to_string(), <span class="string">"custom error"</span>);
+        <span class="macro">assert!</span>(err.source().is_none());
+
+        <span class="kw">let </span>err = err.add_source(io::Error::new(io::ErrorKind::Other, <span class="string">"io error"</span>));
+        <span class="macro">assert_eq!</span>(err.kind(), ErrorKind::Other);
+        <span class="macro">assert_eq!</span>(err.to_string(), <span class="string">"custom error"</span>);
+        <span class="macro">assert!</span>(err.source().is_some());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>with_source() {
+        <span class="kw">let </span>err = Error::with_source(
+            ErrorKind::InvalidTypeConversion,
+            io::Error::new(io::ErrorKind::Other, <span class="string">"io error"</span>),
+        );
+        <span class="macro">assert_eq!</span>(err.kind(), ErrorKind::InvalidTypeConversion);
+        <span class="macro">assert_eq!</span>(err.to_string(), <span class="string">"io error"</span>);
+        <span class="macro">assert!</span>(err.source().is_some());
     }
 }
 </code></pre></div></section></main></body></html>
