@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.6.3 (2025-XX-XX)
+## 0.6.3 (2025-01-02)
 
 New features:
 
