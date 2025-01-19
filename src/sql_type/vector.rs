@@ -13,6 +13,189 @@
 // (ii) the Apache License v 2.0. (http://www.apache.org/licenses/LICENSE-2.0)
 //-----------------------------------------------------------------------------
 
+//! VECTOR data type support
+//!
+//! Oracle Database 23ai introduced a new data type [VECTOR]. This module contains
+//! rust types to support the Oracle type.
+//!
+//! In short:
+//! * Insert VECTOR data by wrapping slice data such as `&[f32]` in [`VecRef`].
+//! * Fetch VECTOR data as `Vec<_>` such as `Vec<f32>` when the vector dimension element format is known.
+//! * Fetch VECTOR data as [`Vector`] type when the vector dimension element format is unknown.
+//! * Fetch VECTOR data as [`Vector`] type when the method to be called takes a slice
+//!   as an argument and you want to avoid the cost of memory allocation for `Vec<_>`.
+//!
+//! # Note
+//!
+//! Fetched [`Vector`] data should be dropped before the next fetch. That's because [`Vector`] and [`ResultSet`]
+//! share an internal fetch buffer. When the next row is fetched from the result set and the vector
+//! is alive and has a reference to the buffer, a new fetch buffer may be allocated. When the vector is dropped,
+//! and only the result set has the reference, it is reused.
+//!
+//! # Examples
+//!
+//! Wrap slice data in [`VecRef`] to insert VECTOR data.
+//!
+//! ```
+//! # use oracle::test_util;
+//! # use oracle::sql_type::vector::VecRef;
+//! # let conn = test_util::connect()?;
+//! # if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+//! #     return Ok(());
+//! # }
+//! let mut stmt = conn
+//!     .statement("insert into test_vector_type(id, vec) values (:1, :2)")
+//!     .build()?;
+//! // Insert &[f32] slice as Oracle type VECTOR(FLOAT32, 3).
+//! stmt.execute(&[&1, &VecRef::Float32(&[0.0001, 100.0, 3.4])])?;
+//!
+//! // Insert &[f64] slice as Oracle type VECTOR(FLOAT64, 3).
+//! stmt.execute(&[&2, &VecRef::Float64(&[5.6, 1000.3, 0.0838])])?;
+//!
+//! // Insert &[i8] slice as Oracle type VECTOR(INT8, 3).
+//! stmt.execute(&[&3, &VecRef::Int8(&[1, 100, -30])])?;
+//!
+//! # if test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)? {
+//! // Insert &[u8] slice as Oracle type VECTOR(BINARY, 24).
+//! // Binary vectors require the database initialization parameter COMPATIBLE
+//! // to be set to 23.5.0.0.0 or greater on Oracle Database.
+//! stmt.execute(&[&4, &VecRef::Binary(&[128, 0, 225])])?;
+//! # }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
+//!
+//! Fetch VECTOR data as `Vec<_>` when the vector dimension element format is known.
+//!
+//! ```
+//! # use oracle::test_util;
+//! # use oracle::sql_type::vector::VecRef;
+//! # let conn = test_util::connect()?;
+//! # if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+//! #     return Ok(());
+//! # }
+//! # let mut stmt = conn
+//! #     .statement("insert into test_vector_type(id, vec) values (:1, :2)")
+//! #     .build()?;
+//! # stmt.execute(&[&1, &VecRef::Float32(&[0.0001, 100.0, 3.4])])?;
+//! # stmt.execute(&[&2, &VecRef::Float64(&[5.6, 1000.3, 0.0838])])?;
+//! # stmt.execute(&[&3, &VecRef::Int8(&[1, 100, -30])])?;
+//! # if test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)? {
+//! #     stmt.execute(&[&4, &VecRef::Binary(&[128, 0, 225])])?;
+//! # }
+//! // Fetch VECTOR(FLOAT32) data as Vec<f32>
+//! let f32_vec = conn.query_row_as::<Vec<f32>>("select vec from test_vector_type where id = :1", &[&1])?;
+//! assert_eq!(f32_vec, vec![0.0001, 100.0, 3.4]);
+//!
+//! // Fetch VECTOR(FLOAT64) data as Vec<f64>
+//! let f64_vec = conn.query_row_as::<Vec<f64>>("select vec from test_vector_type where id = :1", &[&2])?;
+//! assert_eq!(f64_vec, vec![5.6, 1000.3, 0.0838]);
+//!
+//! // Fetch VECTOR(INT8) data as Vec<i8>
+//! let i8_vec = conn.query_row_as::<Vec<i8>>("select vec from test_vector_type where id = :1", &[&3])?;
+//! assert_eq!(i8_vec, vec![1, 100, -30]);
+//!
+//! # if test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)? {
+//! // Fetch VECTOR(BINARY) data as Vec<u8>
+//! let binary_vec = conn.query_row_as::<Vec<u8>>("select vec from test_vector_type where id = :1", &[&4])?;
+//! assert_eq!(binary_vec, vec![128, 0, 225]);
+//! # }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
+//!
+//! Fetch VECTOR data as [`Vector`] type and check the dimension element format.
+//!
+//! ```
+//! # use oracle::test_util;
+//! # use oracle::sql_type::vector::VecRef;
+//! # use oracle::sql_type::vector::Vector;
+//! # let conn = test_util::connect()?;
+//! # if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+//! #     return Ok(());
+//! # }
+//! # let mut stmt = conn
+//! #     .statement("insert into test_vector_type(id, vec) values (:1, :2)")
+//! #     .build()?;
+//! # stmt.execute(&[&1, &VecRef::Float32(&[0.0001, 100.0, 3.4])])?;
+//! # stmt.execute(&[&2, &VecRef::Float64(&[5.6, 1000.3, 0.0838])])?;
+//! # stmt.execute(&[&3, &VecRef::Int8(&[1, 100, -30])])?;
+//! # if test_util::check_version(&conn, &test_util::VER23_5, &test_util::VER23_5)? {
+//! #     stmt.execute(&[&4, &VecRef::Binary(&[128, 0, 225])])?;
+//! # }
+//! let mut rows = conn.query_as::<(i32, Vector)>("select id, vec from test_vector_type", &[])?;
+//! for row_result in rows {
+//!     let (id, vector) = row_result?;
+//!     // Check the vector dimension element type at runtime.
+//!     match vector.as_vec_ref() {
+//!         // When id == 1, the vector data type is VECTOR(FLOAT32, 3).
+//!         VecRef::Float32(slice) => {
+//!             assert_eq!(id, 1);
+//!             assert_eq!(slice, &[0.0001, 100.0, 3.4]);
+//!         },
+//!         // When id == 2, the vector data type is VECTOR(FLOAT64, 3).
+//!         VecRef::Float64(slice) => {
+//!             assert_eq!(id, 2);
+//!             assert_eq!(slice, &[5.6, 1000.3, 0.0838]);
+//!         },
+//!         // When id == 3, the vector data type is VECTOR(INT8, 3).
+//!         VecRef::Int8(slice) => {
+//!             assert_eq!(id, 3);
+//!             assert_eq!(slice, &[1, 100, -30]);
+//!         },
+//!         // When id == 4, the vector data type is VECTOR(BIANRY, 24).
+//!         VecRef::Binary(slice) => {
+//!             assert_eq!(id, 4);
+//!             assert_eq!(slice, &[128, 0, 225]);
+//!         },
+//!         _ => panic!("unexpected format {}", vector.format()),
+//!     }
+//! }
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
+//!
+//! Fetch VECTOR data as [`Vector`] type and get a reference to the internal
+//! array data held by [`ResultSet`]. Use this when the method to be called takes a slice
+//! as the vector data.
+//!
+//! ```
+//! # use oracle::test_util;
+//! # use oracle::sql_type::vector::VecRef;
+//! # use oracle::sql_type::vector::Vector;
+//! // Assume that you have a vector type
+//! struct YourVectorType {
+//!     // ...
+//! }
+//!
+//! // The vector type has a method taking &[f32] slice
+//! // but doesn't have a method taking Vec<f32>.
+//! impl YourVectorType {
+//!     pub fn from_slice(slice: &[f32]) -> YourVectorType {
+//!        // ...
+//! #      assert_eq!(slice, &[0.0001, 100.0, 3.4]);
+//! #      YourVectorType{}
+//!     }
+//! }
+//!
+//! # let conn = test_util::connect()?;
+//! # if !test_util::check_version(&conn, &test_util::VER23, &test_util::VER23)? {
+//! #     return Ok(());
+//! # }
+//! # let mut stmt = conn
+//! #     .statement("insert into test_vector_type(id, vec) values (:1, :2)")
+//! #     .build()?;
+//! # stmt.execute(&[&1, &VecRef::Float32(&[0.0001, 100.0, 3.4])])?;
+//! // The following code is inefficient. That's becuase `Vec<f32>` is allocated
+//! // only to be passed to from_slice().
+//! let vec = conn.query_row_as::<Vec<f32>>("select vec from test_vector_type where id = :1", &[&1])?;
+//! YourVectorType::from_slice(&vec);
+//!
+//! // The following code avoids memory allocation to create a temporary Vec data.
+//! let vec = conn.query_row_as::<Vector>("select vec from test_vector_type where id = :1", &[&1])?;
+//! YourVectorType::from_slice(vec.as_slice()?);
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
+//!
+//! [VECTOR]: https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/overview-ai-vector-search.html
+
 use crate::private;
 use crate::sql_type::FromSql;
 use crate::sql_type::OracleType;
