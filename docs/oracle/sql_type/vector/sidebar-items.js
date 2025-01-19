@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VecFmt","VecRef"],"struct":["Vector"],"trait":["VectorFormat"]};

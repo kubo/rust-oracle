@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["InnerValue","OracleType"],"mod":["collection"],"struct":["Blob","Clob","Collection","IntervalDS","IntervalYM","Nclob","Object","ObjectType","ObjectTypeAttr","RefCursor","Timestamp"],"trait":["FromSql","Lob","ToSql","ToSqlNull"]};
+window.SIDEBAR_ITEMS = {"enum":["InnerValue","OracleType"],"mod":["collection","vector"],"struct":["Blob","Clob","Collection","IntervalDS","IntervalYM","Nclob","Object","ObjectType","ObjectTypeAttr","RefCursor","Timestamp"],"trait":["FromSql","Lob","ToSql","ToSqlNull"]};

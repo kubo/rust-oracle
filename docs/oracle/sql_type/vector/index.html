@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="VECTOR data type support"><title>oracle::sql_type::vector - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="oracle" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0 (9fc6b4312 2025-01-07)" data-channel="1.84.0" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../oracle/index.html">oracle</a><span class="version">0.7.0-dev</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module vector</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#note" title="Note">Note</a></li><li><a href="#examples" title="Examples">Examples</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In oracle::<wbr>sql_<wbr>type</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="../../index.html">oracle</a>::<wbr><a href="../index.html">sql_type</a></span><h1>Module <span>vector</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/oracle/sql_type/vector.rs.html#16-802">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>VECTOR data type support</p>
+<p>Oracle Database 23ai introduced a new data type <a href="https://docs.oracle.com/en/database/oracle/oracle-database/23/vecse/overview-ai-vector-search.html">VECTOR</a>. This module contains
+rust types to support the Oracle type.</p>
+<p>In short:</p>
+<ul>
+<li>Insert VECTOR data by wrapping slice data such as <code>&amp;[f32]</code> in <a href="enum.VecRef.html" title="enum oracle::sql_type::vector::VecRef"><code>VecRef</code></a>.</li>
+<li>Fetch VECTOR data as <code>Vec&lt;_&gt;</code> such as <code>Vec&lt;f32&gt;</code> when the vector dimension element format is known.</li>
+<li>Fetch VECTOR data as <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> type when the vector dimension element format is unknown.</li>
+<li>Fetch VECTOR data as <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> type when the method to be called takes a slice
+as an argument and you want to avoid the cost of memory allocation for <code>Vec&lt;_&gt;</code>.</li>
+</ul>
+<h2 id="note"><a class="doc-anchor" href="#note">§</a>Note</h2>
+<p>Fetched <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> data should be dropped before the next fetch. That’s because <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> and <a href="../../struct.ResultSet.html" title="struct oracle::ResultSet"><code>ResultSet</code></a>
+share an internal fetch buffer. When the next row is fetched from the result set and the vector
+is alive and has a reference to the buffer, a new fetch buffer may be allocated. When the vector is dropped,
+and only the result set has the reference, it is reused.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>Wrap slice data in <a href="enum.VecRef.html" title="enum oracle::sql_type::vector::VecRef"><code>VecRef</code></a> to insert VECTOR data.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>stmt = conn
+    .statement(<span class="string">"insert into test_vector_type(id, vec) values (:1, :2)"</span>)
+    .build()<span class="question-mark">?</span>;
+<span class="comment">// Insert &amp;[f32] slice as Oracle type VECTOR(FLOAT32, 3).
+</span>stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span>VecRef::Float32(<span class="kw-2">&amp;</span>[<span class="number">0.0001</span>, <span class="number">100.0</span>, <span class="number">3.4</span>])])<span class="question-mark">?</span>;
+
+<span class="comment">// Insert &amp;[f64] slice as Oracle type VECTOR(FLOAT64, 3).
+</span>stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span>VecRef::Float64(<span class="kw-2">&amp;</span>[<span class="number">5.6</span>, <span class="number">1000.3</span>, <span class="number">0.0838</span>])])<span class="question-mark">?</span>;
+
+<span class="comment">// Insert &amp;[i8] slice as Oracle type VECTOR(INT8, 3).
+</span>stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">3</span>, <span class="kw-2">&amp;</span>VecRef::Int8(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">100</span>, -<span class="number">30</span>])])<span class="question-mark">?</span>;
+
+<span class="comment">// Insert &amp;[u8] slice as Oracle type VECTOR(BINARY, 24).
+// Binary vectors require the database initialization parameter COMPATIBLE
+// to be set to 23.5.0.0.0 or greater on Oracle Database.
+</span>stmt.execute(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">4</span>, <span class="kw-2">&amp;</span>VecRef::Binary(<span class="kw-2">&amp;</span>[<span class="number">128</span>, <span class="number">0</span>, <span class="number">225</span>])])<span class="question-mark">?</span>;</code></pre></div>
+<p>Fetch VECTOR data as <code>Vec&lt;_&gt;</code> when the vector dimension element format is known.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Fetch VECTOR(FLOAT32) data as Vec&lt;f32&gt;
+</span><span class="kw">let </span>f32_vec = conn.query_row_as::&lt;Vec&lt;f32&gt;&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>])<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(f32_vec, <span class="macro">vec!</span>[<span class="number">0.0001</span>, <span class="number">100.0</span>, <span class="number">3.4</span>]);
+
+<span class="comment">// Fetch VECTOR(FLOAT64) data as Vec&lt;f64&gt;
+</span><span class="kw">let </span>f64_vec = conn.query_row_as::&lt;Vec&lt;f64&gt;&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">2</span>])<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(f64_vec, <span class="macro">vec!</span>[<span class="number">5.6</span>, <span class="number">1000.3</span>, <span class="number">0.0838</span>]);
+
+<span class="comment">// Fetch VECTOR(INT8) data as Vec&lt;i8&gt;
+</span><span class="kw">let </span>i8_vec = conn.query_row_as::&lt;Vec&lt;i8&gt;&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">3</span>])<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(i8_vec, <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">100</span>, -<span class="number">30</span>]);
+
+<span class="comment">// Fetch VECTOR(BINARY) data as Vec&lt;u8&gt;
+</span><span class="kw">let </span>binary_vec = conn.query_row_as::&lt;Vec&lt;u8&gt;&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">4</span>])<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(binary_vec, <span class="macro">vec!</span>[<span class="number">128</span>, <span class="number">0</span>, <span class="number">225</span>]);</code></pre></div>
+<p>Fetch VECTOR data as <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> type and check the dimension element format.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>rows = conn.query_as::&lt;(i32, Vector)&gt;(<span class="string">"select id, vec from test_vector_type"</span>, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+<span class="kw">for </span>row_result <span class="kw">in </span>rows {
+    <span class="kw">let </span>(id, vector) = row_result<span class="question-mark">?</span>;
+    <span class="comment">// Check the vector dimension element type at runtime.
+    </span><span class="kw">match </span>vector.as_vec_ref() {
+        <span class="comment">// When id == 1, the vector data type is VECTOR(FLOAT32, 3).
+        </span>VecRef::Float32(slice) =&gt; {
+            <span class="macro">assert_eq!</span>(id, <span class="number">1</span>);
+            <span class="macro">assert_eq!</span>(slice, <span class="kw-2">&amp;</span>[<span class="number">0.0001</span>, <span class="number">100.0</span>, <span class="number">3.4</span>]);
+        },
+        <span class="comment">// When id == 2, the vector data type is VECTOR(FLOAT64, 3).
+        </span>VecRef::Float64(slice) =&gt; {
+            <span class="macro">assert_eq!</span>(id, <span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(slice, <span class="kw-2">&amp;</span>[<span class="number">5.6</span>, <span class="number">1000.3</span>, <span class="number">0.0838</span>]);
+        },
+        <span class="comment">// When id == 3, the vector data type is VECTOR(INT8, 3).
+        </span>VecRef::Int8(slice) =&gt; {
+            <span class="macro">assert_eq!</span>(id, <span class="number">3</span>);
+            <span class="macro">assert_eq!</span>(slice, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">100</span>, -<span class="number">30</span>]);
+        },
+        <span class="comment">// When id == 4, the vector data type is VECTOR(BIANRY, 24).
+        </span>VecRef::Binary(slice) =&gt; {
+            <span class="macro">assert_eq!</span>(id, <span class="number">4</span>);
+            <span class="macro">assert_eq!</span>(slice, <span class="kw-2">&amp;</span>[<span class="number">128</span>, <span class="number">0</span>, <span class="number">225</span>]);
+        },
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"unexpected format {}"</span>, vector.format()),
+    }
+}</code></pre></div>
+<p>Fetch VECTOR data as <a href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector"><code>Vector</code></a> type and get a reference to the internal
+array data held by <a href="../../struct.ResultSet.html" title="struct oracle::ResultSet"><code>ResultSet</code></a>. Use this when the method to be called takes a slice
+as the vector data.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Assume that you have a vector type
+</span><span class="kw">struct </span>YourVectorType {
+    <span class="comment">// ...
+</span>}
+
+<span class="comment">// The vector type has a method taking &amp;[f32] slice
+// but doesn't have a method taking Vec&lt;f32&gt;.
+</span><span class="kw">impl </span>YourVectorType {
+    <span class="kw">pub fn </span>from_slice(slice: <span class="kw-2">&amp;</span>[f32]) -&gt; YourVectorType {
+       <span class="comment">// ...
+    </span>}
+}
+
+<span class="comment">// The following code is inefficient. That's becuase `Vec&lt;f32&gt;` is allocated
+// only to be passed to from_slice().
+</span><span class="kw">let </span>vec = conn.query_row_as::&lt;Vec&lt;f32&gt;&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>])<span class="question-mark">?</span>;
+YourVectorType::from_slice(<span class="kw-2">&amp;</span>vec);
+
+<span class="comment">// The following code avoids memory allocation to create a temporary Vec data.
+</span><span class="kw">let </span>vec = conn.query_row_as::&lt;Vector&gt;(<span class="string">"select vec from test_vector_type where id = :1"</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="number">1</span>])<span class="question-mark">?</span>;
+YourVectorType::from_slice(vec.as_slice()<span class="question-mark">?</span>);</code></pre></div>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.Vector.html" title="struct oracle::sql_type::vector::Vector">Vector</a></div><div class="desc docblock-short">Vector data retrieved from the Oracle database</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.VecFmt.html" title="enum oracle::sql_type::vector::VecFmt">VecFmt</a></div><div class="desc docblock-short">Vector dimension element format</div></li><li><div class="item-name"><a class="enum" href="enum.VecRef.html" title="enum oracle::sql_type::vector::VecRef">VecRef</a></div><div class="desc docblock-short">Reference to vector dimension elements</div></li></ul><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="trait" href="trait.VectorFormat.html" title="trait oracle::sql_type::vector::VectorFormat">Vector<wbr>Format</a></div><div class="desc docblock-short">Trait for vector dimension element type</div></li></ul></section></div></main></body></html>
