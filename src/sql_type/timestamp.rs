@@ -97,58 +97,44 @@ use std::str;
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct Timestamp {
-    year: i32,
-    month: u32,
-    day: u32,
-    hour: u32,
-    minute: u32,
-    second: u32,
-    nanosecond: u32,
-    tz_hour_offset: i32,
-    tz_minute_offset: i32,
+    pub(crate) ts: dpiTimestamp,
     precision: u8,
     with_tz: bool,
 }
 
 impl Timestamp {
-    fn check_validity(self) -> Result<Self> {
-        if !(-4713..=9999).contains(&self.year) {
-            Err(Error::out_of_range(format!(
-                "year must be between -4713 and 9999 but {:?}",
-                self
-            )))
-        } else if !(1..=12).contains(&self.month) {
-            Err(Error::out_of_range(format!(
-                "month must be between 1 and 12 but {:?}",
-                self
-            )))
-        } else if !(1..=31).contains(&self.day) {
-            Err(Error::out_of_range(format!(
-                "day must be between 1 and 31 but {:?}",
-                self
-            )))
-        } else if !(0..=23).contains(&self.hour) {
-            Err(Error::out_of_range(format!(
-                "hour must be between 0 and 23 but {:?}",
-                self
-            )))
-        } else if !(0..=59).contains(&self.minute) {
-            Err(Error::out_of_range(format!(
-                "minute must be between 0 and 59 but {:?}",
-                self
-            )))
-        } else if !(0..=59).contains(&self.second) {
-            Err(Error::out_of_range(format!(
-                "second must be between 0 and 59 but {:?}",
-                self
-            )))
-        } else if !(0..=999999999).contains(&self.nanosecond) {
-            Err(Error::out_of_range(format!(
-                "nanosecond must be between 0 and 999,999,999 but {:?}",
-                self
-            )))
+    fn check_ymd_hms_ns(
+        year: i32,
+        month: u32,
+        day: u32,
+        hour: u32,
+        minute: u32,
+        second: u32,
+        nanosecond: u32,
+    ) -> Result<()> {
+        let mut errmsg = "";
+        if !(-4713..=9999).contains(&year) {
+            errmsg = "year must be between -4713 and 9999";
+        } else if !(1..=12).contains(&month) {
+            errmsg = "month must be between 1 and 12";
+        } else if !(1..=31).contains(&day) {
+            errmsg = "day must be between 1 and 31";
+        } else if !(0..=23).contains(&hour) {
+            errmsg = "hour must be between 0 and 23";
+        } else if !(0..=59).contains(&minute) {
+            errmsg = "minute must be between 0 and 59";
+        } else if !(0..=59).contains(&second) {
+            errmsg = "second must be between 0 and 59";
+        } else if !(0..=999999999).contains(&nanosecond) {
+            errmsg = "nanosecond must be between 0 and 999_999_999";
+        }
+        if errmsg.is_empty() {
+            Ok(())
         } else {
-            Ok(self)
+            let year_width = if year >= 0 { 4 } else { 5 }; // width including sign
+            Err(Error::out_of_range(format!(
+                "{errmsg} but {year:0year_width$}-{month:02}-{day:02} {hour:02}:{minute:02}:{second:02}.{nanosecond:09}",
+            )))
         }
     }
 
@@ -179,15 +165,7 @@ impl Timestamp {
             _ => (0, false),
         };
         Timestamp {
-            year: ts.year as i32,
-            month: ts.month as u32,
-            day: ts.day as u32,
-            hour: ts.hour as u32,
-            minute: ts.minute as u32,
-            second: ts.second as u32,
-            nanosecond: ts.fsecond,
-            tz_hour_offset: ts.tzHourOffset as i32,
-            tz_minute_offset: ts.tzMinuteOffset as i32,
+            ts: *ts,
             precision,
             with_tz,
         }
@@ -216,20 +194,22 @@ impl Timestamp {
         second: u32,
         nanosecond: u32,
     ) -> Result<Timestamp> {
-        Timestamp {
-            year,
-            month,
-            day,
-            hour,
-            minute,
-            second,
-            nanosecond,
-            tz_hour_offset: 0,
-            tz_minute_offset: 0,
+        Self::check_ymd_hms_ns(year, month, day, hour, minute, second, nanosecond)?;
+        Ok(Timestamp {
+            ts: dpiTimestamp {
+                year: year as i16,
+                month: month as u8,
+                day: day as u8,
+                hour: hour as u8,
+                minute: minute as u8,
+                second: second as u8,
+                fsecond: nanosecond,
+                tzHourOffset: 0,
+                tzMinuteOffset: 0,
+            },
             precision: 9,
             with_tz: false,
-        }
-        .check_validity()
+        })
     }
 
     /// Creates a timestamp with time zone.
@@ -249,8 +229,11 @@ impl Timestamp {
     pub fn and_tz_hm_offset(&self, hour_offset: i32, minute_offset: i32) -> Result<Timestamp> {
         Self::check_tz_hm_offset(hour_offset, minute_offset)?;
         Ok(Timestamp {
-            tz_hour_offset: hour_offset,
-            tz_minute_offset: minute_offset,
+            ts: dpiTimestamp {
+                tzHourOffset: hour_offset as i8,
+                tzMinuteOffset: minute_offset as i8,
+                ..self.ts
+            },
             with_tz: true,
             ..*self
         })
@@ -274,47 +257,47 @@ impl Timestamp {
 
     /// Returns the year number from -4713 to 9999.
     pub fn year(&self) -> i32 {
-        self.year
+        self.ts.year.into()
     }
 
     /// Returns the month number from 1 to 12.
     pub fn month(&self) -> u32 {
-        self.month
+        self.ts.month.into()
     }
 
     /// Returns the day number from 1 to 31.
     pub fn day(&self) -> u32 {
-        self.day
+        self.ts.day.into()
     }
 
     /// Returns the hour number from 0 to 23.
     pub fn hour(&self) -> u32 {
-        self.hour
+        self.ts.hour.into()
     }
 
     /// Returns the minute number from 0 to 59.
     pub fn minute(&self) -> u32 {
-        self.minute
+        self.ts.minute.into()
     }
 
     /// Returns the second number from 0 to 59.
     pub fn second(&self) -> u32 {
-        self.second
+        self.ts.second.into()
     }
 
     /// Returns the nanosecond number from 0 to 999,999,999.
     pub fn nanosecond(&self) -> u32 {
-        self.nanosecond
+        self.ts.fsecond
     }
 
     /// Returns hour component of time zone.
     pub fn tz_hour_offset(&self) -> i32 {
-        self.tz_hour_offset
+        self.ts.tzHourOffset.into()
     }
 
     /// Returns minute component of time zone.
     pub fn tz_minute_offset(&self) -> i32 {
-        self.tz_minute_offset
+        self.ts.tzMinuteOffset.into()
     }
 
     /// Returns precision
@@ -330,21 +313,21 @@ impl Timestamp {
 
     /// Returns total time zone offset from UTC in seconds.
     pub fn tz_offset(&self) -> i32 {
-        self.tz_hour_offset * 3600 + self.tz_minute_offset * 60
+        self.ts.tzHourOffset as i32 * 3600 + self.ts.tzMinuteOffset as i32 * 60
     }
 }
 
 impl cmp::PartialEq for Timestamp {
     fn eq(&self, other: &Self) -> bool {
-        self.year == other.year
-            && self.month == other.month
-            && self.day == other.day
-            && self.hour == other.hour
-            && self.minute == other.minute
-            && self.second == other.second
-            && self.nanosecond == other.nanosecond
-            && self.tz_hour_offset == other.tz_hour_offset
-            && self.tz_minute_offset == other.tz_minute_offset
+        self.ts.year == other.ts.year
+            && self.ts.month == other.ts.month
+            && self.ts.day == other.ts.day
+            && self.ts.hour == other.ts.hour
+            && self.ts.minute == other.ts.minute
+            && self.ts.second == other.ts.second
+            && self.ts.fsecond == other.ts.fsecond
+            && self.ts.tzHourOffset == other.ts.tzHourOffset
+            && self.ts.tzMinuteOffset == other.ts.tzMinuteOffset
     }
 }
 
@@ -353,28 +336,28 @@ impl fmt::Display for Timestamp {
         write!(
             f,
             "{}{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-            if self.year < 0 { "-" } else { "" },
-            self.year.abs(),
-            self.month,
-            self.day,
-            self.hour,
-            self.minute,
-            self.second
+            if self.ts.year < 0 { "-" } else { "" },
+            self.ts.year.abs(),
+            self.ts.month,
+            self.ts.day,
+            self.ts.hour,
+            self.ts.minute,
+            self.ts.second
         )?;
         match self.precision {
-            1 => write!(f, ".{:01}", self.nanosecond / 100000000)?,
-            2 => write!(f, ".{:02}", self.nanosecond / 10000000)?,
-            3 => write!(f, ".{:03}", self.nanosecond / 1000000)?,
-            4 => write!(f, ".{:04}", self.nanosecond / 100000)?,
-            5 => write!(f, ".{:05}", self.nanosecond / 10000)?,
-            6 => write!(f, ".{:06}", self.nanosecond / 1000)?,
-            7 => write!(f, ".{:07}", self.nanosecond / 100)?,
-            8 => write!(f, ".{:08}", self.nanosecond / 10)?,
-            9 => write!(f, ".{:09}", self.nanosecond)?,
+            1 => write!(f, ".{:01}", self.ts.fsecond / 100000000)?,
+            2 => write!(f, ".{:02}", self.ts.fsecond / 10000000)?,
+            3 => write!(f, ".{:03}", self.ts.fsecond / 1000000)?,
+            4 => write!(f, ".{:04}", self.ts.fsecond / 100000)?,
+            5 => write!(f, ".{:05}", self.ts.fsecond / 10000)?,
+            6 => write!(f, ".{:06}", self.ts.fsecond / 1000)?,
+            7 => write!(f, ".{:07}", self.ts.fsecond / 100)?,
+            8 => write!(f, ".{:08}", self.ts.fsecond / 10)?,
+            9 => write!(f, ".{:09}", self.ts.fsecond)?,
             _ => (),
         }
         if self.with_tz {
-            let sign = if self.tz_hour_offset < 0 || self.tz_minute_offset < 0 {
+            let sign = if self.ts.tzHourOffset < 0 || self.ts.tzMinuteOffset < 0 {
                 '-'
             } else {
                 '+'
@@ -383,8 +366,8 @@ impl fmt::Display for Timestamp {
                 f,
                 " {}{:02}:{:02}",
                 sign,
-                self.tz_hour_offset.abs(),
-                self.tz_minute_offset.abs()
+                self.ts.tzHourOffset.abs(),
+                self.ts.tzMinuteOffset.abs()
             )?;
         }
         Ok(())
@@ -557,8 +540,8 @@ mod tests {
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456");
         ts.with_tz = true;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456 +08:45");
-        ts.tz_hour_offset = -8;
-        ts.tz_minute_offset = -45;
+        ts.ts.tzHourOffset = -8;
+        ts.ts.tzMinuteOffset = -45;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456 -08:45");
         ts.precision = 0;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07 -08:45");
@@ -587,74 +570,74 @@ mod tests {
         )?; // hour, minute, second, nanosecond,
         ts.precision = 0;
         assert_eq!("2012".parse(), Ok(ts));
-        ts.month = 3;
-        ts.day = 4;
+        ts.ts.month = 3;
+        ts.ts.day = 4;
         assert_eq!("20120304".parse(), Ok(ts));
         assert_eq!("2012-03-04".parse(), Ok(ts));
-        ts.hour = 5;
-        ts.minute = 6;
-        ts.second = 7;
+        ts.ts.hour = 5;
+        ts.ts.minute = 6;
+        ts.ts.second = 7;
         assert_eq!("2012-03-04 05:06:07".parse(), Ok(ts));
         assert_eq!("2012-03-04T05:06:07".parse(), Ok(ts));
         assert_eq!("20120304T050607".parse(), Ok(ts));
-        ts.nanosecond = 800000000;
+        ts.ts.fsecond = 800000000;
         ts.precision = 1;
         assert_eq!("2012-03-04 05:06:07.8".parse(), Ok(ts));
-        ts.nanosecond = 890000000;
+        ts.ts.fsecond = 890000000;
         ts.precision = 2;
         assert_eq!("2012-03-04T05:06:07.89".parse(), Ok(ts));
-        ts.nanosecond = 890000000;
+        ts.ts.fsecond = 890000000;
         ts.precision = 3;
         assert_eq!("20120304T050607.890".parse(), Ok(ts));
-        ts.nanosecond = 890100000;
+        ts.ts.fsecond = 890100000;
         ts.precision = 4;
         assert_eq!("2012-03-04 05:06:07.8901".parse(), Ok(ts));
-        ts.nanosecond = 890120000;
+        ts.ts.fsecond = 890120000;
         ts.precision = 5;
         assert_eq!("2012-03-04 05:06:07.89012".parse(), Ok(ts));
-        ts.nanosecond = 890123000;
+        ts.ts.fsecond = 890123000;
         ts.precision = 6;
         assert_eq!("2012-03-04 05:06:07.890123".parse(), Ok(ts));
-        ts.nanosecond = 890123400;
+        ts.ts.fsecond = 890123400;
         ts.precision = 7;
         assert_eq!("2012-03-04 05:06:07.8901234".parse(), Ok(ts));
-        ts.nanosecond = 890123450;
+        ts.ts.fsecond = 890123450;
         ts.precision = 8;
         assert_eq!("2012-03-04 05:06:07.89012345".parse(), Ok(ts));
-        ts.nanosecond = 890123456;
+        ts.ts.fsecond = 890123456;
         ts.precision = 9;
         assert_eq!("2012-03-04 05:06:07.890123456".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.8901234567".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.89012345678".parse(), Ok(ts));
         ts.with_tz = true;
-        ts.nanosecond = 0;
+        ts.ts.fsecond = 0;
         ts.precision = 0;
         assert_eq!("2012-03-04 05:06:07Z".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+00:00".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +00:00".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+0000".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +0000".parse(), Ok(ts));
-        ts.tz_hour_offset = 8;
-        ts.tz_minute_offset = 45;
+        ts.ts.tzHourOffset = 8;
+        ts.ts.tzMinuteOffset = 45;
         assert_eq!("2012-03-04 05:06:07+08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07+0845".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 +0845".parse(), Ok(ts));
-        ts.tz_hour_offset = -8;
-        ts.tz_minute_offset = -45;
+        ts.ts.tzHourOffset = -8;
+        ts.ts.tzMinuteOffset = -45;
         assert_eq!("2012-03-04 05:06:07-08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 -08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07-0845".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07 -0845".parse(), Ok(ts));
-        ts.nanosecond = 123000000;
+        ts.ts.fsecond = 123000000;
         ts.precision = 3;
         assert_eq!("2012-03-04 05:06:07.123-08:45".parse(), Ok(ts));
         assert_eq!("2012-03-04 05:06:07.123 -08:45".parse(), Ok(ts));
-        ts.year = -123;
+        ts.ts.year = -123;
         assert_eq!("-123-03-04 05:06:07.123 -08:45".parse(), Ok(ts));
-        ts.tz_hour_offset = 0;
+        ts.ts.tzHourOffset = 0;
         assert_eq!("-123-03-04 05:06:07.123 -00:45".parse(), Ok(ts));
-        ts.tz_minute_offset = 45;
+        ts.ts.tzMinuteOffset = 45;
         assert_eq!("-123-03-04 05:06:07.123 +00:45".parse(), Ok(ts));
         Ok(())
     }

@@ -93,61 +93,35 @@ use std::str;
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalDS {
-    days: i32,
-    hours: i32,
-    minutes: i32,
-    seconds: i32,
-    nanoseconds: i32,
+    pub(crate) intvl: dpiIntervalDS,
     lfprec: u8,
     fsprec: u8,
 }
 
 impl IntervalDS {
-    fn check_validity(self) -> Result<Self> {
-        if !(-999999999..=999999999).contains(&self.days) {
-            Err(Error::out_of_range(format!(
-                "days must be between -999999999 and 999999999 but {:?}",
-                self
-            )))
-        } else if !(-23..=23).contains(&self.hours) {
-            Err(Error::out_of_range(format!(
-                "hours must be between -23 and 23 but {:?}",
-                self
-            )))
-        } else if !(-59..=59).contains(&self.minutes) {
-            Err(Error::out_of_range(format!(
-                "minutes must be between -59 and 59 but {:?}",
-                self
-            )))
-        } else if !(-59..=59).contains(&self.seconds) {
-            Err(Error::out_of_range(format!(
-                "seconds must be between -59 and 59 but {:?}",
-                self
-            )))
-        } else if !(-999999999..=999999999).contains(&self.nanoseconds) {
-            Err(Error::out_of_range(format!(
-                "nanoseconds must be between -999999999 and 999999999 but {:?}",
-                self
-            )))
-        } else if self.days >= 0
-            && self.hours >= 0
-            && self.minutes >= 0
-            && self.seconds >= 0
-            && self.nanoseconds >= 0
-        {
+    fn check(days: i32, hours: i32, minutes: i32, seconds: i32, nanoseconds: i32) -> Result<()> {
+        let errmsg = if !(-999999999..=999999999).contains(&days) {
+            "days must be between -999999999 and 999999999"
+        } else if !(-23..=23).contains(&hours) {
+            "hours must be between -23 and 23"
+        } else if !(-59..=59).contains(&minutes) {
+            "minutes must be between -59 and 59"
+        } else if !(-59..=59).contains(&seconds) {
+            "seconds must be between -59 and 59"
+        } else if !(-999999999..=999999999).contains(&nanoseconds) {
+            "nanoseconds must be between -999999999 and 999999999"
+        } else if days >= 0 && hours >= 0 && minutes >= 0 && seconds >= 0 && nanoseconds >= 0 {
             // all members are zero or positive.
-            Ok(self)
-        } else if self.days <= 0
-            && self.hours <= 0
-            && self.minutes <= 0
-            && self.seconds <= 0
-            && self.nanoseconds <= 0
-        {
+            return Ok(());
+        } else if days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0 && nanoseconds <= 0 {
             // all members are zero or negative.
-            Ok(self)
+            return Ok(());
         } else {
-            Err(Error::out_of_range(format!("days, hours, minutes, seconds and nanoseconds must be zeor or positive; or zero or negative but {:?}", self)))
-        }
+            "days, hours, minutes, seconds and nanoseconds must be zeor or positive; or zero or negative"
+        };
+        Err(Error::out_of_range(format!(
+            "{errmsg} but days={days}, hours={hours}, minutes={minutes}, seconds={seconds}, nanoseconds={nanoseconds}"
+        )))
     }
 
     pub(crate) fn from_dpi_interval_ds(
@@ -183,16 +157,18 @@ impl IntervalDS {
         seconds: i32,
         nanoseconds: i32,
     ) -> Result<IntervalDS> {
-        IntervalDS {
-            days,
-            hours,
-            minutes,
-            seconds,
-            nanoseconds,
+        Self::check(days, hours, minutes, seconds, nanoseconds)?;
+        Ok(IntervalDS {
+            intvl: dpiIntervalDS {
+                days,
+                hours,
+                minutes,
+                seconds,
+                fseconds: nanoseconds,
+            },
             lfprec: 9,
             fsprec: 9,
-        }
-        .check_validity()
+        })
     }
 
     /// Creates a new IntervalDS with precisions.
@@ -223,27 +199,27 @@ impl IntervalDS {
 
     /// Returns days component.
     pub fn days(&self) -> i32 {
-        self.days
+        self.intvl.days
     }
 
     /// Returns hours component.
     pub fn hours(&self) -> i32 {
-        self.hours
+        self.intvl.hours
     }
 
     /// Returns minutes component.
     pub fn minutes(&self) -> i32 {
-        self.minutes
+        self.intvl.minutes
     }
 
     /// Returns seconds component.
     pub fn seconds(&self) -> i32 {
-        self.seconds
+        self.intvl.seconds
     }
 
     /// Returns nanoseconds component.
     pub fn nanoseconds(&self) -> i32 {
-        self.nanoseconds
+        self.intvl.fseconds
     }
 
     /// Returns leading field precision.
@@ -259,27 +235,27 @@ impl IntervalDS {
 
 impl cmp::PartialEq for IntervalDS {
     fn eq(&self, other: &Self) -> bool {
-        self.days == other.days
-            && self.hours == other.hours
-            && self.minutes == other.minutes
-            && self.seconds == other.seconds
-            && self.nanoseconds == other.nanoseconds
+        self.intvl.days == other.intvl.days
+            && self.intvl.hours == other.intvl.hours
+            && self.intvl.minutes == other.intvl.minutes
+            && self.intvl.seconds == other.intvl.seconds
+            && self.intvl.fseconds == other.intvl.fseconds
     }
 }
 
 impl fmt::Display for IntervalDS {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.days < 0
-            || self.hours < 0
-            || self.minutes < 0
-            || self.seconds < 0
-            || self.nanoseconds < 0
+        if self.intvl.days < 0
+            || self.intvl.hours < 0
+            || self.intvl.minutes < 0
+            || self.intvl.seconds < 0
+            || self.intvl.fseconds < 0
         {
             write!(f, "-")?;
         } else {
             write!(f, "+")?;
         };
-        let days = self.days.abs();
+        let days = self.intvl.days.abs();
         match self.lfprec {
             2 => write!(f, "{:02}", days)?,
             3 => write!(f, "{:03}", days)?,
@@ -294,11 +270,11 @@ impl fmt::Display for IntervalDS {
         write!(
             f,
             " {:02}:{:02}:{:02}",
-            self.hours.abs(),
-            self.minutes.abs(),
-            self.seconds.abs()
+            self.intvl.hours.abs(),
+            self.intvl.minutes.abs(),
+            self.intvl.seconds.abs()
         )?;
-        let nsec = self.nanoseconds.abs();
+        let nsec = self.intvl.fseconds.abs();
         match self.fsprec {
             1 => write!(f, ".{:01}", nsec / 100000000),
             2 => write!(f, ".{:02}", nsec / 10000000),
@@ -370,15 +346,16 @@ impl str::FromStr for IntervalDS {
         if s.char().is_some() {
             return Err(err());
         }
-        Ok(IntervalDS {
-            days: if minus { -days } else { days },
-            hours: if minus { -hours } else { hours },
-            minutes: if minus { -minutes } else { minutes },
-            seconds: if minus { -seconds } else { seconds },
-            nanoseconds: if minus { -nsecs } else { nsecs },
-            lfprec: lfprec as u8,
-            fsprec: fsprec as u8,
-        })
+        IntervalDS::new(
+            if minus { -days } else { days },
+            if minus { -hours } else { hours },
+            if minus { -minutes } else { minutes },
+            if minus { -seconds } else { seconds },
+            if minus { -nsecs } else { nsecs },
+        )
+        .map_err(|_| err())?
+        .and_prec(lfprec as u8, fsprec as u8)
+        .map_err(|_| err())
     }
 }
 
@@ -480,7 +457,7 @@ mod tests {
         assert_eq!("000000001 02:03:04".parse(), Ok(it));
 
         it.fsprec = 1;
-        it.nanoseconds = 100000000;
+        it.intvl.fseconds = 100000000;
         assert_eq!("000000001 02:03:04.1".parse(), Ok(it));
 
         let mut it = IntervalDS::new(-1, -2, -3, -4, 0)?;
@@ -489,31 +466,31 @@ mod tests {
         assert_eq!("-1 02:03:04".parse(), Ok(it));
 
         it.fsprec = 1;
-        it.nanoseconds = -100000000;
+        it.intvl.fseconds = -100000000;
         assert_eq!("-1 02:03:04.1".parse(), Ok(it));
         it.fsprec = 2;
-        it.nanoseconds = -120000000;
+        it.intvl.fseconds = -120000000;
         assert_eq!("-1 02:03:04.12".parse(), Ok(it));
         it.fsprec = 3;
-        it.nanoseconds = -123000000;
+        it.intvl.fseconds = -123000000;
         assert_eq!("-1 02:03:04.123".parse(), Ok(it));
         it.fsprec = 4;
-        it.nanoseconds = -123400000;
+        it.intvl.fseconds = -123400000;
         assert_eq!("-1 02:03:04.1234".parse(), Ok(it));
         it.fsprec = 5;
-        it.nanoseconds = -123450000;
+        it.intvl.fseconds = -123450000;
         assert_eq!("-1 02:03:04.12345".parse(), Ok(it));
         it.fsprec = 6;
-        it.nanoseconds = -123456000;
+        it.intvl.fseconds = -123456000;
         assert_eq!("-1 02:03:04.123456".parse(), Ok(it));
         it.fsprec = 7;
-        it.nanoseconds = -123456700;
+        it.intvl.fseconds = -123456700;
         assert_eq!("-1 02:03:04.1234567".parse(), Ok(it));
         it.fsprec = 8;
-        it.nanoseconds = -123456780;
+        it.intvl.fseconds = -123456780;
         assert_eq!("-1 02:03:04.12345678".parse(), Ok(it));
         it.fsprec = 9;
-        it.nanoseconds = -123456789;
+        it.intvl.fseconds = -123456789;
         assert_eq!("-1 02:03:04.123456789".parse(), Ok(it));
         Ok(())
     }

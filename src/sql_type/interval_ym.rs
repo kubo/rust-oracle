@@ -85,31 +85,24 @@ use std::str;
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct IntervalYM {
-    years: i32,
-    months: i32,
+    pub(crate) intvl: dpiIntervalYM,
     precision: u8,
 }
 
 impl IntervalYM {
-    fn check_validity(self) -> Result<Self> {
-        if !(-999999999..=999999999).contains(&self.years) {
-            Err(Error::out_of_range(format!(
-                "years must be between -999999999 and 999999999 but {:?}",
-                self
-            )))
-        } else if !(-11..=11).contains(&self.months) {
-            Err(Error::out_of_range(format!(
-                "months must be between -11 and 11 but {:?}",
-                self
-            )))
-        } else if (self.years >= 0 && self.months >= 0) || (self.years <= 0 && self.months <= 0) {
-            Ok(self)
+    fn check(years: i32, months: i32) -> Result<()> {
+        let errmsg = if !(-999999999..=999999999).contains(&years) {
+            "years must be between -999999999 and 999999999"
+        } else if !(-11..=11).contains(&months) {
+            "months must be between -11 and 11"
+        } else if (years >= 0 && months >= 0) || (years <= 0 && months <= 0) {
+            return Ok(());
         } else {
-            Err(Error::out_of_range(format!(
-                "years and months must be zeor or positive; or zero or negative but {:?}",
-                self
-            )))
-        }
+            "years and months must be zeor or positive; or zero or negative"
+        };
+        Err(Error::out_of_range(format!(
+            "{errmsg} but years={years}, months={months}"
+        )))
     }
 
     pub(crate) fn from_dpi_interval_ym(
@@ -135,12 +128,11 @@ impl IntervalYM {
     /// All arguments must be zero or positive to create a positive interval.
     /// All arguments must be zero or negative to create a negative interval.
     pub fn new(years: i32, months: i32) -> Result<IntervalYM> {
-        IntervalYM {
-            years,
-            months,
+        Self::check(years, months)?;
+        Ok(IntervalYM {
+            intvl: dpiIntervalYM { years, months },
             precision: 9,
-        }
-        .check_validity()
+        })
     }
 
     /// Creates a new IntervalYM with precision.
@@ -160,12 +152,12 @@ impl IntervalYM {
 
     /// Returns years component.
     pub fn years(&self) -> i32 {
-        self.years
+        self.intvl.years
     }
 
     /// Returns months component.
     pub fn months(&self) -> i32 {
-        self.months
+        self.intvl.months
     }
 
     /// Returns precision.
@@ -176,18 +168,18 @@ impl IntervalYM {
 
 impl cmp::PartialEq for IntervalYM {
     fn eq(&self, other: &Self) -> bool {
-        self.years == other.years && self.months == other.months
+        self.intvl.years == other.intvl.years && self.intvl.months == other.intvl.months
     }
 }
 
 impl fmt::Display for IntervalYM {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.years < 0 || self.months < 0 {
+        if self.intvl.years < 0 || self.intvl.months < 0 {
             write!(f, "-")?;
         } else {
             write!(f, "+")?;
         }
-        let years = self.years.abs();
+        let years = self.intvl.years.abs();
         match self.precision {
             2 => write!(f, "{:02}", years)?,
             3 => write!(f, "{:03}", years)?,
@@ -199,7 +191,7 @@ impl fmt::Display for IntervalYM {
             9 => write!(f, "{:09}", years)?,
             _ => write!(f, "{}", years)?,
         };
-        write!(f, "-{:02}", self.months.abs())
+        write!(f, "-{:02}", self.intvl.months.abs())
     }
 }
 
@@ -220,22 +212,32 @@ impl str::FromStr for IntervalYM {
             }
             _ => false,
         };
-        let years = s.read_digits().ok_or_else(err)? as i32;
-        let precision = s.ndigits();
+        let years: i32 = s
+            .read_digits()
+            .ok_or_else(err)?
+            .try_into()
+            .map_err(|_| err())?;
+        let precision = s.ndigits().try_into().map_err(|_| err())?;
         if let Some('-') = s.char() {
             s.next();
         } else {
             return Err(err());
         }
-        let months = s.read_digits().ok_or_else(err)? as i32;
+        let months: i32 = s
+            .read_digits()
+            .ok_or_else(err)?
+            .try_into()
+            .map_err(|_| err())?;
         if s.char().is_some() {
             return Err(err());
         }
-        Ok(IntervalYM {
-            years: if minus { -years } else { years },
-            months: if minus { -months } else { months },
-            precision: precision as u8,
-        })
+        IntervalYM::new(
+            if minus { -years } else { years },
+            if minus { -months } else { months },
+        )
+        .map_err(|_| err())?
+        .and_prec(precision)
+        .map_err(|_| err())
     }
 }
 
