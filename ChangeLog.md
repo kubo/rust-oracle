@@ -2,6 +2,14 @@
 
 ## 0.7.0 (2025-XX-XX)
 
+Breaking changes:
+
+* Add [`#[non_exhaustive]`] attribute to [`OracleType`]
+
+[Possibly-breaking changings]:
+
+* Bump MSRV (minimum supported rust version) to 1.68.0
+
 New features:
 
 * Support [VECTOR] data type
@@ -12,10 +20,6 @@ New features:
   * Add [`Vector`] struct to get rust values from Oracle VECTOR data type
   * Add [`VectorFormat`] trait type
   * impl `FromSql` for `Vec<f32>`, `Vec<f64>`, `Vec<i8>` and `Vec<u8>` to get values from Oracle VECTOR data type
-
-Incompatible changes:
-
-* Add [`#[non_exhaustive]`] attribute to [`OracleType`]
 
 ## 0.6.3 (2025-01-02)
 
@@ -605,3 +609,4 @@ Incompatible changes:
 [`VecRef`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/enum.VecRef.html
 [`Vector`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/struct.Vector.html
 [`VectorFormat`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/vector/trait.VectorFormat.html
+[Possibly-breaking changings]: https://doc.rust-lang.org/cargo/reference/semver.html#change-categories

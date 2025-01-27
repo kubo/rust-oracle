@@ -10,7 +10,7 @@ keywords = ["oracle", "database"]
 readme = "README.md"
 description = "Oracle binding"
 edition = "2021"
-rust-version = "1.60.0"
+rust-version = "1.68.0"
 
 [package.metadata.docs.rs]
 features = ["chrono", "aq_unstable"]

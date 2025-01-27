@@ -23,7 +23,13 @@ See [ChangeLog.md](https://github.com/kubo/rust-oracle/blob/master/ChangeLog.md)
 The oracle crate supports **at least** 6 rust minor versions including the stable
 release at the time when the crate was released. The MSRV (minimum supported
 rust version) may be changed when a patch version is incremented though it will
-not be changed frequently. The current MSRV is 1.60.0.
+not be changed frequently. The current MSRV is 1.68.0.
+
+oracle crate version | MSRV
+---|---
+0.7.0 ~ | 1.68.0
+0.6.0 ~ 0.6.3 | 1.60.0
+0.5.5 ~ 0.5.7 | 1.54.0
 
 ## Usage
 
