@@ -5,6 +5,10 @@
 Breaking changes:
 
 * Add [`#[non_exhaustive]`] attribute to [`OracleType`]
+* Change string form of [`Timestamp`] when precisions or “alternate” form is specified.
+  * `"{:.n}"` where `n` is 0~9 specifies the number of fractional seconds displayed.
+  * `"{:#}"` formats timestamps in ISO 8601 extended format.
+  * `"{:-#}"` formats timestamps in ISO 8601 basic format.
 
 [Possibly-breaking changings]:
 
@@ -601,6 +605,7 @@ Incompatible changes:
 [`StatementBuilder::tag()`]: https://www.jiubao.org/rust-oracle/oracle/struct.StatementBuilder.html#method.tag
 [`StmtParam`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html
 [`StmtParam::FetchArraySize`]: https://docs.rs/oracle/0.5.*/oracle/enum.StmtParam.html#variant.FetchArraySize
+[`Timestamp`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html
 [`Timestamp::and_prec()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_prec
 [`Timestamp::and_tz_hm_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_hm_offset
 [`Timestamp::and_tz_offset()`]: https://www.jiubao.org/rust-oracle/oracle/sql_type/struct.Timestamp.html#method.and_tz_offset
