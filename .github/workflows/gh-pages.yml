@@ -9,9 +9,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: update rust
-        run: |
-          rustup install stable
+      - uses: dtolnay/rust-toolchain@nightly
       - name: get metadata.docs.rs.features in Cargo.toml
         run: |
           docs_features=$(cargo read-manifest  | jq -r '.metadata.docs.rs.features | join(",")')
@@ -19,7 +17,7 @@ jobs:
           echo DOCS_FEATURES=$docs_features >> $GITHUB_ENV
       - name: cargo doc
         run: |
-          cargo doc --no-deps --features "${{ env.DOCS_FEATURES }}"
+          RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --no-deps --features "${{ env.DOCS_FEATURES }}"
       - name: push docs
         run: |
           git submodule deinit --all

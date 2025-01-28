@@ -14,6 +14,7 @@ rust-version = "1.68.0"
 
 [package.metadata.docs.rs]
 features = ["chrono", "aq_unstable"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 aq_unstable = []

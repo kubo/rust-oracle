@@ -17,12 +17,15 @@
 
 #[cfg(doc)]
 use crate::sql_type::vector::VecRef;
+#[cfg(doc)]
+use crate::sql_type::vector::Vector;
 use crate::Connection;
 use crate::ErrorKind;
 use crate::Result;
 use crate::SqlValue;
 
 #[cfg(feature = "chrono")]
+#[cfg_attr(docsrs, doc(cfg(feature = "chrono")))]
 mod chrono;
 pub mod collection;
 mod interval_ds;
@@ -61,13 +64,13 @@ pub use self::timestamp::Timestamp;
 /// | --- | --- |
 /// | character data types | String |
 /// |     " | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` by using ``String::parse`` |
-/// |     " | `Vec\<u8>` (The Oracle value must be in hexadecimal.) |
+/// |     " | `Vec<u8>` (The Oracle value must be in hexadecimal.) |
 /// |     " | [`Timestamp`] by `String.parse()` |
 /// |     " | [`IntervalDS`] by `String.parse()` |
 /// |     " | [`IntervalYM`] by `String.parse()` |
 /// | numeric data types | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f64`, `f32` |
 /// |     " | `String` |
-/// | `raw` | `Vec\<u8>` |
+/// | `raw` | `Vec<u8>` |
 /// |     " | `String` (The Oracle value is converted to characters in hexadecimal.) |
 /// | timestamp data types | [`Timestamp`] |
 /// |     " | `String` |
@@ -83,6 +86,11 @@ pub use self::timestamp::Timestamp;
 /// | `rowid` | `String` |
 /// | `ref cursor` | [`RefCursor`] |
 /// | `boolean` (PL/SQL only) | `bool` (Oracle client version >= 12.1) |
+/// | `vector(float32)` | `Vec<f32>` |
+/// | `vector(float64)` | `Vec<f64>` |
+/// | `vector(int8)` | `Vec<i8>` |
+/// | `vector(binary)` | `Vec<u8>` |
+/// | `vector(*)` | [`Vector`] |
 ///
 /// When `chrono` feature is enabled, the following conversions are added.
 ///
@@ -92,7 +100,7 @@ pub use self::timestamp::Timestamp;
 /// |     " | [`chrono::Date`] |
 /// |     " | [`chrono::naive::NaiveDateTime`] |
 /// |     " | [`chrono::naive::NaiveDate`] |
-/// | interval day to second | [`chrono::Duration`] |
+/// | interval day to second | [`chrono::Duration`], which is alias of [`chrono::TimeDelta`] since chrono 0.4.43 |
 ///
 /// This conversion is used also to get values from output parameters.
 ///
@@ -102,7 +110,8 @@ pub use self::timestamp::Timestamp;
 /// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
 /// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
 /// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
-/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/type.Duration.html
+/// [`chrono::TimeDelta`]: https://docs.rs/chrono/0.4/chrono/struct.TimeDelta.html
 pub trait FromSql {
     fn from_sql(val: &SqlValue) -> Result<Self>
     where
@@ -118,7 +127,7 @@ pub trait FromSql {
 /// | --- | --- |
 /// | `str`, `String` | `nvarchar2(0)` |
 /// | `i8`, `i16`, `i32`, `i64`, `u8`, `u16`, `u32`, `u64`, `f32`, `f64` | `number` |
-/// | `Vec\<u8>` | `raw(0)` |
+/// | `Vec<u8>` | `raw(0)` |
 /// | `bool` | `boolean` (PL/SQL only) |
 /// | [`Timestamp`] | `timestamp(9) with time zone` |
 /// | [`IntervalDS`] | `interval day(9) to second(9)` |
@@ -134,13 +143,14 @@ pub trait FromSql {
 /// | [`chrono::DateTime`] | `timestamp(9) with time zone` |
 /// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |
 /// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |
-/// | [`chrono::Duration`] | `interval day(9) to second(9)` |
+/// | [`chrono::Duration`], which is alias of [`chrono::TimeDelta`] since chrono 0.4.43 ] | `interval day(9) to second(9)` |
 ///
 /// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
 /// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
 /// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
 /// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
-/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/type.Duration.html
+/// [`chrono::TimeDelta`]: https://docs.rs/chrono/0.4/chrono/struct.TimeDelta.html
 pub trait ToSqlNull {
     fn oratype_for_null(conn: &Connection) -> Result<OracleType>;
 }
@@ -153,7 +163,7 @@ pub trait ToSqlNull {
 /// | --- | --- | --- |
 /// | `str`, `String` | `nvarchar2(length of the rust value)` | The specified value |
 /// | `i8`, `i16`, `i32`, `i64`, `isize`, `u8`, `u16`, `u32`, `u64`, `usize`, `f32`, `f64` | `number` | The specified value |
-/// | `Vec\<u8>` | `raw(length of the rust value)` | The specified value |
+/// | `Vec<u8>` | `raw(length of the rust value)` | The specified value |
 /// | `bool` | `boolean` (PL/SQL only) | The specified value |
 /// | [`Timestamp`] | `timestamp(9) with time zone` | The specified value |
 /// | [`IntervalDS`] | `interval day(9) to second(9)` | The specified value |
@@ -161,7 +171,7 @@ pub trait ToSqlNull {
 /// | [`Collection`] | type returned by [`Collection::object_type`] | The specified value |
 /// | [`Object`] | type returned by [`Object::object_type`] | The specified value |
 /// | [`VecRef`] | `vector` |
-/// | `Option\<T>` where T: `ToSql` + [`ToSqlNull`] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
+/// | `Option<T>` where T: `ToSql` + [`ToSqlNull`] | When the value is `Some`, the contained value decides the Oracle type. When it is `None`, ToSqlNull decides it. | When the value is `Some`, the contained value. When it is `None`, a null value.
 /// | [`OracleType`] | type represented by the OracleType. | a null value |
 /// | `(&ToSql, &OracleType)` | type represented by the second element. | The value of the first element |
 ///
@@ -176,13 +186,14 @@ pub trait ToSqlNull {
 /// | [`chrono::DateTime`] | `timestamp(9) with time zone` |
 /// | [`chrono::naive::NaiveDate`] | `timestamp(0)` |
 /// | [`chrono::naive::NaiveDateTime`] | `timestamp(9)` |
-/// | [`chrono::Duration`] | `interval day(9) to second(9)` |
+/// | [`chrono::Duration`], which is alias of [`chrono::TimeDelta`] since chrono 0.4.43 ] | `interval day(9) to second(9)` |
 ///
 /// [`chrono::Date`]: https://docs.rs/chrono/0.4/chrono/struct.Date.html
 /// [`chrono::DateTime`]: https://docs.rs/chrono/0.4/chrono/struct.DateTime.html
 /// [`chrono::naive::NaiveDate`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDate.html
 /// [`chrono::naive::NaiveDateTime`]: https://docs.rs/chrono/0.4/chrono/naive/struct.NaiveDateTime.html
-/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/struct.Duration.html
+/// [`chrono::Duration`]: https://docs.rs/chrono/0.4/chrono/type.Duration.html
+/// [`chrono::TimeDelta`]: https://docs.rs/chrono/0.4/chrono/struct.TimeDelta.html
 ///
 pub trait ToSql {
     fn oratype(&self, conn: &Connection) -> Result<OracleType>;

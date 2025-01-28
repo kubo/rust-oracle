@@ -14,6 +14,7 @@
 //-----------------------------------------------------------------------------
 
 #![doc = include_str!("../README.md")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 use odpic_sys::*;
 use std::os::raw::c_char;
@@ -22,6 +23,7 @@ use std::result;
 use std::slice;
 
 #[cfg(feature = "aq_unstable")]
+#[cfg_attr(docsrs, doc(cfg(feature = "aq_unstable")))]
 pub mod aq;
 mod batch;
 #[allow(dead_code)]
