@@ -24,7 +24,7 @@ col path new_val path
 select :path path from dual;
 set termout on
 
-@&path/../odpi/test/sql/SetupTest.sql
+@&path/sql/SetupTest.sql
 
 -- Get compatible initialization parameter
 var compat_ver number
