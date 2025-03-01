@@ -388,7 +388,7 @@ pub enum MessageDeliveryMode {
 
 impl MessageDeliveryMode {
     fn from_dpi_value(val: dpiMessageDeliveryMode) -> Result<MessageDeliveryMode> {
-        match val as u32 {
+        match val {
             DPI_MODE_MSG_PERSISTENT => Ok(MessageDeliveryMode::Persistent),
             DPI_MODE_MSG_BUFFERED => Ok(MessageDeliveryMode::Buffered),
             DPI_MODE_MSG_PERSISTENT_OR_BUFFERED => Ok(MessageDeliveryMode::PersistentOrBuffered),

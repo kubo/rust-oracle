@@ -76,7 +76,7 @@ pub enum ServerType {
 
 impl ServerType {
     pub(crate) fn from_dpi(server_type: u8) -> Result<ServerType> {
-        match server_type as u32 {
+        match server_type {
             DPI_SERVER_TYPE_DEDICATED => Ok(ServerType::Dedicated),
             DPI_SERVER_TYPE_POOLED => Ok(ServerType::Pooled),
             DPI_SERVER_TYPE_SHARED => Ok(ServerType::Shared),

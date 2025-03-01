@@ -311,7 +311,7 @@ pub enum StatementType {
 
 impl StatementType {
     pub(crate) fn from_enum(num: dpiStatementType) -> StatementType {
-        match num as u32 {
+        match num {
             DPI_STMT_TYPE_SELECT => StatementType::Select,
             DPI_STMT_TYPE_INSERT => StatementType::Insert,
             DPI_STMT_TYPE_UPDATE => StatementType::Update,

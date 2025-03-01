@@ -212,6 +212,7 @@ use crate::ResultSet;
 use odpic_sys::*;
 use std::fmt;
 use std::os::raw::c_void;
+use std::ptr;
 use std::rc::Rc;
 use std::slice;
 
@@ -236,7 +237,7 @@ pub enum VecFmt {
 
 impl VecFmt {
     pub(crate) fn from_dpi(format: u8) -> Result<VecFmt> {
-        match format as u32 {
+        match format {
             0 => Ok(VecFmt::Flexible),
             DPI_VECTOR_FORMAT_FLOAT32 => Ok(VecFmt::Float32),
             DPI_VECTOR_FORMAT_FLOAT64 => Ok(VecFmt::Float64),
@@ -292,7 +293,7 @@ impl VecRef<'_> {
     // The 'static lifetime in the returned value is incorrect.
     // Its actual lifetime is that of data referred by info.
     pub(crate) unsafe fn from_dpi(info: dpiVectorInfo) -> Result<VecRef<'static>> {
-        match info.format as u32 {
+        match info.format {
             DPI_VECTOR_FORMAT_FLOAT32 => Ok(VecRef::Float32(slice::from_raw_parts(
                 info.dimensions.asFloat,
                 info.numDimensions as usize,
@@ -325,6 +326,8 @@ impl VecRef<'_> {
                 dimensions: dpiVectorDimensionBuffer {
                     asPtr: slice.as_ptr() as *mut c_void,
                 },
+                numSparseValues: 0,
+                sparseIndices: ptr::null_mut(),
             }),
             VecRef::Float64(slice) => Ok(dpiVectorInfo {
                 format: DPI_VECTOR_FORMAT_FLOAT64 as u8,
@@ -333,6 +336,8 @@ impl VecRef<'_> {
                 dimensions: dpiVectorDimensionBuffer {
                     asPtr: slice.as_ptr() as *mut c_void,
                 },
+                numSparseValues: 0,
+                sparseIndices: ptr::null_mut(),
             }),
             VecRef::Int8(slice) => Ok(dpiVectorInfo {
                 format: DPI_VECTOR_FORMAT_INT8 as u8,
@@ -341,6 +346,8 @@ impl VecRef<'_> {
                 dimensions: dpiVectorDimensionBuffer {
                     asPtr: slice.as_ptr() as *mut c_void,
                 },
+                numSparseValues: 0,
+                sparseIndices: ptr::null_mut(),
             }),
             VecRef::Binary(slice) => Ok(dpiVectorInfo {
                 format: DPI_VECTOR_FORMAT_BINARY as u8,
@@ -349,6 +356,8 @@ impl VecRef<'_> {
                 dimensions: dpiVectorDimensionBuffer {
                     asPtr: slice.as_ptr() as *mut c_void,
                 },
+                numSparseValues: 0,
+                sparseIndices: ptr::null_mut(),
             }),
         }
     }

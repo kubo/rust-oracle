@@ -806,7 +806,7 @@ impl Pool {
     pub fn get_mode(&self) -> Result<GetMode> {
         let mut val = 0;
         chkerr!(self.ctxt(), dpiPool_getGetMode(self.handle(), &mut val));
-        match val as u32 {
+        match val {
             DPI_MODE_POOL_GET_WAIT => Ok(GetMode::Wait),
             DPI_MODE_POOL_GET_NOWAIT => Ok(GetMode::NoWait),
             DPI_MODE_POOL_GET_FORCEGET => Ok(GetMode::ForceGet),
