@@ -30,7 +30,7 @@ jobs:
 
     services:
       oracle:
-        image: gvenzl/oracle-xe:latest
+        image: gvenzl/oracle-free:latest
         env:
           ORACLE_PASSWORD: sys_passwd
         ports:
@@ -68,8 +68,8 @@ jobs:
               docker inspect $ORACLE_SERVICE_ID
               exit 1
           fi
-          echo TWO_TASK=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
-          echo ODPIC_TEST_CONNECT_STRING=//$ORACLE_IP_ADDRESS:1521/XEPDB1 >> $GITHUB_ENV
+          echo TWO_TASK=//$ORACLE_IP_ADDRESS:1521/FREEPDB1 >> $GITHUB_ENV
+          echo ODPIC_TEST_CONNECT_STRING=//$ORACLE_IP_ADDRESS:1521/FREEPDB1 >> $GITHUB_ENV
           echo NLS_LANG=AMERICAN_AMERICA.AL32UTF8 >> $GITHUB_ENV
 
       - uses: dtolnay/rust-toolchain@master
