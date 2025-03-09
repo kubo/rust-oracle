@@ -1029,7 +1029,7 @@ impl Pool {
 
 impl fmt::Debug for Pool {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Poll {{ handle: {:?}", self.handle())
+        write!(f, "Pool {{ handle: {:?}", self.handle())
     }
 }
 
