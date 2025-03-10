@@ -332,7 +332,11 @@ impl Clone for LobLocator {
 
 impl fmt::Debug for LobLocator {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Lob {{ handle: {:?}, pos: {} }} ", self.handle, self.pos)
+        write!(
+            f,
+            "LobLocator {{ handle: {:?}, pos: {} }} ",
+            self.handle, self.pos
+        )
     }
 }
 
