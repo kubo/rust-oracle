@@ -1192,10 +1192,10 @@ impl Statement {
     ///     .build()?;
     /// stmt.execute(&[])?;
     /// // get the rowid inserted by stmt
-    /// let rowid1 = stmt.last_row_id()?;
-    /// // get the rowid from database
-    /// let rowid2 = conn.query_row_as::<String>("select rowid from TestDates where IntCol = 100", &[])?;
-    /// assert_eq!(rowid1, Some(rowid2));
+    /// let rowid = stmt.last_row_id()?.unwrap();
+    /// // query the inserted row using rowid
+    /// let intcol_value = conn.query_row_as::<i64>("select IntCol from TestDates where rowid = :1", &[&rowid])?;
+    /// assert_eq!(intcol_value, 100);
     /// # conn.rollback()?;
     /// # Ok::<(), Error>(())
     /// ```
