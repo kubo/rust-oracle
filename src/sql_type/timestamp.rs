@@ -352,8 +352,14 @@ impl fmt::Display for Timestamp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}-{:02}-{:02} {:02}:{:02}:{:02}",
-            self.year, self.month, self.day, self.hour, self.minute, self.second
+            "{}{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+            if self.year < 0 { "-" } else { "" },
+            self.year.abs(),
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second
         )?;
         match self.precision {
             1 => write!(f, ".{:01}", self.nanosecond / 100000000)?,
@@ -556,18 +562,20 @@ mod tests {
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07.890123456 -08:45");
         ts.precision = 0;
         assert_eq!(ts.to_string(), "2012-03-04 05:06:07 -08:45");
+        ts.year = 3;
+        assert_eq!(ts.to_string(), "0003-03-04 05:06:07 -08:45");
         ts.year = -123;
-        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -08:45");
+        assert_eq!(ts.to_string(), "-0123-03-04 05:06:07 -08:45");
         let mut ts = ts.and_tz_offset(-3600 - 1800)?;
         assert_eq!(ts.tz_hour_offset, -1);
         assert_eq!(ts.tz_minute_offset, -30);
-        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -01:30");
+        assert_eq!(ts.to_string(), "-0123-03-04 05:06:07 -01:30");
         ts.tz_hour_offset = 0;
-        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 -00:30");
+        assert_eq!(ts.to_string(), "-0123-03-04 05:06:07 -00:30");
         ts.tz_minute_offset = 30;
-        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:30");
+        assert_eq!(ts.to_string(), "-0123-03-04 05:06:07 +00:30");
         ts.tz_minute_offset = 0;
-        assert_eq!(ts.to_string(), "-123-03-04 05:06:07 +00:00");
+        assert_eq!(ts.to_string(), "-0123-03-04 05:06:07 +00:00");
         Ok(())
     }
 
