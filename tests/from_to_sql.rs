@@ -895,17 +895,27 @@ mod chrono {
             &dttm
         );
 
-        // TIMESTAMP WITH TIME ZONE -> DateTime<Utc>  TZ is ignored.
-        let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
+        // TIMESTAMP WITH TIME ZONE -> DateTime<Utc>  TZ is mapped.
+        let dttm = Utc.ymd(2012, 3, 4).and_hms_nano(4, 6, 7, 123456789);
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
 
-        // TIMESTAMP WITH TIME ZONE -> DateTime<Local>  TZ is ignored.
+        // TIMESTAMP WITH TIME ZONE -> DateTime<Local>  TZ is mapped.
         let dttm = Local.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
-        test_from_sql!(&conn,
-                       "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
-                       &OracleType::TimestampTZ(9), &dttm);
+        let tz_offset = dttm.offset().fix().local_minus_utc();
+        let tz_sign = if tz_offset >= 0 { '+' } else { '-' };
+        let tz_hour = tz_offset.abs() / 3600;
+        let tz_min = tz_offset.abs() % 3600 / 60;
+        test_from_sql!(
+            &conn,
+            &format!(
+                "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 {}{:02}:{:02}', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
+                tz_sign, tz_hour, tz_min
+            ),
+            &OracleType::TimestampTZ(9),
+            &dttm
+        );
 
         // TIMESTAMP WITH TIME ZONE -> DateTime<Fixed_Utc> TZ is set.
         let dttm = fixed_cet.ymd(2012, 3, 4).and_hms_nano(5, 6, 7, 123456789);
@@ -1023,13 +1033,13 @@ mod chrono {
             &dttm
         );
 
-        // TIMESTAMP WITH TIME ZONE -> Date<Utc>  TZ is ignored.
+        // TIMESTAMP WITH TIME ZONE -> Date<Utc>  TZ is mapped.
         let dttm = Utc.ymd(2012, 3, 4);
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
                        &OracleType::TimestampTZ(9), &dttm);
 
-        // TIMESTAMP WITH TIME ZONE -> Date<Local>  TZ is ignored.
+        // TIMESTAMP WITH TIME ZONE -> Date<Local>  TZ is mapped.
         let dttm = Local.ymd(2012, 3, 4);
         test_from_sql!(&conn,
                        "TO_TIMESTAMP_TZ('2012-03-04 05:06:07.123456789 +01:00', 'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM')",
